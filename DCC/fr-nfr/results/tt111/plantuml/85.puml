@@ -1,0 +1,83 @@
+@startuml
+package "Presentation Layer" {
+    class UserInterface {
+        - SwingGUI : SwingGUI
+        + createCoordinateGroup() : void
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newValues: Map<String, Double>) : void
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+}
+
+package "Logic Layer" {
+    class Coordinator {
+        - coordinateConverter : CoordinateConverter
+        - mysqlDatabaseConnection : MysqlDatabaseConnection
+        + convertCoordinates(cartesian: CartesianCoordinates, polar: PolarCoordinates) : Map<String, Double>
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newValues: Map<String, Double>) : void
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+
+    class CoordinateConverter {
+        + convertCartesianToPolar(cartesian: CartesianCoordinates) : PolarCoordinates
+        + convertPolarToCartesian(polar: PolarCoordinates) : CartesianCoordinates
+    }
+
+    class MysqlDatabaseConnection {
+        - databaseConnection : DatabaseConnection
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newValues: Map<String, Double>) : void
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+}
+
+package "Data Layer" {
+    class DatabaseConnection {
+        - databaseManager : DatabaseManager
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newValues: Map<String, Double>) : void
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+
+    class DatabaseManager {
+        - mysqlDatabaseConnection : MysqlDatabaseConnection
+        + createTable() : void
+        + insert(coordinateGroup: CoordinateGroup) : void
+        + select(label: String) : List<CoordinateGroup>
+        + update(coordinateGroup: CoordinateGroup, newValues: Map<String, Double>) : void
+        + delete(coordinateGroup: CoordinateGroup) : void
+    }
+
+    class CoordinateGroup {
+        - id : Integer
+        - label : String
+        - timestamp : Date
+        - cartesian : CartesianCoordinates
+        - polar : PolarCoordinates
+    }
+
+    class CartesianCoordinates {
+        - x : Double
+        - y : Double
+    }
+
+    class PolarCoordinates {
+        - r : Double
+        - theta : Double
+    }
+}
+
+UserInterface --> Coordinator
+Coordinator --> CoordinateConverter
+Coordinator --> MysqlDatabaseConnection
+MysqlDatabaseConnection --> DatabaseConnection
+DatabaseConnection --> DatabaseManager
+CoordinateGroup <|-- CartesianCoordinates
+CoordinateGroup <|-- PolarCoordinates
+
+@enduml

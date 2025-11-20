@@ -1,0 +1,43 @@
+@startuml
+
+class SwingApplication {
+    +initializeUI()
+    +onAction(Action) -> ActionHandler : handles
+    // Other methods...
+}
+
+class CoordinateGroup {
+    # Unique ID (int)
+    +getId() returns 'id'
+    # Label (String)
+    +getLabel() returns 'label'
+    # Cartesian coordinates: x, y
+    -x : int 
+    -y : int
+    +setCartesian(x, y)
+    # Polar coordinates: r, theta
+    -r : double
+    -theta : double
+    +setPolar(r, theta)
+    // Other methods...
+}
+
+
+class CoordinateGroupStorage {
+    # Unique ID (int)
+    +getId() returns 'id'
+    # Label (String)
+    +getLabel() returns 'label'
+    // Other attributes...
+    +create(CoordinateGroup) : void
+    +readById(int id) returns 'CoordinateGroup'
+    +updateById(int id, CoordinateGroup) : boolean
+    +deleteById(int id) : boolean
+}
+
+
+class ConversionUtils {
+    -conversionAlgorithm : String // algorithm for coordinate conversion
+    // Other methods...
+}
+@enduml

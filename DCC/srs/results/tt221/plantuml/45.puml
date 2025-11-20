@@ -1,0 +1,33 @@
+@startuml
+skinparam monochrome true
+
+package "GUI Package" {
+  class MainFlow{
+      <<enumeration>>
+    **Step 1:** Select coordinate group from list,
+        -Click on "Delete" button,
+        **Step 2:** Remove selected item,
+
+  }
+}
+
+
+package "Business Logic Package" {
+class DeleteCoordinatorGroup{}
+
+}
+
+
+
+package "Data Access Layer" {
+  class Database{
+      <<interface>>
+    performDeletion()
+  }
+}
+
+
+MainFlow ..> Database : Uses
+Database ..|> MainFlow : Returns Result
+DeleteCoordinatorGroup ..|> Database : Deletes Data
+@enduml

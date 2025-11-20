@@ -1,0 +1,57 @@
+@startuml
+!define DARKBLUE #003366
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + calculatePolar() : void
+    + calculateCartesian() : void 
+  }
+
+  class CoordinateGroupRepository {
+    + create(coordinateGroup: CoordinateGroup): void
+    + readAll(): List<CoordinateGroup>
+    + update(coordinateGroup: CoordinateGroup): void
+    + delete(id: int): void
+  }
+}
+
+package "View" {
+  class DCCView {
+    - coordinateGroupList: JList<CoordinateGroup>
+    - inputFields: Map<String, JTextField>
+    - labelField: JTextField 
+
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>): void
+    + getInputValues(): CoordinateGroup
+    + showError(message: String): void
+  }
+}
+
+
+package "Controller" {
+
+ class DCCController {
+   - model: CoordinateGroupRepository
+   - view: DCCView
+   + handleAddAction(): void
+   + handleUpdateAction(): void
+   + handleDeleteAction(): void
+   + handleFilterAction(label: String): void
+ }
+
+}
+
+
+DCCController "1" --> "*" CoordinateGroup : manages
+
+DCCController "1" --> "1" CoordinateGroupRepository : uses
+
+DCCView "1" --> "1" DCCController : controlled by 
+
+@enduml

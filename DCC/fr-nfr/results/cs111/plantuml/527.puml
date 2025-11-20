@@ -1,0 +1,67 @@
+@startuml DCC_Application_Class_Diagram
+title "DCC Class Diagram"
+
+package Client {
+    class DCCClient {
+        - coordGroup: CoordinateGroup
+        + DCCClient()
+        + createCoordinateGroup(Cartesian): void
+        + createCoordinateGroup(Polar): void
+        + retrieveCoordinateGroup(label: String): CoordinateGroup
+        + modifyCoordinateGroup(label: String, newLabel: String, newCartesian: Cartesian): void
+        + deleteCoordinateGroup(label: String): void
+    }
+
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: Cartesian
+        - polar: Polar
+        + getLabel(): String
+        + setLabel(newLabel: String): void
+        + getCartesian(): Cartesian
+        + getPolar(): Polar
+    }
+
+    class Cartesian {
+        - x: Double
+        - y: Double
+        + getX(): Double
+        + getY(): Double
+        + convertToPolar(): Polar
+    }
+
+    class Polar {
+        - r: Double
+        - theta: Double
+        + getR(): Double
+        + getTheta(): Double
+        + convertToCartesian(): Cartesian
+    }
+}
+
+package Server {
+    class DCCServer {
+        - db: Database
+        + handleCreateCoordinateGroup(label: String, cartesian: Cartesian): void
+        + handleRetrieveAllCoordinateGroups(): List<CoordinateGroup>
+        + handleRetrieveCoordinateGroup(label: String): CoordinateGroup
+        + handleModifyCoordinateGroup(id: Integer, newLabel: String, newCartesian: Cartesian): void
+        + handleDeleteCoordinateGroup(id: Integer): void
+    }
+
+    class Database {
+        + storeCoordinateGroup(coordGroup: CoordinateGroup): void
+        + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        + retrieveCoordinateGroup(label: String): CoordinateGroup
+        + updateCoordinateGroup(id: Integer, newCoordGroup: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+'DCCClient' --* 'CoordinateGroup'
+'DCCClient' --> 'DCCServer'
+'DCCServer' --* 'Database'
+
+@enduml

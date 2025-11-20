@@ -1,0 +1,90 @@
+@startuml
+'--------------------------------------
+' Auth Service Package
+'--------------------------------------
+package "Auth Service" {
+  class AuthService {
+    - name: String
+    - profilePicture: String
+    - email: String
+    - remainingQuota: int
+    - accountCreationTimestamp: DateTime
+    - lastLoginTimestamp: DateTime
+    
+    + authenticateUser(googleToken: String) : boolean 
+      ' <<Functional requirement - business logic operation>>
+    + getUserProfile(userId: String) : UserProfile 
+      ' <<Data management operation>>
+    + updateLastLogin(userId: String) : void 
+      ' <<Data management operation>>
+  }
+}
+
+'--------------------------------------
+' Template Service Package
+'--------------------------------------
+package "Template Service" {
+  class TemplateService {
+    + downloadTemplate(chartType: String) : CSVFile 
+      ' <<Functional requirement - business logic operation>>
+  }
+}
+
+'--------------------------------------
+' Chart Service Package
+'--------------------------------------
+package "Chart Service" {
+  class ChartService {
+    - chartId: String
+    - chartType: String
+    - creationDate: DateTime
+    - chartJson: String
+    
+    + uploadCSV(file: CSVFile) : boolean 
+      ' <<Functional requirement - business logic operation>>
+    + validateCSV(file: CSVFile) : boolean 
+      ' <<Functional requirement - business logic operation>>
+    + generateChartPreview(file: CSVFile) : ChartPreview 
+      ' <<Functional requirement - business logic operation>>
+    + saveChart(chartData: ChartData) : void 
+      ' <<Data management operation>>
+  }
+}
+
+'--------------------------------------
+' Quota Service Package
+'--------------------------------------
+package "Quota Service" {
+  class QuotaService {
+    + checkQuota(userId: String) : int 
+      ' <<Data management operation>>
+    + decrementQuota(userId: String) : boolean 
+      ' <<Data consistency operation>>
+    + purchaseQuota(userId: String, packageId: String) : boolean 
+      ' <<Flow control operation>>
+  }
+}
+
+'--------------------------------------
+' Payment Service Package
+'--------------------------------------
+package "Payment Service" {
+  class PaymentService {
+    + processPayment(paymentDetails: PaymentDetails) : PaymentResponse 
+      ' <<Functional requirement - business logic operation>>
+    + validatePayment(paymentResponse: PaymentResponse) : boolean 
+      ' <<Data consistency operation>>
+    + recordTransaction(transactionData: TransactionData) : void 
+      ' <<Data management operation>>
+  }
+}
+
+'--------------------------------------
+' Service Associations
+'--------------------------------------
+ChartService --> QuotaService : "calls decrementQuota()" 
+  ' <<Flow control operation>>
+QuotaService --> PaymentService : "calls processPayment()" 
+  ' <<Flow control operation>>
+
+@enduml

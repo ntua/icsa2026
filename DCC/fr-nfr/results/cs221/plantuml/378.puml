@@ -1,0 +1,80 @@
+@startuml
+skinparam packageStyle filled
+
+package Database {
+  class Book {
+      - id: int
+  }
+
+  class User {
+      - userId: int
+      - name: String
+      - contactInfo: String
+  }
+
+  class Transaction {
+      + transactionId: int
+      + bookId: int
+      + userId: int
+      + transactionDate: Date
+  }
+
+  interface DatabaseInterface {
+      + executeCreateOp() : boolean
+      + executeReadOp() : ArrayList<CoordinateGroup>
+      + executeUpdateOp(coordGroup: CoordinateGroup): boolean
+      + executeDeleteOp(id: int): boolean
+  }
+  
+  
+class Database { 
+    + saveData(data: String) : boolean
+    + fetchData(query: String): String
+}
+}
+
+class Application { 
+    - Database database
+    
+    + Application()
+  
+   + runApp()
+}
+
+
+class BookManager extends Application implements DatabaseInterface {
+    - Books books
+    
+    - BookManager() 
+
+    - saveData()
+
+    - fetchData()
+
+}
+
+class UserManager extends Application implements DatabaseInterface {
+    - Users users
+    
+    - UserManager() 
+
+}
+
+class TransactionManager extends Application implements DatabaseInterface {
+    - Transactions transactions
+    
+    - TransactionManager() 
+
+}
+
+class Server {
+    - Database database
+    
+    - Server
+}
+
+interface Client {
+    // Client-side interactions go here
+}
+
+@enduml

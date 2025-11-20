@@ -1,0 +1,141 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+' Define packages for models
+package Database {
+  ' Classes related to database access
+}
+package UserInterface {
+  ' Classes related to user interface interactions
+}
+package Models {
+  ' Classes representing the business logic and data structures
+}
+' Import classes from other packages as needed, using the keyword "import"
+Database->Models : * (All classes in Database can use all classes in Models)
+UserInterface->Models : *
+@enduml
+'''
+```
+
+Now we will define the necessary classes based on the architecture and requirements. The diagram below shows an example of how to organize these classes:
+
+```plantuml
+' Define package Database with the CoordinateGroup class in it
+package Database {
+  ' Classes related to database access
+  
+class CoordinateGroup {
+    int ID; // Auto-generated unique primary key (integer)
+    Date Timestamp; // Automatically assigned date and time of group creation
+    String Label; // Unique user-defined label for identification
+    
+    List<Coordinate> PolarCoordinates; // List of polar coordinates [r,θ]
+    List<Coordinate> CartesianCoordinates; // List of cartesian coordinates (x,y)
+    
+    public CoordinateGroup() {
+      this.ID = 0;
+      this.Timestamp = new Date();
+      this.Label = "";
+      this.PolarCoordinates = new ArrayList<>();
+      this.CartesianCoordinates = new ArrayList<>();
+    }
+}
+```
+
+Classes in the UserInterface package might include Button, LabelField, ListBox, and other UI components:
+
+```plantuml
+' Define package UserInterface with classes for user interface interactions
+package UserInterface {
+  ' Classes related to user interface interactions
+  
+class Button {
+    String label;
+    
+    public Button(String label) {
+      this.label = label;
+    }
+  }
+  
+class LabelField {
+    String value; // Value of the input field (e.g., coordinate group label)
+}
+```
+Classes in the Models package might include classes for User, CoordinateGroupUI, and other data structures:
+
+```plantuml
+' Define package Models with classes representing business logic
+package Models {
+  ' Classes related to the application's business logic
+  
+class Coordinate {
+    double r; // Polar coordinate distance from origin (r)
+    double theta; // Angular coordinate in radians (θ)
+    
+    public Coordinate(double r, double theta) {
+      this.r = r;
+      this.theta = theta;
+    }
+  }
+  
+class UserCoordinateGroupUI {
+    String label; // Selected label from user interface input field (LabelField)
+    
+    public CoordinateGroupUI(String label) {
+      this.label = label;
+    }
+  }
+}
+```
+Finally, we can define some associations between the classes:
+
+```plantuml
+' Define relationships between classes using association lines in PlantUML
+UserInterface->Models : * // UserInterface imports all classes from Models
+Database->Models : * // Database imports all classes from Models
+```

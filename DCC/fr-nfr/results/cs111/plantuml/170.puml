@@ -1,0 +1,71 @@
+@startuml
+!include <C4/C4_Context>
+
+
+package "Client" {
+  class CoordinateGroupController{
+      + createCoordinateGroup(coordinates: String): CoordinateGroup
+      + retrieveCoordinateGroup(label: String): CoordinateGroup
+      + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+      + modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+      + deleteCoordinateGroup(id: int): void
+  }
+
+ class SwingView {
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>): void
+    + getCoordinateInputFromUser(): String
+    + showErrorMessage(message: String): void 
+ }
+}
+
+package "Server" {
+
+class CoordinateGroup{
+- id: int
+- label: String
+- timestamp: Date
+- cartesianCoordinates: CartesianCoordinates
+- polarCoordinates: PolarCoordinates
+
+ + getCartesianCoordinates(): CartesianCoordinates
+ + setCartesianCoordinates(coordinates: CartesianCoordinates): void
+ + getPolarCoordinates(): PolarCoordinates
+ + setPolarCoordinates(coordinates: PolarCoordinates): void
+
+}
+
+class CartesianCoordinates {
+ - x: double 
+ - y: double
+}
+
+class PolarCoordinates{
+- radius: double
+- angle: double
+}
+
+ class CoordinateGroupService {
+   + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+   + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+   + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+   + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void 
+   + deleteCoordinateGroupById(id: int): void
+ }
+
+ class DatabaseConnection {
+  - connection: Connection
+
+ + connectToDatabase(): void
+ + executeQuery(query: String): ResultSet
+ + closeConnection(): void
+ }
+}
+
+CoordinateGroupController --> SwingView : "Uses"
+CoordinateGroupController --> CoordinateGroupService : "Calls"
+CoordinateGroupService --> DatabaseConnection : "Uses"
+DatabaseConnection --> Database : "Connects To"
+CoordinateGroup --> CartesianCoordinates : "Contains"
+CoordinateGroup --> PolarCoordinates : "Contains"
+
+@enduml

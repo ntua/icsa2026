@@ -1,0 +1,82 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Client" {
+    class CoordinateGroupGUI {
+        + void initUI()
+        + void displayCoordinateGroups(List<CoordinateGroup>)
+        + void refreshList()
+        + void filterByLabel(String)
+        + void clearFilter()
+    }
+}
+
+package "Model" {
+    class CartesianCoordinates {
+        - double x
+        - double y
+    }
+
+    class PolarCoordinates {
+        - double r
+        - double theta
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoordinates cartesian
+        - PolarCoordinates polar
+        - DateTime datetime
+    }
+}
+
+package "Service" {
+    class ConversionService {
+        + void convertCartesianToPolar(CartesianCoordinates, PolarCoordinates)
+        + void convertPolarToCartesian(PolarCoordinates, CartesianCoordinates)
+    }
+
+    class CoordinateGroupService {
+        + void createCoordinateGroup(String label, CartesianCoordinates, PolarCoordinates)
+        + void updateCoordinateGroup(int id, String label, CartesianCoordinates, PolarCoordinates)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> findAllCoordinateGroups()
+        + CoordinateGroup findCoordinateGroupById(int id)
+    }
+}
+
+package "Repository" {
+    interface CoordinateGroupRepository {
+        void save(CoordinateGroup)
+        void update(CoordinateGroup)
+        void delete(int id)
+        List<CoordinateGroup> findAll()
+        CoordinateGroup findById(int id)
+    }
+
+    class MySQLCoordinateGroupRepository implements CoordinateGroupRepository {
+        + void save(CoordinateGroup)
+        + void update(CoordinateGroup)
+        + void delete(int id)
+        + List<CoordinateGroup> findAll()
+        + CoordinateGroup findById(int id)
+    }
+}
+
+package "Remote" {
+    interface CoordinateGroupServiceRemote {
+        void createCoordinateGroup(String label, CartesianCoordinates, PolarCoordinates)
+        void updateCoordinateGroup(int id, String label, CartesianCoordinates, PolarCoordinates)
+        void deleteCoordinateGroup(int id)
+        List<CoordinateGroup> findAllCoordinateGroups()
+        CoordinateGroup findCoordinateGroupById(int id)
+    }
+}
+
+' Associations
+CoordinateGroupGUI --> CoordinateGroupServiceRemote
+CoordinateGroupService --> ConversionService
+CoordinateGroupService --> CoordinateGroupRepository
+
+@enduml

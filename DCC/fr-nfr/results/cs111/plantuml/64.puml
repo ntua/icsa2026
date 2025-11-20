@@ -1,0 +1,41 @@
+@startuml
+
+class CoordinateGroup {
+  +String label: String  
+  +timestamp: Date  
+}
+
+class CartesianCoordinates extends CoordinateGroup {
+  +x: float
+  +y: float
+  -convertToPolar(): PolarCoordinates
+}
+
+class PolarCoordinates extends CoordinateGroup {
+  +r: float
+  +theta: double
+  -convertToCartesian(): CartesianCoordinates
+}
+
+class DatabaseConnection {
+  +host: String
+  +port: int
+  +username: String
+  +password: String
+}
+
+class MySQLDatabaseConnection extends DatabaseConnection {}
+
+class CoordinateGroupManager{
+  +createCoordinateGroup(): CartesianCoordinates or PolarCoordinates  
+  +storeCoordinateGroup(coordGrp: CoordinateGroup): void
+  +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+  +viewAllCoordinateGroups(): List<CoordinateGroup>
+  +modifyCoordinateGroup(coordGrp: CoordinateGroup): CartesianCoordinates or PolarCoordinates
+  +deleteCoordinateGroup(id: int): void
+}
+
+Client <|.. MySQLDatabaseConnection
+Client <|-- CoordinateGroupManager : Inherits from
+DatabaseConnection <|.. CoordinateGroup
+@enduml

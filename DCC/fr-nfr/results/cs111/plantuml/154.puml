@@ -1,0 +1,58 @@
+@startuml
+
+package "Presentation Layer" {
+  class Frontend {
+    - gui: SwingGUI
+    + handleUserInput(): void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateGroupConverter {
+    - cartesion: CartesianCoordinates
+    - polar: PolarCoordinates
+    + convertToCartesian(): CartesianCoordinates
+    + convertToPolar(): PolarCoordinates
+  }
+
+  class DatabaseManager {
+    - dbConnection: MySQLDatabaseConnection
+    + storeCoordinateGroup(CoordinateGroup): void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(CoordinateGroup): void
+    + deleteCoordinateGroup(Integer): void
+  }
+}
+
+package "Data Layer" {
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - timestamp: Timestamp
+    - cartesion: CartesianCoordinates
+    - polar: PolarCoordinates
+    + getId(): Integer
+    + getLabel(): String
+    + getTimestamp(): Timestamp
+    + setLabel(String): void
+  }
+
+  class MySQLDatabaseConnection {
+    - connection: Connection
+    + executeQuery(String): ResultSet
+    + close(): void
+  }
+}
+
+
+Frontend -> CoordinateGroupConverter
+Frontend -> DatabaseManager: storeCoordinateGroup(CoordinateGroup)
+
+CoordinateGroupConverter -> CartesianCoordinates: getCartesionValues()
+CoordinateGroupConverter -> PolarCoordinates 
+
+DatabaseManager -d-> MySQLDatabaseConnection: executeQuery("INSERT INTO coordinate_groups (id, label, timestamp, cartesian_x, cartesian_y, polar_r, polar_theta) VALUES (?, ?, ?, ?, ?, ?, ?)")
+DatabaseManager --> MySQLDatabaseConnection: executeQuery("SELECT * FROM coordinate_groups")
+DatabaseManager --> MySQLDatabaseConnection: executeQuery("UPDATE coordinate_groups SET label = ?, cartesian_x = ?, cartesian_y = ?, polar_r = ?, polar_theta = ? WHERE id = ?")
+
+@enduml

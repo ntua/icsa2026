@@ -1,0 +1,13 @@
+@startuml
+package database {
+    [Database] - [MySQL]: uses
+}
+
+package service {
+    [CoordinateGroupService] <|-- [CoordinateGroup]: aggregates
+}
+
+package client {
+    [GUIClient] "1" ..* [CoordinateGroupService] : uses
+}
+@enduml

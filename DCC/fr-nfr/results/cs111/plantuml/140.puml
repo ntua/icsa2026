@@ -1,0 +1,59 @@
+@startuml  
+'Client - Server architecture pattern for Dummy Coordination Conversion (DCC) Application  
+package "Client" {  
+    class GUIManager {  
+      + displayCoordinateGroup()  
+      + modifyCoordinateGroup()  
+      + deleteCoordinateGroup(coordinateId: Int)  
+      - databaseConnection: DatabaseConnection  
+    } 
+} 
+
+package "Server" {  
+    interface Database {  
+      + saveData(data: String, label: String, timestamp: Date)  
+      + fetchData(queryType: String, queryValue: String): List<CoordinateGroup>  
+    } 
+
+class CoordinateConverter {  
+      + convertCartesianToPolar(cartesianCoord: CartesianCoordinate) : PolarCoordinate  
+      + convertPolarToCartesian(polarCoord: PolarCoordinate) : CartesianCoordinate  
+    } 
+    
+class CoordinateGroupManager {  
+      + createCoordinateGroup() : CoordinateGroup  
+      + updateCoordinateGroup(coordinateId: Int, cartesianValue: Option[CartesianCoordinate], polarValue: Option[PolarCoordinate])  
+      - databaseConnection: DatabaseConnection  
+    } 
+
+class CartesianCoordinate {  
+     int x 
+     int y 
+} 
+
+class PolarCoordinate {  
+     double r  
+     double theta  
+} 
+
+class CoordinateGroup {  
+     String label  
+      List<CartesianCoordinate> cartesianCoordinates  
+      List<PolarCoordinate> polarCoordinates  
+      Date timestamp  
+}  
+
+class DatabaseConnection {  
+    + connect() : void  
+    - database: Database  
+} 
+}
+
+'Association between client and server classes for DCC Application  
+Client.GUIManager "1" *--* "0..*" Server.CoordinateGroupManager : Uses  
+Client.GUIManager "1" -- "0..*" Server.DatabaseConnection : Contains  
+Server.DatabaseConnection "1" -> "1" Server.Database : ConnectsTo  
+
+note right of Client.GUIManager : "Developed using Java with Swing framework for user interaction. "
+note left of Server.Database: used is MySQL for persistent storage of coordinate groups.  
+@enduml

@@ -1,0 +1,129 @@
+May be management problems if servers are owned by different organizations. To further clarify “ Client -Server ” architecture, let's explore a specific example. Client -Server example:  
+Application Description : The Library Management System  is a desktop application for librarians, 
+enabling them to manage book collections, user information, and borrowing transactions. Operating 
+with a thick client architecture, the application handles all business logic locally, while a server 
+database stores and retrieves data. Functional Requirements  
+1. Book Management : Add, update, and delete book records, including details such as title, 
+author, ISBN, and availability status. 2. User Management : Register new users, update user information, and manage user records. 3. Transaction Management : Facilitate book borrowing and returning, tracking user and book 
+details for each transaction. 4. Data Storage : Store and retrieve all book, user, and transaction data in a centralized server 
+database. Class diagram in plantUML of the application with client -server architecture pattern:  
+@startuml  
+package "Client" {  
+    class LibraryApp {  
+      - bookManager: BookManager  
+      - userManager: UserManager  
+      - transactionManager: TransactionManager  
+      + run()   (Score: 1.0314209125294105)
+
+---
+
+To further clarify “Model -View -Controller ” architecture, let's explore a specific example . MVC (Model -View -Controller)  architecture example:  
+Problem Description:  
+A car rental company wants to develop a software system that will enable customers to rent cars online. Customers should be able to browse available cars, select a car to rent, and make a reservation. The 
+system should keep track of the availability of cars, as well as the reservations made by customers. Identify Use Cases  
+• Browse available cars  
+• Select a car to rent  
+• Make a reservation  
+ 
+UML class diagram  for above problem with MVC architecture : 
+ @startuml  
+  class CarRentalView {  
+    +displayCar()  
+    +displayReservationDetails()  
+  } 
+ 
+class CarRentalController {  
+    -model: CarRentalModel  
+    -view: CarRentalView  
+    +searchCars()  
+    +reserveCars()  
+  } 
+   
+class CarRentalModel {  
+    -customers: List<>  
+    -cars: List<>  
+    -reservations: List<>  
+    +fetchCars()  
+    +updateReservationDetails()  
+  } 
+CarRentalView -- CarRentalController: Request/Response  
+CarRentalController --> CarRentalModel : Request Data  
+CarRentalModel --> Database : Connection  
+@enduml  
+ 
+ 
+The Model  includes the  Customer , Car, and  Reservation  entities , along with methods for fetching  for cars 
+and making reservations. The View  is represented by the CarRentalView, which defines methods for displaying cars and reservation 
+details. (Score: 1.0580572843000215)
+
+---
+
+Software Architecture Patterns and corresponding UML class diagrams  
+ 
+The big picture  
+Architectural design  is a process for identifying the sub -systems making up a system and the 
+framework for sub -system control and communication. The output of this design process is a 
+description of the software architecture. (Score: 1.0887488806852288)
+
+---
+
+class PaymentProcessor {  
++ processPayment(paymentInfo: PaymentInfo) : boolean  
++ connectTo3rdParty(paymentInfo: PaymentInfo) : boolean  
+} 
+} 
+ 
+class Database {  
++ storeProductData(product: Product) : void  
++ retrieveProductData(productId: int) : Product  
++ storeCustomerData(customer: Customer) : void  
++ storeOrderHistory(order: Order) : void  
++ retrieveOrderHistory(customerId: int) : List<Order>  
+} 
+ 
+ 
+Storefront --> OrderProcessor : Uses  
+OrderProcessor --> PaymentProcessor : Uses  
+OrderProcessor --> InventoryManager : Uses  
+OrderProcessor --> Database : Accesses  
+InventoryManager --> Database : Accesses  
+PaymentProcessor --> Database : Accesses   
+@enduml  
+ 
+ 
+Client -server architecture  
+• Distributed system model which shows how data and processing is distributed across a 
+range of components, but can also be implemented on a single computer. • Set of stand -alone servers which provide specific services such as printing, data 
+management, etc. (Score: 1.1184337287760096)
+
+---
+
+• Application Logic  should act as a middleman, containing all business rules. To further clarify “Three -tier” architecture, let's explore a specific example . Three -tier architecture example:  
+Requirements:  
+E-commerce websites  
+• Presentation Layer:  The online storefront with product catalogs, shopping carts, and 
+checkout interfaces. • Logic Layer:  Handles searching, order processing, inventory management, interfacing with 
+3rd-party payment vendors, and business rules like discounts and promotions. • Data Layer:  Stores product information, customer data, order history, and financial 
+transactions in a database. Class Diagram in PlantUML  for above problem with Three -tier architecture : 
+@startuml  
+class Storefront {  
+- ProductCatalog : List<Product>  
+- ShoppingCart : ShoppingCart  
+- CheckoutInterface : Checkout  
++ viewProducts() : void  
++ addToCart(product: Product) : void  
++ proceedToCheckout() : void  
+} 
+package "Logic Layer" {  
+class OrderProcessor {  
+- paymentProcessor : PaymentProcessor  
+- inventoryManager : InventoryManager  
++ processOrder(order: Order) : void  
++ applyDiscount(order: Order, discountCode: String) : float  
+} 
+ 
+class InventoryManager {  
++ checkStock(product: Product) : boolean  
++ updateStock(product: Product, quantity: int) : void  
+} 
+  (Score: 1.1965812183718891)

@@ -1,0 +1,53 @@
+@startuml ThreeTierArchitecture
+
+package "Presentation" {
+    class MainForm {
+        + void initialize()
+        + void btnViewAll_click()
+        + void btnSearchByLabel_click(String label)
+        + void btnDelete_click(int id)
+        + void displayData(List<CoordinateGroup> groups)
+    }
+}
+
+package "Business Logic" {
+    class CoordinateGroupManager {
+        - CoordinateGroupDAO dao
+        
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + List<CoordinateGroup> findCoordinateGroupsByLabel(String label)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+package "Data Access" {
+    class CoordinateGroupDAO {
+        + List<CoordinateGroup> retrieveAllGroups()
+        + List<CoordinateGroup> searchGroupsByLabel(String label)
+        + void deleteGroup(int groupId)
+    }
+}
+
+class CoordinateGroup {
+    - int id
+    - Date timestamp
+    - String label
+    - double r
+    - double theta
+    - double x
+    - double y
+    
+    + get Id()
+    + set Label(label: String)
+    + get R()
+    + get Theta()
+    + get X()
+    + get Y()
+}
+
+MainForm --> CoordinateGroupManager : Uses > 
+CoordinateGroupManager --> CoordinateGroupDAO : Uses >
+CoordinateGroupManager --> CoordinateGroup : Returns
+MainForm --> CoordinateGroup : Displays
+
+@enduml

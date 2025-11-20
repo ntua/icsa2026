@@ -1,0 +1,64 @@
+@startuml  
+package "Model" {
+    class CoordinateGroup {
+        +String label
+        -List<CartesianCoordinate> cartesianCoordinates: CartesianCoordinate
+        -List<PolarCoordinate> polarCoordinates: PolarCoordinate
+        +void add(coord: CartesianCoordinate)
+        +void update(index: Int, coord: Coordinate)
+    }
+    
+    class CartesianCoordinate {
+        +Double x
+        +Double y
+    }
+  
+    class PolarCoordinate {
+        +Double r
+        +Double θ
+    }
+}
+
+package "Controller" {
+    class CoordinationConverter {
+        -Model model: Model.CoordinateGroup
+        +void convertToPolar(index: Int)
+        +void convertToCartesian(index: Int)
+    }
+}
+
+  class UserInterface {
+    +String showMainMenu()
+  }
+
+  class DatabaseHandler {
+      -Controller controller: Controller.CoordinationConverter
+      -Model model: Model.CoordinateGroup
+  }
+
+
+
+package "View" {
+    interface CoordinateInterface {
+        +void showMainMenu()
+        +List<String> displayAllGroups()
+        +double[] getCartesianCoordinates(int index)
+        +double[] getPolarCoordinates(int index)
+        +void addLabelToGroup(label: String, groupIndex: int)
+    }
+}
+  
+package "View" {
+     interface CoordinateInterface extends View.CoordinateInterface {
+         // All methods implemented here using Swing components
+  }
+}
+
+UserInterface -- DatabaseHandler : uses >
+  
+Model -- Controller: uses
+View -- Controller: uses
+CoordinationConversion-- CoordinationConverter: manages
+}
+
+@enduml

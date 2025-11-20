@@ -1,0 +1,52 @@
+@startuml
+package application {
+  class CoordinateGroup {
+    +String label
+    *+CartesianCoordinates cartesians: []
+    *+PolarCoordinates polars: []
+    +void add(Label, CartesianCoordinates)
+    +void update(CartesianCoordinates, PolarCoordinates)
+  }
+  
+  class CartesianCoordinates {
+    +double x
+    +double y
+  }
+  
+  class PolarCoordinates {
+    +double r
+    +double theta
+  }
+}
+
+package database {
+  class Record {
+    *+id: int
+    *+timestamp: DateTime
+    *+label: String
+    *+cartesianCoordinatesCartesians: []
+    *+polarCoordinatesPolars: []
+  }
+}
+
+package application.logic {
+  
+  class Converter {
+    +double[] convert(type, CartesianCoordinates) -> PolarCoordinates
+    +CartesianCoordinates convertBack(type, PolarCoordinates) -> CartesianCoordinates
+  }
+}
+
+package database.connection {
+  
+  class MySQLDatabase {
+    +void saveRecord(Record)
+    *+void deleteRecord(id)
+  }
+}
+
+Converter - MathLibrary: uses a
+CoordinateGroup - Record: composition
+CoordinateGroup - CartesianCoordinates: composition
+CoordinateGroup - PolarCoordinates: composition
+@enduml

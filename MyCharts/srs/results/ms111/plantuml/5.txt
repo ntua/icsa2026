@@ -1,0 +1,68 @@
+@startuml MicroservicesArchitecture
+
+' Packages
+package "Authentication Service" {
+    class OAuthHandler {
+        - String clientId
+        - String clientSecret
+        - boolean isValidToken()
+        - void authenticateUser() // Functional requirement-business logic operation
+        - String generateToken() // Data management operation
+    }
+
+    class SessionManager {
+        - Map<String, UserSession> sessions
+        - void createSession(User user) // Data management operation
+        - void invalidateSession(String sessionId) // Flow control operation
+    }
+}
+
+package "User Management Service" {
+    class UserService {
+        - UserRepository userRepository
+        - void createUser(User user) // Data management operation
+        - User getUserDetails(String userId) // Functional requirement-business logic operation
+        - void updateUserProfile(User user) // Data management operation
+    }
+
+    class UserRepository {
+        - User findByUserId(String userId)
+    }
+}
+
+package "Chart Management Service" {
+    class ChartGenerator {
+        - File validateCSVFile(File file) // Data management operation
+        - Chart generateChart(ChartConfig config) // Functional requirement-business logic operation
+        - void previewChart(Chart chart) // Functional requirement-business logic operation
+    }
+
+    class ChartRepository {
+        - void saveChart(Chart chart)
+        - List<Chart> getChartsForUser(User user)
+    }
+}
+
+package "Quota Management Service" {
+    class QuotaService {
+        - int remainingQuota
+        - void deductQuota(int amount) // Data management operation
+        - void addQuota(int amount) // Functional requirement-business logic operation
+        - boolean hasSufficientQuota(User user, int requiredQuota) // Flow control operation
+    }
+}
+
+package "File Storage Service" {
+    class FileStorage {
+        - File storeFile(File file)
+        - File retrieveFile(String fileId)
+    }
+}
+
+' Relationships and Interactions
+OAuthHandler --> SessionManager : uses
+UserService --> UserRepository : uses
+ChartGenerator --> ChartRepository : uses
+QuotaService --> FileStorage : uses
+
+@enduml

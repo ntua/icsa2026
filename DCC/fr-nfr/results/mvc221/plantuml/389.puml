@@ -1,0 +1,48 @@
+@startuml
+
+
+package Model { 
+    class CoordinateGroup {
+    +id: Integer
+    +label: String
+    +cartesianValues: Map<String, Double>
+    +polarValues: Map<String, Double>
+    }
+    class Converter { 
+    +convertCartesianToPolar(x: Double, y: Double): Pair<Double, Double>
+    +convertPolarToCartesian(r: Double, theta: Double): Pair<Double, Double>; 
+    } 
+package Database {   
+class CoordinateGroupRepository {}
+}
+    
+
+  class CoordinateGroupController { 
+  +converter: Coordinator; 
+  -repository: CoordinateGroupRepository;
+  }
+        
+class CoordinateGroupViewModel { 
+    +selectedRecordId: Integer;
+    +dataSource: DataSource;
+    }   
+
+class CartesianConverter { 
++convert(x: Double, y: Double): Pair<Double, Double>; 
+}
+class PolarConverter extends Converter {} 
+        
+
+    
+class CarouselRecord { 
+String label
+String cartesianValuesString 
+String polarValuesString
+Date datetimeAddedOrModified; 
+} 
+
+class TCPConnectionManager implements DataProvider { 
++dataSource: DataSource; 
+}
+  
+@enduml

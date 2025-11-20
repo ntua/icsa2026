@@ -1,0 +1,55 @@
+@startuml
+package "Client" {
+    interface CoordinateGroupOperations {
+        +createCoordinateGroup(label : String) : Long
+        +updateCoordinateGroup(id : Long) : Boolean
+        +deleteCoordinateGroup(id : Long) : Boolean
+    }
+    
+    class CoordinateConverter implements ActionListener<Double, Double> {
+        double cartesianX;
+        double cartesianY;
+        List<CoordinateGroup> coordinateGroups;
+      
+    }
+    
+    class CoordinateManager implements ActionListener<List<CoordinateGroup>> {
+        DatabaseManager dbMgr;
+      
+    }
+  }
+
+package "Server" {
+    class DatabaseManager {
+        CoordinateGroupOperations op;
+    }
+    
+    interface CoordinateGroupService extends Client.CoordinateGroupOperations {
+        +convertCartesianToPolar(x: Double, y: Double) : (Double, Double)
+        +convertPolarToCartesian(r: Double, theta: Double) : (Double, Double)
+        
+        op.createCoordinateGroup(label : String) : Long;
+        op.updateCoordinateGroup(id : Long) : Boolean;
+        op.deleteCoordinateGroup(id : Long) : Boolean;
+    }
+    
+    interface CoordinateGroupRepository {
+        +findByIdAndLabel(id : Long, label : String) : List<CoordinateGroup>
+        +addAll() : List<CoordinateGroup>
+        +removeByIdAndLabel(id : Long, label : String) : void
+    }
+    
+    class CoordinateGroupRepositoryImpl extends CoordinateGroupService implements CoordinateGroupRepository {
+        
+        DatabaseManager dbMgr;
+        private final Map<Long, List<CoordinateGroup>> cache = new HashMap<>();
+        
+        @Override
+        public Long createCoordinateGroup(String label) {
+            // implementation of CreateOp
+        }
+    
+    }
+  }
+
+@enduml

@@ -1,0 +1,93 @@
+Response:
+```plantuml
+@startuml
+
+' Define common package for shared domain models and utilities
+package common {
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        + convertToCartesian()
+        + convertToPolar()
+    }
+}
+
+' Define server-side package for database interaction and business logic
+package server {
+    class DatabaseManager {
+        - connection: Connection
+        + connect(): Connection
+        + disconnect()
+    }
+
+    class CoordinateGroupDAO {
+        - dbManager: DatabaseManager
+        + create(cg: CoordinateGroup)
+        + update(cg: CoordinateGroup)
+        + delete(cg: CoordinateGroup)
+        + readAll(): List<CoordinateGroup>
+        + readByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateGroupService {
+        - dao: CoordinateGroupDAO
+        + createGroup(label: String, x: double, y: double): void
+        + modifyGroup(cg: CoordinateGroup): void
+        + deleteGroup(cg: CoordinateGroup): void
+        + getAllGroups(): List<CoordinateGroup>
+        + getGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+
+    ' Associations within the server package
+    CoordinateGroupDAO --> DatabaseManager
+    CoordinateGroupService --> CoordinateGroupDAO
+
+    ' Dependencies on common model
+    CoordinateGroupDAO ..> common.CoordinateGroup
+    CoordinateGroupService ..> common.CoordinateGroup
+}
+
+' Define client-side package for GUI and user interaction handling
+package client {
+    class DCCGUI {
+        - buttons: JButton[]
+        - fields: JTextField[]
+        + initComponents()
+        + addCoordinateGroupAction()
+        + modifyCoordinateGroupAction()
+        + viewAllAction()
+        + viewByLabelAction()
+        + deleteCoordinateGroupAction()
+    }
+
+    class CoordinateGroupController {
+        - gui: DCCGUI
+        - service: server.CoordinateGroupService
+        + createCoordinateGroup(label: String, x: double, y: double, r: double, theta: double): void
+        + modifyCoordinateGroup(cg: common.CoordinateGroup): void
+        + viewAllCoordinateGroups(): List<common.CoordinateGroup>
+        + viewCoordinateGroupByLabel(label: String): List<common.CoordinateGroup>
+        + deleteCoordinateGroup(cg: common.CoordinateGroup): void
+    }
+
+    ' Associations within the client package
+    DCCGUI --> CoordinateGroupController
+    CoordinateGroupController --> server.CoordinateGroupService
+    CoordinateGroupController ..> common.CoordinateGroup
+}
+
+@enduml
+```
+
+This PlantUML diagram defines a clear separation of concerns between the client and server parts of the Dummy Coordinate Converter Application, with a shared common package. It includes:
+
+- **common**: Contains the `CoordinateGroup` class which represents the data model shared across the system.
+- **server**: Contains classes for database management (`DatabaseManager`), data access (`CoordinateGroupDAO`), and business logic (`CoordinateGroupService`). These classes manage database connectivity and CRUD operations.
+- **client**: Contains the GUI class (`DCCGUI`) built with Swing and a controller class (`CoordinateGroupController`) to handle user interactions and communicate with the server-side services.
+
+All necessary associations, attributes, and methods are clearly represented, reflecting the required client-server architecture and fulfilling the specified software requirements.

@@ -1,0 +1,57 @@
+@startuml
+package presentation {
+  class FrontendController {
+  +createCoordinateGroup(), 
+  +storeCoordinateGroup(), 
+  +retrieveCoordinateGroups(), 
+  +modifyCoordinateGroup(), 
+  +deleteCoordinateGroup()
+  }
+}
+package businesslogic {
+  class CoordinateConverter {
+  +convertCartesianToPolar(), 
+  +convertPolarToCartesian()
+}
+  class CoordinateGroupManager {
+  +createCoordinateGroup(), 
+  +storeCoordinateGroup(), 
+  +retrieveCoordinateGroups(), 
+  +modifyCoordinateGroup(), 
+  +deleteCoordinateGroup()
+  }
+}
+package dataaccess {
+  class MySQLDatabase {
+  +insertCoordinateGroup(), 
+  +getCoordinateGroups(), 
+  +updateCoordinateGroup(), 
+  +deleteCoordinateGroup()
+  }
+}
+package "domainmodel"{
+  class CoordinateGroup {
+  +id, 
+  +label, 
+  +cartesianCoordinates, 
+  +polarCoordinates
+  }
+  class CartesianCoordinate {
+  +x, 
+  +y
+  }
+  
+  class PolarCoordinate {
+  +r, 
+  +theta
+  }
+}
+
+
+CoordinateGroupManager *--* CoordinateGroup
+
+
+CoordinateGroup --|> CartesianCoordinate
+CoordinateGroup --|> PolarCoordinate
+
+@enduml

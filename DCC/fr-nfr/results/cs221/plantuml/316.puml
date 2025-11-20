@@ -1,0 +1,72 @@
+@startuml
+package presentation {
+  class UserInterface {
+  - SwingGUI
+  + createCoordinateGroup(String label, CartesianCoordinates coords)
+  + updateCoordinateGroup(Integer id, String label, CartesianCoordinates coords)
+  + deleteCoordinateGroup(Integer id)
+  + readAllCoordinateGroups()
+  + filterCoordinateGroupsByLabel(String labelFilter)
+  + refreshUI()
+  }
+}
+
+package business_logic {
+  class CoordinateConverter {
+  - highPrecisionNumber
+  + convertCartesianToPolar(CartesianCoordinates cartesian)
+  + convertPolarToCartesian(PolarCoordinates polar)
+}
+
+class CoordinateGroupManager {
+  - List<DatabaseRecord>
+  - idGenerator
+  + createNewCoordinateGroup(String label, CartesianCoordinates coords)
+  + updateExistingCoordinateGroup(Integer id, String label, CartesianCoordinates coords)
+  + deleteCoordinateGroup(Integer id)
+  + readAllCoordinateGroups()
+  + filterCoordinateGroupsByLabel(String labelFilter)
+}
+
+}
+  
+package data_access {
+  class MySQLDatabaseConnection {
+  - TCP/IP connection
+  - DatabaseRecord
+  + connectToDatabase()
+  + disconnectFromDatabase()
+  + saveNewCoordinateGroup(DatabaseRecord newGroup)
+  + updateExistingCoordinateGroup(Integer id, DatabaseRecord updatedGroup)
+  + deleteCoordinateGroup(Integer id)
+  + readAllCoordinateGroups()
+}
+
+  class DatabaseRecord {
+    - Integer id
+    - String label
+    - CartesianCoordinates cartesian
+    - PolarCoordinates polar
+    - DateTime addedOrModified
+  }
+  
+  class CartesianCoordinates {
+  - highPrecisionNumber x
+  - highPrecisionNumber y
+}
+
+class PolarCoordinates {
+  - highPrecisionNumber r
+  - highPrecisionAngle theta
+}
+
+}
+
+class SwingGUI extends presentation.UserInterface {
+}
+
+CoordinateConverter ..> CoordinateGroupManager:  "Converts Coordinates"
+MySQLDatabaseConnection ..> CoordinateGroupManager:  "Stores Data"
+presentation.UserInterface ..> CoordinateGroupManager: "Interacts with Business Logic"
+
+@enduml

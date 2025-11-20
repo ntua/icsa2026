@@ -1,0 +1,56 @@
+@startuml
+package "Frontend" {
+  class DccApplication {
+    - coordinateGroupManager: CoordinateGroupManager
+    + run()
+    + createCoordinateGroup(label: String, cartesian: Cartesian, polar: Polar)
+    + updateCoordinateGroup(id: Int, label: String, cartesian: Cartesian, polar: Polar)
+    + deleteCoordinateGroup(id: Int)
+    + filterCoordinateGroups(label: String)
+    + clearFilter()
+  }
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - cartesian: Cartesian
+    - polar: Polar
+    - timestamp: Date
+  }
+}
+
+package "Logic" {
+  class CoordinateGroupManager {
+    - coordinateGroups: List<CoordinateGroup>
+    + createCoordinateGroup(label: String, cartesian: Cartesian, polar: Polar): Int
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id: Int, label: String, cartesian: Cartesian, polar: Polar)
+    + deleteCoordinateGroup(id: Int)
+  }
+  class Cartesian {
+    - x: Double
+    - y: Double
+    + toPolar(): Polar
+  }
+  class Polar {
+    - r: Double
+    - theta: Double
+    + toCartesian(): Cartesian
+  }
+}
+
+package "Database" {
+  class MySQLDatabase {
+    + connect()
+    + disconnect()
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + loadCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: Int)
+  }
+}
+
+DccApplication ..> CoordinateGroupManager
+CoordinateGroupManager --* CoordinateGroup
+CoordinateGroupManager --> MySQLDatabase
+Cartesian -- Polar
+@enduml

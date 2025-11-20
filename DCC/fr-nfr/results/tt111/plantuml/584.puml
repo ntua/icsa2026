@@ -1,0 +1,125 @@
+@startuml
+
+'========================
+' Package: Domain / Model
+'========================
+package "dcc.model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        + getId(): int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+        + setCartesian(cart: CartesianCoordinate)
+        + setPolar(pol: PolarCoordinate)
+    }
+    
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        + getX(): double
+        + getY(): double
+    }
+    
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        + getR(): double
+        + getTheta(): double
+    }
+    
+    ' Composition: CoordinateGroup is composed of both coordinate types.
+    CoordinateGroup *-- CartesianCoordinate : has
+    CoordinateGroup *-- PolarCoordinate : has
+}
+
+'========================
+' Package: Business Layer
+'========================
+package "dcc.business" {
+    class CoordinateConverter {
+        + toCartesian(polar: dcc.model.PolarCoordinate): dcc.model.CartesianCoordinate
+        + toPolar(cartesian: dcc.model.CartesianCoordinate): dcc.model.PolarCoordinate
+    }
+    
+    class CoordinateGroupService {
+        - coordinateGroupDAO: dcc.data.CoordinateGroupDAO
+        + createCoordinateGroup(cartesian: dcc.model.CartesianCoordinate, label: String): dcc.model.CoordinateGroup
+        + createCoordinateGroup(polar: dcc.model.PolarCoordinate, label: String): dcc.model.CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): dcc.model.CoordinateGroup
+        + getAllCoordinateGroups(): List<dcc.model.CoordinateGroup>
+        + updateCoordinateGroup(group: dcc.model.CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+    }
+    
+    ' The service uses the conversion logic.
+    CoordinateGroupService ..> CoordinateConverter : uses
+    ' And it depends on the DAO in the data layer.
+    CoordinateGroupService --> dcc.data.CoordinateGroupDAO : uses
+}
+
+'========================
+' Package: Data Access Layer
+'========================
+package "dcc.data" {
+    interface CoordinateGroupDAO {
+        + save(group: dcc.model.CoordinateGroup): void
+        + findByLabel(label: String): dcc.model.CoordinateGroup
+        + findAll(): List<dcc.model.CoordinateGroup>
+        + update(group: dcc.model.CoordinateGroup): void
+        + delete(id: int): void
+    }
+    
+    class MySQLCoordinateGroupDAO {
+        - connection: TCPConnection
+        + save(group: dcc.model.CoordinateGroup): void
+        + findByLabel(label: String): dcc.model.CoordinateGroup
+        + findAll(): List<dcc.model.CoordinateGroup>
+        + update(group: dcc.model.CoordinateGroup): void
+        + delete(id: int): void
+    }
+    
+    ' MySQLCoordinateGroupDAO implements the DAO interface.
+    MySQLCoordinateGroupDAO ..|> CoordinateGroupDAO
+
+    class TCPConnection {
+        - host: String
+        - port: int
+        + connect(): void
+        + disconnect(): void
+    }
+    
+    ' The MySQL DAO uses a TCPConnection to communicate with the MySQL DB.
+    MySQLCoordinateGroupDAO --> TCPConnection : uses
+}
+
+'========================
+' Package: Presentation Layer
+'========================
+package "dcc.presentation" {
+    class MainFrame {
+        - controller: DCCController
+        + display(): void
+    }
+    
+    class DCCController {
+        - service: dcc.business.CoordinateGroupService
+        + createGroup(coordinate: Object, label: String): void
+        + retrieveGroup(label: String): void
+        + retrieveAllGroups(): void
+        + updateGroup(group: dcc.model.CoordinateGroup): void
+        + deleteGroup(id: int): void
+    }
+    
+    ' The MainFrame (a Swing UI frame) uses the controller to handle events.
+    MainFrame --> DCCController : delegates to
+    ' The controller in turn uses the business service.
+    DCCController --> dcc.business.CoordinateGroupService : uses
+}
+
+@enduml

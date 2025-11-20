@@ -1,0 +1,71 @@
+@startuml
+
+package Frontend {
+  class SwingView {
+    +displayCoordinateGroups()
+    +displayCoordinateGroupDetails()
+    +getUserInputCartesianCoordinates()
+    +getUserInputPolarCoordinates()
+    +getUserSelectedOption()
+    +getUserFilterValue()
+    +clearFilter()
+  }
+}
+
+package Logic {
+  class DCCController {
+    -model: DCCModel
+    -view: SwingView
+    +convertCartesianToPolar()
+    +convertPolarToCartesian()
+    +createCoordinateGroup()
+    +readCoordinateGroups()
+    +updateCoordinateGroup()
+    +deleteCoordinateGroup()
+    +refreshView()
+    +filterCoordinateGroups()
+  }
+  
+  class DCCModel {
+    -coordinateGroups: List<CoordinateGroup>
+    +createCoordinateGroup(id: int, label: string, cartesian: Cartesian, polar: Polar, timestamp: DateTime)
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(id: int, label: string, cartesian: Cartesian, polar: Polar, timestamp: DateTime)
+    +deleteCoordinateGroup(id: int)
+  }
+  
+  class CoordinateGroup {
+    -id: int
+    -label: string
+    -cartesian: Cartesian
+    -polar: Polar
+    -timestamp: DateTime
+  }
+
+  class Cartesian {
+    -x: high-precision number
+    -y: high-precision number
+  }
+
+  class Polar {
+    -r: high-precision number
+    -theta: high-precision number
+  }
+}
+
+package Persistence {
+  class MySQLDatabase {
+    +connect()
+    +disconnect()
+    +saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +getCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +deleteCoordinateGroup(id: int)
+  }
+}
+
+SwingView -- DCCController
+DCCController --> DCCModel
+DCCModel <.. MySQLDatabase
+
+@enduml

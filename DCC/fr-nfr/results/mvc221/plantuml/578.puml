@@ -1,0 +1,94 @@
+@startuml DCC_Application
+
+package model {
+    abstract class Coordinate {
+        +Double x
+        +Double y
+    }
+
+    class CartesianCoordinates extends Coordinate {
+        +Double x
+        +Double y
+        +String toString()
+        +void convertToPolar(PolarCoordinates polar)
+    }
+
+    class PolarCoordinates extends Coordinate {
+        +Double r
+        +Double theta
+        +String toString()
+        +void convertFromCartesian(CartesianCoordinates cartesian)
+    }
+
+    class CoordinateGroup {
+        -Long id
+        -String label
+        -CartesianCoordinates cartesian
+        -PolarCoordinates polar
+        -DateTime timestamp
+
+        +void create()
+        +void update()
+        +void delete()
+    }
+
+    class CoordinateConverter {
+        +void convertCartesianToPolar(CartesianCoordinates cartesian, PolarCoordinates polar)
+        +void convertPolarToCartesian(PolarCoordinates polar, CartesianCoordinates cartesian)
+    }
+
+    class CoordinateGroupDAO {
+        -JDBCConnection dbConnection
+
+        +CoordinateGroup create(CoordinateGroup group)
+        +List<CoordinateGroup> read()
+        +void update(CoordinateGroup group)
+        +void delete(Long id)
+    }
+}
+
+package view {
+    class MainWindow {
+        -AddUpdatePanel addUpdatePanel
+        -ListPanel listPanel
+
+        +void show()
+        +void refreshList()
+    }
+
+    class AddUpdatePanel {
+        -JTextField labelField
+        -JTextField xField
+        -JTextField yField
+        -JButton saveButton
+
+        +void setCoordinateGroup(CoordinateGroup group)
+    }
+
+    class ListPanel {
+        -JTable table
+
+        +void refresh()
+    }
+}
+
+package controller {
+    class CoordinateController {
+        -CoordinateGroupDAO dao
+        -MainWindow view
+
+        +void handleAdd()
+        +void handleUpdate()
+        +void handleDelete()
+        +void handleRefresh()
+    }
+}
+
+MainWindow --* AddUpdatePanel
+MainWindow --* ListPanel
+CoordinateController --* CoordinateGroupDAO
+CoordinateController --* MainWindow
+CoordinateGroup --* CartesianCoordinates
+CoordinateGroup --* PolarCoordinates
+
+@enduml

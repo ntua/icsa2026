@@ -1,0 +1,118 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam packageTitleFontColor #ffffff
+skinparam packageTitleBackgroundColor #2e86c1
+
+title Dummy Coordinate Converter (MVC) - Class Diagram
+
+' ----------------------------------
+' PACKAGES
+' ----------------------------------
+package "com.dcc.model" {
+  
+  class CoordinateGroup {
+    - id : int
+    - timestamp : java.time.LocalDateTime
+    - label : String
+    - x : double
+    - y : double
+    - r : double
+    - theta : double
+    
+    + CoordinateGroup(label : String, x : double, y : double, r : double, theta : double)
+    + getId() : int
+    + getTimestamp() : java.time.LocalDateTime
+    + getLabel() : String
+    + setLabel(label : String) : void
+    + getX() : double
+    + setX(x : double) : void
+    + getY() : double
+    + setY(y : double) : void
+    + getR() : double
+    + setR(r : double) : void
+    + getTheta() : double
+    + setTheta(theta : double) : void
+  }
+  
+  class CoordinateConverter {
+    + toPolar(x : double, y : double) : double[] 
+    + toCartesian(r : double, theta : double) : double[]
+  }
+  
+  interface ICoordinateGroupDAO {
+    + create(group : CoordinateGroup) : void
+    + update(group : CoordinateGroup) : void
+    + delete(id : int) : void
+    + findByLabel(label : String) : java.util.List<CoordinateGroup>
+    + findAll() : java.util.List<CoordinateGroup>
+  }
+  
+  class CoordinateGroupDAOImpl {
+    - dbConnection : DatabaseConnection
+    
+    + CoordinateGroupDAOImpl(dbConnection : DatabaseConnection)
+    + create(group : CoordinateGroup) : void
+    + update(group : CoordinateGroup) : void
+    + delete(id : int) : void
+    + findByLabel(label : String) : java.util.List<CoordinateGroup>
+    + findAll() : java.util.List<CoordinateGroup>
+  }
+  
+  class DatabaseConnection {
+    - connection : java.sql.Connection
+    
+    + getConnection() : java.sql.Connection
+    + closeConnection() : void
+  }
+}
+
+package "com.dcc.controller" {
+  
+  class MainController {
+    - view : MainView
+    - dao : ICoordinateGroupDAO
+    - converter : CoordinateConverter
+    
+    + MainController(view : MainView, dao : ICoordinateGroupDAO, converter : CoordinateConverter)
+    + createCoordinateGroup(type : String, x : double, y : double, r : double, theta : double, label : String) : void
+    + updateCoordinateGroup(groupId : int, type : String, x : double, y : double, r : double, theta : double, label : String) : void
+    + deleteCoordinateGroup(groupId : int) : void
+    + viewAllCoordinateGroups() : void
+    + viewCoordinateGroupByLabel(label : String) : void
+  }
+}
+
+package "com.dcc.view" {
+  
+  class MainView {
+    - controller : MainController
+    
+    + MainView()
+    + setController(controller : MainController) : void
+    + showAllGroups(groups : java.util.List<CoordinateGroup>) : void
+    + showGroupsByLabel(groups : java.util.List<CoordinateGroup>) : void
+    + showCreateGroupForm() : void
+    + showUpdateGroupForm(group : CoordinateGroup) : void
+    + showError(message : String) : void
+  }
+}
+
+' ----------------------------------
+' RELATIONSHIPS
+' ----------------------------------
+
+' DAO Implementation
+ICoordinateGroupDAO <|.. CoordinateGroupDAOImpl
+
+' DAO uses DB connection
+CoordinateGroupDAOImpl --> DatabaseConnection : uses
+
+' Controller depends on DAO + uses converter
+MainController --> ICoordinateGroupDAO : "dao"
+MainController --> CoordinateConverter : "converter"
+
+' Controller <--> View
+MainController --> MainView : "view"
+MainView --> MainController : "controller"
+
+@enduml

@@ -1,0 +1,128 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesianX: Double
+        - cartesianY: Double
+        - polarR: Double
+        - polarTheta: Double
+        - timestamp: Date
+        
+        + getCartesianX(): Double
+        + getCartesianY(): Double
+        + getPolarR(): Double
+        + getPolarTheta(): Double
+        + getId(): Integer
+        + getLabel(): String
+        + getTimestamp(): Date
+        
+        + setCartesianX(Double)
+        + setCartesianY(Double)
+        + setPolarR(Double)
+        + setPolarTheta(Double)
+        + setId(Integer)
+        + setLabel(String)
+    }
+
+    abstract class Coordinate {
+        + convertToCartesian(): CartesianCoordinate
+        + convertToPolar(): PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+        
+        + getX(): Double
+        + getY(): Double
+        + setX(Double)
+        + setY(Double)
+        
+        + convertToPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+        
+        + getR(): Double
+        + getTheta(): Double
+        + setR(Double)
+        + setTheta(Double)
+        
+        + convertToCartesian(): CartesianCoordinate
+    }
+}
+
+package "controller" {
+    class DCCController {
+        - model: CoordinateGroupDAO
+        - view: DCCView
+        
+        + DCCController(CoordinateGroupDAO, DCCView)
+        
+        + handleAddCoordinateGroup(CoordinateGroup)
+        + handleUpdateCoordinateGroup(Integer, CoordinateGroup)
+        + handleDeleteCoordinateGroup(Integer)
+        + handleFilterGroups(String)
+        + clearFilter()
+        + convertCartesianToPolar(Double, Double): PolarCoordinate
+        + convertPolarToCartesian(Double, Double): CartesianCoordinate
+    }
+}
+
+package "view" {
+    interface DCCView {
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + showInputFields(CoordinateGroup)
+        + showConversionResult(String)
+        + addListener(ActionListener)
+        + refreshList()
+    }
+
+    class DCCSwingView implements DCCView {
+        - swingGUI: JFrame
+        
+        + DCCSwingView(DCCController)
+        
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + showInputFields(CoordinateGroup)
+        + showConversionResult(String)
+        + addListener(ActionListener)
+        + refreshList()
+    }
+}
+
+package "dao" {
+    interface CoordinateGroupDAO {
+        + createCoordinateGroup(CoordinateGroup): Integer
+        + findAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(Integer, CoordinateGroup): Boolean
+        + deleteCoordinateGroup(Integer): Boolean
+    }
+
+    class ConcreteCoordinatorDAO implements CoordinateGroupDAO {
+        - dbConnection: Connection
+        
+        + ConcreteCoordinatorDAO()
+        
+        + createCoordinateGroup(CoordinateGroup): Integer
+        + findAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(Integer, CoordinateGroup): Boolean
+        + deleteCoordinateGroup(Integer): Boolean
+    }
+}
+
+' Associations
+
+DCCController --* CoordinateGroupDAO
+DCCController --* DCCView
+
+ConcreteCoordinatorDAO --* Connection
+
+CoordinateGroupDAO --|> ConcreteCoordinatorDAO
+
+@enduml

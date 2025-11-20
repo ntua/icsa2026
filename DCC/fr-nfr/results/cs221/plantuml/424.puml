@@ -1,0 +1,63 @@
+@startuml
+package "Frontend - Client" {
+  class UserInterface #FFA500{
+    + addCoordinateGroup() : void
+    + updateCoordinateGroup() : void
+    + deleteCoordinateGroup() : void
+    + filterList(label: String) : void
+    + clearFilter() : void
+  }
+
+  class CoordinateConverter #9C27B0 {
+    + convertCartesianToPolar(x: Double, y: Double): PolarCoordinates
+    + convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates
+  }
+    class CartesianConverter #6495ED{
+      + convert() : void
+    }
+
+    class PolarConverter #6495ED {
+      + convert() : void
+    }
+
+}
+
+package "Model - Server" {
+
+    class CartesianCoordinates #00CED1 {
+        x: Double
+        y: Double
+      }
+      class PolarCoordinates #00CED1 {
+        r: Double
+        theta: Double
+      }
+      class CoordinateGroup #6495ED{
+        id: Integer
+        label: String
+        datetimeAddedOrModified: Datetime
+        cartesian: CartesianCoordinates <<composition>>
+        polar: PolarCoordinates <<composition>>
+
+      }
+
+  class "MySQL Database" as db {
+
+    - CreateOp()
+
+    - ReadOp()
+    
+    - UpdateOp()
+    
+    - DeleteOp()
+
+  }
+}
+
+
+UserInterface -down-> CartesianConverter  : calls
+CartesianConverter -right-> PolarCoordinates : converts to
+
+UserInterface -up-> PolarConverter   : calls
+PolarConverter -left-> CartesianCoordinates  : converts from
+@enduml

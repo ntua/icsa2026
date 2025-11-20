@@ -1,0 +1,47 @@
+@startuml
+skinparam packageDefaultLine = "1px solid"
+
+package Application {
+
+class CoordinateGroupController {
+    +convertCartesianToPolar()
+    +convertPolarToCartesian()
+    +createCoordinateGroup(label:String, coordinates:Pair<Double>)
+    +deleteCoordinateGroup(id:Int)
+    +modifyCoordinateGroup(id:Int, newLabel:String, newCoordinates:Pair<Double>)
+    +retrieveCoordinateGroupsByLabel(label:String)
+    +viewAllCoordinateGroups()
+}
+
+class CoordinateGroupModel {
+  -id : Int
+  -label : String
+  -timestamp : DateTime
+  +convertToPolarFormat()
+  +convertToCartesianFormat()
+  +storeInDatabase(coordGroup:Pair<Double>)
+  +deleteFromDatabase(id:Int)
+}
+
+class CoordinateGroupView {
+    +displayCoordinateGroup(label:String, coordinates:Pair<Double>)
+    +searchLabelAndDisplay(label:String)
+    +viewAll()
+}
+
+class DatabaseConnector {
+  -connectionURL : String
+  
++connect()
+  
++queryDatabase("SELECT * FROM coordinateGroups")
+  
++executeUpdateQuery("INSERT INTO coordinateGroups (...) VALUES (...)")
+}
+
+CoordinateGroupController --> CoordinateGroupModel : uses
+CoordinateGroupView -- CoordinateGroupController : associates with
+CoordinateGroupController --> DatabaseConnector
+DatabaseConnector --> CoordinateGroupModel : databaseConnection
+}
+@enduml

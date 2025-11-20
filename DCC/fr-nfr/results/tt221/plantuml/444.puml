@@ -1,0 +1,72 @@
+@startuml
+
+package Frontend {
+  class Frame {
+    - controller: Controller
+  }
+
+  class View {
+    + displayCoordinateGroupList(coordinateGroups: List[CoordinateGroup])
+    + displayAddCoordinateGroupDialog()
+    + displayUpdateCoordinateGroupDialog(coordinateGroup: CoordinateGroup)
+    + displayDeleteConfirmationDialog(coordinateGroup: CoordinateGroup)
+  }
+}
+
+package Logic {
+  package Coordinates {
+    class CartesianCoordinates {
+      - x: HighPrecisionNumber
+      - y: HighPrecisionNumber
+    }
+    
+    class PolarCoordinates {
+      - r: HighPrecisionNumber
+      - theta: HighPrecisionNumber
+    }
+  }
+  
+  package Conversion {
+    class CoordinateConverter {
+      + convertCartesianToPolar(cartesian: CartesianCoordinates): PolarCoordinates
+      + convertPolarToCartesian(polar: PolarCoordinates): CartesianCoordinates
+    }
+  }
+  
+  package CoordinateGroup {
+    class CoordinateGroup {
+      - id: Int
+      - label: String
+      - cartesianCoordinates: CartesianCoordinates
+      - polarCoordinates: PolarCoordinates
+      - timestamp: Date
+    }
+    
+    class CoordinateGroupManager {
+      + createCoordinateGroup(coordinateGroup: CoordinateGroup): Int
+      + readCoordinateGroups(): List[CoordinateGroup]
+      + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+      + deleteCoordinateGroup(id: Int)
+    }
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    + saveData(query: String)
+    + fetchData(query: String): String
+  }
+}
+
+package Networking {
+  class TCPIPConnection {
+    - serverAddress: String
+    - serverPort: Int
+  }
+}
+
+Frame "1" --> "0..*" View
+View "2" --> "0..*" Logic.CoordinateGroup.CoordinateGroupManager
+Logic.CoordinateGroup.CoordinateGroupManager "3" --> "1" MySQLDatabase
+
+@enduml

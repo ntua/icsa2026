@@ -1,0 +1,131 @@
+Response:
+Here's the PlantUML class diagram for the DCC Application based on the provided requirements:
+
+```plantuml
+@startuml
+
+package "dcc.client.gui" {
+    class MainFrame {
+        - coordinateInputPanel: CoordinateInputPanel
+        - coordinateListPanel: CoordinateListPanel
+        - filterPanel: FilterPanel
+        + refreshList(): void
+    }
+
+    class CoordinateInputPanel {
+        - cartesianXField: JTextField
+        - cartesianYField: JTextField
+        - polarRField: JTextField
+        - polarThetaField: JTextField
+        - labelField: JTextField
+        - addButton: JButton
+        - updateButton: JButton
+        - deleteButton: JButton
+        + getInputCoordinateGroup(): CoordinateGroup
+        - onAdd(): void
+        - onUpdate(): void
+        - onDelete(): void
+    }
+
+    class CoordinateListPanel {
+        - tableModel: DefaultTableModel
+        - table: JTable
+        + displayCoordinateGroups(List<CoordinateGroup>): void
+        + getSelectedId(): int
+    }
+
+    class FilterPanel {
+        - filterField: JTextField
+        - filterButton: JButton
+        - clearFilterButton: JButton
+        + getFilterText(): String
+        - applyFilter(): void
+        - clearFilter(): void
+    }
+}
+
+package "dcc.client.model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        + CoordinateGroup()
+        + getters/setters()
+    }
+
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        + CartesianCoordinate(x: double, y: double)
+        + getX(): double
+        + getY(): double
+        + setX(x: double): void
+        + setY(y: double): void
+    }
+
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        + PolarCoordinate(r: double, theta: double)
+        + getR(): double
+        + getTheta(): double
+        + setR(r: double): void
+        + setTheta(theta: double): void
+    }
+}
+
+package "dcc.client.logic" {
+    class CoordinateConverter {
+        + convertToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + convertToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + createCoordinateGroup(group: CoordinateGroup): void
+        + readAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+        - initializeConnection(): void
+        - closeConnection(): void
+    }
+}
+
+' Associations
+MainFrame *-- CoordinateInputPanel
+MainFrame *-- CoordinateListPanel
+MainFrame *-- FilterPanel
+
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+CoordinateInputPanel ..> CoordinateConverter : uses
+CoordinateInputPanel ..> DatabaseManager : calls
+CoordinateListPanel ..> DatabaseManager : calls
+FilterPanel ..> DatabaseManager : calls
+
+DatabaseManager ..> CoordinateGroup : manages
+
+CoordinateConverter ..> CartesianCoordinate : converts
+CoordinateConverter ..> PolarCoordinate : converts
+
+@enduml
+```
+
+This diagram:
+1. Separates concerns into 3 main packages: GUI, Model, and Logic
+2. Follows thick-client architecture with all business logic in the client
+3. Implements Single Responsibility Principle through:
+   - Dedicated coordinate classes
+   - Separate conversion logic in CoordinateConverter
+   - Isolated database operations in DatabaseManager
+4. Shows clear associations:
+   - Composition between MainFrame and its panels
+   - Composition between CoordinateGroup and coordinate types
+   - Dependency relationships for service usage
+5. Includes all required operations and attributes from the functional requirements
+6. Maintains database connectivity through the DatabaseManager class
+7. Supports all CRUD operations and filtering functionality

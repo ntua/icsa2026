@@ -1,0 +1,92 @@
+@startuml
+
+package com.dummycoordconversion {
+
+class CoordinateGroup {
+    +id: int
+    +label: String
+    -cartesianCoordinates: List<CartesianCoordinate>
+    -polarCoordinates: List<PolarCoordinate>
+}
+
+class CartesianCoordinate {
+    +x: HighPrecisionNumber
+    +y: HighPrecisionNumber
+}
+
+class PolarCoordinate {
+    +r: HighPrecisionNumber
+    +theta: HighPrecisionNumber
+}
+
+interface CoordinateGroupOperations {
++create(id, label, cartesianCoordinates, polarCoordinates) : void
++read() : List<CoordinateGroup>
++update(coordinateGroup) : bool
++delete(coordinateGroup) : bool
+}
+
+interface CoordinateConversionService {
++convertToPolar(cartesianCoordinates): List<PolarCoordinate>
++convertToCartesian(polarCoordinates): List<CartesianCoordinate>
+}
+
+package com.dummycoordconversion.logic {
+
+class CoordinateConverter implements com.dummycoordconversion.CoordinateConversionService {
+    +convertToPolar(cartesianCoordinates): List<PolarCoordinate>
+    +convertToCartesian(polarCoordinates): List<CartesianCoordinate>
+}
+
+package com.dummycoordconversion.database {
+
+class CoordinateGroupDAO implements com.dummycoordconversion.CoordinateGroupOperations {
+    private connection: DatabaseConnection = new MySQLDatabaseConnection()
+    
+    +create(id, label, cartesianCoordinates, polarCoordinates) : void
+    +read() : List<CoordinateGroup>
+    +update(coordinateGroup) : bool
+    +delete(coordinateGroup) : bool
+}
+
+class MySQLDatabaseConnection implements DatabaseConnection {
+    +connect() : bool
+    +executeQuery(sql: String) : QueryResult
+}
+
+interface DatabaseConnection {
++connect() : bool
++executeQuery(sql: String) : QueryResult
+}
+}
+
+package com.dummycoordconversion.ui {
+
+class SwingUI implements UIInterface {
+    private coordinateGroupOperations: CoordinateGroupOperations = new CoordinateGroupDAO()
+    
++displayCoordinateGroups(): void
+    +addNewCoordinateGroup(label, cartesianCoordinates, polarCoordinates) : bool
+    +updateCoordinateGroup(coordinateGroup) : bool
+    +deleteCoordinateGroup(coordinateGroup) : bool
+}
+
+interface UIInterface {
++displayCoordinateGroups()
++addNewCoordinateGroup(label, cartesianCoordinates, polarCoordinates): bool
++updateCoordinateGroup(coordinateGroup): bool
++deleteCoordinateGroup(coordinateGroup): bool
+}
+}
+
+package com.dummycoordconversion {
+    class DCCApplication extends com.dummycoordconversion.ui.UIInterface{
+      +dccController: CoordinateGroupOperations
+      +uiInterface: SwingUI
+      +initialize() : void
+      +mainMenu(): void
+      # additional methods as per requirements
+    }
+}
+}
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+package "Client" {
+    class CoordinateGroupApp {
+        - coordinateManager: CoordinateManager
+        - storageManager: StorageManager
+        - networkManager: NetworkManager
+        
+        + run()
+    }
+    
+    class CoordinateManager {
+        + createCoordinateGroup(cartesianCoordinates: String, polarCoordinates: String)
+        + updateCoordinateGroup(label: String, cartesianCoordinates: String, polarCoordinates: String)
+        + deleteCoordinateGroup(label: String)
+        + retrieveCoordinateGroup(label: String)
+    }
+    
+    class StorageManager {
+        - databaseConnection: DatabaseConnection
+        
+        + saveData(data: String)
+        + fetchData(query: String): String
+    }
+    
+    class NetworkManager {
+        + establishTCPConnection()
+        + sendRequest(request: String)
+        + receiveResponse(response: String)
+    }
+}
+    
+package "Server" {
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - timestamp: Date
+        
+        + convertToCartesian(polarCoordinates: String): String
+        + convertToPolar(cartesianCoordinates: String): String
+    }
+}
+
+CoordinateManager --> CoordinateGroup
+    
+StorageManager --> Server.Database
+        
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+
+package "Frontend" {
+class UserInterface {
+- SwingFramework: Swing
+}
+}
+
+package "Logic Layer" {
+class CoordinateGroup {
+- id : int
+- label : String
+- cartesianCoordinates : List<CartesianCoordinate>
+- polarCoordinates : List<PolarCoordinate>
+- timestamp : Date
+}
+
+class CartesianCoordinate {
+- x : high-precision number
+- y : high-precision number
+}
+
+class PolarCoordinate {
+- r : high-precision number
+- theta : high-precision number
+}
+
+class CoordinateConverter {
++ convertCartesianToPolar(x: high-precision number, y: high-precision number): PolarCoordinate
++ convertPolarToCartesian(r: high-precision number, theta: high-precision number): CartesianCoordinate
+}
+
+class CoordinateGroupManager {
+- coordinateConverter : CoordinateConverter
+- databaseConnection : DatabaseConnection
+
++ createOp(label: String, cartesianCoordinates: List<CartesianCoordinate>, polarCoordinates: List<PolarCoordinate>): int
++ readOp(): List<CoordinateGroup>
++ updateOp(id: int, label: String, cartesianCoordinates: List<CartesianCoordinate>, polarCoordinates: List<PolarCoordinate>): void
++ deleteOp(id: int): void
+}
+}
+
+package "Database Layer" {
+class DatabaseConnection {
+- connection: MySQLConnection
+}
+}
+
+UserInterface -- CoordinateGroupManager
+CoordinateGroupManager -- CoordinateConverter
+CoordinateGroupManager -- DatabaseConnection
+CoordinateGroupManager *-- CoordinateGroup : aggregate
+CoordinateGroupManager *-- CartesianCoordinate : aggregate
+CoordinateGroupManager *-- PolarCoordinate : aggregate
+
+@enduml

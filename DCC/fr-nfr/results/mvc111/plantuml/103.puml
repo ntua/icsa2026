@@ -1,0 +1,79 @@
+@startuml
+package "controller" {
+  class DCCController {
+    +createCoordinateGroup(coordinates: CoordinateGroup)
+    +storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +retrieveCoordinateGroups(label: String)
+    +retrieveAllCoordinateGroups()
+    +modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +deleteCoordinateGroup(id: int)
+  }
+}
+
+package "model" {
+  class DCCModel {
+    - databaseConnection: MySQLConnection
+    +getCoordinateGroupById(id: int): CoordinateGroup
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +deleteCoordinateGroup(id: int)
+  }
+
+  class MySQLConnection {
+    - host: String
+    - port: int
+    - databaseName: String
+    +connect()
+    +disconnect()
+    +executeStatement(sql: String) : ResultSet
+  }
+
+  abstract class Coordinate {
+    +getCoordinates(): List<Double>
+    {abstract} +getType(): String
+  }
+
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+    +getType(): String
+  }
+
+  class PolarCoordinate {
+    - r: Double
+    - theta: Double
+    +getType(): String
+  }
+
+  class CoordinateGroup {
+    - id: int 
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+    +addCoordinate(coordinate: Coordinate)
+    +getCoordinatesByType(type: String): List<Coordinate>
+  }
+}
+
+package "view" {
+  class DCCView {
+    +displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    +promptForCoordinateInput(): Coordinate
+    +promptForLabel(): String
+    +displaySuccessMessage()
+    +displayErrorMessage()
+  }
+}
+
+DCCController -- DCCModel : Request/Response
+DCCController --> DCCView : View Selection
+
+DCCModel -- MySQLConnection : Connection
+
+CoordinateGroup "1" *-- "*" Coordinate : Contains
+
+CartesianCoordinate -up-|> Coordinate
+PolarCoordinate -up-|> Coordinate
+
+@enduml

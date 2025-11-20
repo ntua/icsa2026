@@ -1,0 +1,69 @@
+@startuml
+package Presentation {
+    class DCCClient {
+        + createCoordinateGroup()
+        + retrieveCoordinateGroup(label: String): CoordinateGroup
+        + retrieveAllCoordinateGroups(): List[CoordinateGroup]
+        + modifyCoordinateGroup(id: Integer, newLabel: String)
+        + deleteCoordinateGroup(id: Integer)
+    }
+}
+
+package BusinessLogic {
+    class CoordinateService {
+        + createCoordinateGroup(cartesian: CartesianCoord, label: String): CoordinateGroup
+        + createCoordinateGroup(polar: PolarCoord, label: String): CoordinateGroup
+        + convertCartesianToPolar(cartesian: CartesianCoord): PolarCoord
+        + convertPolarToCartesian(polar: PolarCoord): CartesianCoord
+        + validateCoordinateGroup(group: CoordinateGroup): Boolean
+        + modifyCoordinateGroup(id: Integer, newLabel: String, cartesian: CartesianCoord = null, polar: PolarCoord = null)
+        + deleteCoordinateGroup(id: Integer)
+    }
+
+    class CoordinateGroup {
+        - id: Integer (auto-generated)
+        - label: String
+        - timestamp: Date (auto-generated)
+        - cartesian: CartesianCoord
+        - polar: PolarCoord
+    }
+
+    class CartesianCoord {
+        - x: Double
+        - y: Double
+        + toPolar(): PolarCoord
+    }
+
+    class PolarCoord {
+        - r: Double
+        - theta: Double
+        + toCartesian(): CartesianCoord
+    }
+}
+
+package DataAccess {
+    class DatabaseManager {
+        + storeCoordinateGroup(group: CoordinateGroup)
+        + retrieveCoordinateGroup(id: Integer): CoordinateGroup
+        + retrieveCoordinateGroupsByLabel(label: String): List[CoordinateGroup]
+        + retrieveAllCoordinateGroups(): List[CoordinateGroup]
+        + updateCoordinateGroup(id: Integer, group: CoordinateGroup)
+        + deleteCoordinateGroup(id: Integer)
+    }
+
+    class ConnectionManager {
+        + establishConnection(): Boolean
+        + closeConnection()
+        + executeQuery(sql: String): ResultSet
+    }
+}
+
+'Dependencies'
+DCCClient --> CoordinateService
+CoordinateService --> DatabaseManager
+CoordinateService --> CartesianCoord
+CoordinateService --> PolarCoord
+CoordinateGroup *-- CartesianCoord
+CoordinateGroup *-- PolarCoord
+DatabaseManager --> ConnectionManager
+@enduml

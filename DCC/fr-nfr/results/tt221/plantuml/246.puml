@@ -1,0 +1,97 @@
+@startuml
+package com.dcc.frontend {
+  class SwingUI {
+    +void displayCoordinateGroupList()
+    +void filterCoordinateGroupsByLabel(String label)
+    +void clearFilterAndDisplayAllCoordinateGroups()
+  }
+}
+
+package com.dcc.logic {
+  abstract class Coordinate {
+    +Double getX()
+    +Double getY()
+    -void setX(Double x)
+    -void setY(Double y)
+
+    +Double getR()
+    +Double getTheta()
+    -void setR(Double r)
+    -void setTheta(Double theta)
+  }
+
+  class CartesianCoordinate extends Coordinate {
+    +Double x
+    +Double y
+
+    +CartesianCoordinate(Double x, Double y)
+  }
+
+  class PolarCoordinate extends Coordinate {
+    +Double r
+    +Double theta
+
+    +PolarCoordinate(Double r, Double theta)
+  }
+}
+
+package com.dcc.logic {
+
+  abstract class CoordinateGroup {
+    +Integer getId()
+    -void setId(Integer id)
+
+    +String getLabel()
+    -void setLabel(String label)
+
+    +List<Coordinate> getCoordinates()
+    -void setCoordinates(List<Coordinate> coordinates)
+
+    +Date getTimestamp()
+    -void setTimestamp(Date timestamp)
+  }
+
+  class CartesianPolarCoordinateGroup extends CoordinateGroup {
+    +List<CartesianCoordinate> getCartesianCoordinates()
+    -void setCartesianCoordinates(List<CartesianCoordinate> cartesianCoordinates)
+
+    +List<PolarCoordinate> getPolarCoordinates()
+    -void setPolarCoordinates(List<PolarCoordinate> polarCoordinates)
+  }
+}
+
+package com.dcc.database {
+
+  class CoordinateGroupRecord {
+    +Integer getId()
+    -void setId(Integer id)
+
+    +String getLabel()
+    -void setLabel(String label)
+
+    +List<Coordinate> getCoordinates()
+    -void setCoordinates(List<Coordinate> coordinates)
+
+    +Date getTimestamp()
+    -void setTimestamp(Date timestamp)
+  }
+
+  class CoordinateGroupDAO {
+    +List<CoordinateGroupRecord> getAllRecords()
+    +CoordinateGroupRecord createRecord(CartesianPolarCoordinateGroup group, String label)
+    +void updateRecord(CoordinateGroupRecord record, CartesianPolarCoordinateGroup group, String label)
+    +void deleteRecord(CoordinateGroupRecord record)
+  }
+}
+
+package com.dcc.database {
+
+  class MySQLDatabaseConnection {
+    +void connect()
+    +void disconnect()
+
+    +CoordinateGroupDAO getCoordinateGroupDAO()
+    -void setCoordinateGroupDAO(CoordinateGroupDAO dao)
+  }
+}
+@enduml

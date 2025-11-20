@@ -1,0 +1,57 @@
+@startuml
+!define RECTANGLE class
+
+' Declare the base package for our model entities
+package "Model" as model {
+    ' CoordinateGroup entity in the Model Package
+    class CoordinateGroup {
+        + Integer id
+        + Date timestamp
+        + String label
+        + Double polarX
+        + Double polarY
+        + Double cartesianX
+        + Double cartesianY
+
+        + create()
+        - delete(id : int)
+    }
+
+    ' The Database Access Entity in the Model Package
+    class DatabaseAccess {
+        + String username
+        + String password
+        + JDBCConnection jdbcConnection() : JDBCConnection
+        + Boolean authenticate(username : String, password : String)
+        + List<CoordinateGroup> getAllGroups() : List<CoordinateGroup>
+    }
+}
+
+' The Controller Package which orchestrates the logic and handles interaction with Model entities 
+package "Controller" as controller {
+    class Controller {
+        + DatabaseAccess databaseAccess : DatabaseAccess
+        + void addNewCoordinateGroup(label : String, polarX : Double, polarY : Double)
+        + void updateCoordinateGroup(id : Integer, label : String, polarX : Double, polarY : Double)
+        + void deleteCoordinateGroup(id : Integer)
+    }
+}
+
+' The View Package which contains the UI components and handles user interaction. 
+package "View" as view {
+    class View {
+        + String titleLabel
+        + TextField labelField
+        + Button addButton
+        + TextArea polarDisplay
+        + TextArea cartesianDisplay
+    }
+}
+
+' Association lines to define the interactions between classes based on MVC architecture 
+Controller --> DatabaseAccess : Uses
+CoordinateGroup *-- DatabaseAccess : AccessedBy
+Controller *-- CoordinateGroup : Adds/Updates/Deletes
+View *-- Controller : Sends inputs and receives outputs
+
+@enduml

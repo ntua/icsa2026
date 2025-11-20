@@ -1,0 +1,80 @@
+@startuml
+
+class CoordinateGroup {
+  - String label
+  - CartesianCoord cartesian
+  + PolarCoord polar
+}
+
+class CartesianCoord {
+  - double x
+  - double y
+}
+
+class PolarCoord {
+  - double r
+  - double theta
+}
+
+class CoordinateGroup extends Object {
+   + CartesianCoord cartesian() : CartesianCoord
+    + PolarCoord polar() : PolarCoord
+    + String label() : String
+    + void addCartesian(double x, double y) 
+    + void updateCartesian(double x, double y) 
+}
+
+class CoordinateGroupController {
+   - XYZ.CoordinateGroup coordinateGroup
+   + XYZ.CoordinateGroup get() : XYZ.CoordinateGroup
+   + boolean save() : Boolean
+   + void delete() 
+}
+
+class CoordinateGroupView {
+   + String display(XYZ.CoordinateGroup) : String
+}
+
+class DatabaseConnection {
+   - DB_CONNECTION ConnectionType
+   + XYZ.DatabaseConnection get() : XYZ.DatabaseConnection
+}
+
+class Database {
+  - XYZ.Database databaseName
+}
+
+class DataOperation {
+   - String operation
+   - XYZ.CoordinateGroup coordinateGroup
+}
+
+interface CoordinateGroupLogic {
+   + void convertToCartesian(XYZ.PolarCoord) : Void
+    + void convertToPolar(XYZ.CartesianCoord) : Void
+}
+ 
+class MainApplication {
+   - Database database
+   - DatabaseConnection connection
+   - CoordinateGroupController controller
+   - CoordinateGroupView view
+   + void init(XYZ.Database) 
+   + void addNewCoordinateGroup() 
+   + void filterByLabel(String label) : Void
+}
+
+interface MainApplicationInterface {
+    + boolean initialize();
+    + void addNewCoordinateGroup();
+    + void filterByLabel(String);
+}
+class MainApplication implements MainApplicationInterface {
+   - Database database
+   - DatabaseConnection connection
+   - CoordinateGroupController controller
+   - CoordinateGroupView view
+   + void init(XYZ.Database) : Void 
+}
+
+@enduml

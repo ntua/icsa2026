@@ -1,0 +1,183 @@
+Response:
+Below is one possible example of a PlantUML class diagram that illustrates a **Client-Server** architecture for the Dummy Coordinate Conversion (DCC) application. It separates concerns among **Client**, **Server/Controller**, **Domain/Model**, and **Data Access** layers, in compliance with the requirements in the SRS.
+
+> **Note**:  
+> 1. Class names, method names, and package names are suggestions. You can adapt them to your specific project or coding conventions.  
+> 2. For brevity, some Swing GUI details (e.g., all buttons, text fields) are omitted.  
+> 3. You may refine or expand this diagram according to the exact structure of your application.
+
+```plantuml
+@startuml
+
+'
+' ===========================
+'      PACKAGE: CLIENT
+' ===========================
+package "client" {
+  class "DCCGUI" {
+    - addButton : JButton
+    - updateButton : JButton
+    - viewAllButton : JButton
+    - viewByLabelButton : JButton
+    - deleteButton : JButton
+
+    + showAllGroups(List<CoordinateGroup>) : void
+    + showGroupsByLabel(List<CoordinateGroup>) : void
+    + showErrorMessage(String) : void
+  }
+
+  class "DCCClient" {
+    + createCoordinateGroup(type: String, xOrR: double, yOrTheta: double, label: String) : void
+    + modifyCoordinateGroup(id: int, type: String, xOrR: double, yOrTheta: double, label: String) : void
+    + deleteCoordinateGroup(id: int) : void
+    + viewAllCoordinateGroups() : List<CoordinateGroup>
+    + viewCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+  }
+}
+
+'
+' ===========================
+'      PACKAGE: SERVER
+' ===========================
+package "server" {
+  class "DCCServer" {
+    + createCoordinateGroup(...)
+    + modifyCoordinateGroup(...)
+    + deleteCoordinateGroup(...)
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+  }
+
+  class "CoordinateGroupController" {
+    + createGroup(type: String, xOrR: double, yOrTheta: double, label: String) : CoordinateGroup
+    + modifyGroup(id: int, type: String, xOrR: double, yOrTheta: double, label: String) : CoordinateGroup
+    + deleteGroup(id: int) : void
+    + getAllGroups() : List<CoordinateGroup>
+    + getGroupsByLabel(label: String) : List<CoordinateGroup>
+  }
+}
+
+'
+' ===========================
+'  PACKAGE: DOMAIN / MODEL
+' ===========================
+package "domain" {
+  class "CoordinateGroup" {
+    - id : int
+    - label : String
+    - timestamp : Date
+    - cartesian : CartesianCoordinate
+    - polar : PolarCoordinate
+
+    + getId() : int
+    + getLabel() : String
+    + getTimestamp() : Date
+    + getCartesian() : CartesianCoordinate
+    + getPolar() : PolarCoordinate
+    + setCartesian(CartesianCoordinate) : void
+    + setPolar(PolarCoordinate) : void
+  }
+
+  class "CartesianCoordinate" {
+    - x : double
+    - y : double
+    + getX() : double
+    + getY() : double
+  }
+
+  class "PolarCoordinate" {
+    - r : double
+    - theta : double
+    + getR() : double
+    + getTheta() : double
+  }
+
+  class "CoordinateConverter" {
+    + cartesianToPolar(x: double, y: double) : PolarCoordinate
+    + polarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+}
+
+'
+' ===========================
+'   PACKAGE: DATA ACCESS
+' ===========================
+package "data" {
+  class "CoordinateGroupDAO" {
+    + create(CoordinateGroup) : void
+    + update(CoordinateGroup) : void
+    + findAll() : List<CoordinateGroup>
+    + findByLabel(label: String) : List<CoordinateGroup>
+    + delete(int) : void
+  }
+
+  class "DatabaseConnection" {
+    - connectionUrl : String
+    - username : String
+    - password : String
+
+    + connect() : void
+    + disconnect() : void
+    + getConnection() : Connection
+  }
+}
+
+
+'
+' ===========================
+'   RELATIONSHIPS / LINKS
+' ===========================
+'DCCGUI uses DCCClient for all requests
+DCCGUI --> DCCClient : calls
+
+'The Client uses the Server (DCCServer), typically via network calls
+DCCClient --> DCCServer : remote calls
+
+'The DCCServer delegates to CoordinateGroupController
+DCCServer --> CoordinateGroupController : uses
+
+'Controller uses DAO for persistence and Converter for coordinate transformations
+CoordinateGroupController --> CoordinateGroupDAO : CRUD operations
+CoordinateGroupController --> CoordinateConverter : convert
+
+'DAO needs DatabaseConnection
+CoordinateGroupDAO --> DatabaseConnection : uses
+
+'CoordinateGroup has a composition with Cartesian and Polar coordinates
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+@enduml
+```
+
+### Explanation of Key Elements
+
+1. **Client Layer (client package)**  
+   - **DCCGUI**: The Swing-based GUI that contains all buttons and user interface elements. Calls methods on **DCCClient** when the user triggers events (e.g., press “Add,” “Delete,” etc.).  
+   - **DCCClient**: Acts as the client-side façade or proxy. It receives requests from the GUI and communicates with the server (over the network).  
+
+2. **Server Layer (server package)**  
+   - **DCCServer**: High-level entry point on the server side. Implements the operations available for the client (create, modify, delete, and retrieve coordinate groups). Internally, it delegates the logic to the **CoordinateGroupController**.  
+   - **CoordinateGroupController**: Handles the business logic for manipulating coordinate groups, including verifying inputs and invoking the converter and DAO.  
+
+3. **Domain/Model (domain package)**  
+   - **CoordinateGroup**: Domain entity representing a group of coordinates. It keeps both **Cartesian** and **Polar** representations, along with other attributes (ID, label, timestamp).  
+   - **CartesianCoordinate** and **PolarCoordinate**: Encapsulate Cartesian (x, y) and Polar (r, θ) values, respectively.  
+   - **CoordinateConverter**: Contains methods for transforming between Cartesian and Polar representations.
+
+4. **Data Access Layer (data package)**  
+   - **CoordinateGroupDAO**: Manages persistent storage of coordinate groups in the database (create, read, update, delete).  
+   - **DatabaseConnection**: Responsible for establishing and closing the actual DB connection (e.g., MySQL).
+
+### How it Satisfies the SRS
+
+- **Use Cases**:  
+  - The classes and methods support the primary use cases (Create, Modify, View All, View by Label, and Delete Coordinate Groups).  
+- **Data Requirements**:  
+  - **CoordinateGroup** stores all required attributes (ID, label, timestamp, and both forms of coordinates).  
+  - **Database** interactions are handled via **CoordinateGroupDAO** and **DatabaseConnection**.  
+- **Client-Server Architecture**:  
+  - **DCCGUI** and **DCCClient** on the client side.  
+  - **DCCServer**, **CoordinateGroupController**, and the domain/persistence classes on the server side.  
+
+You can refine or expand this diagram to reflect additional details (e.g., error handling, specific GUI panels, unit tests, etc.). However, this provides a solid starting point that meets the **Client-Server** requirement and includes the main classes, methods, attributes, and relationships.

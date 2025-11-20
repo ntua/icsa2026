@@ -1,0 +1,52 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + calculatePolar(): void
+    + calculateCartesian(): void
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - model: Model.CoordinateGroup
+    - view: View.DCCView
+    + createCoordinateGroup(label: String, cartesianX: double, cartesianY: double): void
+    + updateCoordinateGroup(id: int, label: String, cartesianX: double, cartesianY: double): void
+    + deleteCoordinateGroup(id: int): void
+    + getCoordinateGroups(): List<Model.CoordinateGroup>
+  }
+}
+
+package "View" {
+  class DCCView {
+    + displayCoordinateGroups(coordinateGroups: List<Model.CoordinateGroup>): void
+    + getInputFromUser(): Tuple<String, double, double>
+    + showMessage(message: String): void
+  }
+}
+
+package "Database" {
+  class DatabaseConnection {
+    - url: String
+    - username: String
+    - password: String
+    + connect(): void
+    + disconnect(): void
+    + saveCoordinateGroup(coordinateGroup: Model.CoordinateGroup): void
+    + getCoordinateGroups(): List<Model.CoordinateGroup>
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+DCCController --|> DatabaseConnection 
+DCCController --> DCCView : uses
+DCCController <-- Model.CoordinateGroup : manages
+
+@enduml

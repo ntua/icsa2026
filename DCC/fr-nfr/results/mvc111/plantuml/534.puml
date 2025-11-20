@@ -1,0 +1,102 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages for separation of concerns
+package "Model" {
+    ' Classes handling data and business logic
+    abstract class Coordinate {
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        
+        + convertToCartesian(): Cartesian
+        + convertToPolar(): Polar
+    }
+
+    class Cartesian extends Coordinate {
+        + getCartesianCoordinates(): (double, double)
+    }
+
+    class Polar extends Coordinate {
+        + getPolarCoordinates(): (double, double)
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - coordinates: List<Coordinate>
+        
+        + addCoordinate(coord: Coordinate): void
+        + removeCoordinate(coord: Coordinate): void
+        + getCoordinates(): List<Coordinate>
+    }
+
+    class CoordinateGroupModel {
+        - dbConnection: DatabaseConnection
+        
+        + storeCoordinateGroup(group: CoordinateGroup): void
+        + retrieveCoordinateGroups(label?: String): List<CoordinateGroup>
+        + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+    }
+}
+
+package "View" {
+    ' Classes handling user interface
+    class DCCView {
+        - frame: JFrame
+        - inputForm: CoordinateForm
+        
+        + showCreateForm(): void
+        + showRetrieveForm(): void
+        + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        + displayMessage(message: String): void
+    }
+
+    class CoordinateForm {
+        - cartesianInput: JPanel
+        - polarInput: JPanel
+        
+        + getInputCoordinates(): Coordinate
+        + clearForm(): void
+    }
+}
+
+package "Controller" {
+    ' Classes handling application logic and flow
+    class DCCController {
+        - view: DCCView
+        - model: CoordinateGroupModel
+        
+        + createCoordinateGroup(): void
+        + convertCoordinates(coord: Coordinate): void
+        + storeCoordinateGroup(group: CoordinateGroup): void
+        + retrieveCoordinateGroups(label?: String): List<CoordinateGroup>
+        + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+    }
+}
+
+' Database-related classes
+package "Database" {
+    class DatabaseConnection {
+        - connection: Connection
+        
+        + connect(): boolean
+        + executeQuery(query: String): ResultSet
+        + closeConnection(): void
+    }
+}
+
+' Associations between classes
+DCCController --> DCCView : uses
+DCCController --> CoordinateGroupModel : uses
+CoordinateGroupModel --> DatabaseConnection : uses
+
+CoordinateGroup --> Cartesian : composition
+CoordinateGroup --> Polar : composition
+
+CoordinateGroupModel --> CoordinateGroup : aggregation
+
+@enduml

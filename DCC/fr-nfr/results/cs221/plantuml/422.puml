@@ -1,0 +1,67 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+package "Frontend" {
+  class GUI {
+    + displayCoordinateList() : void
+    + handleAdd() : void
+    + handleUpdate(id: int) : void
+    + handleDelete(id: int) : void
+    + handleFilterByLabel(label: string) : void
+    + handleClearFilter() : void
+  }
+}
+
+package "Logic" {
+  class CoordinateConverter {
+    <<interface>>
+    - convertCartesianToPolar(x: double, y: double) : PolarCoordinate
+    - convertPolarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+
+  class CartesianCoordinate {
+    + x: double
+    + y: double
+    # toString(): string
+  }
+
+  class PolarCoordinate {
+    + r: double
+    + theta: double
+    # toCartesian(): CartesianCoordinate
+    # toString(): string
+  }
+  
+  class CoordinateGroup {
+    <<interface>>
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+  }
+}
+
+ package "Data Operations" {
+  class DatabaseManager {
+    <<interface>>
+    - createRecord(id: int, timestamp: datetime, label: string, coords: CoordinateGroup) : void
+    - readRecords() : list<Record>
+    - updateRecord(id: int, newCoords: CoordinateGroup) : void
+    - deleteRecord(id: int) : void
+  }
+
+  class Record {
+    <<interface>>
+    + id: int
+    + timestamp: datetime
+    + label: string
+    + coords: CoordinateGroup
+    # toString(): string
+  }
+}
+
+GUI ..> CoordinateConverter
+GUI ..> DatabaseManager
+CoordinateConverter ..|> CartesianCoordinate
+CoordinateConverter ..|> PolarCoordinate
+CoordinateConverter ..|> CoordinateGroup
+DatabaseManager ..|> Record
+@enduml

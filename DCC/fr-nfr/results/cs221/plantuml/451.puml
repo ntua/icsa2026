@@ -1,0 +1,44 @@
+@startuml
+
+
+class Application {
+    +Main() // Entry point of the application using Swing framework
+}
+
+class DatabaseConnection {
+    -host: String
+    -username: String
+    -password: String
+    +connect(): Boolean // TCP/IP connection to database server (MySQL)
+}
+
+class Logic {
+    -logicClass: LogicClass // for coordinate conversion
+    +CartesianToPolar(x: double, y: double): Pair<Double, Double>
+    +PolarToCartesian(r: double, theta: double): Pair<Double, Double>
+}
+
+class CoordinateGroup {
+    -id: Integer // unique auto-generated integer identifier for coordinate group
+    -label: String // string to label the group
+    +add(x: double, y: double, r: Double, Theta: double)
+    +delete()
+    +update(newLabel: String, newX: double, newY: double, newR: double, newTheta: double): Boolean
+}
+
+class UI {
+    -application: Application
+    -dbConnection: DatabaseConnection
+    -logicClass: Logic.LogicClass
+    
+    +addGroup() // handle user input for adding a coordinate group
+    +updateGroup(recordId: Integer) // handle user input to update a record
+    +deleteGroup(recordId: Integer) // handle user input to delete a record
+}
+
+Application -d-> UI : *
+UI -d-> Logic :: logicClass
+UI -u-> DatabaseConnection : connect()
+
+CoordinateGroup *-d- Logic : "contains"
+@enduml

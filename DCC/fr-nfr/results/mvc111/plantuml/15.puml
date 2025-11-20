@@ -1,0 +1,71 @@
+@startuml
+package "DCCModel" {
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - timestamp: Date
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+    + storeInDatabase()
+    + retrieveFromDatabase(label)
+    + updateDetails()
+    + deleteFromDatabase()
+  }
+  
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+    + setX(x)
+    + setY(y)
+    + convertToPolar()
+  }
+  
+  class PolarCoordinate {
+    - r: Double
+    - theta: Double
+    + setR(r)
+    + setTheta(theta)
+    + convertToCartesian()
+  }
+}
+
+package "DCCView" {
+  class CoordinateGroupViewer {
+    + displayCoordinateGroup(group: CoordinateGroup)
+    + displayConvertResult(result: ConvertResult)
+    + displayError(message: String)
+  }
+  
+  class ConversionResultViewer {
+    + displayConversionResult(result: ConvertResult)
+  }
+}
+
+package "DCCController" {
+  class CoordinateGroupController {
+    - model: DCCModel
+    - view: DCCView
+    + createCoordinateGroup()
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroups()
+    + modifyCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(id: Integer)
+  }
+  
+  class Converter {
+    + convertCartesianToPolar(cartesian: CartesianCoordinate)
+    + convertPolarToCartesian(polar: PolarCoordinate)
+  }
+}
+
+  CoordinateGroup -- CoordinateGroupViewer
+  CoordinateGroupController -l- CoordinateGroupViewer
+  
+  CartesianCoordinate -- Converter
+  
+  PolarCoordinate -- Converter
+
+
+  DCCView -- CoordinateGroupController
+
+@enduml

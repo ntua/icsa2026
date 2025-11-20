@@ -1,0 +1,52 @@
+@startuml
+package frontend {
+  class MainWindow {
+    + displayCoordinateGroups()
+    + handleAddAction()
+    + handleUpdateAction()
+    + handleDeleteAction()
+    + handleFilterAction()
+  }
+}
+
+package logic {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    - timestamp: Date
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double): (double, double)
+    + polarToCartesian(r: double, theta: double): (double, double)
+  }
+
+  class DataManager {
+    - dbConnection: MySQLConnection
+    + createCoordinateGroup(group: CoordinateGroup)
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+}
+
+package database {
+  class MySQLConnection {
+    + connect()
+    + executeQuery(query: String)
+  }
+}
+
+
+frontend.MainWindow "1" -- "*" logic.CoordinateGroup : displays
+logic.CoordinateGroup "*" -- "1" logic.DataManager : managed by
+logic.DataManager "1" -- "1" database.MySQLConnection : uses
+
+@enduml

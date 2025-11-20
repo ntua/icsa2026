@@ -1,0 +1,80 @@
+@startuml
+package logic {
+  class CoordinateGroup {
+    -id: Integer
+    -label: String
+    -cartesianCoordinates: CartesianCoordinate
+    -polarCoordinates: PolarCoordinate
+
+    +createOp(): void
+    +readOp(): List<CoordinateGroup>
+    +updateOp(CoordinateGroup): void
+    +deleteOp(CoordinateGroup): void
+  }
+
+  class CartesianCoordinate {
+    -x: Double
+    -y: Double
+
+    +convertToPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    -r: Double
+    -theta: Double
+
+    +convertToCartesian(): CartesianCoordinate
+  }
+}
+
+package view {
+  class CoordinateGroupView {
+    +displayList(List<CoordinateGroup>): void
+    +filterList(String): List<CoordinateGroup>
+    +clearFilter(): void
+  }
+
+  class CoordinateDetailView {
+    +displayCoordinate(CoordinateGroup): void
+  }
+}
+
+package controller {
+  class CoordinateGroupController {
+    -model: logic.CoordinateGroup
+    -view: view.CoordinateGroupView
+
+    +searchGroups(): List<CoordinateGroup>
+    +reserveGroup(CoordinateGroup): void
+    +deleteGroup(CoordinateGroup): void
+  }
+
+  class ConversionController {
+    +convertCartesianToPolar(CartesianCoordinate): PolarCoordinate
+    +convertPolarToCartesian(PolarCoordinate): CartesianCoordinate
+  }
+}
+
+package model {
+  class CoordinateGroupModel {
+    -coordinateGroups: List<logic.CoordinateGroup>
+
+    +fetchGroups(): List<logic.CoordinateGroup>
+  }
+
+  class DatabaseConnection {
+    +connect(): void
+    +disconnect(): void
+    +executeCreateOp(logic.CoordinateGroup): void
+    +executeReadOp(): List<logic.CoordinateGroup>
+    +executeUpdateOp(logic.CoordinateGroup): void
+    +executeDeleteOp(logic.CoordinateGroup): void
+  }
+}
+
+CoordinateGroupController --> CoordinateGroupModel: uses
+CoordinateGroupController --> ConversionController: uses
+CoordinateDetailView --> CoordinateGroupView: uses
+
+
+@enduml

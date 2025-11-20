@@ -1,0 +1,58 @@
+@startuml
+package "Presentation Layer" {
+    class GUI {
+        + displayCoordinateList()
+        + showCoordinateDetails(label: String)
+        + createCoordinateGroup()
+        + updateCoordinateGroup(id: int)
+        + deleteCoordinateGroup(id: int)
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateManager {
+        + createCoordinateGroup(label: String, x: double, y: double, r: double, theta: double): boolean
+        + updateCoordinateGroup(id: int, label: String, x: double, y: double, r: double, theta: double): boolean
+        + deleteCoordinateGroup(id: int): boolean
+        + convertCartesianToPolar(x: double, y: double): PolarCoordinate
+        + convertPolarToCartesian(r: double, theta: double): CartesianCoordinate
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: String
+        - cartesianCoordinate: CartesianCoordinate
+        - polarCoordinate: PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+    }
+
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+    }
+}
+
+package "Data Access Layer" {
+    class DatabaseHandler {
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup): boolean
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup): boolean
+        + deleteCoordinateGroup(id: int): boolean
+        + fetchAllCoordinateGroups(): List<CoordinateGroup>
+        + fetchCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+}
+
+GUI --> CoordinateManager : uses
+CoordinateManager --> DatabaseHandler : interacts
+CoordinateManager --> CoordinateGroup : manages
+CoordinateGroup --> CartesianCoordinate : has
+CoordinateGroup --> PolarCoordinate : has
+
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+
+package frontend {
+  class DCCApplication {
+    + main(String[] args)
+  }
+}
+
+package logic {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + toCartesian() : void
+    + toPolar() : void
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): (double, double)
+    + polarToCartesian(double r, double theta): (double, double)
+  }
+
+}
+
+package database {
+  class DatabaseConnection {
+    - url: String
+    + connect() : void
+    + disconnect() : void
+  }
+  
+  class CoordinateGroupDAO {
+    - connection: DatabaseConnection
+    + create(CoordinateGroup cg): void
+    + readAll(): List<CoordinateGroup>
+    + update(CoordinateGroup cg): void
+    + delete(int id): void
+  }
+
+}
+
+
+frontend.DCCApplication "1" -- "*" logic.CoordinateGroup : uses
+logic.CoordinateGroup "*" -- "1" database.CoordinateGroupDAO : persists
+
+logic.CoordinateConverter -- logic.CoordinateGroup : converts
+
+frontend.DCCApplication --> database.DatabaseConnection : connects to
+
+
+@enduml

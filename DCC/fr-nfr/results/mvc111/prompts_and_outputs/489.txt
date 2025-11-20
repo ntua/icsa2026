@@ -1,0 +1,148 @@
+Response:
+Below is an example PlantUML class diagram that reflects a simple MVC architecture for the described Dummy Coordination Conversion (DCC) Application. The diagram is split into four packages—**model**, **controller**, **view**, and **data**—and shows key classes, their attributes, methods, and associations. You can adapt the class and method names as needed for your specific implementation.
+
+```plantuml
+@startuml
+'
+' Title and legend (optional)
+'
+title "Dummy Coordination Conversion (DCC) - Class Diagram"
+
+legend left
+  <<MVC Overview>>
+  - model: Contains domain/data classes (e.g., CoordinateGroup, CartesianCoordinate, PolarCoordinate)
+  - view: Contains Swing-based UI classes (e.g., CoordinateView)
+  - controller: Contains logic to handle user actions and mediate between model and view
+  - data: Contains classes that handle persistence logic (e.g., repository/DAO, database connections)
+end legend
+
+'
+' Packages
+'
+package "model" as model <<Model>> {
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - timestamp : java.util.Date
+        - cartesian : CartesianCoordinate
+        - polar : PolarCoordinate
+        
+        + CoordinateGroup(label : String, cartesian : CartesianCoordinate)
+        + CoordinateGroup(label : String, polar : PolarCoordinate)
+        + getId() : int
+        + getLabel() : String
+        + getTimestamp() : java.util.Date
+        + getCartesian() : CartesianCoordinate
+        + getPolar() : PolarCoordinate
+        + setLabel(label : String) : void
+        + setCartesian(cartesian : CartesianCoordinate) : void
+        + setPolar(polar : PolarCoordinate) : void
+    }
+    
+    class CartesianCoordinate {
+        - x : double
+        - y : double
+        
+        + CartesianCoordinate(x : double, y : double)
+        + getX() : double
+        + getY() : double
+        + setX(x : double) : void
+        + setY(y : double) : void
+        + toPolar() : PolarCoordinate
+    }
+    
+    class PolarCoordinate {
+        - r : double
+        - theta : double
+        
+        + PolarCoordinate(r : double, theta : double)
+        + getR() : double
+        + getTheta() : double
+        + setR(r : double) : void
+        + setTheta(theta : double) : void
+        + toCartesian() : CartesianCoordinate
+    }
+}
+
+package "controller" as controller <<Controller>> {
+    class CoordinateController {
+        - repository : CoordinateRepository
+        
+        + CoordinateController(repository : CoordinateRepository)
+        + createCoordinateGroup(label : String, x : double, y : double) : void
+        + createCoordinateGroup(label : String, r : double, theta : double) : void
+        + updateCoordinateGroup(id : int, label : String, x : double, y : double, r : double, theta : double) : void
+        + deleteCoordinateGroup(id : int) : void
+        + getCoordinateGroupByLabel(label : String) : java.util.List<CoordinateGroup>
+        + getAllCoordinateGroups() : java.util.List<CoordinateGroup>
+    }
+}
+
+package "view" as view <<View>> {
+    class CoordinateView {
+        - controller : CoordinateController
+        
+        + CoordinateView(controller : CoordinateController)
+        + displayMainMenu() : void
+        + promptForCoordinates() : void
+        + displayCoordinateGroups(groups : java.util.List<CoordinateGroup>) : void
+        + displayError(message : String) : void
+    }
+}
+
+package "data" as data <<Data Access>> {
+    class CoordinateRepository {
+        - dbConnection : DatabaseConnection
+        
+        + CoordinateRepository(dbConnection : DatabaseConnection)
+        + save(coordinateGroup : CoordinateGroup) : void
+        + update(coordinateGroup : CoordinateGroup) : void
+        + delete(id : int) : void
+        + findByLabel(label : String) : java.util.List<CoordinateGroup>
+        + findAll() : java.util.List<CoordinateGroup>
+    }
+    
+    class DatabaseConnection {
+        + connect() : void
+        + disconnect() : void
+        + executeQuery(query : String) : java.sql.ResultSet
+        + executeUpdate(query : String) : int
+    }
+}
+
+'
+' Relationships
+'
+model.CoordinateGroup "1" *-- "1" model.CartesianCoordinate : has
+model.CoordinateGroup "1" *-- "1" model.PolarCoordinate : has
+
+controller.CoordinateController --> data.CoordinateRepository : uses
+controller.CoordinateController --> model.CoordinateGroup : creates/manages
+
+data.CoordinateRepository --> model.CoordinateGroup : persists
+data.CoordinateRepository --> data.DatabaseConnection : uses
+
+view.CoordinateView --> controller.CoordinateController : interacts
+
+@enduml
+```
+
+---
+
+### Diagram Explanation
+
+1. **Model**  
+   - **CoordinateGroup** holds the attributes `id`, `label`, and `timestamp`, along with references to both a `CartesianCoordinate` and a `PolarCoordinate`.  
+   - **CartesianCoordinate** and **PolarCoordinate** each provide attributes and methods to convert from one representation to the other (`toPolar()` or `toCartesian()`).
+
+2. **Controller**  
+   - **CoordinateController** contains the logic to create, read, update, and delete (CRUD) `CoordinateGroup` objects. It uses a **CoordinateRepository** to persist and retrieve data.
+
+3. **View**  
+   - **CoordinateView** is a Swing-based class (or set of classes) that manages user interaction. It communicates user actions to the **CoordinateController** and displays results or errors.
+
+4. **Data**  
+   - **CoordinateRepository** defines methods for saving, updating, deleting, and finding coordinate groups.  
+   - **DatabaseConnection** is responsible for establishing a TCP/IP connection to MySQL and running queries or updates on the database.
+
+This design follows the **Model-View-Controller** (MVC) pattern, isolating data, presentation, and business logic. The class diagram outlines the high-level structure of how each component interacts within the DCC application to meet the stated functional and non-functional requirements.

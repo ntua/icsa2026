@@ -1,0 +1,86 @@
+@startuml
+
+package Frontend {
+  class DccApplication {
+    - SwingGUI gui
+    
+    + run()
+    + createCoordinateGroup(cartesianX, cartesianY, polarR, polarTheta, label)
+    + storeCoordinateGroup(coordinateGroup)
+    + retrieveCoordinateGroupByLabel(label)
+    + retrieveAllCoordinateGroups()
+    + modifyCoordinateGroup(id, newCartesianX, newCartesianY, newPolarR, newPolarTheta, newLabel)
+    + deleteCoordinateGroup(id)
+  }
+  
+  class SwingGUI {
+    + createAndShowGUI()
+    + getUserInputs()
+    + displayCoordinateGroups(coordinateGroups)
+    + confirmModification()
+    + confirmDeletion()
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - Connection connection
+    
+    + connect()
+    + disconnect()
+    + storeCoordinateGroup(coordinateGroup)
+    + retrieveCoordinateGroupByLabel(label)
+    + retrieveAllCoordinateGroups()
+    + modifyCoordinateGroup(id, newCartesianX, newCartesianY, newPolarR, newPolarTheta, newLabel)
+    + deleteCoordinateGroup(id)
+  }
+}
+
+package Model {
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - CartesianCoordinate cartesianCoordinate
+    - PolarCoordinate polarCoordinate
+    
+    + getId()
+    + setId(id)
+    + getLabel()
+    + setLabel(label)
+    + getTimestamp()
+    + getCartesianX()
+    + getCartesianY()
+    + getPolarR()
+    + getPolarTheta()
+    + setCartesianCoordinate(x, y)
+    + setPolarCoordinate(r, theta)
+  }
+  
+  class CartesianCoordinate {
+    - double x
+    - double y
+    
+    + getX()
+    + getY()
+    + setX(x)
+    + setY(y)
+  }
+  
+  class PolarCoordinate {
+    - double r
+    - double theta
+    
+    + getR()
+    + getTheta()
+    + setR(r)
+    + setTheta(theta)
+  }
+}
+
+DccApplication -- SwingGUI
+DccApplication -- MySQLDatabase
+Model.CoordinateGroup -- Model.CartesianCoordinate
+Model.CoordinateGroup -- Model.PolarCoordinate
+
+@enduml

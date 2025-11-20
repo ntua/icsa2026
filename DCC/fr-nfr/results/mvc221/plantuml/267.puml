@@ -1,0 +1,75 @@
+@startuml
+
+package "model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getCartesianCoordinates(): CartesianCoordinates
+    + setCartesianCoordinates(c: CartesianCoordinates): void
+    + getPolarCoordinates(): PolarCoordinates
+    + setPolarCoordinates(p: PolarCoordinates): void
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+    + getX(): double
+    + getY(): double
+    + setX(x: double): void
+    + setY(y: double): void
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+    + getR(): double
+    + getTheta(): double
+    + setR(r: double): void
+    + setTheta(theta: double): void
+  }
+}
+
+package "controller" {
+  class DCCController {
+    - coordinateGroupModel: CoordinateGroupModel
+    - view: DCCView
+    + createCoordinateGroup(label: String, x: double, y: double): void
+    + updateCoordinateGroup(id: int, label: String, x: double, y: double): void
+    + deleteCoordinateGroup(id: int): void
+    + getCoordinateGroups(): List<CoordinateGroup>
+  }
+
+}
+
+package "view" {
+  class DCCView {
+    - controller: DCCController
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>): void
+    + getInputFromUser(): CoordinateGroupInput
+    + showMessage(message: String): void
+  }
+}
+
+package "database" {
+  class DatabaseManager {
+    - connection: Connection
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+
+  }
+}
+
+DCCController "1" --> "*" CoordinateGroup : manages
+
+DCCView "1" --> "1" DCCController : uses
+
+DatabaseManager "1" --> "*" CoordinateGroup : persists
+
+
+@enduml

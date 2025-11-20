@@ -1,0 +1,142 @@
+@startuml
+skinparam monochrome true
+
+' API Gateway Package
+package "API Gateway" {
+  class ApiGateway {
+    -routes: Map<String, String>
+    +routeRequest(request: Request): Response // Flow control operation
+    +authenticateRequest(token: String): Boolean // Flow control operation
+  }
+}
+
+' Authentication Service Package
+package "Authentication Service" {
+  class AuthService {
+    -authClient: GoogleOAuthClient
+    +loginWithGoogle(token: String): User // Functional requirement-business logic operation
+    +getUserProfile(userId: String): User // Functional requirement-business logic operation
+    +syncUserProfiles(): Void // Data consistency operation
+  }
+  class User {
+    -userId: String
+    -name: String
+    -email: String
+    -profilePicture: String
+    -remainingQuota: Integer
+    -creationTimestamp: DateTime
+    -lastLoginTimestamp: DateTime
+    +save(): Void // Data management operation
+    +updateQuota(amount: Integer): Void // Data management operation
+  }
+  AuthService o--> "1" User : manages
+}
+
+' Template Service Package
+package "Template Service" {
+  class TemplateService {
+    -templates: Map<String, CsvTemplate>
+    +getTemplate(chartType: String): CsvTemplate // Functional requirement-business logic operation
+    +downloadTemplate(chartType: String): File // Functional requirement-business logic operation
+  }
+  class CsvTemplate {
+    -chartType: String
+    -headers: List<String>
+    -sampleData: List<List<String>>
+    -formattingParams: Map<String, String>
+    +generateCsv(): File // Data management operation
+  }
+  TemplateService o--> "many" CsvTemplate : generates
+}
+
+' Chart Generation Service Package
+package "Chart Generation Service" {
+  class ChartGenerationService {
+    -highchartsRenderer: Highcharts
+    +validateCsv(csvFile: File, chartType: String): ValidationResult // Functional requirement-business logic operation
+    +generateChart(csvFile: File, chartType: String): Chart // Functional requirement-business logic operation
+    +previewChart(chart: Chart): Image // Functional requirement-business logic operation
+  }
+  class Chart {
+    -chartId: String
+    -type: String
+    -creationDate: DateTime
+    -jsonData: HighchartsJson
+    +toFormats(): List<File> // Data management operation
+  }
+  ChartGenerationService o--> "many" Chart : creates
+}
+
+' Chart Storage Service Package
+package "Chart Storage Service" {
+  class ChartStorageService {
+    -storage: FileStorage
+    +saveChart(chart: Chart, formats: List<String>): Void // Functional requirement-business logic operation
+    +getChart(chartId: String, format: String): File // Functional requirement-business logic operation
+    +deleteChart(chartId: String): Void // Functional requirement-business logic operation
+    +listUserCharts(userId: String): List<ChartMetadata> // Functional requirement-business logic operation
+    +syncChartMetadata(): Void // Data consistency operation
+  }
+  class ChartMetadata {
+    -chartId: String
+    -type: String
+    -creationDate: DateTime
+    +store(): Void // Data management operation
+  }
+  ChartStorageService o--> "many" ChartMetadata : manages
+}
+
+' Quota Service Package
+package "Quota Service" {
+  class QuotaService {
+    -paymentGateway: PaymentGateway
+    +purchaseQuota(userId: String, amount: Integer): Transaction // Functional requirement-business logic operation
+    +decrementQuota(userId: String): Void // Functional requirement-business logic operation
+    +getQuota(userId: String): Integer // Functional requirement-business logic operation
+    +syncQuotaState(): Void // Data consistency operation
+  }
+  class Transaction {
+    -transactionId: String
+    -userId: String
+    -amount: Integer
+    -timestamp: DateTime
+    +persist(): Void // Data management operation
+  }
+  QuotaService o--> "many" Transaction : processes
+}
+
+' Dashboard Service Package
+package "Dashboard Service" {
+  class DashboardService {
+    +getChartHistory(userId: String): List<ChartMetadata> // Functional requirement-business logic operation
+    +getUserProfile(userId: String): UserProfile // Functional requirement-business logic operation
+    +downloadChart(chartId: String, format: String): File // Functional requirement-business logic operation
+  }
+  class UserProfile {
+    -name: String
+    -email: String
+    -profilePicture: String
+    -remainingQuota: Integer
+    -creationTimestamp: DateTime
+    -lastLoginTimestamp: DateTime
+  }
+  DashboardService o--> "1" UserProfile : displays
+}
+
+' Associations between services via API Gateway
+ApiGateway --> AuthService : routes
+ApiGateway --> TemplateService : routes
+ApiGateway --> ChartGenerationService : routes
+ApiGateway --> ChartStorageService : routes
+ApiGateway --> QuotaService : routes
+ApiGateway --> DashboardService : routes
+
+' Service dependencies
+ChartGenerationService --> TemplateService : validates against
+ChartGenerationService --> QuotaService : checks quota
+ChartStorageService --> ChartGenerationService : stores generated
+DashboardService --> ChartStorageService : retrieves charts
+DashboardService --> AuthService : retrieves profile
+QuotaService --> AuthService : updates user quota
+
+@enduml

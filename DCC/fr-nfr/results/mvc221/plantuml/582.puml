@@ -1,0 +1,87 @@
+@startuml DCC_Application
+
+' Packages
+package "model" {
+    class CoordinateGroup <<Model>> {
+        - id: String
+        - label: String
+        - cartesianCoordinate: CartesianCoord
+        - polarCoordinate: PolarCoord
+        - timestamp: Date
+        
+        + create()
+        + read(id: String): CoordinateGroup
+        + update()
+        + delete()
+    }
+    
+    class CartesianCoord <<Model>> {
+        - x: Double
+        - y: Double
+        
+        + toPolar(): PolarCoord
+    }
+    
+    class PolarCoord <<Model>> {
+        - r: Double
+        - theta: Double
+        
+        + toCartesian(): CartesianCoord
+    }
+}
+
+package "view" {
+    class DCCView <<View>> {
+        + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+        + handleUserInput(): void
+    }
+}
+
+package "controller" {
+    class DCCController <<Controller>> {
+        - view: DCCView
+        - model: CoordinateGroup
+        - dao: CoordinateGroupDAO
+        
+        + processUserAction(action: String, data: Any): void
+        + refreshView(): void
+    }
+}
+
+package "dao" {
+    interface CoordinateGroupDAO <<DAO>> {
+        + save(coordinateGroup: CoordinateGroup): void
+        + findAll(): List<CoordinateGroup>
+        + findOne(id: String): CoordinateGroup
+        + update(coordinateGroup: CoordinateGroup): void
+        + delete(id: String): void
+    }
+    
+    class MySQLCoordinateGroupDAO <<DAO>> implements CoordinateGroupDAO {
+        - connection: DatabaseConnection
+        
+        + constructor(host: String, port: Integer, database: String, user: String, password: String)
+    }
+}
+
+package "database" {
+    class Database <<Database>> {
+        + getConnection(): DatabaseConnection
+    }
+    
+    class DatabaseConnection <<DatabaseConnection>> {
+        + execute(query: String): ResultSet
+        + close(): void
+    }
+}
+
+' Relationships
+DCCController --> CoordinateGroupDAO : uses > 
+DCCController --> DCCView : updates >
+DCCController --> CoordinateGroup : manages >
+CoordinateGroupDAO --> Database : connects to >
+CoordinateGroup --> CartesianCoord : composition >
+CoordinateGroup --> PolarCoord : composition >
+DCCView --> DCCController : sends user input >
+MySQLCoordinateGroupDAO --> Database : uses >
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+
+' Define the Three-Tier Architecture Packages
+package "Frontend" {
+    ' Frontend Classes
+    class UserInterface {
+        + createCoordinateGroup(cartesianX: Double, cartesianY: Double, polarR: Double, polarTheta: Double) : CoordinateGroup
+        + retrieveCoordinateGroups() : List<CoordinateGroup>
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+}
+
+package "Business Logic" {
+    ' Business Logic Classes
+    class Converter {
+        + convertToCartesian(polarR: Double, polarTheta: Double) : CartesianCoordinates
+        + convertToPolar(cartesianX: Double, cartesianY: Double) : PolarCoordinates
+    }
+
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Timestamp
+        - cartesian: CartesianCoordinates
+        - polar: PolarCoordinates
+
+        + getCartesian() : CartesianCoordinates
+        + setCartesian(cartesianX: Double, cartesianY: Double) : void
+        + getPolar() : PolarCoordinates
+        + setPolar(polarR: Double, polarTheta: Double) : void
+    }
+
+    class CartesianCoordinates {
+        - x: Double
+        - y: Double
+
+        + toPolar() : PolarCoordinates
+    }
+
+    class PolarCoordinates {
+        - r: Double
+        - theta: Double
+
+        + toCartesian() : CartesianCoordinates
+    }
+}
+
+package "Database" {
+    ' Database Classes
+    class MySQL {
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+        + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+}
+
+' Associations between classes
+UserInterface <.. Converter
+Converter <.. CartesianCoordinates
+Converter <.. PolarCoordinates
+Converter "1" -- "*" CoordinateGroup
+UserInterface ..> MySQL
+MySQL <.. CoordinateGroup
+
+@enduml

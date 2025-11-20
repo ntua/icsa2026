@@ -1,0 +1,103 @@
+Response:
+```plantuml
+@startuml
+package "Model" {
+    class Coordinate {
+        - x: double
+        - y: double
+        - r: double
+        - theta: double 
+
+        + Coordinate(x: double, y: double, r: double, theta: double)
+        + getX(): double
+        + getY(): double
+        + getR(): double
+        + getTheta(): double
+        + setX(x: double): void
+        + setY(y: double): void
+        + setR(r: double): void
+        + setTheta(theta: double): void
+        + toCartesian(): void
+        + toPolar(): void
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - coordinates: Coordinate 
+
+        + CoordinateGroup(label: String, coordinates: Coordinate)
+        + getId(): int
+        + getTimestamp(): Date
+        + getLabel(): String
+        + getCoordinates(): Coordinate
+        + setLabel(label: String): void
+        + setCoordinates(coordinates: Coordinate): void
+    }
+
+    class CoordinateDAO {
+        + createCoordinateGroup(group: CoordinateGroup): void
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: int): CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "View" {
+    class CoordinateGroupView {
+        - frame: JFrame
+        + showAllCoordinateGroups(): void
+        + showCoordinateGroupById(id: int): void
+        + showCoordinateGroupByLabel(label: String): void
+        + showCreateCoordinateGroupForm(): void
+        + showModifyCoordinateGroupForm(group: CoordinateGroup): void
+    }
+}
+
+package "Controller" {
+    class CoordinateGroupController {
+        - coordinateGroupView: CoordinateGroupView
+        - coordinateDAO: CoordinateDAO
+
+        + createCoordinateGroup(label: String, x: double, y: double, r: double, theta: double): void
+        + modifyCoordinateGroup(id: int, label: String, x: double, y: double, r: double, theta: double): void
+        + deleteCoordinateGroup(id: int): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: int): CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+CoordinateGroupView --> CoordinateGroupController
+CoordinateGroupController --> CoordinateDAO
+CoordinateGroupController --> CoordinateGroupView
+CoordinateGroup <-- Coordinate
+CoordinateDAO --> CoordinateGroup
+
+@enduml
+```
+
+**Explanation:**
+
+* **Model:**
+    * `Coordinate`: Represents a single coordinate with both Cartesian (x, y) and Polar (r, theta) values. Includes methods for conversion between coordinate systems.
+    * `CoordinateGroup`: Holds a collection of coordinates and associated metadata like label and timestamp.
+    * `CoordinateDAO`: Handles data access operations (create, read, update, delete) for `CoordinateGroup` objects in the database.
+
+* **View:**
+    * `CoordinateGroupView`: Responsible for the user interface. Contains methods to display coordinate groups in various ways (all, by ID, by label), and to present forms for creating and modifying groups.
+
+* **Controller:**
+    * `CoordinateGroupController`: Mediates between the `View` and the `Model`. Handles user interactions, delegates data operations to the `CoordinateDAO`, and updates the `View` with the results.
+
+**Associations:**
+
+* `CoordinateGroupView` -> `CoordinateGroupController`: The View requests data and actions from the Controller.
+* `CoordinateGroupController` -> `CoordinateDAO`: The Controller interacts with the database through the DAO.
+* `CoordinateGroupController` -> `CoordinateGroupView`: The Controller updates the View with data and displays messages to the user.
+* `CoordinateGroup` <- `Coordinate`: A CoordinateGroup has-a Coordinate.
+
+This class diagram adheres to the MVC architecture, separating concerns and promoting better maintainability and testability.

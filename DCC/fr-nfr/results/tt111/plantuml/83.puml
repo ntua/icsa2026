@@ -1,0 +1,95 @@
+@startuml
+package PresentationLayer {
+  class GUI {
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    
+    + createCoordinateGroup() : void
+    + storeCoordinateGroup() : void
+    + retrieveCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup() : void
+    + deleteCoordinateGroup() : void
+  }
+  
+  class SwingWindow {
+    - windowTitle : String
+    - coordinatesLabel : JLabel
+    
+    + displayGUI() : void
+  }
+}
+
+package LogicLayer {
+  class CoordinateProcessor {
+    - databaseConnection : DatabaseConnection
+    
+    + convertCoordinates(cartesian: Cartesian, polar: Polar) : CoordinateGroup
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+    + modifyCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+  
+  class DatabaseInterface {
+    - databaseConnection : DatabaseConnection
+    
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+    + modifyCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+package DataLayer {
+  class DatabaseConnection {
+    - databaseURL : String
+    - username : String
+    - password : String
+    
+    + establishConnection() : void
+    + closeConnection() : void
+  }
+  
+  class CoordinateGroupTable {
+    - id : int
+    - label : String
+    - cartesianX : double
+    - cartesianY : double
+    - polarR : double
+    - polarTheta : double
+    
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+    + modifyCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+GUI -> CoordinateProcessor : requestCreateCoordinateGroup
+GUI -> CoordinateProcessor : storeCoordinateGroup
+GUI -> CoordinateProcessor : retrieveCoordinateGroups
+GUI -> CoordinateProcessor : modifyCoordinateGroup
+GUI -> CoordinateProcessor : deleteCoordinateGroup
+
+SwingWindow -> GUI : displayGUI
+
+CoordinateProcessor -> DatabaseInterface : requestStoreCoordinateGroup
+DatabaseInterface -> DatabaseConnection : establishConnection
+DatabaseConnection -> DatabaseConnection : closeConnection
+DatabaseInterface -> CoordinateGroupTable : storeCoordinateGroup
+CoordinateGroupTable -> CoordinateGroupTable : storeCoordinateGroup
+
+CoordinateProcessor -> DatabaseInterface : retrieveCoordinateGroups
+DatabaseInterface -> CoordinateGroupTable : retrieveCoordinateGroups
+CoordinateGroupTable -> CoordinateGroupTable : retrieveCoordinateGroups
+
+CoordinateProcessor -> DatabaseInterface : modifyCoordinateGroup
+DatabaseInterface -> CoordinateGroupTable : modifyCoordinateGroup
+CoordinateGroupTable -> CoordinateGroupTable : modifyCoordinateGroup
+
+CoordinateProcessor -> DatabaseInterface : deleteCoordinateGroup
+DatabaseInterface -> CoordinateGroupTable : deleteCoordinateGroup
+CoordinateGroupTable -> CoordinateGroupTable : deleteCoordinateGroup
+
+@enduml

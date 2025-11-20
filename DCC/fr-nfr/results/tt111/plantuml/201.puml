@@ -1,0 +1,80 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + createGroup();
+    + storeGroup(coordinateGroup: CoordinateGroup);
+    + retrieveGroup(identifier: String);
+    + modifyGroup(coordinateGroup: CoordinateGroup);
+    + deleteGroup(identifier: String);
+  }
+  
+  class SwingInterface implements UserInterface {
+    - JFrame frame;
+    
+    + createGroup();
+    + storeGroup(coordinateGroup: CoordinateGroup);
+    + retrieveGroup(identifier: String);
+    + modifyGroup(coordinateGroup: CoordinateGroup);
+    + deleteGroup(identifier: String);
+  }
+}
+
+package Model {
+  class CartesianCoordinate {
+    - double x;
+    - double y;
+    
+    + getX();
+    + setX(x: double);
+    + getY();
+    + setY(y: double);
+  }
+  
+  class PolarCoordinate {
+    - double r;
+    - double theta;
+    
+    + getR();
+    + setR(r: double);
+    + getTheta();
+    + setTheta(theta: double);
+  }
+  
+  class CoordinateGroup {
+    - int id;
+    - String label;
+    - Date timestamp;
+    - CartesianCoordinate cartesian;
+    - PolarCoordinate polar;
+    
+    + getId();
+    + setId(id: int);
+    + getLabel();
+    + setLabel(label: String);
+    + getTimestamp();
+    + setTimestamp(timestamp: Date);
+    + getCartesian();
+    + setCartesian(cartesian: CartesianCoordinate);
+    + getPolar();
+    + setPolar(polar: PolarCoordinate);
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - Connection connection;
+    
+    + establishConnection();
+    + closeConnection();
+    + storeGroup(coordinateGroup: CoordinateGroup);
+    + retrieveGroup(identifier: String);
+    + modifyGroup(coordinateGroup: CoordinateGroup);
+    + deleteGroup(identifier: String);
+  }
+}
+
+Frontend.SwingInterface -- Model.CoordinateGroup
+Model.CoordinateGroup --> Database.MySQLDatabase
+
+@enduml

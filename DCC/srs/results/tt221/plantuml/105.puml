@@ -1,0 +1,43 @@
+@startuml CoordinateGroupManagement
+
+' Presentation Tier
+package gui {
+  class CoordinateGroupGUI {
+    + deleteSelectedGroup()
+  }
+}
+
+' Business Logic Tier
+package businesslogic {
+  class CoordinateGroupManager {
+    - dao: CoordinateGroupDAO
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+' Data Access Tier
+package dataaccess {
+  class CoordinateGroupDAO {
+    + delete(id: int): void
+  }
+}
+
+' Model
+package model {
+  class CoordinateGroup {
+    + id: String
+    + timestamp: Date
+    + label: String
+    + r: Double
+    + theta: Double
+    + x: Double
+    + y: Double
+  }
+}
+
+' Relationships
+CoordinateGroupGUI --> CoordinateGroupManager : uses
+CoordinateGroupManager --> CoordinateGroupDAO : uses
+CoordinateGroupManager --> CoordinateGroup : creates
+
+@enduml

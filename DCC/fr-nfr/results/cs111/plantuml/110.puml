@@ -1,0 +1,69 @@
+@startuml
+
+title DCC Application Class Diagram
+skinparam shadowing false
+
+package "Frontend" <<Client>> {
+    class CoordinateConverter {
+        - cartesianCoordinates: Cartesian
+        - polarCoordinates: Polar
+
+        + convertToCartesian(r: Double, theta: Double) : Cartesian
+        + convertToPolar(x: Double, y: Double) : Polar
+    }
+
+    class UserInterface {
+        + createCoordinateGroup() : None
+        + storeCoordinateGroup(label: String) : None
+        + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newLabel: String, newCoordinates: (Cartesian | Polar)) : None
+        + deleteCoordinateGroup(identifier: Int) : None
+    }
+}
+
+
+package "Database" <<Server>> {
+    class MySQLDatabase {
+        - coordinateGroups: List<CoordinateGroup>
+
+        + saveData(coordinateGroup: CoordinateGroup) : None
+        + fetchData(label: String) : List<CoordinateGroup>
+        + deleteData(identifier: Int) : None
+    }
+
+    class CoordinateGroup {
+        - identifier: Integer (Unique auto-generated ID)
+        - label: String
+        - timestamp: Timestamp
+
+        - cartesianCoordinates: Cartesian
+        - polarCoordinates: Polar
+
+        + getIdentifier() : Integer
+        + setLabel(newLabel: String) : None
+        + setCartesianCoordinates(x: Double, y: Double): None
+        + setPolarCoordinates(r: Double, theta: Double) : None
+    }
+
+    class Cartesian {
+        - x: Double
+        - y: Double
+
+        + getX() : Double
+        + getY() : Double
+    }
+
+    class Polar {
+        - r: Double
+        - theta: Double
+
+        + getR() : Double
+        + getTheta() : Double
+    }
+}
+
+
+UserInterface <|.. CoordinateConverter
+CoordinateConverter  --|> MySQLDatabase 
+
+@enduml

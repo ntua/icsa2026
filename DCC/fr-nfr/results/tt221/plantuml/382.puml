@@ -1,0 +1,136 @@
+@startuml
+' Package diagram for Dummy Coordination Conversion (DCC) Application
+
+package com.dummycoordconversion {
+
+class CartesianCoordinates {
+    +double x;
+    +double y;
+    
+    +void setX(double x);
+    +double getX();
+        
+    +void setY(double y);
+    +double getY();
+}
+
+class PolarCoordinates {
+    +double r;
+    +double theta;
+    
+    +void setR(double r);
+    +double getR();
+        
+    +void setTheta(double theta);
+    +double getTheta();
+}
+
+class CoordinateGroup {
+    +List<CartesianCoordinates> cartesianValues;
+    +List<PolarCoordinates> polarValues;
+    
+    +void addCartesianValue(CartesianCoordinates c);
+    +void removeCartesianValue(int id);
+    
+    +void addPolarValue(PolarCoordinates p);
+    +void removePolarValue(int id);
+}
+
+class Database {
+    -List<Record> records;
+    
+    +boolean saveRecord(Record r);
+        
+    +bool deleteRecord(int id);
+        
+    +List<Record> readRecords();
+}
+
+class Record {
+    +int id;
+    +String label;
+    +CoordinateGroup coordinateGroup;
+    +DateTime datetimeAddedOrModified;
+    
+    -void setLabel(String lbl);
+    -double getId();
+    
+    +Record updateRecord(double x, double y, String newLabel) {...}
+}
+
+class Interface {
+    -Button addButton;
+    -Button updateButton;
+    -Button deleteButton;
+    
+    -String filterLabelInputField;
+}
+
+interface UserInteraction {
+    +void inputCoordinates();
+}
+
+class UserInteraction extends UserInteraction {
+    +void handleAddition(CoordinateGroup coordinateGroup);
+    +void handleUpdate(int id, String newLabel) throws Exception;
+    +void handleDeletion(int id) throws Exception;
+}
+    
+class UserInput implements UserInteraction {
+    +String inputCoordinateType; // "cartesian" or "polar"
+    +double x, y, r, theta;
+    
+    -void handleAddition(CoordinateGroup coordinateGroup);
+    -void handleUpdate(int id, String newLabel) throws Exception;
+    -void handleDeletion(int id) throws Exception;
+}
+
+class ApplicationLogic implements UserInteraction {
+    +double calculatePolarFromCartesian(double x, double y);
+    +double[][] calculateCartesianFromPolar(double r, double theta);
+        
+    -void handleAddition(CoordinateGroup coordinateGroup);
+    -void handleUpdate(int id, String newLabel) throws Exception;
+    -void handleDeletion(int id) throws Exception;
+}
+
+
+class DatabaseLogic extends DatabaseLogic {
+  +bool saveRecordToDatabase(Record r);
+      
+  -Record updateRecordInDatabase(Record r);
+      
+  -List<Record> readRecordsFromDatabase();
+}
+
+class CoordinateGroupManager implements UserInteraction, ApplicationLogic {
+    +CoordinateGroup coordinateGroups;
+    
+    +void handleAddition(CoordinateGroup coordinateGroup);
+    -void handleUpdate(int id, String newLabel) throws Exception;
+    -void handleDeletion(int id) throws Exception;
+        
+    -void inputCoordinates();
+}
+
+class InterfaceManager {
+    +Interface userInterface;
+    
+    +void setupButtons() {...};
+    
+    +void updateUIBasedOnInteractionType(String type);
+}
+
+class Application extends InterfaceManager {
+  +ApplicationLogic applicationLogic;
+      
+  -Button addButton;
+  +Interface userInterface;
+  -UserInput userInput;
+      
+  -CoordinateGroup coordinateGroups; // User interaction management logic
+  -Database databaseLogic;
+}
+}
+
+@enduml

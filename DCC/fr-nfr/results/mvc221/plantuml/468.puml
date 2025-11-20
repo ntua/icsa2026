@@ -1,0 +1,64 @@
+@startuml
+
+package "Model" {
+    class Coordinate {
+        +double x
+        +double y
+        +double r
+        +double theta
+        +void setCartesian(double x, double y)
+        +void setPolar(double r, double theta)
+        +double[] getCartesian()
+        +double[] getPolar()
+        +void convertToPolar()
+        +void convertToCartesian()
+    }
+
+    class CoordinateGroup {
+        +int id
+        +String label
+        +Date timestamp
+        +Coordinate coordinate
+        +void updateCoordinate(Coordinate newCoordinate)
+        +Coordinate getCoordinate()
+    }
+
+    class Database {
+        +void connect()
+        +void disconnect()
+        +void save(CoordinateGroup group)
+        +List<CoordinateGroup> readAll()
+        +void update(CoordinateGroup group)
+        +void delete(int id)
+    }
+
+    CoordinateGroup "1" *-- "1" Coordinate
+    Database "1" *-- "*" CoordinateGroup
+}
+
+package "View" {
+    class CoordinateView {
+        +void displayCoordinateGroups(List<CoordinateGroup> groups)
+        +void displayCoordinateGroupDetails(CoordinateGroup group)
+        +void displayError(String message)
+    }
+}
+
+package "Controller" {
+    class CoordinateController {
+        -CoordinateView view
+        -Database database
+        +void addCoordinateGroup(String label, Coordinate coordinate)
+        +void updateCoordinateGroup(int id, Coordinate newCoordinate)
+        +void deleteCoordinateGroup(int id)
+        +List<CoordinateGroup> getCoordinateGroups(String filter)
+        +void clearFilter()
+        +void refreshView()
+    }
+
+    CoordinateController --> CoordinateView
+    CoordinateController --> Database
+    CoordinateController --> CoordinateGroup
+}
+
+@enduml

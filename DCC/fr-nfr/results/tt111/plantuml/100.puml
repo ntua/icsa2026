@@ -1,0 +1,70 @@
+@startuml
+
+package "Presentation Layer" {
+  class CoordinateGUI {
+    + createCoordinateGroup(): void
+    + storeCoordinateGroup(): void
+    + retrieveCoordinateGroup(): CoordinateGroup
+    + modifyCoordinateGroup(): void
+    + deleteCoordinateGroup(): void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+
+  class CoordinateProcessor {
+    - converter: CoordinateConverter
+    + processCoordinateGroupCreation(coordinateType: String, values: List<Double>): CoordinateGroup
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+package "Data Layer" {
+  class DatabaseConnection {
+    + connectToDatabase(): void
+    + executeQuery(query: String): ResultSet
+  }
+
+  class CoordinateGroupDAO {
+    - connection: DatabaseConnection
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroupByid(id: int): void
+  }
+}
+
+class CartesianCoordinate {
+  - x: double
+  - y: double
+}
+
+class PolarCoordinate {
+  - r: double
+  - theta: double
+}
+
+class CoordinateGroup {
+  - id: int
+  - label: String
+  - timestamp: Date
+  - coordinates: List<CartesianCoordinate> OR List<PolarCoordinate> 
+
+}
+
+CoordinateGUI --|> CoordinateProcessor: uses
+CoordinateProcessor --> CoordinateConverter: uses
+CoordinateProcessor --|> CoordinateGroupDAO: utilizes
+CoordinateGroupDAO --|> DatabaseConnection: relies on
+
+
+@enduml

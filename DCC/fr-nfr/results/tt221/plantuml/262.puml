@@ -1,0 +1,81 @@
+@startuml
+
+package "frontend" {
+    class CoordinateInputGUI {
+        + getInputCoordinates(): CoordinatesGroup
+        + displayCoordinateGroups(coordinateGroups: List<CoordinatesGroup>)
+        + updateCoordinateGroupUI()
+        + deleteCoordinateGroupUI()
+    }
+}
+
+package "logic" {
+    class CoordinatesConverter {
+        + convertCartesianToPolar(cartesian: CartesianCoordinates): PolarCoordinates
+        + convertPolarToCartesian(polar: PolarCoordinates): CartesianCoordinates
+    }
+
+    class CoordinatesGroupManager {
+        - dataAccess: DataAccess
+        + createCoordinateGroup(label: String, coordinates: CoordinatesGroup): void
+        + readAllCoordinateGroups(): List<CoordinatesGroup>
+        + updateCoordinateGroup(id: int, updatedCoordinates: CoordinatesGroup): void
+        + deleteCoordinateGroup(id: int): void
+
+    }
+
+    class DataAccess {
+        - databaseConnection: DatabaseConnection
+        + createCoordinateGroupRecord(coordinatesGroup: CoordinatesGroup): void
+        + readAllCoordinateGroupRecords(): List<CoordinatesGroup>
+        + updateCoordinateGroupRecord(id: int, updatedCoordinates: CoordinatesGroup): void
+        + deleteCoordinateGroupRecord(id: int): void
+
+    }
+ 
+ class DatabaseConnection {
+      - url: String
+     - user: String
+     - password: String
+
+ + connect(): void
+ + disconnect(): void
+ }
+
+
+abstract class Coordinates {
+   # x : double
+  # y : double
+
+}
+
+class CartesianCoordinates extends Coordinates{
+
+}
+
+class PolarCoordinates extends Coordinates {
+
+}
+
+}
+
+package "data" {
+
+ class CoordinateGroupRecord {
+        - id: int 
+        - label: String
+        - cartesianCoordinates: CartesianCoordinates
+        - polarCoordinates: PolarCoordinates
+        - timestamp: Date
+
+ }
+
+}
+
+CoordinatesConverter --> CoordinatesGroupManager : uses
+CoordinatesGroupManager --> DataAccess : uses
+DataAccess --> DatabaseConnection : uses
+
+CoordinateInputGUI --|> CoordinatesGroupManager
+
+@enduml

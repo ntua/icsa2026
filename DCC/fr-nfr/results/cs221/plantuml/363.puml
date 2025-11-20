@@ -1,0 +1,60 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + getInput() : Object
+    + display(data: String) : Void
+    + refreshDisplay() : Void
+    + filterDisplay(filterValue: String) : Void
+    + clearFilter() : Void
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    - r: HighPrecisionNumber
+    - theta: HighPrecisionNumber
+    
+    + toPolar() : Coordinate
+    + toCartesian() : Coordinate
+  }
+  
+  class CartesianCoordinate extends Coordinate {}
+  
+  class PolarCoordinate extends Coordinate {}
+  
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - cartesianCoordinates: List<CartesianCoordinate>
+    - polarCoordinates: List<PolarCoordinate>
+    - timestamp: Date
+    
+    + save() : Void
+    + update() : Void
+    + delete() : Void
+  }
+  
+  class CoordinateGroupManager {
+    - coordinateGroups: List<CoordinateGroup>
+    
+    + readAll() : List<CoordinateGroup>
+    + create(coordinateGroup: CoordinateGroup) : Int
+    + update(id: Int, coordinateGroup: CoordinateGroup) : Void
+    + delete(id: Int) : Void
+  }
+}
+
+package Database {
+  interface MySQLDatabase {
+    + saveData(data: String) : Void
+    + fetchData(query: String) : String
+  }
+}
+
+Frontend ..> Logic
+Logic ..> Database
+
+@enduml

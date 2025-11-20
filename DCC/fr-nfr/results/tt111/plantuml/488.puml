@@ -1,0 +1,117 @@
+@startuml
+
+skinparam packageTitleFontStyle Bold
+skinparam packageTitleFontColor #FFFFFF
+skinparam packageTitleBackgroundColor #115599
+
+' ======================
+'   Packages
+' ======================
+package "Presentation Layer" as PL {
+    ' Example Swing-based UI for managing coordinate groups
+    class CoordinateManagementUI {
+        - coordinateManager : CoordinateManager
+        
+        + createCoordinateGroup(label: String, x: double, y: double)
+        + retrieveCoordinateGroupByLabel(label: String)
+        + viewAllCoordinateGroups()
+        + modifyCoordinateGroup(id: int, x: double, y: double)
+        + deleteCoordinateGroup(id: int)
+    }
+}
+
+package "Business Logic Layer" as BLL {
+    class CoordinateManager {
+        - coordinateDAO : ICoordinateDAO
+
+        + createCoordinateGroup(label: String, x: double, y: double) : int
+        + getCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+        + getAllCoordinateGroups() : List<CoordinateGroup>
+        + updateCoordinateGroup(id: int, x: double, y: double)
+        + deleteCoordinateGroup(id: int)
+    }
+
+    class CoordinateConverter {
+        + toPolar(x: double, y: double) : PolarCoordinate
+        + toCartesian(r: double, theta: double) : CartesianCoordinate
+    }
+}
+
+package "Data Access Layer" as DAL {
+    interface ICoordinateDAO {
+        + create(group: CoordinateGroup) : int
+        + findByLabel(label: String) : List<CoordinateGroup>
+        + findAll() : List<CoordinateGroup>
+        + update(group: CoordinateGroup)
+        + delete(id: int)
+    }
+
+    class CoordinateDAO implements ICoordinateDAO {
+        - dbConnection : DatabaseConnection
+
+        + create(group: CoordinateGroup) : int
+        + findByLabel(label: String) : List<CoordinateGroup>
+        + findAll() : List<CoordinateGroup>
+        + update(group: CoordinateGroup)
+        + delete(id: int)
+    }
+
+    class DatabaseConnection {
+        - connection : Connection
+        + connect()
+        + disconnect()
+        + getConnection() : Connection
+    }
+}
+
+package "Model" as M {
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - timestamp : Date
+        - cartesian : CartesianCoordinate
+        - polar : PolarCoordinate
+        
+        + getId() : int
+        + getLabel() : String
+        + setLabel(label: String)
+        + getTimestamp() : Date
+        + getCartesian() : CartesianCoordinate
+        + getPolar() : PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x : double
+        - y : double
+        
+        + getX() : double
+        + getY() : double
+        + setX(x: double)
+        + setY(y: double)
+    }
+
+    class PolarCoordinate {
+        - r : double
+        - theta : double
+        
+        + getR() : double
+        + getTheta() : double
+        + setR(r: double)
+        + setTheta(theta: double)
+    }
+}
+
+' ======================
+'   Relationships
+' ======================
+PL.CoordinateManagementUI --> BLL.CoordinateManager : uses
+BLL.CoordinateManager ..> BLL.CoordinateConverter : uses
+BLL.CoordinateManager --> DAL.ICoordinateDAO : uses
+DAL.CoordinateDAO --> DAL.DatabaseConnection : uses
+DAL.ICoordinateDAO <|.. DAL.CoordinateDAO : implements
+
+' Composition: A CoordinateGroup *has* Cartesian and Polar Coordinates
+M.CoordinateGroup *-- M.CartesianCoordinate : cartesian
+M.CoordinateGroup *-- M.PolarCoordinate : polar
+
+@enduml

@@ -1,0 +1,97 @@
+@startuml
+
+package "DCC Application" {
+    class SwingGUI {
+    + createView() : DCCView
+    }
+    
+    class DCCView {
+        + displayCoordinateGroups()
+        + showFilteredResults(List<CoordinateGroup>)
+    }
+
+    class DCCController {
+        - view: DCCView
+        - model: DCCModel
+
+        + handleInput(String)
+        + executeCreateOp(CoordinateGroup, String)
+        + executeReadOp()
+        + executeUpdateOp(int, CoordinateGroup)
+        + executeDeleteOp(int)
+    }
+
+    class DCCModel {
+        - coordinateGroups: List<CoordinateGroup>
+        - dbConnection: DBConnection
+
+        + createGroup(String label, CartesianCoordinates c, PolarCoordinates p) : int
+        + readGroups() : List<CoordinateGroup>
+        + updateGroup(int id, String newLabel, CartesianCoordinates c, PolarCoordinates p) 
+        + deleteGroup(int id)
+    }
+}
+
+
+package "Data Structures" {
+
+    class CoordinateGroup {
+        - label: String
+        - cartesianCoords: CartesianCoordinates
+        - polarCoords: PolarCoordinates
+
+        + getLabel() : String
+        + setLabel(String newLabel) 
+    }
+    
+    class CartesianCoordinates {
+        - x: BigDecimal
+        - y: BigDecimal
+        
+        + getX(): BigDecimal
+        + setX(BigDecimal newX): void
+        + getY(): BigDecimal
+        + setY(BigDecimal newY): void
+    }
+
+    class PolarCoordinates {
+        - r: BigDecimal
+        - theta: BigDecimal
+
+        + getR(): BigDecimal
+        + setR(BigDecimal newR) : void
+        + getTheta(): BigDecimal
+        + setTheta(BigDecimal newTheta) : void
+    }
+}
+
+
+package "Database" {
+    class DBConnection {
+        + connect() : boolean
+        + disconnect() : void
+        
+        # executeQuery(String query, List<Object> params): ResultSet
+        # prepareStatement(String sql, List<Object> params) : PreparedStatement
+        
+    }
+
+    class Database {
+        - host: String
+        - port: int
+        - username: String
+        - password: String
+
+        + connect(): DBConnection
+    }
+}
+
+
+DCCController .. DCCView 
+DCCController .. DCCModel
+DCCView .. CoordinateGroup
+
+DCCModel .. Database
+
+
+@enduml

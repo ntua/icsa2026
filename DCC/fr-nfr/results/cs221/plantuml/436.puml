@@ -1,0 +1,59 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + interact();
+  }
+  
+  class SwingUserInterface implements UserInterface {
+    - DatabaseConnection database;
+    
+    + interact();
+  }
+}
+
+package Logic {
+  interface CoordinateConverter {
+    + toPolar(x: highPrecisionNumber, y: highPrecisionNumber): (highPrecisionNumber, highPrecisionNumber);
+    + toCartesian(r: highPrecisionNumber, theta: highPrecisionNumber): (highPrecisionNumber, highPrecisionNumber);
+  }
+  
+  class CoordinateGroup {
+    - id: int;
+    - timestamp: DateTime;
+    - label: String;
+    - cartesianCoordinates: Sequence<(highPrecisionNumber, highPrecisionNumber)>;
+    - polarCoordinates: Sequence<(highPrecisionNumber, highPrecisionNumber)>;
+    
+    + createOp();
+    + updateOp();
+  }
+  
+  class DataManager {
+    - DatabaseConnection database;
+    
+    + readOp(): Sequence<CoordinateGroup>;
+    + updateOp(coordinateGroup: CoordinateGroup);
+    + deleteOp(id: int);
+  }
+}
+
+package Database {
+  interface DatabaseConnection {
+    + connect();
+    + query(sql: String): ResultSet;
+    + executeUpdate(sql: String);
+  }
+  
+  class MySQLDatabaseConnection implements DatabaseConnection {
+    + connect();
+    + query(sql: String): ResultSet;
+    + executeUpdate(sql: String);
+  }
+}
+
+SwingUserInterface -- DataManager : aggregation
+CoordinateConverter "1" -- "*" CoordinateGroup : uses
+DataManager "1" -- "*" CoordinateGroup : aggregation
+
+@enduml

@@ -1,0 +1,91 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Model" {
+    ' Coordinate classes
+    class Cartesian {
+        - x: Double
+        - y: Double
+        
+        + Cartesian(x: Double, y: Double)
+        + toPolar(): Polar
+    }
+
+    class Polar {
+        - r: Double
+        - theta: Double
+        
+        + Polar(r: Double, theta: Double)
+        + toCartesian(): Cartesian
+    }
+
+    ' Coordinate group class
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesianCoordinates: List<Cartesian>
+        - polarCoordinates: List<Polar>
+        
+        + CoordinateGroup(label: String, cartesian: List<Cartesian>, polar: List<Polar>)
+        + addCoordinate(coord: Cartesian): void
+        + addCoordinate(coord: Polar): void
+        + removeCoordinate(coord: Cartesian): void
+        + removeCoordinate(coord: Polar): void
+    }
+}
+
+package "View" {
+    ' User interface components
+    class DCCView {
+        - frame: JFrame
+        - inputPanel: JPanel
+        - outputPanel: JPanel
+        
+        + DCCView()
+        + displayCoordinateGroup(group: CoordinateGroup): void
+        + getInput(): String
+        + showResult(message: String): void
+    }
+}
+
+package "Controller" {
+    ' Application controller
+    class DCCController {
+        - view: DCCView
+        - dao: DCCDao
+        
+        + DCCController(view: DCCView, dao: DCCDao)
+        + createCoordinateGroup(label: String, cartesian: List<Cartesian>, polar: List<Polar>): void
+        + getCoordinateGroupById(id: Integer): CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package "Database" {
+    ' Data access object for MySQL database
+    class DCCDao {
+        - connection: Connection
+        
+        + DCCDao()
+        + connect(): Boolean
+        + disconnect(): void
+        + createCoordinateGroup(group: CoordinateGroup): Integer
+        + getCoordinateGroupById(id: Integer): CoordinateGroup
+        + getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+' Associations
+DCCController --> DCCView : Uses
+DCCController --> DCCDao : Uses
+DCCView --> DCCController : Composes
+
+Cartesian "1..*" --> CoordinateGroup : Aggregation
+Polar "1..*" --> CoordinateGroup : Aggregation
+
+@enduml

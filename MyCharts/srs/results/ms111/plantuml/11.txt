@@ -1,0 +1,44 @@
+@startuml
+package "Charting Service" {
+
+  class ChartGenerationService {
+    - chartData: String
+    + generateChart(dataFormat: String, chartType: String): void // Functional requirement
+  }
+  class DataValidatorService {
+    + validateCSV(filePath: String): boolean // Functional requirement
+  }
+
+  class ChartExportService {
+    + exportChart(chartData: Object, format: String): void // Functional requirement
+  }
+
+}
+
+package "User Management" {
+
+  class UserService {
+    - userQuota: int
+    + getUserQuota(): int // Data management operation
+    + updateQuota(amount: int): void // Data consistency operation
+  }
+  class AuthenticationService {
+    + authenticateUser(token: String): boolean // Flow control operation 
+  }
+
+}
+
+package "Payment" {
+
+  class PaymentGatewayService {
+    + processPayment(amount: double, userId: int): boolean // Functional requirement
+  }
+
+}
+
+ChartGenerationService --> DataValidatorService : validateCSV
+ChartGenerationService --> ChartExportService : exportChart
+UserService --> AuthenticationService : authenticateUser
+AuthenticationService --> UserService : getUserQuota
+
+@enduml

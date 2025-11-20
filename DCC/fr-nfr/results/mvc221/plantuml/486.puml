@@ -1,0 +1,105 @@
+@startuml
+
+package "Model" {
+  class CartesianCoordinate {
+    -x: double
+    -y: double
+    +CartesianCoordinate(x: double, y: double)
+    +getX(): double
+    +getY(): double
+    +setX(x: double): void
+    +setY(y: double): void
+  }
+
+  class PolarCoordinate {
+    -r: double
+    -theta: double
+    +PolarCoordinate(r: double, theta: double)
+    +getR(): double
+    +getTheta(): double
+    +setR(r: double): void
+    +setTheta(theta: double): void
+  }
+
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -timestamp: Timestamp
+    -cartesian: CartesianCoordinate
+    -polar: PolarCoordinate
+    +CoordinateGroup(cartesian: CartesianCoordinate, polar: PolarCoordinate, label: String)
+    +getId(): int
+    +getLabel(): String
+    +getTimestamp(): Timestamp
+    +getCartesian(): CartesianCoordinate
+    +getPolar(): PolarCoordinate
+  }
+
+  class CoordinateConverter {
+    +convertToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    +convertToCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+
+  class CoordinateGroupDAO {
+    -connection: Connection
+    +save(group: CoordinateGroup): void
+    +update(group: CoordinateGroup): void
+    +delete(id: int): void
+    +findAll(): List<CoordinateGroup>
+    +filterByLabel(label: String): List<CoordinateGroup>
+  }
+
+  class DatabaseConnection {
+    +getConnection(): Connection
+    +closeConnection(): void
+  }
+}
+
+package "View" {
+  class CoordinateView {
+    -controller: CoordinateController
+    +CoordinateView(controller: CoordinateController)
+    +displayCoordinateGroups(groups: List<CoordinateGroup>): void
+    +getLabelInput(): String
+    +getCartesianInput(): CartesianCoordinate
+    +getPolarInput(): PolarCoordinate
+    +addAddButtonListener(listener: ActionListener): void
+    +addUpdateButtonListener(listener: ActionListener): void
+    +addDeleteButtonListener(listener: ActionListener): void
+    +addFilterButtonListener(listener: ActionListener): void
+    +addClearFilterButtonListener(listener: ActionListener): void
+  }
+}
+
+package "Controller" {
+  class CoordinateController {
+    -view: CoordinateView
+    -dao: CoordinateGroupDAO
+    -converter: CoordinateConverter
+    +CoordinateController(view: CoordinateView, dao: CoordinateGroupDAO, converter: CoordinateConverter)
+    +handleAddAction(): void
+    +handleUpdateAction(): void
+    +handleDeleteAction(): void
+    +handleFilterAction(label: String): void
+    +handleClearFilter(): void
+    +refreshView(): void
+  }
+}
+
+' Associations
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+CoordinateGroupDAO --> CoordinateGroup
+CoordinateGroupDAO --> DatabaseConnection
+
+CoordinateController --> CoordinateGroupDAO
+CoordinateController --> CoordinateConverter
+CoordinateController --> CoordinateView
+
+CoordinateView --> CoordinateController
+
+DatabaseConnection <.. CoordinateGroupDAO : uses
+CoordinateConverter <.. CoordinateController : uses
+
+@enduml

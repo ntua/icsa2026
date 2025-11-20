@@ -1,0 +1,49 @@
+@startuml
+
+package "Presentation Layer" {
+  class SwingFrontend {
+    + interactWithUser() : void
+    + displayCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroupByLabel() : CoordinateGroup
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+package "Application Layer" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: float, y: float) : (float, float)
+    + convertPolarToCartesian(r: float, theta: float) : (float, float)
+  }
+  
+  class CoordinateGroupManager {
+    - coordinateGroups: List<CoordinateGroup>
+    
+    + createCoordinateGroup(cartesianOrPolar: Tuple<float, float>) : CoordinateGroup
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroupByLabel(label: string) : CoordinateGroup
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(oldCoordinateGroup: CoordinateGroup, newCoordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+package "Data Layer" {
+  class MySQLDatabase {
+    + connect() : void
+    + disconnect() : void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroupByLabel(label: string) : CoordinateGroup
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(oldCoordinateGroup: CoordinateGroup, newCoordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+SwingFrontend --> CoordinateConverter
+SwingFrontend --> CoordinateGroupManager
+CoordinateConverter --> CoordinateGroupManager
+CoordinateGroupManager --> MySQLDatabase
+
+@enduml

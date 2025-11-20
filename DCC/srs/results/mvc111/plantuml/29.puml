@@ -1,0 +1,148 @@
+@startuml
+
+' ---------------------------
+' Database Package
+' ---------------------------
+class Database {
+    +ConnectionString: String
+}
+
+class DBConnector {
+    +connect(): void
+    +disconnect(): void
+}
+
+' Correcting the relationship: DBConnector uses Database
+DBConnector ..> Database : uses
+
+' ---------------------------
+' com.coordinatesystem Package
+' ---------------------------
+package com.coordinatesystem {
+
+    enum CoordinateFormat { 
+        POLAR
+        CARTESIAN 
+    }
+
+    interface ICoordinateGroup { 
+       +add(newCoords: List<Double>): void
+       +remove(): void
+    }
+
+    class Cartesian implements ICoordinateGroup {
+        +xCoord: Double
+        +yCoord: Double
+        +add(newCoords: List<Double>): void
+        +remove(): void
+
+        -setXCoord(coord: Double): void
+    }
+
+    class Polar extends Cartesian {
+        +rCoord: Double
+        +thetaCoord: Double
+        +add(newCoords: List<Double>): void
+        +remove(): void
+
+        -setRCoord(coord: Double): void
+    }
+
+    class CoordinateGroupController implements ICoordinateGroup {
+        +label: String
+        +formatType: CoordinateFormat
+        +dbConnector: DBConnector
+
+        +add(newCoords: List<Double>): void
+        +remove(): void
+    }
+
+    ' Correcting the relationship: CoordinateGroupController uses Database
+    CoordinateGroupController ..> Database : uses
+}
+
+' ---------------------------
+' com.coordinatesystem.model Package
+' ---------------------------
+package com.coordinatesystem.model {
+
+    class LabelHolder {
+        +label: String 
+    }
+
+    class Coordinates {
+        +x: Double
+        +y: Double
+    }
+
+    class GroupModel implements ICoordinateGroup {
+        +groups: List<LabelHolder>
+        +add(newCoords: List<Double>): void
+        +remove(): void
+    }
+}
+
+' ---------------------------
+' com.coordinatesystem.view Package
+' ---------------------------
+package com.coordinatesystem.view {
+
+    interface INotificationService { 
+        +notify(message: String): void
+    }
+
+    interface UserInterface { 
+       +showNotification(message: String): void
+       +clearNotifications(): void
+    }
+
+    class NotificationService implements INotificationService {
+        +displayMessage(message: String): void
+        +cancelAllMessages(): void
+    }
+
+    abstract class AbstractUserInterface implements UserInterface { 
+        +showNotification(message: String): void
+        +clearNotifications(): void
+    }
+
+    interface CoordinateGroupView { 
+       +selectCoordinateGroup(id: Integer): void
+       +deleteSelectedGroup(): void
+    }
+
+    class ConcreteUserInterface extends AbstractUserInterface implements CoordinateGroupView {
+        +getGroups(): List<LabelHolder>
+        -showListOfCoordinates(): void
+        -clearSelection(): void
+
+        +selectGroup(id: Integer): void
+        +displayMessageForDeletion(): boolean
+    }
+
+    class LabelPanel extends AbstractUserInterface { 
+       -setLabel(label: String): void
+       +getText(): String
+    }
+
+    abstract class CoordinateInputView<T> extends ConcreteUserInterface { 
+        +inputData(data: T): void
+    }
+
+    interface CartesianCoordinates { 
+       +getX(): Double
+       +getY(): Double
+       +setX(x: Double): void
+       +setY(y: Double): void
+    }
+
+    class PolarInputView extends CoordinateInputView<CartesianCoordinates> { 
+        +setR(r: Double): void
+        +setTheta(theta: Double): void
+        -getR(): Double
+        -getTheta(): Double
+        +updateLabelPanel(): void
+    }
+}
+
+@enduml

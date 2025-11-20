@@ -1,0 +1,130 @@
+@startuml
+
+' ========================================================
+' Packages to illustrate the Three-Tier Architecture
+' ========================================================
+package "UI (Presentation Layer)" as UI {
+    class DCCMainGUI {
+        - coordinateGroupService : CoordinateGroupService
+        --
+        + showUI(): void
+        + addButtonListener(): void
+        + updateButtonListener(): void
+        + deleteButtonListener(): void
+        + filterList(label: String): void
+        + clearFilter(): void
+        --
+        + main(args: String[]): void
+    }
+}
+
+package "Logic (Business Layer)" as Logic {
+    interface CoordinateGroupService {
+        + createGroup(label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + readAllGroups(): List<CoordinateGroup>
+        + updateGroup(id: int, label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + deleteGroup(id: int): void
+        + filterGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateGroupServiceImpl implements CoordinateGroupService {
+        - dao : CoordinateGroupDAO
+        - converter : CoordinateConverter
+        --
+        + createGroup(label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + readAllGroups(): List<CoordinateGroup>
+        + updateGroup(id: int, label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + deleteGroup(id: int): void
+        + filterGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + polarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - timestamp : Date
+        - cartesian : CartesianCoordinate
+        - polar : PolarCoordinate
+        --
+        + getId(): int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+        + setId(id: int): void
+        + setLabel(label: String): void
+        + setTimestamp(timestamp: Date): void
+        + setCartesian(c: CartesianCoordinate): void
+        + setPolar(p: PolarCoordinate): void
+    }
+
+    class CartesianCoordinate {
+        - x : double
+        - y : double
+        --
+        + getX(): double
+        + getY(): double
+        + setX(x: double): void
+        + setY(y: double): void
+    }
+
+    class PolarCoordinate {
+        - r : double
+        - theta : double
+        --
+        + getR(): double
+        + getTheta(): double
+        + setR(r: double): void
+        + setTheta(theta: double): void
+    }
+}
+
+package "Data (Persistence Layer)" as Data {
+    interface CoordinateGroupDAO {
+        + create(group: CoordinateGroup): void
+        + readAll(): List<CoordinateGroup>
+        + update(group: CoordinateGroup): void
+        + delete(id: int): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class MySQLCoordinateGroupDAO implements CoordinateGroupDAO {
+        - dbConnection : DBConnection
+        --
+        + create(group: CoordinateGroup): void
+        + readAll(): List<CoordinateGroup>
+        + update(group: CoordinateGroup): void
+        + delete(id: int): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class DBConnection {
+        + getConnection(): java.sql.Connection
+    }
+}
+
+' ========================================================
+' Relationships
+' ========================================================
+
+' UI -> Logic
+UI.DCCMainGUI --> Logic.CoordinateGroupService : uses
+
+' Logic -> Data
+Logic.CoordinateGroupServiceImpl --> Data.CoordinateGroupDAO : uses
+
+' Logic -> Logic
+Logic.CoordinateGroupServiceImpl --> Logic.CoordinateConverter : uses
+
+' Data -> Data
+Data.MySQLCoordinateGroupDAO --> Data.DBConnection : uses
+
+' CoordinateGroup composition of CartesianCoordinate and PolarCoordinate
+Logic.CoordinateGroup *-- Logic.CartesianCoordinate
+Logic.CoordinateGroup *-- Logic.PolarCoordinate
+
+@enduml

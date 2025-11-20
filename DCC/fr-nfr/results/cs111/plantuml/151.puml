@@ -1,0 +1,55 @@
+@startuml
+package frontend {
+  class UserInterface {
+    + String createCoordinateGroup(CoordinateGroup cg)
+    + CoordinateGroup retrieveCoordinateGroup(String label)
+    + void modifyCoordinateGroup(CoordinateGroup cg)
+    + void deleteCoordinateGroup(int id)
+  }
+}
+
+package database {
+  class MySQLDatabase {
+    + int addCoordinateGroup(CoordinateGroup cg)
+    + CoordinateGroup getCoordinateGroup(String label)
+    + List<CoordinateGroup> getAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup cg)
+    + void deleteCoordinateGroup(int id)
+  }
+}
+
+package communication {
+  class TCPConnection {
+    + void sendCommandToDatabase(UserInterface cmd)
+    + UserInterface receiveResponseFromDatabase()
+  }
+}
+
+class CoordinateGroup {
+  - int id
+  - String label
+  - Timestamp timestamp
+  + CoordinateGroup(CoordinateGroup cg, MySQLDatabase db)
+  + CoordinateGroup(CoordinateGroup cg, TCPConnection conn)
+  + void convertCoordinates()
+  + List<CartesianCoordinate> getCartesianCoordinates()
+  + List<PolarCoordinate> getPolarCoordinates()
+}
+
+class CartesianCoordinate {
+  - double x
+  - double y
+  + CartesianCoordinate(double x, double y)
+}
+
+class PolarCoordinate {
+  - double r
+  - double theta
+  + PolarCoordinate(double r, double theta)
+}
+
+CoordinateGroup -- MySQLDatabase: saves and retrieves coordinate groups from database
+MySQLDatabase -- TCPConnection: uses for sending/receiving data between frontend and database
+TCPConnection -- UserInterface: interacts with to provide visual interface of application
+
+@enduml

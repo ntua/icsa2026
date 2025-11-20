@@ -1,0 +1,50 @@
+@startuml
+package controller {
+  class CoordinateGroupController
+}
+
+package model {
+  abstract class Entity {
+    + id : Integer
+    + timestamp : Date
+    + label : String
+  }
+
+  class CoordinateGroup extends Entity {
+    + polarCoordinates : PolarCoordinate[]
+    + cartesianCoordinates : CartesianCoordinate[]
+  }
+  
+  class PolarCoordinate {
+    - r : Float
+    - theta : Float
+  }
+  
+  class CartesianCoordinate {
+    - x : Float
+    - y : Float
+  }
+}
+
+package view {
+  abstract class View {
+    + display() : Void
+  }
+
+  class CoordinateGroupListView extends View {
+    - coordinateGroups : List<CoordinateGroup>
+    
+    + display() : Void
+  }
+  
+  class CoordinateGroupFormView extends View {
+    - coordinateGroup : CoordinateGroup
+    
+    + display() : Void
+  }
+}
+
+controller --> model : CoordinateGroupController interacts with CoordinateGroup Entity
+model --* view : Entities are used in the Views
+
+@enduml

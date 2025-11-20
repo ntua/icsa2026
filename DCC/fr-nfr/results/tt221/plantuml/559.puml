@@ -1,0 +1,87 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages for Three-Tier Architecture
+package "Presentation Layer" {
+    class DCCApplication {
+        - void initializeUI()
+        - void handleUserInput()
+        - void displayCoordinateGroups()
+        - void refreshList()
+        - void filterList()
+        - void clearFilter()
+
+        + DCCApplication()
+    }
+}
+
+package "Logic Layer" {
+    class CartesianCoordinate {
+        - double x
+        - double y
+
+        + CartesianCoordinate(double x, double y)
+        + double getX()
+        + double getY()
+        + PolarCoordinate toPolar()
+    }
+
+    class PolarCoordinate {
+        - double r
+        - double theta
+
+        + PolarCoordinate(double r, double theta)
+        + double getR()
+        + double getTheta()
+        + CartesianCoordinate toCartesian()
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoordinate cartesian
+        - PolarCoordinate polar
+        - DateTime timestamp
+
+        + CoordinateGroup(String label, CartesianCoordinate cartesian)
+        + void convertToPolar()
+        + void convertToCartesian()
+        + int getId()
+        + String getLabel()
+    }
+
+    class Coordinator {
+        - DatabaseManager dbManager
+
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(int id, CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> filterByLabel(String label)
+
+        + Coordinator(DatabaseManager dbManager)
+    }
+}
+
+package "Data Access Layer" {
+    class DatabaseManager {
+        - Connection dbConnection
+
+        + void create(CoordinateGroup group)
+        + List<CoordinateGroup> read()
+        + void update(int id, CoordinateGroup group)
+        + void delete(int id)
+
+        + DatabaseManager(String connectionString)
+    }
+}
+
+' Relationships
+DCCApplication --* Coordinator
+Coordinator --* CartesianCoordinate
+Coordinator --* PolarCoordinate
+Coordinator --* CoordinateGroup
+Coordinator --* DatabaseManager
+CoordinateGroup --* CartesianCoordinate
+CoordinateGroup --* PolarCoordinate
+
+@enduml

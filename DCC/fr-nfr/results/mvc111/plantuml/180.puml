@@ -1,0 +1,55 @@
+@startuml
+
+package "Model" {
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - radius: double
+    - angle: double 
+  }
+}
+
+package "View" {
+
+  class DCCView {
+    + displayCoordinateGroups()
+    + getCoordinateInput()
+    + displayConversionResults()
+    + showErrorMessage(message: String)
+  }
+}
+
+package "Controller" {
+
+  class DCCController {
+    - model: Model.CoordinateGroup
+    - view: View.DCCView
+
+    + createCoordinateGroup(coordinates: Coordinates, label: String)
+    + storeCoordinateGroup(group: Model.CoordinateGroup)
+    + retrieveCoordinateGroups(label: String): List<Model.CoordinateGroup>
+    + modifyCoordinateGroup(id: int, updatedCoordinates: Coordinates, updatedLabel: String)
+    + deleteCoordinateGroup(id: int)
+  }
+
+}
+
+
+DCCController "1" -- "*" Model.CoordinateGroup : manages
+DCCView "1" -- "1" DCCController : interacts with
+@enduml

@@ -1,0 +1,3 @@
+- Frontend: Developed using Java with the Swing framework for user interaction.
+- Database: MySQL for persistent storage of coordinate groups.
+- TCP/IP Connection: To handle the communication between the application and the database.

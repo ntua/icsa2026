@@ -1,0 +1,164 @@
+@startuml
+package "Frontend" {
+  class DccApplication {
+    - SwingFrame frame
+    - Database databaseConnection
+    
+    + main(args: String[])
+    + createCoordinateGroup()
+    + storeCoordinateGroup(label: String, coordinates: List<Coordinate>)
+    + retrieveCoordinateGroup(label: String)
+    + modifyCoordinateGroup(id: Int, label: String, coordinates: List<Coordinate>)
+    + deleteCoordinateGroup(id: Int)
+  }
+  
+  class SwingFrame {
+    + createTextField()
+    + createButton()
+    + addActionListener(listener: ActionListener)
+    + displayCoordinateGroup(coordinates: List<Coordinate>)
+  }
+}
+
+package "Database" {
+  interface Database {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+  
+  class MySQLDatabase implements Database {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+}
+
+package "Model" {
+  abstract class Coordinate {
+    - x: Float
+    - y: Float
+    - r: Float
+    - theta: Float
+    
+    + getX()
+    + getY()
+    + getR()
+    + getTheta()
+  }
+  
+  class Cartesian extends Coordinate {
+    + toPolar(): Polar
+  }
+  
+  class Polar extends Coordinate {
+    + toCartesian(): Cartesian
+  }
+  
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+    
+    + getId()
+    + getLabel()
+    + getTimestamp()
+    + getCoordinates()
+  }
+}
+
+"Frontend" --> "Model": aggregation
+"Database" <-- "Model" : aggregation
+"Frontend" --> "Database" : association
+
+@enduml
+```
+
+This diagram includes the following packages and classes:
+
+1. Frontend (Java with Swing framework)
+   - DccApplication: The main application class that handles user interaction, data processing, and communication with the database.
+   - SwingFrame: A Swing frame to display input fields, buttons, and coordinate group information.
+
+2. Database (MySQL for persistent storage)
+   - Database (interface): An interface defining methods for saving and fetching data from a database.
+   - MySQLDatabase (concrete class): Implements the `Database` interface using MySQL as the backend.
+
+3. Model (coordinate groups management)
+   - Abstract `Coordinate`: A base abstract class representing Cartesian or polar coordinates with common attributes and methods.
+   - `Cartesian`, `Polar`: Concrete classes extending `Coordinate`.
+   - `CoordinateGroup`: Represents a group of coordinate pairs, including an identifier, label, timestamp, and associated coordinate objects.
+
+The PlantUML code defines the necessary packages, classes, attributes, methods, and associations based on the provided architecture and functional requirements.
+@startuml
+package "Frontend" {
+  class DccApplication {
+    - SwingFrame frame
+    - Database databaseConnection
+    
+    + main(args: String[])
+    + createCoordinateGroup()
+    + storeCoordinateGroup(label: String, coordinates: List<Coordinate>)
+    + retrieveCoordinateGroup(label: String)
+    + modifyCoordinateGroup(id: Int, label: String, coordinates: List<Coordinate>)
+    + deleteCoordinateGroup(id: Int)
+  }
+  
+  class SwingFrame {
+    + createTextField()
+    + createButton()
+    + addActionListener(listener: ActionListener)
+    + displayCoordinateGroup(coordinates: List<Coordinate>)
+  }
+}
+
+package "Database" {
+  interface Database {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+  
+  class MySQLDatabase implements Database {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+}
+
+package "Model" {
+  abstract class Coordinate {
+    - x: Float
+    - y: Float
+    - r: Float
+    - theta: Float
+    
+    + getX()
+    + getY()
+    + getR()
+    + getTheta()
+  }
+  
+  class Cartesian extends Coordinate {
+    + toPolar(): Polar
+  }
+  
+  class Polar extends Coordinate {
+    + toCartesian(): Cartesian
+  }
+  
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+    
+    + getId()
+    + getLabel()
+    + getTimestamp()
+    + getCoordinates()
+  }
+}
+
+"Frontend" --> "Model": aggregation
+"Database" <-- "Model" : aggregation
+"Frontend" --> "Database" : association
+
+@enduml

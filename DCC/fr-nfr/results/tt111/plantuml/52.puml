@@ -1,0 +1,43 @@
+@startuml
+
+' Define packages
+package "Frontend (Java Swing)" {
+  class MainFrame {
+    - CoordinateGroupService coordinateGroupService
+    Method: createCoordinateGroup(...)
+    Method: retrieveCoordinateGroupByLabel(...)
+    Method: retrieveAllCoordinateGroups(...)
+    Method: modifyCoordinateGroup(...)
+    Method: deleteCoordinateGroup(...)
+  }
+}
+
+package "Application Layer" {
+  class CoordinateGroupService {
+    - MySQLDatabase mySQLDatabase
+    Method: createCoordinateGroup(...)
+    Method: retrieveCoordinateGroupByLabel(...)
+    Method: retrieveAllCoordinateGroups(...)
+    Method: modifyCoordinateGroup(...)
+    Method: deleteCoordinateGroup(...)
+  }
+}
+
+package "Database Layer (MySQL)" {
+  class MySQLDatabase {
+    - Connection connection
+    Method: connect()
+    Method: disconnect()
+    Method: createCoordinateGroup(...)
+    Method: retrieveCoordinateGroupByLabel(...)
+    Method: retrieveAllCoordinateGroups(...)
+    Method: modifyCoordinateGroup(...)
+    Method: deleteCoordinateGroup(...)
+  }
+}
+
+' Define classes relationships
+MainFrame "1" -- "1" CoordinateGroupService : aggregation
+CoordinateGroupService "1" -- "1" MySQLDatabase : association
+
+@enduml

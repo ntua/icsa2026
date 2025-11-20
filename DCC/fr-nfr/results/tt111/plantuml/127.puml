@@ -1,0 +1,50 @@
+@startuml
+
+package Frontend {
+  class SwingUI {
+    - database: Database
+    + createCoordinateGroup(cartesianX, cartesianY, polarR, polarTheta)
+    + storeCoordinateGroup(label)
+    + retrieveCoordinateGroup(label)
+    + modifyCoordinateGroup(updatedGroup)
+    + deleteCoordinateGroup(groupId)
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - connection: TCPIPConnection
+    + connect()
+    + disconnect()
+    + saveCoordinateGroup(group)
+    + retrieveCoordinateGroup(label)
+    + updateCoordinateGroup(updatedGroup)
+    + deleteCoordinateGroup(groupId)
+  }
+}
+
+class CoordinateGroup {
+    - id: int
+    - label: string
+    - timestamp: datetime
+    # cartesian: CartesianCoordinates
+    # polar: PolarCoordinates
+    + convertToPolar()
+    + convertToCartesian()
+}
+
+class CartesianCoordinates {
+    - x: float
+    - y: float
+}
+
+class PolarCoordinates {
+    - r: float
+    - theta: float
+}
+
+TCPIPConnection -- MySQLDatabase
+SwingUI -- MySQLDatabase
+SwingUI -- CoordinateGroup
+
+@enduml

@@ -1,0 +1,104 @@
+Response: 
+```plantuml
+@startuml
+
+' Define packages for MVC architecture
+package model {
+  class CoordinateGroup {
+    - int id
+    - Date timestamp
+    - String label
+    - double x
+    - double y
+    - double r
+    - double theta
+    --
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getX(): double
+    + getY(): double
+    + getR(): double
+    + getTheta(): double
+    + setLabel(String): void
+    + setX(double): void
+    + setY(double): void
+    + setR(double): void
+    + setTheta(double): void
+    + convertCoordinates(): void
+  }
+
+  class CoordinateGroupDAO {
+    + createGroup(CoordinateGroup): void
+    + updateGroup(CoordinateGroup): void
+    + deleteGroup(CoordinateGroup): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String): List<CoordinateGroup>
+  }
+
+  class DatabaseConnection {
+    - Connection connection
+    + connect(): Connection
+    + disconnect(): void
+  }
+
+  ' Associations in model package
+  CoordinateGroupDAO --> DatabaseConnection : uses
+}
+
+package view {
+  class DCCView {
+    + displayGroups(List<CoordinateGroup>): void
+    + showError(String): void
+    + getUserInput(): CoordinateGroup
+    + getSelectedGroup(): CoordinateGroup
+    + getLabelInput(): String
+    + initializeComponents(): void
+    + addCreateListener(listener): void
+    + addModifyListener(listener): void
+    + addDeleteListener(listener): void
+    + addViewAllListener(listener): void
+    + addViewByLabelListener(listener): void
+  }
+}
+
+package controller {
+  class DCCController {
+    - DCCView view
+    - CoordinateGroupDAO dao
+    --
+    + handleCreate(): void
+    + handleModify(): void
+    + handleDelete(): void
+    + handleViewAll(): void
+    + handleViewByLabel(): void
+    + start(): void
+  }
+}
+
+' Define associations between controller and other components
+DCCController ..> DCCView : controls
+DCCController ..> CoordinateGroupDAO : uses
+DCCController --> CoordinateGroup : manages
+
+@enduml
+```
+
+**Explanation of the Diagram:**
+
+- **Model Package:**
+  - `CoordinateGroup`: Represents the data entity with attributes for ID, timestamp, label, Cartesian and Polar coordinates. Methods for getting/setting attributes and converting coordinates.
+  - `CoordinateGroupDAO`: Provides data access methods for CRUD operations and queries on `CoordinateGroup`.
+  - `DatabaseConnection`: Manages the connection to the MySQL database. `CoordinateGroupDAO` uses this for database operations.
+
+- **View Package:**
+  - `DCCView`: Represents the GUI built using Swing. Contains methods to display data, show error messages, gather user input, and register event listeners for user actions.
+
+- **Controller Package:**
+  - `DCCController`: Acts as the mediator between the view and the model. It handles user interactions by invoking methods on the DAO and updating the view accordingly. It contains references to `DCCView` and `CoordinateGroupDAO`.
+
+- **Associations:**
+  - The controller controls the view and uses the DAO to perform model operations.
+  - The controller also directly manages `CoordinateGroup` objects during create, update, delete, and view operations.
+
+This class diagram reflects the MVC architecture, clearly separating the concerns of data management (Model), user interface (View), and application logic/control flow (Controller), with necessary associations and methods for each component.

@@ -1,0 +1,65 @@
+@startuml
+
+package frontend {
+  class DCCView {
+    + displayCoordinateGroups()
+    + getInputCoordinates() : CoordinateGroup
+    + displayMessage(String message)
+    + showFilteredList(List<CoordinateGroup> filteredGroups)
+  }
+}
+
+package logic {
+  class CoordinateConverter {
+    + cartesianToPolar(Coordinate cartesian) : Coordinate
+    + polarToCartesian(Coordinate polar) : Coordinate
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: Coordinate
+    - polar: Coordinate
+    + CoordinateGroup(double x, double y, String label)
+    + CoordinateGroup(double r, double theta, String label)
+  }
+
+  class Coordinate {
+    - x: double
+    - y: double
+    + Coordinate(double x, double y)
+  }
+  
+  class DCCLogicController {
+    - model: DCCModel
+    - converter: CoordinateConverter
+    + createCoordinateGroup(CoordinateGroup group) 
+    + readAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup updatedGroup)
+    + deleteCoordinateGroup(int id)
+  }
+
+}
+
+package database {
+ class DatabaseConnectionManager {
+   - url: String
+   + connect() : Connection
+ }
+
+ class DCCModel {
+ - connection: DatabaseConnectionManager
+ + getAllCoordinateGroups() : List<CoordinateGroup>
+ + saveCoordinateGroup(CoordinateGroup group)
+ + updateCoordinateGroup(CoordinateGroup updatedGroup)
+ + deleteCoordinateGroup(int id) 
+ }
+}
+
+DCCView -- DCCLogicController: "Requests/Updates"
+DCCLogicController --> DCCModel: Data Operations
+DCCModel <-- DatabaseConnectionManager: Connection
+DCCLogicController -- CoordinateConverter: Uses For Conversion
+
+
+@enduml

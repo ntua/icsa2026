@@ -1,0 +1,43 @@
+@startuml
+skinparam packageStyle rectangle
+
+package Controller {
+    class DeleteController {
+        + deleteCoordinateGroup() // Method for deleting a coordinate group
+    }
+}
+
+package Model {
+    class CoordinateGroupModel {
+        * ID: int
+        * Timestamp: datetime
+        * Label: string
+        * PolarCoordinates: (r, θ)
+        * CartesianCoordinates: (x, y)
+        
+        + getID() : int  // Getter for the unique ID
+        + getTimestamp() : datetime // Getter for the timestamp
+        + getLabel() : string // Getter for the label
+        + getPolarCoordinates() : (r, θ) // Getter for polar coordinates
+        + getCartesianCoordinates() : (x, y) // Getter for Cartesian coordinates
+        
+        - deleteFromDatabase(ID) // Method to delete a coordinate group from the database
+    }
+}
+
+package View {
+    class DeleteView {
+        * selectedGroup: CoordinateGroupModel // Reference to the selected group to be deleted
+        
+        + showConfirmationDialog() : boolean  // Shows confirmation dialog before deletion
+        + updateListAfterDeletion() // Updates the list after successful deletion
+    }
+}
+
+DeleteController -up-> Model : calls get methods
+DeleteController .. DeleteView : passes control back to View
+DeleteController -down-> Model : requests group deletion from model
+
+DeleteView -right-> Controller : sends delete request 
+DeleteView <.. Model : retrieves data for display
+@enduml

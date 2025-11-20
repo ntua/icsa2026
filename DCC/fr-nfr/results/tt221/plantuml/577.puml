@@ -1,0 +1,80 @@
+@startuml DCC_Application_Class_Diagram
+title DCC Application Class Diagram
+
+package "Presentation Layer" {
+    class DCCSwingGUI {
+        + void displayGUI()
+        + void handleUserInput()
+        + void refreshCoordinateList()
+        + void filterCoordinates(String label)
+        + void clearFilter()
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateConverter {
+        + static Cartesian toCartesian(Polar polar)
+        + static Polar toPolar(Cartesian cartesian)
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Cartesian cartesian
+        - Polar polar
+        - DateTime timestamp
+        
+        + int getId()
+        + String getLabel()
+        + Cartesian getCartesian()
+        + Polar getPolar()
+        + DateTime getTimestamp()
+    }
+
+    class DCCController {
+        + void addCoordinateGroup(String label, CoordinateGroup group)
+        + void updateCoordinateGroup(int id, CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + List<CoordinateGroup> filterCoordinateGroupsByLabel(String label)
+        
+        + void convertToCartesian(Polar polar)
+        + void convertToPolar(Cartesian cartesian)
+    }
+}
+
+package "Data Access Layer" {
+    class DCCDatabaseAccessor {
+        + int storeCoordinateGroup(CoordinateGroup group)
+        + CoordinateGroup retrieveCoordinateGroup(int id)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + void updateCoordinateGroup(int id, CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        
+        + List<CoordinateGroup> filterCoordinateGroupsByLabel(String label)
+    }
+}
+
+class Cartesian {
+    - double x
+    - double y
+    
+    + double getX()
+    + double getY()
+}
+
+class Polar {
+    - double r
+    - double theta
+    
+    + double getR()
+    + double getTheta()
+}
+
+'DCCSwingGUI' uses 'DCCController'
+'DCCController' uses 'CoordinateConverter'
+'DCCController' uses 'DCCDatabaseAccessor'
+
+'DCCDatabaseAccessor' --* 'CoordinateGroup'
+
+@enduml

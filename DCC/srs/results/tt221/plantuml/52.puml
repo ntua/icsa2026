@@ -1,0 +1,61 @@
+@startuml
+package GUI {
+  class MainMenu {
+    +createCoordinateGroup()
+    +modifyCoordinateGroup()
+    +viewCoordinateGroups()
+  }
+  
+  class CoordinateGroupForm {
+    +TextField label
+    +PolarCoordinatesTextField polarCoordinates
+    +CartesianCoordinatesTextField cartesianCoordinates
+    +createButton
+    +modifyButton
+  }
+  
+  class CoordinateGroupDisplayList {
+    +TableModel tableModel
+  }
+}
+
+package Service {
+  interface DataService {
+    +createCoordinateGroup(CoordinateGroup coordinateGroup)
+    +modifyCoordinateGroup(int id, CoordinateGroup coordinateGroup)
+    +deleteCoordinateGroup(int id)
+    +getCoordinateGroups()
+  }
+  
+  class DataServiceImpl {
+    -DatabaseConnection databaseConnection
+    
+    +createCoordinateGroup(CoordinateGroup coordinateGroup)
+    +modifyCoordinateGroup(int id, CoordinateGroup coordinateGroup)
+    +deleteCoordinateGroup(int id)
+    +getCoordinateGroups()
+  }
+}
+
+package Data {
+  class DatabaseConnection {
+    -String url
+    -String username
+    -String password
+    
+    +connect()
+    +disconnect()
+  }
+  
+  class CoordinateGroup {
+    -int id
+    -Date timestamp
+    -String label
+    -PolarCoordinates polarCoordinates
+    -CartesianCoordinates cartesianCoordinates
+  }
+}
+
+GUI -- Service
+Service -- Data
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+package "Presentation Tier" {
+  class Storefront {
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    + viewCartesian() : void
+    + viewPolar() : void
+    + addGroup(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+  }
+}
+
+package "Logic Tier" {
+  class CoordinateGroupManager {
+    - coordinateGroups : List<CoordinateGroup>
+    - database : DatabaseConnection
+    + createGroup(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : CoordinateGroup
+    + readGroups() : List<CoordinateGroup>
+    + updateGroup(coordinateGroup: CoordinateGroup, newCartesianCoordinates: CartesianCoordinates, newPolarCoordinates: PolarCoordinates) : void
+    + deleteGroup(coordinateGroup: CoordinateGroup) : void
+  }
+
+  class CoordinateConverter {
+    - database : DatabaseConnection
+    + cartesianToPolar(cartesianCoordinates: CartesianCoordinates) : PolarCoordinates
+    + polarToCartesian(polarCoordinates: PolarCoordinates) : CartesianCoordinates
+  }
+}
+
+package "Data Tier" {
+  class DatabaseConnection {
+    + connect() : void
+    + disconnect() : void
+    + createRecord(coordinateGroup: CoordinateGroup) : void
+    + readRecords() : List<CoordinateGroup>
+    + updateRecord(coordinateGroup: CoordinateGroup, newCartesianCoordinates: CartesianCoordinates, newPolarCoordinates: PolarCoordinates) : void
+    + deleteRecord(coordinateGroup: CoordinateGroup) : void
+  }
+
+  class CoordinateGroup {
+    - id : Integer
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    + getCartesianCoordinates() : CartesianCoordinates
+    + getPolarCoordinates() : PolarCoordinates
+  }
+}
+
+Storefront --> CoordinateGroupManager : Uses
+CoordinateGroupManager --> CoordinateConverter : Uses
+CoordinateGroupManager --> DatabaseConnection : Accesses
+CoordinateConverter --> DatabaseConnection : Accesses
+
+@enduml

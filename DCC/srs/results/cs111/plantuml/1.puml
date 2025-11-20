@@ -1,0 +1,44 @@
+@startuml
+package com.example.coordinategroup {
+    -class CoordinateGroup {
+        +ID: int
+        +Timestamp: String
+        +Label: String
+        +PolarCoordinates: PolarCoordinate[]
+        +CartesianCoordinates: CartesianCoordinate[]
+    }
+    -class PolarCoordinate {
+        +R: double
+        +Theta: double
+    }
+    -class CartesianCoordinate {
+        +X: double
+        +Y: double
+    }
+}
+package com.example.database {
+    -interface DatabaseConnector {
+        +connect(): void
+        +disconnect(): void
+    }
+    -class MySQLDatabase implements DatabaseConnector {
+        +executeQuery(query: String): ResultSet
+    }
+}
+package com.example.gui {
+    -interface GUI {
+        +initUI(): void
+        +addButton(buttonName: String, action: ActionListener): void
+    }
+    -class CoordinateGroupListGUI implements GUI {
+        +displayCoordinateGroups(groups: CoordinateGroup[]): void
+    }
+}
+
+CoordinateGroup o-- PolarCoordinate
+CoordinateGroup o-- CartesianCoordinate
+
+DatabaseConnector -- MySQLDatabase : uses
+MySQLDatabase -- GUI : uses
+
+@enduml

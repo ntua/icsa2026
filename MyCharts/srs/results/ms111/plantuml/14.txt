@@ -1,0 +1,46 @@
+@startuml
+!define SHADOWGRADIENT LINEAR <size> 0px, 1px
+hide circle
+
+package UserPackage {
+    class UserService {
+        -userId: String
+        +registerUser() : void // Functional requirement-business logic operation
+        +getQuota(userId): int // Data management operation
+    }
+}
+
+package AuthPackage {
+    class AuthService {
+        +authenticate(credentials): boolean // Functional requirement-business logic operation
+    }
+}
+
+package UploadPackage {
+    class UploadService {
+        -uploadedCSV: CSVFile
+        +handleUpload(file): void // Functional requirement-business logic operation
+        +storeData() : void // Data management operation
+    }
+}
+
+package ChartGenerationPackage {
+    class ChartGenerationService {
+        +generateChart(): void // Functional requirement-business logic operation
+    }
+}
+
+package DataStorePackage {
+    class DataStoreService {
+        -data: Map<String, CSVFile>
+        +retrieveData(userId): CSVFile // Data management operation
+        +ensureConsistency(): void // Data consistency operation
+    }
+}
+
+UserService --> AuthService : authenticate()
+UploadService --> UserService : getQuota()
+ChartGenerationService --> UploadService : handleUpload()
+DataStoreService <|-- UploadService : storeData()
+DataStoreService <|-- ChartGenerationService : ensureConsistency()
+@enduml

@@ -1,0 +1,127 @@
+@startuml
+
+!define MVC_COLOR DarkBlue
+!define DB_COLOR LightGreen
+!define NETWORK_COLOR OrangeRed
+!define FRONTEND_COLOR Goldenrod
+!define COMPOSITION_COLOR OliveDrab
+
+skinparam backgroundColor White
+skinparam class {
+    BackgroundColor PaleTurquoise
+    ArrowColor Black
+    BorderColor Gray
+    FontName Calibri
+    StereoColor DarkGray
+}
+
+
+package "Model" #MVC_COLOR {
+
+    class CartesianCoordinate {
+        x: Double
+        y: Double
+
+        +toPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        r: Double
+        theta: Double
+        
+        +toCartesian(): CartesianCoordinate
+    }
+
+    class CoordinateGroup {
+        id: Integer
+        label: String
+        timestamp: Timestamp
+
+        -convert(): void
+        -saveToDB(dbConnection): void
+        -retrieveFromDB(labelOrAll, dbConnection): List<CoordinateGroup>
+        -modifyDetails(newLabel, newCartesianOrPolar, dbConnection): void
+        -deleteFromDB(dbConnection): void
+    }
+}
+
+
+package "Controller" #MVC_COLOR {
+
+    class Controller {
+        
+        +createNew(): CoordinateGroup
+        +storeToDB(coordinateGroup, dbConnection): void
+        +retrieveByLabel(label, dbConnection): List<CoordinateGroup>
+        +viewAllSaved(dbConnection): List<CoordinateGroup>
+        +modifySelected(selectedCoordinateGroup, newLabelOrCartesianOrPolar, dbConnection): void
+        +deleteSelected(selectedCoordinateGroup, dbConnection): void
+    }
+}
+
+
+package "View" #MVC_COLOR {
+
+    class View {
+
+        *showMenu(): String
+        *getInputForNewCoordinateGroup(): CartesianCoordinate|PolarCoordinate
+        *getOutputFromRetrieval(retrievedGroups): List<CoordinateGroup>
+        +getModificationChoice(): String
+        *getLabelInput(): String
+    }
+}
+
+
+package "Database" #DB_COLOR {
+
+    class MySQLConnection {
+        
+        -connect(): void 
+        -execute(query): ResultSet
+        -close(): void
+    }
+}
+
+
+package "Network" #NETWORK_COLOR {
+    
+    abstract class TCPCommunication {
+
+        +sendData(data, ipAddressAndPort): void
+        +receiveData(ipAddressAndPort): String
+    }
+
+    class Server extends TCPCommunication {
+        
+    }
+
+    class Client extends TCPCommunication {
+        
+    }
+}
+
+
+package "Frontend" #FRONTEND_COLOR {
+
+    class SwingGUI {
+        
+        -setMenu(): void
+        -setInputFieldsForNewCoordinateGroup(): CartesianCoordinate|PolarCoordinate
+        -getOutputFieldsFromRetrieval(retrievedGroups): List<CoordinateGroup>
+        +getModificationChoice(): String
+        -getInputFieldForLabel(): String
+    }
+}
+
+
+!define COMPOSITION "o--" #COMPOSITION_COLOR
+
+Controller ..|> View : Uses
+Controller ..|> Model : Uses
+Controller -- MySQLConnection : Uses
+View -- SwingGUI : Uses
+
+
+
+@enduml

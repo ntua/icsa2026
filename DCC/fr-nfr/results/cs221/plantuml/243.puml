@@ -1,0 +1,56 @@
+@startuml
+package "Client" {
+    class DCCApplication {
+        - coordinateGroupManager : CoordinateGroupManager
+        - databaseConnection : DatabaseConnection
+        + run()
+    }
+
+    class CoordinateGroupManager {
+        + addCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroup(id: Integer)
+        + getCoordinateGroups(): List<CoordinateGroup>
+    }
+
+    class CoordinateGroup {
+        - id : Integer
+        - label : String
+        - cartesianCoordinates : CartesianCoordinates
+        - polarCoordinates : PolarCoordinates
+    }
+
+    class CartesianCoordinates {
+        - x : Double
+        - y : Double
+    }
+
+    class PolarCoordinates {
+        - r : Double
+        - theta : Double
+    }
+}
+
+package "Server" {
+    class DatabaseConnection {
+        + connect()
+        + disconnect()
+        + executeQuery(query: String)
+        + executeUpdate(update: String)
+    }
+
+    class MySQLDatabase {
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+    }
+}
+
+DCCApplication --> CoordinateGroupManager : Uses
+CoordinateGroupManager --> CoordinateGroup : Composes
+CoordinateGroup --> CartesianCoordinates : Composes
+CoordinateGroup --> PolarCoordinates : Composes
+
+CoordinateGroupManager --> DatabaseConnection : Accesses
+DatabaseConnection --> MySQLDatabase : Composes
+
+@enduml

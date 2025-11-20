@@ -1,0 +1,58 @@
+@startuml
+
+skinparam class {
+    StereotypePosition TopCenter
+    BackgroundColor White
+    BorderColor Gray
+    FontColor Black
+}
+
+package "Coordinate Management System" <<Rectangle>>{
+  package "Model"<<Package>>{
+    
+    class CoordinateGroup{
+      unique_id : int<br>(Primary Key)
+
+      timestamp : Timestamp
+
+      label: String
+      
+      polar_coordinates : (r, theta)<br>(Polar Format)
+
+      cartesian_coordinates : (x,y)<br>(Cartesian Format)
+    }
+  }
+
+  package "View" <<Package>> {
+
+    class MainMenu{
+      - displayCoordinateGroups()<br><display_arrow> CoordinateGroupList
+      
+      - createCoordinateGroup()<br><display_arrow> CreateCoordinateGroupForm
+
+      - modifyCoordinateGroup()<br><display_arrow> ModifyCoordinateGroupForm
+    }
+    
+    class DisplayList{
+      + refreshDisplay() 
+    }
+    
+  }
+
+  package "Controller" <<Package>> {
+
+    class DeleteButton{
+        - onDeleteClick()<br><display_arrow> MainMenu
+
+        - deleteCoordinateGroup(unique_id)<br><display_arrow> CoordinateGroup
+    }
+  }
+}
+
+
+MainMenu ..> DisplayList : Refresh List
+CreateCoordinateGroupForm <.. MainMenu 
+ModifyCoordinateGroupForm <.. MainMenu
+DeleteButton ..> MainMenu 
+
+@enduml

@@ -1,0 +1,86 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+package frontend {
+  class UserInterface {
+  + createCoordinateGroup(CartesianCoordinate, PolarCoordinate): void
+  + storeCoordinateGroup(): void
+  + retrieveCoordinateGroups(label: String): List[CoordinateGroup]
+  + modifyCoordinateGroup(id: Integer): void
+}
+}
+
+package businesslogic {
+  class CoordinateGroupManager {
+  + createCoordinateGroup(cartesian: CartesianCoordinate, polar: PolarCoordinate): CoordinateGroupEntity
+  + storeCoordinateGroup(group: CoordinateGroupEntity): void
+  + retrieveCoordinateGroups(label: String): List[CoordinateGroupEntity]
+  + modifyCoordinateGroup(id: Integer, cartesian: CartesianCoordinate, polar: PolarCoordinate): void
+}
+
+class CoordinateConverter {
+  + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+  + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+}
+
+class CoordinateGroup {
+  - id: Integer
+  - label: String
+  - timestamp: Date
+  - cartesian: CartesianCoordinate
+  - polar: PolarCoordinate
+  + getCARTESIAN(): CartesianCoordinate
+  + getPOLAR(): PolarCoordinate
+  + setCARTESIAN(cartesian: CartesianCoordinate): void
+  + setPOLAR(polar: PolarCoordinate): void
+}
+
+class MySQLDatabaseConnector {
+  + storeCoordinateGroup(group: CoordinateGroupEntity): void
+  + retrieveCoordinateGroups(label: String): List[CoordinateGroupEntity]
+  + deleteCoordinateGroup(id: Integer): void
+}
+}
+
+package datamodel {
+  class CartesianCoordinate {
+  - x: Double
+  - y: Double
+  + getX(): Double
+  + getY(): Double
+  + setX(x: Double): void
+  + setY(y: Double): void
+}
+
+class PolarCoordinate {
+  - r: Double
+  - theta: Double
+  + getR(): Double
+  + getTHETA(): Double
+  + setR(r: Double): void
+  + setTHETA(theta: Double): void
+}
+
+class CoordinateGroupEntity {
+  - id: Integer
+  - label: String
+  - timestamp: Date
+  + getId(): Integer
+  + getLabel(): String
+  + getTimestamp(): Date
+  + setId(id: Integer): void
+  + setLabel(label: String): void
+  + setTimestamp(timestamp: Date): void
+}
+}
+
+CoordinateGroupManager --> UserInterface : uses
+
+UserInterface --> CoordinateGroupManager: create
+CoordinateGroupManager <--> MySQLDatabaseConnector: store, retrieve
+
+ CoordinateGroupManager -u-|> CoordinateGroupEntity
+ CoordinateGroup --|> CoordinateGroupEntity
+ CoordinateConverter --|> CartesianCoordinate
+ CoordinateConverter --|> PolarCoordinate
+@enduml

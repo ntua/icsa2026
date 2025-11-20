@@ -1,0 +1,67 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - cartesianCoordinates : CartesianCoordinates
+        - polarCoordinates : PolarCoordinates
+        
+        + getCartesianX() : float
+        + getCartesianY() : float
+        + getPolarR() : float
+        + getPolarTheta() : float
+    }
+}
+
+package "Logic" {
+    class CreateOp {
+        + execute(CoordinateGroup) : CoordinateGroup
+    }
+
+    class ReadOp {
+        + execute() : List<CoordinateGroup>
+    }
+
+    class UpdateOp {
+        + execute(int, CoordinateGroup) : CoordinateGroup
+    }
+
+    class DeleteOp {
+        + execute(int) : void
+    }
+}
+
+package "View" {
+    class InputForm {
+        - labelInput : JTextField
+        - cartesianCoordinatesInput : JTextField
+        - polarCoordinatesInput : JTextField
+        
+        + getInput() : String
+        + getCartesianX() : float
+        + getCartesianY() : float
+        + getPolarR() : float
+        + getPolarTheta() : float
+    }
+
+    class CoordinateGroupList {
+        - list : List<CoordinateGroup>
+        
+        + addItem(CoordinateGroup) : void
+        + removeItem(int) : void
+        + refreshList() : void
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - coordinateGroupModel : CoordinateGroup
+        
+        + viewProducts() : InputForm
+        + processInput(InputForm) : CoordinateGroup
+        + displayCoordinateGroups(List<CoordinateGroup>) : CoordinateGroupList
+        + filterCoordinateGroups(String, List<CoordinateGroup>) : List<CoordinateGroup>
+    }
+}
+
+@enduml

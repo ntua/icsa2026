@@ -1,0 +1,78 @@
+@startuml
+package Database {
+  interface MySQLDatabase {
+    + connect()
+    + disconnect()
+    + query(query: String): ResultSet
+    + executeUpdate(query: String)
+  }
+}
+
+package GUI {
+  class MainWindow {
+    - database: MySQLDatabase
+    - controller: Controller
+    
+    + MainWindow(database: MySQLDatabase, controller: Controller)
+    + setDatabase(database: MySQLDatabase)
+    + setController(controller: Controller)
+    + showViewCoordinateGroupsByLabelDialog()
+    + showDeleteCoordinateGroupDialog()
+  }
+  
+  class ViewCoordinateGroupsByLabelDialog {
+    - database: MySQLDatabase
+    - controller: Controller
+    
+    + ViewCoordinateGroupsByLabelDialog(database: MySQLDatabase, controller: Controller)
+    + setDatabase(database: MySQLDatabase)
+    + setController(controller: Controller)
+    + showDialog()
+  }
+  
+  class DeleteCoordinateGroupDialog {
+    - database: MySQLDatabase
+    - controller: Controller
+    
+    + DeleteCoordinateGroupDialog(database: MySQLDatabase, controller: Controller)
+    + setDatabase(database: MySQLDatabase)
+    + setController(controller: Controller)
+    + showDialog()
+  }
+}
+
+package Model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: List<Tuple<Float, Float>>
+    - cartesianCoordinates: List<Tuple<Float, Float>>
+    
+    + CoordinateGroup(id: int, timestamp: Date, label: String, polarCoordinates: List<Tuple<Float, Float>>, cartesianCoordinates: List<Tuple<Float, Float>>)
+  }
+  
+  class CoordinateGroupList {
+    - coordinateGroups: List<CoordinateGroup>
+    
+    + CoordinateGroupList(coordinateGroups: List<CoordinateGroup>)
+    + addCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + removeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+  }
+}
+
+package Controller {
+  class Controller {
+    - database: MySQLDatabase
+    - mainWindow: MainWindow
+    
+    + Controller(database: MySQLDatabase, mainWindow: MainWindow)
+    + setDatabase(database: MySQLDatabase)
+    + setMainWindow(mainWindow: MainWindow)
+    + viewCoordinateGroupsByLabel(label: String)
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+}
+@enduml

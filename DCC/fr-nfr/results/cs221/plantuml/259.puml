@@ -1,0 +1,53 @@
+@startuml
+
+package frontend {
+    class SwingUI {
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + getCoordinatesFromUser() : CoordinatePair
+        + getLabelFromUser() : String
+        + handleAddOperation()
+        + handleUpdateOperation()
+        + handleDeleteOperation()
+        + applyFilter(String label)
+    }
+}
+
+package logic {
+    class CoordinateConverter {
+        + cartesianToPolar(CoordinatePair cartesian) : CoordinatePair
+        + polarToCartesian(CoordinatePair polar) : CoordinatePair
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesianCoordinates: CoordinatePair
+        - polarCoordinates: CoordinatePair
+        + CoordinateGroup(String label, CoordinatePair cartesianCoordinates)
+        + updateCoordinates(CoordinatePair cartesianCoordinates)
+    }
+
+    class CoordinatePair {
+        - x: double
+        - y: double
+        + CoordinatePair(double x, double y)
+    }
+}
+
+package database {
+    class DatabaseConnection {
+        - connection: Connection
+        + create() : void
+        + readAllCoordinateGroups() : List<CoordinateGroup>
+        + saveCoordinateGroup(CoordinateGroup coordinateGroup) : void
+        + deleteCoordinateGroup(int id) : void
+    }
+}
+
+frontend.SwingUI -- logic.CoordinateConverter: uses
+frontend.SwingUI -- database.DatabaseConnection: uses
+logic.CoordinateGroup --> logic.CoordinatePair : contains
+logic.CoordinateConverter ..> logic.CoordinatePair : converts
+
+
+@enduml

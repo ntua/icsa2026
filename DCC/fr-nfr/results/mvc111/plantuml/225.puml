@@ -1,0 +1,62 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - cartesianCoordinates: List<Tuple>
+        - polarCoordinates: List<Tuple>
+        - label: String
+        + getCartesianLabel(): List<Tuple>
+        + getPolarLabel(): List<Tuple>
+        + setCartesianValues(newCartesianCoordinates: List<Tuple>)
+        + setPolarValues(newPolarCoordinates: List<Tuple>)
+    }
+}
+package "View" {
+    interface CoordinateGroupController {
+        void create()
+        void retrieveByLabel(label: String)
+        void viewAll()
+        void modify(coordinateGroup: CoordinateGroup, label: String)
+        void delete(cartesianCoordinates: List<Tuple>)
+    }
+}
+package "Controller" {
+    class DCCApplication {
+        + createCoordinateGroup()
+        + storeCoordinateGroup(coordGroup: CoordinateGroup)
+        + retrieveCoordinateGroup(label: String)
+        + modifyCoordinateGroup(cartesianCoordinates: List<Tuple>, polarLabel: String)
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+    }
+}
+package "View" {
+    interface UserInterface {
+        void displayCreateForm()
+        void displayRetrieveForm()
+        void displayModifyForm()
+        void displayDeleteConfirmation()
+    }
+}
+interface Database {
+    + saveCoordinateGroup(coordGroup: CoordinateGroup)
+    + fetchCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    + fetchAllCoordinateGroups(): List<CoordinateGroup>
+}
+package "Server" {
+    class CartesianCoordinates{
+        - x: Double
+        - y: Double
+    }
+    class PolarCoordinates{
+        - r: Double
+        - theta: Double
+    }
+    interface DatabaseInterface {
+        + saveData(data: String)
+        + fetchData(query: String): List<String>
+    }
+}
+Database <|-- CoordinateGroup
+CartesianCoordinates *-- CoordinateGroup : composition
+PolarCoordinates *-- CoordinateGroup : composition
+DatabaseInterface <|-- Database
+@enduml

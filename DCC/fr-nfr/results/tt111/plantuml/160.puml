@@ -1,0 +1,78 @@
+@startuml
+package "Presentation Layer" {
+  class DCCApp {
+    + run() : void
+    - databaseConnector: DatabaseConnector
+    - coordinateGroupService: CoordinateGroupService
+  }
+
+  class CoordinateGroupForm {
+    + viewCartesianCoordinates() : void
+    + viewPolarCoordinates() : void
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateGroupService {
+    - coordinateRepository: CoordinateRepository
+
+    + createCoordinateGroup(cartesianCoord: Cartesian, polarCoord: Polar): CoordinateGroup
+    + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  }
+
+  class CoordinateRepository {
+    - coordinateDao: CoordinateDao
+
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  }
+}
+
+package "Data Access Layer" {
+  class CoordinateDao {
+    - databaseConnector: DatabaseConnector
+
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  }
+}
+
+package "Model" {
+  class Cartesian {
+    - x: Double
+    - y: Double
+
+    + getCartesianString() : String
+  }
+
+  class Polar {
+    - r: Double
+    - theta: Double
+
+    + getPolarString() : String
+  }
+
+  class CoordinateGroup {
+    - cartesianCoord: Cartesian
+    - polarCoord: Polar
+    - label: String
+
+    + getCartesianCoordinates() : String
+    + getPolarCoordinates() : String
+  }
+}
+
+DCCApp --> CoordinateGroupService : Uses
+CoordinateGroupForm --> DCCApp : Uses
+CoordinateGroupService --> CoordinateRepository : Uses
+CoordinateRepository --> CoordinateDao : Uses
+CoordinateDao --> DatabaseConnector : Uses
+
+@enduml

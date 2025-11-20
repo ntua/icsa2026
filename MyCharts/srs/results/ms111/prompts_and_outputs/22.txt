@@ -1,0 +1,194 @@
+Response:
+```plantuml
+@startuml
+
+package "MyCharts Application" {
+
+    package "User Management" {
+        class UserService {
+            - name: String
+            - email: String
+            - profilePicture: String
+            - remainingQuota: int
+            - accountCreationTimestamp: Date
+            - lastLoginTimestamp: Date
+            + authenticateUser(): User // Functional requirement-business logic operation
+            + getUserProfile(): UserProfile // Functional requirement-business logic operation
+            + updateUserProfile(UserProfile): void // Data management operation
+            + purchaseQuota(int): void // Functional requirement-business logic operation
+        }
+
+        class UserProfile {
+            - name: String
+            - email: String
+            - profilePicture: String
+            - remainingQuota: int
+            - accountCreationTimestamp: Date
+            - lastLoginTimestamp: Date
+        }
+
+        class QuotaService {
+            + getRemainingQuota(userId: String): int // Functional requirement-business logic operation
+            + updateQuota(userId: String, quota: int): void // Data management operation
+        }
+
+        UserService --> UserProfile : manages
+        UserService --> QuotaService : uses
+    }
+
+    package "Chart Management" {
+        class ChartService {
+            + generateChart(csvData: String): Chart // Functional requirement-business logic operation
+            + saveChart(chart: Chart): void // Data management operation
+            + getChartHistory(userId: String): List<Chart> // Functional requirement-business logic operation
+            + downloadChart(chartId: String, format: String): File // Functional requirement-business logic operation
+        }
+
+        class Chart {
+            - chartId: String
+            - userId: String
+            - chartType: String
+            - creationDate: Date
+            - chartData: String
+        }
+
+        class CSVService {
+            + validateCSV(csvData: String): boolean // Functional requirement-business logic operation
+            + downloadTemplate(chartType: String): File // Functional requirement-business logic operation
+        }
+
+        ChartService --> Chart : manages
+        ChartService --> CSVService : uses
+    }
+
+    package "Payment Management" {
+        class PaymentService {
+            + processPayment(userId: String, amount: double): boolean // Functional requirement-business logic operation
+            + sendPaymentConfirmation(userId: String, receipt: String): void // Flow control operation
+        }
+
+        class Payment {
+            - paymentId: String
+            - userId: String
+            - amount: double
+            - paymentDate: Date
+        }
+
+        PaymentService --> Payment : manages
+    }
+
+    package "Notification Management" {
+        class NotificationService {
+            + sendNotification(userId: String, message: String): void // Flow control operation
+        }
+    }
+
+    UserService --> ChartService : uses
+    UserService --> PaymentService : uses
+    ChartService --> NotificationService : uses
+    PaymentService --> NotificationService : uses
+}
+
+@enduml
+```
+
+### Characteristics Calculation
+
+#### General Characteristics
+- **SI (Stateless Services)**: 3 (UserService, ChartService, PaymentService) / 4 = 0.75
+- **DOC (Data Ownership Count)**: 3 (UserService, ChartService, PaymentService) / 4 = 0.75
+- **SST (Service Support for Transactions)**: 1 (PaymentService) / 4 = 0.25
+
+#### Characteristics per Service
+- **UserService**
+  - **SIC (Service Interface Count)**: 4
+  - **AIS (in)**: 0
+  - **ADS (out)**: 3 (QuotaService, ChartService, PaymentService)
+
+- **ChartService**
+  - **SIC (Service Interface Count)**: 4
+  - **AIS (in)**: 1 (UserService)
+  - **ADS (out)**: 2 (CSVService, NotificationService)
+
+- **PaymentService**
+  - **SIC (Service Interface Count)**: 2
+  - **AIS (in)**: 1 (UserService)
+  - **ADS (out)**: 1 (NotificationService)
+
+- **NotificationService**
+  - **SIC (Service Interface Count)**: 1
+  - **AIS (in)**: 2 (ChartService, PaymentService)
+  - **ADS (out)**: 0
+
+#### Characteristics per Use Case
+- **Download CSV Template**
+  - **SC**: {CSVService}
+
+- **Upload CSV and Generate Chart**
+  - **SC**: {CSVService, ChartService}
+
+- **View/Download Chart from History**
+  - **SC**: {ChartService}
+
+- **Purchase Additional Quotas**
+  - **SC**: {UserService, PaymentService}
+
+- **View My Profile**
+  - **SC**: {UserService}
+
+### JSON Object
+```json
+{
+    "SI": [0.75, 1],
+    "DOC": [0.75, 0.5],
+    "SST": [0.25, 0],
+    "services": [
+        {
+            "service_name": "UserService",
+            "SIC": [4, 4],
+            "AIS(in)": [0, 0],
+            "ADS(out)": [3, 3]
+        },
+        {
+            "service_name": "ChartService",
+            "SIC": [4, 4],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [2, 2]
+        },
+        {
+            "service_name": "PaymentService",
+            "SIC": [2, 2],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [1, 1]
+        },
+        {
+            "service_name": "NotificationService",
+            "SIC": [1, 1],
+            "AIS(in)": [2, 2],
+            "ADS(out)": [0, 0]
+        }
+    ],
+    "use_cases": [
+        {
+            "use_case_name": "Download CSV Template",
+            "SC": [["CSVService"], ["CSVService"]]
+        },
+        {
+            "use_case_name": "Upload CSV and Generate Chart",
+            "SC": [["CSVService", "ChartService"], ["CSVService", "ChartService"]]
+        },
+        {
+            "use_case_name": "View/Download Chart from History",
+            "SC": [["ChartService"], ["ChartService"]]
+        },
+        {
+            "use_case_name": "Purchase Additional Quotas",
+            "SC": [["UserService", "PaymentService"], ["UserService", "PaymentService"]]
+        },
+        {
+            "use_case_name": "View My Profile",
+            "SC": [["UserService"], ["UserService"]]
+        }
+    ]
+}
+```

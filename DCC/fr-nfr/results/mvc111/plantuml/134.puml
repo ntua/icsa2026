@@ -1,0 +1,95 @@
+@startuml
+
+package Frontend {
+  class DccFrame {
+    -coordinateGroupModel: CoordinateGroupModel
+    -dccView: DccView
+    -dccController: DccController
+    
+    +display()
+    +createCoordinateGroup()
+    +storeCoordinateGroup()
+    +retrieveCoordinateGroup()
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+  
+  class DccView {
+    +displayCoordinateGroup()
+    +requestCreateCoordinateGroup()
+    +requestStoreCoordinateGroup()
+    +requestRetrieveCoordinateGroup()
+    +requestModifyCoordinateGroup()
+    +requestDeleteCoordinateGroup()
+  }
+  
+  class DccController {
+    -coordinateGroupModel: CoordinateGroupModel
+    -dccView: DccView
+    
+    +createCoordinateGroup()
+    +storeCoordinateGroup()
+    +retrieveCoordinateGroup()
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+}
+
+package Model {
+  class CoordinateGroupModel {
+    -coordinateGroups: List<CoordinateGroup>
+    
+    +createCoordinateGroup()
+    +storeCoordinateGroup()
+    +retrieveCoordinateGroup()
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+  
+  class CoordinateGroup {
+    -id: int
+    -label: string
+    -timestamp: datetime
+    -cartesianCoordinates: List<CartesianCoordinate>
+    -polarCoordinates: List<PolarCoordinate>
+    
+    +convertCartesianToPolar()
+    +convertPolarToCartesian()
+  }
+  
+  class CartesianCoordinate {
+    -x: float
+    -y: float
+  }
+  
+  class PolarCoordinate {
+    -r: float
+    -theta: float
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    +connect()
+    +disconnect()
+    +storeData()
+    +retrieveData()
+    +modifyData()
+    +deleteData()
+  }
+}
+
+package Networking {
+  class TcpIpConnection {
+    +connect()
+    +disconnect()
+    +sendData()
+    +receiveData()
+  }
+}
+
+Frontend --> Model: uses
+Model --> Database: depends on
+Frontend --> Networking: uses
+
+@enduml

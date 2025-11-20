@@ -1,0 +1,74 @@
+@startuml
+package "Authentication Service" {
+    class AuthenticationService {
+        - String sessionId
+        - boolean authenticated
+        
+        + authenticateUser(String username, String password) {functional}
+        + validateSession(String sessionId) {functional}
+        + logout() {functional}
+    }
+}
+
+package "File Management Service" {
+    class FileManagementService {
+        - Map<String, byte[]> fileStore
+        
+        + uploadCSV(File csvFile) {data management}
+        + downloadCSV(String fileId) {data management}
+        + validateCSVFormat(File csvFile) {functional}
+    }
+}
+
+package "Chart Generation Service" {
+    class ChartGenerationService {
+        - Highcharts chartEngine
+        
+        + generateChart(CSVData data) {functional}
+        + saveChart(Chart chart, String format) {data management}
+        + getChartPreview(String chartId) {functional}
+    }
+}
+
+package "Payment Gateway Service" {
+    class PaymentGatewayService {
+        - Map<String, Transaction> transactions
+        
+        + processPayment(User user, Double amount) {functional}
+        + updateQuota(User user, Double amount) {data consistency}
+        + getPaymentHistory(User user) {data management}
+    }
+}
+
+package "User Profile Service" {
+    class UserProfileService {
+        - Map<String, User> users
+        
+        + getUserProfile(String userId) {data management}
+        + updateUserProfile(User user) {functional}
+        + deleteUserProfile(String userId) {functional}
+    }
+}
+
+package "Dashboard Service" {
+    class DashboardService {
+        - List<Chart> chartHistory
+        
+        + getChartHistory(User user) {data management}
+        + getChartPreview(String chartId) {functional}
+    }
+}
+
+class APIGateway {
+    + routeRequest(Request request) {flow control}
+    + aggregateResponses() {flow control}
+}
+
+AuthenticationService --> APIGateway
+FileManagementService --> APIGateway
+ChartGenerationService --> APIGateway
+PaymentGatewayService --> APIGateway
+UserProfileService --> APIGateway
+DashboardService --> APIGateway
+
+@enduml

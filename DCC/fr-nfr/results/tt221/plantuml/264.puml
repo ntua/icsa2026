@@ -1,0 +1,54 @@
+@startuml
+
+package "Frontend" {
+    class SwingUI {
+        + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+        + handleUserInput()
+        + refreshDisplay()
+    }
+}
+
+package "Logic" {
+    class CoordinateConverter {
+       + cartesianToPolar(x: double, y: double) : (double, double)
+       + polarToCartesian(r: double, theta: double) : (double, double)
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesianX: double
+        - cartesianY: double
+        - polarR: double
+        - polarTheta: double
+        + createFromInput(x: double, y: double, label: String) 
+        + updateValues(x: double, y: double, label: String)
+    }
+
+    class DCCLogic {
+      - converter: CoordinateConverter
+      + createCoordinateGroup(x: double, y: double, label: String): CoordinateGroup
+      + getCoordinateGroups(): List<CoordinateGroup>
+      + updateCoordinateGroup(group: CoordinateGroup)
+      + deleteCoordinateGroup(id: int)
+    }
+}
+
+package "Data" {
+  class DatabaseConnector {
+    - connection: Connection
+    + connectToDatabase()
+    + saveCoordinateGroup(group: CoordinateGroup)
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+}
+
+
+SwingUI "1" -- "*" DCCLogic : uses
+DCCLogic "1" -- "1" CoordinateConverter : uses
+DCCLogic "1" -- "1" DatabaseConnector : depends on 
+
+@enduml

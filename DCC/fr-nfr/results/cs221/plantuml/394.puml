@@ -1,0 +1,60 @@
+@startuml
+package models {
+    class CoordinateGroup {
+        - id: int
+        - label: string
+        - cartCoordinates: CartCoordinate
+        - polCoordinates: PolCoordinate
+        + create(): void
+        + read(): list<CoordinateGroup>
+        + update(): void
+        + delete(): void
+    }
+
+    class CartesianCoordinate {
+        + x: highPrecisionNumber
+        + y: highPrecisionNumber
+        + convertToPolar(): PolCoordinate
+    }
+
+    class PolarCoordinate {
+        + r: highPrecisionNumber
+        + theta: highPrecisionNumber
+        + convertToCartesian(): CartCoordinate
+    }
+}
+
+package controllers {
+
+    class CoordinateController {
+        + executeCreateOp(): void
+        + executeUpdateOp(): void
+        + executeDeleteOp(): void
+        + refreshList(): void
+    }
+}
+
+package views {
+ class View {
+        + displayList(list<CoordinateGroup>): void
+        + applyFilter(label: string): list<CoordinateGroup>
+        + clearFilter(): void
+    }
+
+    class SwingView extends View {
+        - userInput: JTextField
+        - cartTextField: JTextField
+        - polTextField: JTextField
+
+        + addNewCoordinateGroup(): void
+        + updateExistingCoordinateGroup(): void
+        + deleteSelectedCoordinateGroup(): void
+    }
+}
+
+models.CoordinateGroup ..> models.CartesianCoordinate : composition
+models.CoordinateGroup ..> models.PolarCoordinate : composition
+
+controllers.CoordinateController ..> views.SwingView : association
+views.SwingView ..> controllers.CoordinateController : association
+@enduml

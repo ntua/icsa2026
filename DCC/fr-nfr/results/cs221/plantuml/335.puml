@@ -1,0 +1,67 @@
+@startuml
+
+package "Client" {
+
+    class DCCApp {
+        + main()
+        + handleUserInteraction()
+        + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+        + refreshCoordinateGroupList()
+    }
+    
+    class CoordinateGroupEditor {
+        + editCoordinateGroup(): CoordinateGroup
+        + convertCoordinates(coordinates: Coordinates, type: String): Coordinates
+    }
+
+}
+
+package "Logic" {
+
+    class CoordinateConverter {
+        + cartesianToPolar(cartesian: CartesianCoordinates): PolarCoordinates
+        + polarToCartesian(polar: PolarCoordinates): CartesianCoordinates 
+    }
+
+    abstract class Coordinates {
+        + getValue(): double
+        + setValue(value: double)
+    }
+    
+    class CartesianCoordinates {
+       - x: double
+       - y: double
+       + getCoordinates(): String
+    }
+    
+    class PolarCoordinates {
+       - r: double
+       - theta: double
+       + getCoordinates(): String
+
+    }
+
+}
+
+package "Database" {
+
+    class CoordinateGroupRepository {
+        + create(coordinateGroup: CoordinateGroup): int
+        + readAll(): List<CoordinateGroup>
+        + update(coordinateGroup: CoordinateGroup)
+        + delete(id: int)
+    }
+
+}
+
+CoordinateGroupEditor --> CoordinateConverter : uses
+
+CoordinateGroupEditor <-- Coordinates : uses
+
+DCCApp --> CoordinateGroupEditor : uses
+
+
+DCCApp --> CoordinateGroupRepository : uses
+
+
+@enduml

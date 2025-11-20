@@ -1,0 +1,78 @@
+@startuml
+class DCCApplication {
+  - frontend : SwingUI #Blue
+  - middleTier : Coordinator #Green
+  - backend : MySQLDatabase #Orange
+}
+
+package "Frontend" {
+  class SwingUI {
+    + createGroup() : void
+    + retrieveGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllGroups() : List<CoordinateGroup>
+    + modifyGroupDetails(group: CoordinateGroup) : void
+    + deleteGroup(groupID: int) : void
+    
+    - view : GroupDisplay #LightGray
+    - convertor : CartesianToPolarConverter, PolarToCartesianConverter
+  }
+  
+  class GroupDisplay {
+    + showGroups() : void
+    + selectGroup(groupID: int) : CoordinateGroup
+  }
+  
+  class Converter {
+    + cartesianToPolar(x: double, y: double) : (r: double, theta: double)
+    + polarToCartesian(r: double, theta: double) : (x: double, y: double)
+  }
+}
+
+package "Middle Tier" {
+  class Coordinator {
+    + createGroup(cartesianX: double, cartesianY: double, label: String) : void
+    + retrieveGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllGroups() : List<CoordinateGroup>
+    + modifyGroupDetails(groupID: int, newLabel: String, cartesianX: double, cartesianY: double) : void
+    + deleteGroup(groupID: int) : void
+  }
+  
+  class CoordinateGroup {
+    * groupID : int
+    * label : String
+    * timestamp : Timestamp
+    
+    - cartesian : CartesianCoordinates #LightGreen
+    - polar : PolarCoordinates #LightBlue
+    
+    + getCartesian() : (x: double, y: double)
+    + setCartesian(x: double, y: double) : void
+    + getPolar() : (r: double, theta: double)
+    + setPolar(r: double, theta: double) : void
+  }
+  
+  class CartesianCoordinates {
+    * x : double
+    * y : double
+    
+    + toString() : String
+  }
+  
+  class PolarCoordinates {
+    * r : double
+    * theta : double
+    
+    + toString() : String
+  }
+}
+
+package "Backend" {
+  class MySQLDatabase {
+    + saveGroup(group: CoordinateGroup) : void
+    + retrieveGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllGroups() : List<CoordinateGroup>
+    + modifyGroupDetails(groupID: int, newLabel: String) : void
+    + deleteGroup(groupID: int) : void
+  }
+}
+@enduml

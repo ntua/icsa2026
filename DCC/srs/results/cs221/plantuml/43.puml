@@ -1,0 +1,71 @@
+@startuml
+
+package "User Interface" {
+  class MainMenu {
+    - selectedOption : String
+    
+    + displayOptions()
+    + selectOption(String option)
+    
+  }
+  
+  class DisplayList {
+    + showCoordinateGroups()
+  }
+
+  class Forms {
+    + createGroupForm()
+    + modifyGroupForm()
+  }
+  
+}
+
+
+package "Business Logic" {
+  class CoordinateGroupManager {
+    + deleteSelectedGroup()
+    + getSelectedGroup()
+    + saveModifiedGroup()
+    
+  }
+  
+  class DatabaseConnector {
+    + connectToDatabase(String username, String password)
+    
+    <<interface>> 
+    + retrieveDataFromDatabase(query: String)
+    + storeDataInDatabase(data: Object[])
+  }
+}
+
+
+package "Persistence Layer" {
+  class CoordinateGroup {
+    * uniqueID : int
+    * timestamp : Date
+    
+    + getLabel()
+    + getPolarCoordinates()
+    + getCartesianCoordinates()
+
+  }
+  
+  class MySQLConnector <<interface>> {
+    + executeQuery(query: String)
+    + closeConnection()
+    
+  }
+  
+}
+
+
+MainMenu ..> DisplayList 
+MainMenu ..> Forms 
+
+Forms ..> CoordinateGroupManager 
+DisplayList ..> CoordinateGroupManager 
+
+CoordinateGroupManager ..> DatabaseConnector  
+DatabaseConnector ..> MySQLConnector : <<interface>>
+
+@enduml

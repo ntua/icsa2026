@@ -1,0 +1,110 @@
+@startuml
+
+' ==================== Package: Model ====================
+package model {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + setCartesian(c: CartesianCoordinate)
+    + setPolar(p: PolarCoordinate)
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + toPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + toCartesian(): CartesianCoordinate
+  }
+
+  ' Composition: A CoordinateGroup is composed of both coordinate types.
+  CoordinateGroup *-- "1" CartesianCoordinate : has
+  CoordinateGroup *-- "1" PolarCoordinate : has
+}
+
+' ==================== Package: DAO ====================
+package dao {
+  class CoordinateGroupDAO {
+    + create(coordinateGroup: model.CoordinateGroup)
+    + findByLabel(label: String): model.CoordinateGroup
+    + findAll(): List<model.CoordinateGroup>
+    + update(coordinateGroup: model.CoordinateGroup)
+    + delete(id: int)
+  }
+}
+
+' ==================== Package: Database ====================
+package database {
+  class MySQLDatabaseConnection {
+    - connection: Connection
+    + connect(): Connection
+    + disconnect(): void
+  }
+}
+
+' Association: DAO uses the database connection.
+dao.CoordinateGroupDAO --> database.MySQLDatabaseConnection : uses
+
+' ==================== Package: Service ====================
+package service {
+  class CoordinateGroupService {
+    - dao: dao.CoordinateGroupDAO
+    + createCoordinateGroup(coordinateGroup: model.CoordinateGroup): void
+    + updateCoordinateGroup(coordinateGroup: model.CoordinateGroup): void
+    + getCoordinateGroupByLabel(label: String): model.CoordinateGroup
+    + getAllCoordinateGroups(): List<model.CoordinateGroup>
+    + deleteCoordinateGroup(id: int): void
+  }
+
+  ' Service depends on DAO.
+  CoordinateGroupService --> dao.CoordinateGroupDAO : uses
+}
+
+' ==================== Package: Network ====================
+package network {
+  class TCPClient {
+    - serverIP: String
+    - port: int
+    + connect(): void
+    + sendRequest(request: String): String
+    + disconnect(): void
+  }
+  
+  class TCPServer {
+    - port: int
+    + startServer(): void
+    + handleRequest(request: String): String
+    + stopServer(): void
+  }
+  
+  ' Server uses the service to process requests.
+  TCPServer --> service.CoordinateGroupService : uses
+}
+
+' ==================== Package: UI (Client) ====================
+package ui {
+  class DCCFrame {
+    - service: service.CoordinateGroupService
+    - tcpClient: network.TCPClient
+    + displayUI(): void
+    + handleCreateEvent(): void
+    + handleUpdateEvent(): void
+    + handleDeleteEvent(): void
+    + handleRetrieveEvent(): void
+  }
+
+  ' The UI depends on both the Service and the TCPClient for communication.
+  DCCFrame --> service.CoordinateGroupService : uses
+  DCCFrame --> network.TCPClient : uses
+}
+
+@enduml

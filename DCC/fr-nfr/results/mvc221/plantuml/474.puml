@@ -1,0 +1,59 @@
+@startuml
+package database {
+    class Database {
+        - connection : Connection
+        + connect()
+        + disconnect()
+        + saveCoordinateGroup(CoordinateGroup)
+        + retrieveCoordinateGroups()
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroup(int)
+    }
+}
+
+package model {
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - cartesianCoordinates : CartesianCoordinates
+        - polarCoordinates : PolarCoordinates
+        - timestamp : Timestamp
+    }
+
+    class CartesianCoordinates {
+        - x : double
+        - y : double
+    }
+
+    class PolarCoordinates {
+        - r : double
+        - theta : double
+    }
+}
+
+package controller {
+    class Controller {
+        - database : Database
+        + createCoordinateGroup(CoordinateGroup)
+        + readCoordinateGroups()
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroup(int)
+        + convertCartesianToPolar(CartesianCoordinates) : PolarCoordinates
+        + convertPolarToCartesian(PolarCoordinates) : CartesianCoordinates
+        + filterCoordinateGroups(String)
+    }
+}
+
+package view {
+    class View {
+        - controller : Controller
+        + initialize()
+        + displayCoordinateGroups()
+        + handleUserInput()
+    }
+}
+
+Controller "1" -- "1" Database
+Controller "1" -- "*" CoordinateGroup
+View "1" -- "1" Controller
+@enduml

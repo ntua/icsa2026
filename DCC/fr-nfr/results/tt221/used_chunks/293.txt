@@ -1,0 +1,129 @@
+• Data Layer:  Stores product information, customer data, order history, and financial 
+transactions in a database. Class Diagram in PlantUML  for above problem with Three -tier architecture : 
+@startuml  
+class Storefront {  
+- ProductCatalog : List<Product>  
+- ShoppingCart : ShoppingCart  
+- CheckoutInterface : Checkout  
++ viewProducts() : void  
++ addToCart(product: Product) : void  
++ proceedToCheckout() : void  
+} 
+package "Logic Layer" {  
+class OrderProcessor {  
+- paymentProcessor : PaymentProcessor  
+- inventoryManager : InventoryManager  
++ processOrder(order: Order) : void  
++ applyDiscount(order: Order, discountCode: String) : float  
+} 
+ 
+class InventoryManager {  
++ checkStock(product: Product) : boolean  
++ updateStock(product: Product, quantity: int) : void  
+} 
+  (Score: 280.48119101609177)
+
+---
+
+Data Storage : Store and retrieve all book, user, and transaction data in a centralized server 
+database. Class diagram in plantUML of the application with client -server architecture pattern:  
+@startuml  
+package "Client" {  
+    class LibraryApp {  
+      - bookManager: BookManager  
+      - userManager: UserManager  
+      - transactionManager: TransactionManager  
+      + run()   (Score: 285.34731445011573)
+
+---
+
+    } 
+ 
+class BookManager {  
+      + addBook(title: String, author: String, isbn: String)  
+      + updateBook(bookId: Int)  
+      + deleteBook(bookId: Int)  
+    } 
+ 
+    class UserManager {  
+      + addUser(name: String, contactInfo: String)  
+      + updateUser(userId: Int)  
+      + deleteUser(userId: Int)  
+    } 
+ 
+    class TransactionManager {  
+      + borrowBook(userId: Int, bookId: Int)  
+      + returnBook(transactionId: Int)  
+    } 
+     
+    LibraryApp --> BookManager  
+    LibraryApp --> UserManager  
+    LibraryApp --> TransactionManager  
+} 
+ 
+package "Server" {  
+    class Book {  
+      - bookId: Int  
+      - title: String  
+      - author: String  
+      - isbn: String  
+      - availabilityStatus: Boolean  
+    } 
+ 
+    class User {  
+      - userId: Int  
+      - name: String  
+      - contactInfo: String  
+    } 
+ 
+    class Transaction {  
+      - transactionId: Int  
+      - bookId: Int  
+      - userId: Int  
+      - transactionDate: Date  
+    } 
+ 
+    interface Database {  
+      + saveData(data: String)  
+      + fetchData(query: String): String  
+    } 
+  (Score: 322.63497482638047)
+
+---
+
+Model -View -Controller  
+• Serves as a basis of interaction management in many web -based systems. • Decouples three major interconnected components:  
+o The model  is the central component of the pattern that directly manages the 
+data, logic and rules of the application. It is the application's dynamic data 
+structure, independent of the user interface. (Score: 328.2817496307143)
+
+---
+
+class PaymentProcessor {  
++ processPayment(paymentInfo: PaymentInfo) : boolean  
++ connectTo3rdParty(paymentInfo: PaymentInfo) : boolean  
+} 
+} 
+ 
+class Database {  
++ storeProductData(product: Product) : void  
++ retrieveProductData(productId: int) : Product  
++ storeCustomerData(customer: Customer) : void  
++ storeOrderHistory(order: Order) : void  
++ retrieveOrderHistory(customerId: int) : List<Order>  
+} 
+ 
+ 
+Storefront --> OrderProcessor : Uses  
+OrderProcessor --> PaymentProcessor : Uses  
+OrderProcessor --> InventoryManager : Uses  
+OrderProcessor --> Database : Accesses  
+InventoryManager --> Database : Accesses  
+PaymentProcessor --> Database : Accesses   
+@enduml  
+ 
+ 
+Client -server architecture  
+• Distributed system model which shows how data and processing is distributed across a 
+range of components, but can also be implemented on a single computer. • Set of stand -alone servers which provide specific services such as printing, data 
+management, etc. (Score: 331.93396055476853)

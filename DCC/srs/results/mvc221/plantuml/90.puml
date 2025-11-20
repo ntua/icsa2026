@@ -1,0 +1,121 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    -id: Integer
+    -label: String
+    -timestamp: DateTime
+    -cartesianX: Double
+    -cartesianY: Double
+    -polarR: Double
+    -polarTheta: Double
+    +getId(): Integer
+    +getLabel(): String
+    +getTimestamp(): DateTime
+    +getCartesianCoordinates(): CartesianCoordinate
+    +getPolarCoordinates(): PolarCoordinate
+    +setLabel(label: String): void
+    +setCartesianCoordinates(x: Double, y: Double): void
+    +setPolarCoordinates(r: Double, theta: Double): void
+  }
+
+  class CartesianCoordinate {
+    -x: Double
+    -y: Double
+    +CartesianCoordinate(x: Double, y: Double)
+    +getX(): Double
+    +getY(): Double
+    +setX(x: Double): void
+    +setY(y: Double): void
+    +toPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    -r: Double
+    -theta: Double
+    +PolarCoordinate(r: Double, theta: Double)
+    +getR(): Double
+    +getTheta(): Double
+    +setR(r: Double): void
+    +setTheta(theta: Double): void
+    +toCartesian(): CartesianCoordinate
+  }
+}
+
+package "View" {
+  class MainWindow {
+    -coordinatePanel: CoordinatePanel
+    -listPanel: ListPanel
+    -menuBar: MenuBar
+    +MainWindow()
+    +updateView(): void
+    +showError(message: String): void
+  }
+
+  class CoordinatePanel {
+    -typeComboBox: JComboBox
+    -labelField: JTextField
+    -valueFields: JTextField[]
+    -addButton: JButton
+    -updateButton: JButton
+    +getInputValues(): Map<String, Object>
+    +clearFields(): void
+    +setFields(group: CoordinateGroup): void
+  }
+
+  class ListPanel {
+    -coordinateList: JList
+    -searchField: JTextField
+    -deleteButton: JButton
+    +updateList(groups: List<CoordinateGroup>): void
+    +getSelectedGroup(): CoordinateGroup
+  }
+}
+
+package "Controller" {
+  class MainController {
+    -model: DatabaseManager
+    -view: MainWindow
+    +MainController()
+    +init(): void
+    +handleAddCoordinate(): void
+    +handleUpdateCoordinate(): void
+    +handleDeleteCoordinate(): void
+    +handleSearch(label: String): void
+    +refreshView(): void
+  }
+
+  class DatabaseManager {
+    -connection: Connection
+    -instance: DatabaseManager
+    -DatabaseManager()
+    +getInstance(): DatabaseManager
+    +connect(): void
+    +disconnect(): void
+    +addCoordinateGroup(group: CoordinateGroup): void
+    +updateCoordinateGroup(group: CoordinateGroup): void
+    +deleteCoordinateGroup(id: Integer): void
+    +getAllGroups(): List<CoordinateGroup>
+    +getGroupsByLabel(label: String): List<CoordinateGroup>
+  }
+
+  class CoordinateConverter {
+    +{static} cartesianToPolar(x: Double, y: Double): PolarCoordinate
+    +{static} polarToCartesian(r: Double, theta: Double): CartesianCoordinate
+  }
+}
+
+' Relationships
+MainController "1" --> "1" MainWindow : controls
+MainController "1" --> "1" DatabaseManager : uses
+MainWindow "1" *-- "1" CoordinatePanel : contains
+MainWindow "1" *-- "1" ListPanel : contains
+DatabaseManager "1" --> "*" CoordinateGroup : manages
+CoordinateGroup "1" --> "1" CartesianCoordinate : has
+CoordinateGroup "1" --> "1" PolarCoordinate : has
+CartesianCoordinate ..> PolarCoordinate : converts to
+PolarCoordinate ..> CartesianCoordinate : converts to
+CoordinateConverter ..> CartesianCoordinate : creates
+CoordinateConverter ..> PolarCoordinate : creates
+
+@enduml

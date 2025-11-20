@@ -1,0 +1,83 @@
+@startuml
+
+package "Presentation Layer" {
+  class DCCGUI {
+    + displayCoordinateGroups() : void
+    + handleAddCoordinateGroup() : void
+    + handleUpdateCoordinateGroup() : void
+    + handleDeleteCoordinateGroup() : void
+    + applyFilter(label: String) : void
+    + clearFilter() : void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double) : PolarCoordinate
+    + polarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+  
+  class CoordinateGroupManager {
+    - dbConnector: DatabaseConnector
+
+    + createCoordinateGroup(label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate) : int
+    + getCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinate: CartesianCoordinate
+    - polarCoordinate: PolarCoordinate
+
+    + getLabel() : String
+    + setLabel(label: String) : void
+    + getCartesianCoordinate() : CartesianCoordinate
+    + setCartesianCoordinate(cartesian: CartesianCoordinate) : void
+    + getPolarCoordinate() : PolarCoordinate
+    + setPolarCoordinate(polar: PolarCoordinate) : void
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+
+    + getX() : double
+    + getY() : double
+    + setX(x: double) : void
+    + setY(y: double) : void
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+
+    + getR() : double
+    + getTheta() : double
+    + setR(r: double) : void
+    + setTheta(theta: double) : void
+  }
+}
+
+package "Data Layer" {
+  class DatabaseConnector {
+    - url: String
+    - username: String
+    - password: String
+
+    + connect() : void
+    + disconnect() : void
+    + executeQuery(query: String) : ResultSet
+  }
+}
+
+DCCGUI -- CoordinateGroupManager : uses
+CoordinateGroupManager -- CoordinateConverter : uses
+CoordinateGroupManager -- DatabaseConnector : uses
+CoordinateGroup "1" *-- "1" CartesianCoordinate : contains
+CoordinateGroup "1" *-- "1" PolarCoordinate : contains
+
+
+@enduml

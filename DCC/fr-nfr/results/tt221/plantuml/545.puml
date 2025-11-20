@@ -1,0 +1,73 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Presentation Layer" {
+    class DCCController {
+        + void handleUserInput()
+        + void refreshDisplay()
+        + void filterGroups(String label)
+        + void clearFilter()
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateManager {
+        - List<CoordinateGroup> coordinateGroups
+        + CoordinateGroup createNewGroup(CartesianCoords, PolarCoords, String)
+        + void convertCartesianToPolar(CartesianCoords)
+        + void convertPolarToCartesian(PolarCoords)
+        + void validateCoordinates(CoordinateGroup)
+        + CoordinateGroup getCoordinateGroup(int id)
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoords cartesian
+        - PolarCoords polar
+        - DateTime createdAt
+        - DateTime updatedAt
+    }
+
+    class CartesianCoords {
+        - double x
+        - double y
+        + double getR()
+        + double getTheta()
+    }
+
+    class PolarCoords {
+        - double r
+        - double theta
+        + double getX()
+        + double getY()
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateDAO {
+        + void saveCoordinateGroup(CoordinateGroup)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(int id)
+    }
+
+    class DatabaseConnection {
+        + void connect()
+        + void disconnect()
+        + boolean isConnected()
+    }
+}
+
+' Associations
+DCCController --* CoordinateManager
+CoordinateManager --* CoordinateDAO
+CoordinateDAO --* DatabaseConnection
+
+CoordinateManager --* CoordinateGroup
+CoordinateManager --> CartesianCoords
+CoordinateManager --> PolarCoords
+
+DatabaseConnection <.. CoordinateDAO
+
+@enduml

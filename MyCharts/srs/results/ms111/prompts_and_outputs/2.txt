@@ -1,0 +1,224 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here:
+# Software Requirements Specification (SRS)
+
+# MyCharts Application
+
+---
+
+## 1. Introduction
+
+### 1.1 Purpose  
+The MyCharts Application is a web-based service designed to enable users with minimal technical expertise to generate, manage, and download charts in various formats. It simplifies chart creation by providing templates for source data, supporting data uploads. It uses the Highcharts library for chart generation.
+
+### 1.2 Scope  
+This application allows users to:  
+- Download CSV templates for supported chart types.  
+- Upload CSV files to generate charts.  
+- Save and download charts in PDF, PNG, SVG, and HTML formats.  
+- Purchase quotas for chart creation.
+- View and download generated charts.
+
+### 1.3 Definitions, Acronyms, and Abbreviations  
+- **CSV**: Comma-Separated Values file format.  
+- **Quota**: A limit on the number of charts a user can create.  
+- **Highcharts**: JavaScript library used for chart rendering.  
+
+### 1.4 References  
+- Highcharts Library: https://www.highcharts.com  
+- Google Authentication API: https://developers.google.com/identity  
+- CSV Format Specification: https://tools.ietf.org/html/rfc4180  
+
+### 1.5 Overview  
+This document outlines functional and non-functional requirements, use cases, and interface specifications for the MyCharts Application.
+
+---
+
+## 2. System Overview
+
+### 2.1 Product Perspective  
+MyCharts is a SaaS (Software as a Service) standalone web application. It will be offered online and produce revenue by selling credits for chart generation.
+
+### 2.2 Product Functions  
+1. User authentication via Google accounts.  
+2. Download CSV templates for chart types.  
+3. Upload CSV files to generate charts.  
+4. Save charts in PDF, PNG, SVG, and HTML formats.  
+5. Display and manage user-generated charts.  
+6. Charge for quotas needed to create charts.  
+
+### 2.3 User Characteristics  
+Primary users include educators, students, and professionals needing simple chart generation. No coding or technical skills are required.
+
+### 2.4 Operating Environment  
+- **Frontend**: Modern browsers (Chrome, Firefox, Safari).  
+- **Backend**: Application Server with Node.js or Python runtime and database server(s) as needed.  
+- **Network**: Internet connectivity required for service offering.  
+
+### 2.5 Assumptions and Dependencies  
+- Google OAuth is available for user authentication.  
+- Highcharts library is accessible for chart rendering.  
+- Users follow the CSV structure.  
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 Functional Requirements Specification  
+1. Authenticate users via Google accounts.  
+2. Allow download of CSV templates for 3 supported chart types (Basic line, Line with annotations, Basic column).  
+3. Upload CSV file with the user data for chart generation.
+4. Validate uploaded CSV files against the template structure, data types, and mandatory data existence.  
+5. Generate charts with data from the CSV file uploaded by the user, using Highcharts.  
+6. Save charts to the server in PDF, PNG, SVG, and HTML formats.  
+7. Display a dashboard with the history of user-generated charts, including chart previews.  
+8. Download selected chart type.
+9. Charge quotas for chart creation.  
+10. Allow users to delete or download charts. 
+11. Sell quotas and receive payment by a payment gateway
+12. Maintain user profiles containing the following data: Name (from Google account), profile picture (from Google account), email (from Google account), remaining quota, account creation timestamp, last login timestamp.  
+13. Display user's profile info, including remaining quotas.
+
+
+### 3.2 Use Cases  
+
+#### 3.2.1 Use Case Diagram  
+```plantuml
+@startuml
+package GoogleOAuth {
+  class GoogleOAuthService {
+    - token: String
+    + authenticate(): Boolean # Functional requirement-business logic operation
+    + authorize(): Boolean # Functional requirement-business logic operation
+  }
+}
+
+package UserService {
+  class UserService {
+    - userId: Integer
+    - username: String
+    + getUserProfile(): UserProfile # Data management operation
+    + updateUserProfile(): Void # Data management operation
+  }
+
+  class UserProfile {
+    - id: Integer
+    - username: String
+    - email: String
+  }
+}
+
+package ChartService {
+  class ChartService {
+    - chartId: Integer
+    - chartType: String
+    + generateChart(): Chart # Functional requirement-business logic operation
+    + getChart(): Chart # Data management operation
+  }
+
+  class Chart {
+    - id: Integer
+    - type: String
+    - data: String
+  }
+}
+
+package QuotaService {
+  class QuotaService {
+    - quotaId: Integer
+    - quotaLimit: Integer
+    + getQuota(): Quota # Data management operation
+    + updateQuota(): Void # Data consistency operation
+  }
+
+  class Quota {
+    - id: Integer
+    - limit: Integer
+  }
+}
+
+package PaymentGateway {
+  class PaymentGatewayService {
+    - paymentId: Integer
+    - paymentMethod: String
+    + processPayment(): Boolean # Functional requirement-business logic operation
+  }
+}
+
+GoogleOAuth::GoogleOAuthService --* UserService::UserService : uses
+UserService::UserService --* ChartService::ChartService : uses
+ChartService::ChartService --* QuotaService::QuotaService : uses
+QuotaService::QuotaService --* PaymentGateway::PaymentGatewayService : uses
+
+@enduml
+```
+
+Here are the characteristics of the architecture in JSON format:
+
+```json
+{
+  "SI": [0.6, 1],
+  "DOC": [0.8, 0.8],
+  "SST": [0.4, 0.2],
+  "services": [
+    {
+      "service_name": "GoogleOAuthService",
+      "SIC": [2, 2],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "UserService",
+      "SIC": [3, 2],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "ChartService",
+      "SIC": [3, 2],
+      "AIS(in)": [2, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "QuotaService",
+      "SIC": [3, 2],
+      "AIS(in)": [2, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "PaymentGatewayService",
+      "SIC": [1, 1],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [0, 0]
+    }
+  ],
+  "use_cases": [
+    {
+      "use_case_name": "User Authentication",
+      "SC": [["GoogleOAuthService", "UserService"], ["GoogleOAuthService", "UserService"]]
+    },
+    {
+      "use_case_name": "Chart Generation",
+      "SC": [["ChartService", "QuotaService", "PaymentGatewayService"], ["ChartService", "QuotaService", "PaymentGatewayService"]]
+    }
+  ]
+}
+```
+
+Explanation of calculations:
+
+* SI: There are 5 services in total. Out of these, 3 (GoogleOAuthService, PaymentGatewayService) do not carry persistent state across requests. Therefore, SI = 3/5 = 0.6.
+* DOC: Out of the 5 services, 4 (UserService, ChartService, QuotaService, PaymentGatewayService) manage a dedicated data store. Therefore, DOC = 4/5 = 0.8.
+* SST: Only 2 services (QuotaService, ChartService) have operations classified as "Data consistency operation". Therefore, SST = 2/5 = 0.4.
+
+For each service:
+
+* SIC: Counts the number of interfaces (methods) for each service.
+* AIS(in): Counts the number of distinct consumers (services that use this service).
+* ADS(out): Counts the number of distinct services called by this service.
+
+For each use case:
+
+* SC: Lists the set of services involved in completing the use case.

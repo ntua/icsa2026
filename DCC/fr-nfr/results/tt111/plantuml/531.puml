@@ -1,0 +1,77 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages and Classes
+
+package "Presentation Layer" {
+    class CoordinateGroupGUI {
+        - void createGroup()
+        - void retrieveGroups()
+        - void modifyGroup()
+        - void deleteGroup()
+        
+        + void displayGroups()
+    }
+}
+
+package "Business Logic Layer" {
+    class BusinessLogic {
+        - void convertCoordinates(Coordinate)
+        - void saveCoordinateGroup(CoordinateGroup)
+        - CoordinateGroup retrieveCoordinateGroup(String)
+        - void updateCoordinateGroup(CoordinateGroup)
+        - void deleteCoordinateGroup(Integer)
+        
+        + Boolean validateInput(Coordinate)
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateGroupDAO {
+        - void saveToDatabase(CoordinateGroup)
+        - List<CoordinateGroup> retrieveFromDatabase()
+        - void updateInDatabase(CoordinateGroup)
+        - void deleteFromDatabase(Integer)
+        
+        + Connection establishConnection()
+    }
+}
+
+package "Model" {
+    class Coordinate {
+        - Float x
+        - Float y
+        - Float r
+        - Float theta
+        
+        + Coordinate(Float, Float) // Cartesian constructor
+        + Coordinate(Float, Float) // Polar constructor
+        
+        + void convertToCartesian()
+        + void convertToPolar()
+    }
+    
+    class CoordinateGroup {
+        - Integer id
+        - String label
+        - Date timestamp
+        - List<Coordinate> coordinates
+        
+        + CoordinateGroup(String)
+    }
+}
+
+' Associations
+
+CoordinateGroupGUI --> BusinessLogic : Uses > (Create, Retrieve, Update, Delete)
+
+BusinessLogic --> CoordinateGroupDAO : Uses > (Save, Retrieve, Update, Delete)
+
+CoordinateGroup --> Coordinate : Composes > (Has multiple Coordinates)
+
+BusinessLogic --> CoordinateGroup : Manages > (Handles creation and operations)
+
+CoordinateGroupDAO --> CoordinateGroup : Persists > (CRUD Operations)
+
+CoordinateGroupDAO --> MySQL : TCP-IP
+
+@enduml

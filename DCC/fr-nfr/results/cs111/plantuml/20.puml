@@ -1,0 +1,86 @@
+@startuml
+
+package "Client" {
+
+  class DCCApplication {
+    + run()
+    - handleCoordinateGroupCreation()
+    - handleCoordinateGroupRetrieval()
+    - handleCoordinateGroupModification()
+    - handleCoordinateGroupDeletion()
+  }
+
+  class CoordinateGroupUI {
+    + displayCoordinateGroups()
+    + collectUserInputForNewGroup()
+    + displayModifiedGroupDetails()
+  }
+
+}
+
+package "Logic" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesian: CartesianCoordinates) : PolarCoordinates
+    + convertPolarToCartesian(polar: PolarCoordinates) : CartesianCoordinates
+  }
+  
+ class CoordinateGroupManager { 
+    - coordinateConverter: CoordinateConverter
+    + createCoordinateGroup(coordinates: Coordinates, label: String) : CoordinateGroup
+    + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(groupId: int) : void 
+ }
+}
+
+package "Data" {
+
+class CoordinateGroup {
+  - id: int
+  - label: String
+  - creationTimestamp: Date
+  - coordinates: Coordinates
+}
+
+abstract class Coordinates {
+
+}
+
+class CartesianCoordinates {
+  - x: double
+  - y: double
+}
+
+class PolarCoordinates {
+  - r: double
+  - theta: double
+}
+
+}
+
+package "Server" {
+ class DBManager { 
+   + storeCoordinateGroup(group: CoordinateGroup) : void
+   + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+   + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+   + updateCoordinateGroup(group: CoordinateGroup) : void
+   + deleteCoordinateGroup(groupId: int) : void 
+ }
+
+}
+
+DCCApplication "1" -- "*" CoordinateGroupUI : Uses
+
+
+CoordinateGroupManager "1" -- "*" CoordinateConverter : Utilizes
+CoordinateGroupManager "1" -- "*" DBManager: Communicates with
+
+CoordinateGroupUI "1" -- "1" CoordinateGroupManager: Requests Operations From 
+
+CoordinateGroup "1" - "*" Coordinates: Contains
+
+Coordinates <|-- CartesianCoordinates 
+Coordinates <|-- PolarCoordinates
+
+@enduml

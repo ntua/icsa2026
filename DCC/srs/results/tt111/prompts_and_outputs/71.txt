@@ -1,0 +1,133 @@
+Response:
+I'll help you create a PlantUML class diagram for the Dummy Coordinate Converter (DCC) application using a Three-Tier architecture. Let me analyze the requirements and create an appropriate design.
+
+
+
+```plantuml
+@startuml DCC Class Diagram
+
+' Packages
+package "Presentation Layer" {
+  class DccGUI {
+    - coordinateController: CoordinateController
+    + initializeGUI()
+    + displayCoordinates(List<CoordinateGroup>)
+    + showErrorMessage(String)
+    + getInputValues(): Map<String, Object>
+    + updateView()
+  }
+}
+
+package "Business Layer" {
+  class CoordinateController {
+    - coordinateService: CoordinateService
+    + createCoordinateGroup(String label, double val1, double val2, CoordType type)
+    + modifyCoordinateGroup(int id, String label, double val1, double val2, CoordType type)
+    + deleteCoordinateGroup(int id)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(String label): List<CoordinateGroup>
+  }
+
+  class CoordinateService {
+    - coordinateDAO: CoordinateDAO
+    - converter: CoordinateConverter
+    + createCoordinateGroup(CoordinateGroup group)
+    + updateCoordinateGroup(CoordinateGroup group)
+    + deleteCoordinateGroup(int id)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    - validateCoordinateGroup(CoordinateGroup group): boolean
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): double[]
+    + polarToCartesian(double r, double theta): double[]
+  }
+
+  enum CoordType {
+    CARTESIAN
+    POLAR
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: DateTime
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getters()
+    + setters()
+  }
+}
+
+package "Data Layer" {
+  interface CoordinateDAO {
+    + create(CoordinateGroup group)
+    + update(CoordinateGroup group)
+    + delete(int id)
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+
+  class CoordinateDAOImpl {
+    - connection: Connection
+    + create(CoordinateGroup group)
+    + update(CoordinateGroup group)
+    + delete(int id)
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    - getConnection(): Connection
+  }
+
+  class DatabaseConnection {
+    - instance: DatabaseConnection
+    - connection: Connection
+    - {static} URL: String
+    - {static} USERNAME: String
+    - {static} PASSWORD: String
+    + getInstance(): DatabaseConnection
+    - establishConnection(): Connection
+  }
+}
+
+' Relationships
+DccGUI --> CoordinateController
+CoordinateController --> CoordinateService
+CoordinateService --> CoordinateConverter
+CoordinateService --> CoordinateDAO
+CoordinateDAOImpl ..|> CoordinateDAO
+CoordinateDAOImpl --> DatabaseConnection
+CoordinateService --> CoordinateGroup
+CoordinateGroup --> CoordType
+
+@enduml
+
+```
+
+I've designed a Three-Tier architecture with clear separation of concerns between Presentation, Business, and Data layers. Let me explain the key components and their responsibilities:
+
+1. Presentation Layer:
+- `DccGUI`: Handles all user interface interactions using Swing
+
+2. Business Layer:
+- `CoordinateController`: Acts as an intermediary between GUI and business logic
+- `CoordinateService`: Contains core business logic and validation
+- `CoordinateConverter`: Handles coordinate system conversions
+- `CoordinateGroup`: Domain model class representing a coordinate group
+- `CoordType`: Enum for coordinate types
+
+3. Data Layer:
+- `CoordinateDAO`: Interface defining data access operations
+- `CoordinateDAOImpl`: Implementation of DAO pattern for MySQL
+- `DatabaseConnection`: Singleton class managing database connections
+
+Key design decisions:
+1. Used DAO pattern to abstract database operations
+2. Implemented Singleton pattern for database connection
+3. Created clear separation between layers with dependency flowing downward
+4. Included validation in the service layer
+5. Used an enum for coordinate types to ensure type safety
+
+Would you like me to explain any specific part of the design in more detail?

@@ -1,0 +1,38 @@
+@startuml
+namespace org.polarCartesianCoordinates {
+  class CoordinateGroup {
+    +int id;
+    +date timestamp;
+    +String label;
+    +double[] polarCoordinates[];
+    +double[] cartesianCoordinates[];
+    
+    -void setPolarCoordinates(double[] newCoordinates);
+    +double[] getPolarCoordinates();
+    -void setCartesianCoordinates(double[] newCoordinates);
+    +double[] getCartesianCoordinates();
+  }
+  
+  class Database {
+    +Connection conn;
+    
+    +boolean connectToDatabase();
+    +void disconnectFromDatabase();
+    -List<CoordinateGroup> retrieveAllGroups(String labelFilter);
+  }
+  
+}
+
+package org.polarCartesianCoordinates {
+  class CoordinateConverter {
+    +double convertPolarToCartesian(double r, double theta);
+    +double convertCartesianToPolar(double x, double y);
+  }
+  
+  interface UserInterface {
+    -void showListOfGroups();
+    -void deleteSelectedGroup(CoordinateGroup groupToDelete);
+    -void addNewLabelFieldInputField(String labelText);
+  }
+}
+@enduml

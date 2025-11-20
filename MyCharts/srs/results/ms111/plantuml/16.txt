@@ -1,0 +1,208 @@
+@startuml MyCharts Microservices Architecture
+
+' Package definitions for each microservice
+package "User Service" {
+  class UserController {
+    + getUserProfile(userId: String): UserProfile // Functional requirement-business logic operation
+    + updateLastLogin(userId: String): void // Data management operation
+  }
+  
+  class UserProfile {
+    - userId: String
+    - name: String
+    - email: String
+    - profilePicture: String
+    - remainingQuota: int
+    - creationDate: Date
+    - lastLoginDate: Date
+  }
+  
+  class UserRepository {
+    + findById(userId: String): UserProfile // Data management operation
+    + save(user: UserProfile): UserProfile // Data management operation
+    + updateLastLogin(userId: String): void // Data management operation
+  }
+  
+  class GoogleAuthAdapter {
+    + authenticateUser(token: String): UserProfile // Functional requirement-business logic operation
+  }
+
+  UserController --> UserRepository
+  UserController --> GoogleAuthAdapter
+  UserRepository --> UserProfile
+}
+
+package "Chart Service" {
+  class ChartController {
+    + getChartById(chartId: String): Chart // Functional requirement-business logic operation
+    + getChartsByUserId(userId: String): List<Chart> // Functional requirement-business logic operation
+    + saveChart(chart: Chart): Chart // Data management operation
+    + deleteChart(chartId: String): void // Data management operation
+  }
+  
+  class Chart {
+    - chartId: String
+    - userId: String
+    - chartType: String
+    - creationDate: Date
+    - chartObject: String
+    - formats: List<ChartFormat>
+  }
+  
+  enum ChartFormat {
+    PDF
+    PNG
+    SVG
+    HTML
+  }
+  
+  class ChartRepository {
+    + findById(chartId: String): Chart // Data management operation
+    + findByUserId(userId: String): List<Chart> // Data management operation
+    + save(chart: Chart): Chart // Data management operation
+    + delete(chartId: String): void // Data management operation
+  }
+  
+  class ChartValidator {
+    + validateCSV(csvFile: File, chartType: String): boolean // Functional requirement-business logic operation
+  }
+  
+  class HighchartsAdapter {
+    + generateChart(csvData: String, chartType: String): String // Functional requirement-business logic operation
+    + exportChart(chartObject: String, format: ChartFormat): File // Functional requirement-business logic operation
+  }
+
+  ChartController --> ChartRepository
+  ChartController --> ChartValidator
+  ChartController --> HighchartsAdapter
+  ChartRepository --> Chart
+  Chart --> ChartFormat
+}
+
+package "Template Service" {
+  class TemplateController {
+    + getTemplateByChartType(chartType: String): Template // Functional requirement-business logic operation
+  }
+  
+  class Template {
+    - templateId: String
+    - chartType: String
+    - csvStructure: String
+    - sampleData: String
+  }
+  
+  class TemplateRepository {
+    + findByChartType(chartType: String): Template // Data management operation
+  }
+
+  TemplateController --> TemplateRepository
+  TemplateRepository --> Template
+}
+
+package "Quota Service" {
+  class QuotaController {
+    + getQuotaByUserId(userId: String): int // Functional requirement-business logic operation
+    + decrementQuota(userId: String): boolean // Data management operation
+    + addQuota(userId: String, amount: int): void // Data management operation
+  }
+  
+  class QuotaRepository {
+    + findByUserId(userId: String): int // Data management operation
+    + save(userId: String, quota: int): void // Data management operation
+    + decrementQuota(userId: String): boolean // Data management operation
+  }
+  
+  class QuotaEvent {
+    - userId: String
+    - quotaChange: int
+    - timestamp: Date
+    - transactionId: String
+  }
+  
+  class QuotaEventPublisher {
+    + publishQuotaDecremented(userId: String): void // Flow control operation
+    + publishQuotaAdded(userId: String, amount: int): void // Flow control operation
+  }
+
+  QuotaController --> QuotaRepository
+  QuotaController --> QuotaEventPublisher
+  QuotaEventPublisher --> QuotaEvent
+}
+
+package "Payment Service" {
+  class PaymentController {
+    + initiatePayment(userId: String, quotaAmount: int): String // Functional requirement-business logic operation
+    + processPaymentCallback(paymentId: String): void // Functional requirement-business logic operation
+  }
+  
+  class PaymentGatewayAdapter {
+    + createPaymentRequest(userId: String, amount: float): String // Functional requirement-business logic operation
+    + verifyPaymentStatus(paymentId: String): boolean // Functional requirement-business logic operation
+  }
+  
+  class PaymentRepository {
+    + saveTransaction(transaction: Transaction): void // Data management operation
+    + findByPaymentId(paymentId: String): Transaction // Data management operation
+  }
+  
+  class Transaction {
+    - transactionId: String
+    - userId: String
+    - quotaAmount: int
+    - paymentAmount: float
+    - status: String
+    - timestamp: Date
+  }
+  
+  class PaymentEventPublisher {
+    + publishPaymentCompleted(userId: String, quotaAmount: int): void // Flow control operation
+  }
+
+  PaymentController --> PaymentGatewayAdapter
+  PaymentController --> PaymentRepository
+  PaymentController --> PaymentEventPublisher
+  PaymentRepository --> Transaction
+}
+
+package "API Gateway" {
+  class APIGateway {
+    + routeRequest(request: Request): Response // Flow control operation
+    + authenticateRequest(request: Request): boolean // Functional requirement-business logic operation
+  }
+}
+
+package "Event Bus" {
+  class EventBus {
+    + publish(topic: String, event: Event): void // Flow control operation
+    + subscribe(topic: String, handler: EventHandler): void // Flow control operation
+  }
+}
+
+' Inter-service communications via API Gateway
+APIGateway --> UserController
+APIGateway --> ChartController
+APIGateway --> TemplateController
+APIGateway --> QuotaController
+APIGateway --> PaymentController
+
+' Event-based communications
+QuotaEventPublisher --> EventBus
+PaymentEventPublisher --> EventBus
+EventBus --> QuotaController : subscription
+EventBus --> UserController : subscription
+
+' Cross-service dependencies
+ChartController --> QuotaController : "validateQuota"
+PaymentController --> QuotaController : "addQuota"
+
+' Data consistency operations
+class DataConsistencyService {
+  + synchronizeUserQuota(): void // Data consistency operation
+  + reconcileTransactions(): void // Data consistency operation
+}
+
+DataConsistencyService --> UserRepository
+DataConsistencyService --> QuotaRepository
+DataConsistencyService --> PaymentRepository
+
+@enduml

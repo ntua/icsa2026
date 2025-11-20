@@ -1,0 +1,93 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        -id: int
+        +label: String
+        +timestamp: Date
+        
+        +createCoordinateGroup()
+        +convertToCartesian(): CartesianCoordinates
+        +convertToPolar(): PolarCoordinates
+    }
+    
+    interface ICoordinateConverter {
+        -cartesianValue: (double, double)
+        -polarValue: (double, double)
+        
+        +getCartesianValues() : (double, double)
+        +getPolarValues(): (double, double)
+    }
+    
+    class CartesianCoordinates implements ICoordinateConverter {
+        -cartesianValue: (double, double)
+        
+        +getX(): double
+        +setX(x: double): void
+        
+        +getY(): double
+        +setY(y: double): void
+    }
+    
+    class PolarCoordinates implements ICoordinateConverter {
+        -polarValue: (double, double)
+        
+        +getR(): double
+        +setR(r: double): void
+        
+        +getTheta(): double
+        +setTheta(theta: double): void
+    }
+    
+    class MySQLDatabase {
+        +connectToDB()
+        +storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+        +retrieveCoordinateGroupByLabel(label: String) : Option[CoordinateGroup]
+        +viewAllCoordinateGroups(): List[CoordinateGroup]
+        +modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+        +deleteCoordinateGroup(id: int): boolean
+    }
+}
+
+package "View" {
+    class SwingGUI {
+        +displayCoordinateGroup(labelOrViewAll: String) : List[CoordinateGroup]
+        
+        +modifyAndSaveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        +deleteCoordinateGroup(id: int): boolean
+    }
+}
+
+package "Controller" {
+    class DummyCoordConversionController {
+        -model: Model.MySQLDatabase
+        
+        +convertAndCreate() : void
+        +store(label: String, cartesianValueOrPolarValue: (double, double)) : int
+        +retrieveByLabel(label: String) : Option[CoordinateGroup]
+        +viewAll(): List[CoordinateGroup]
+        
+        +modifyAndSave() : void
+        +deleteById(id: int): boolean
+    }
+}
+
+package "Interface" {
+    class ICoordinateConverter {
+        -cartesianValue: (double, double)
+        -polarValue: (double, double)
+        
+        +convertToCartesian(): CartesianCoordinates
+        +convertToPolar() : PolarCoordinates
+    }
+}
+    
+package "Non-Functional" {
+    class SwingFrontend {
+        // methods for Java with the Swing framework
+    }
+    
+    class MySQLDatabase {
+        //methods for handling MySQL database operations over TCP/IP connection
+    }
+}
+@enduml

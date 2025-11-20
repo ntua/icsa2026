@@ -1,0 +1,22 @@
+@startuml
+
+
+'Presentation Layer' <|-- Storefront : has {viewProducts(); addToCart(product: Product); proceedToCheckout()};
+
+package LogicLayer { 
+  class 'OrderProcessor' { 
+  -paymentProcessor; 
+  -inventoryManager
+  }
+    
+package DataLayer{ 
+  class Database {
+  'createGroup(label: String, coordinates: List<Coordinate>); 
+  getGroups(); 
+  setAttributes(id: Integer, label: String, timestamp: Timestamp)'
+}
+}
+        
+OrderProcessor -- Database
+Database <|-- Storefront : (viewsProducts() / addToCart(product: Product)), viewAllGroups()
+@enduml

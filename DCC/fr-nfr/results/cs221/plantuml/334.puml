@@ -1,0 +1,74 @@
+@startuml
+package "frontend" {
+    class CoordinateInputView {
+      + getCartesianCoordinates(): Pair<Double, Double>
+      + getPolarCoordinates(): Pair<Double, Double>
+      + getLabel(): String
+      + displayCoordinateGroups(groups: List<CoordinateGroup>)
+      + getSelectedGroupId(): int
+    }
+
+    class MainView {
+        - coordinateInputView: CoordinateInputView
+        - coordinateGroupList: CoordinateGroupListView
+        + show()
+    }
+}
+
+package "logic" {
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: Double, y: Double): Pair<Double, Double>
+    + polarToCartesian(r: Double, theta: Double): Pair<Double, Double>
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinates: Pair<Double, Double>
+    - polarCoordinates: Pair<Double, Double>
+    - timestamp: Date
+
+    + getLabel(): String
+    + setLabel(label: String)
+    + getCartesianCoordinates(): Pair<Double, Double>
+    + setCartesianCoordinates(x: Double, y: Double)
+    + getPolarCoordinates(): Pair<Double, Double>
+    + setPolarCoordinates(r: Double, theta: Double)
+  }
+
+  class CoordinateGroupManager {
+    - databaseConnector: DatabaseConnector
+    + createCoordinateGroup(label: String, cartesianCoordinates: Pair<Double, Double>): CoordinateGroup
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, label: String, cartesianCoordinates: Pair<Double, Double>): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+}
+
+
+package "database" {
+
+  class DatabaseConnector {
+    + connectToDatabase(): void
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + fetchAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+}
+
+
+frontend.MainView --> frontend.CoordinateInputView
+frontend.MainView --> "database.DatabaseConnector" : uses
+logic.CoordinateConverter --> logic.CoordinateGroup
+
+logic.CoordinateGroupManager --> "database.DatabaseConnector" : uses
+logic.CoordinateGroupManager --> logic.CoordinateConverter: uses
+logic.CoordinateGroupManager --> logic.CoordinateGroup
+
+
+
+@enduml

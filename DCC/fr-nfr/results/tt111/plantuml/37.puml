@@ -1,0 +1,61 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+package "Frontend (Java/Swing)" {
+  class UserInterface {
+    - Display coordinate groups
+    + Create coordinate group()
+    + Retrieve coordinate group(label)
+    + Modify coordinate group()
+    + Delete coordinate group(label)
+    
+    <<interface>>
+  }
+
+  class Controller {
+    + Handle creation, retrieval, modification and deletion requests
+    + Convert between Cartesian and polar coordinates
+    
+    <<facade>>
+  }
+}
+
+
+package "Business Logic" {
+  class CoordinateConverter {
+    - Convert between Cartesian and polar coordinates
+    # convertPolarToCartesian(r: Double, theta: Double) : (x: Double, y: Double)
+    # convertCartesianToPolar(x: Double, y: Double) : (r: Double, theta: Double)
+    
+    <<helper>>
+  }
+}
+
+
+package "Data Access Layer" {
+  class DatabaseManager {
+    - Store and retrieve coordinate groups from MySQL database
+    + storeCoordinateGroup(group: CoordinateGroup): String
+    + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    
+    <<interface>>
+  }
+
+  class DataAccessObject {
+    - Handle TCP/IP connection to the MySQL database 
+    # connectToDatabase() 
+    
+    <<helper>>
+  }
+}
+
+
+UserInterface <|-- Controller
+Controller <|-- CoordinateConverter
+Controller <|-- DatabaseManager
+Controller <|-- DataAccessObject
+
+@enduml

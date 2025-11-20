@@ -1,0 +1,90 @@
+@startuml
+package MVC {
+  skinparam packageStyle rect
+
+  package Model {
+    interface Database {
+      +connect()
+      +disconnect()
+      +storeCoordinateGroup(coordinateGroup: CoordinateGroup) : boolean
+      +removeCoordinateGroup(id: int) : boolean
+      +getAllCoordinateGroups() : List<CoordinateGroup>
+    }
+
+    class CoordinateGroup {
+      -id: int
+      -timestamp: Date
+      -label: String
+      -polarCoordinates: PolarCoordinates
+      -cartesianCoordinates: CartesianCoordinates
+
+      +CoordinateGroup(id: int, timestamp: Date, label: String, polarCoordinates: PolarCoordinates, cartesianCoordinates: CartesianCoordinates)
+    }
+
+    class PolarCoordinates {
+      -r: double
+      -theta: double
+
+      +PolarCoordinates(r: double, theta: double)
+    }
+
+    class CartesianCoordinates {
+      -x: double
+      -y: double
+
+      +CartesianCoordinates(x: double, y: double)
+    }
+  }
+
+  package View {
+    class MainForm {
+      +createMainForm()
+      +createMenu()
+      +createForms()
+      +createDisplayList()
+    }
+
+    class CreateGroupForm {
+      +createGroupForm()
+    }
+
+    class ModifyGroupForm {
+      +modifyGroupForm(coordinateGroup: CoordinateGroup)
+    }
+  }
+
+  package Controller {
+    class MainController {
+      -database: Database
+      -mainForm: MainForm
+
+      +MainController(database: Database, mainForm: MainForm)
+      +processUserInputs()
+    }
+
+    class CreateGroupController {
+      -createGroupForm: CreateGroupForm
+      -database: Database
+
+      +CreateGroupController(createGroupForm: CreateGroupForm, database: Database)
+      +createCoordinateGroup()
+    }
+
+    class ModifyGroupController {
+      -modifyGroupForm: ModifyGroupForm
+      -database: Database
+
+      +ModifyGroupController(modifyGroupForm: ModifyGroupForm, database: Database)
+      +updateCoordinateGroup()
+    }
+
+    class DeleteGroupController {
+      -database: Database
+      -mainForm: MainForm
+
+      +DeleteGroupController(database: Database, mainForm: MainForm)
+      +deleteSelectedCoordinateGroup()
+    }
+  }
+}
+@enduml

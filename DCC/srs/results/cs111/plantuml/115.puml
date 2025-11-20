@@ -1,0 +1,146 @@
+@startuml
+
+'===========================
+' Package: Model
+'===========================
+package "model" {
+  
+  class CoordinateGroup {
+    - id : int
+    - timestamp : Date
+    - label : String
+    - cartesian : CartesianCoordinate
+    - polar : PolarCoordinate
+    --
+    + getId() : int
+    + getTimestamp() : Date
+    + getLabel() : String
+    + getCartesian() : CartesianCoordinate
+    + getPolar() : PolarCoordinate
+    + setId(id : int) : void
+    + setTimestamp(timestamp : Date) : void
+    + setLabel(label : String) : void
+    + setCartesian(cart : CartesianCoordinate) : void
+    + setPolar(polar : PolarCoordinate) : void
+  }
+  
+  class CartesianCoordinate {
+    - x : double
+    - y : double
+    --
+    + CartesianCoordinate(x : double, y : double)
+    + getX() : double
+    + getY() : double
+    + setX(x : double) : void
+    + setY(y : double) : void
+  }
+  
+  class PolarCoordinate {
+    - r : double
+    - theta : double
+    --
+    + PolarCoordinate(r : double, theta : double)
+    + getR() : double
+    + getTheta() : double
+    + setR(r : double) : void
+    + setTheta(theta : double) : void
+  }
+  
+  ' Composition: a CoordinateGroup is composed of both coordinate representations
+  CoordinateGroup o-- "1" CartesianCoordinate : contains
+  CoordinateGroup o-- "1" PolarCoordinate : contains
+}
+
+'===========================
+' Package: Util
+'===========================
+package "util" {
+  
+  class CoordinateConverter {
+    --
+    + polarToCartesian(polar : PolarCoordinate) : CartesianCoordinate {static}
+    + cartesianToPolar(cartesian : CartesianCoordinate) : PolarCoordinate {static}
+  }
+}
+
+'===========================
+' Package: DAO
+'===========================
+package "dao" {
+  
+  class DatabaseConnection {
+    - connection : Connection
+    --
+    + openConnection() : void
+    + closeConnection() : void
+  }
+  
+  class CoordinateGroupDAO {
+    - dbConnection : DatabaseConnection
+    --
+    + createCoordinateGroup(cg : CoordinateGroup) : void
+    + updateCoordinateGroup(cg : CoordinateGroup) : void
+    + deleteCoordinateGroup(id : int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label : String) : List<CoordinateGroup>
+  }
+  
+  CoordinateGroupDAO --> DatabaseConnection : uses
+}
+
+'===========================
+' Package: Controller
+'===========================
+package "controller" {
+  
+  class DccController {
+    - coordinateGroupDAO : CoordinateGroupDAO
+    --
+    + createCoordinateGroup(label : String, type : String, value1 : double, value2 : double) : void
+    + modifyCoordinateGroup(id : int, newLabel : String, type : String, value1 : double, value2 : double) : void
+    + deleteCoordinateGroup(id : int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label : String) : List<CoordinateGroup>
+  }
+  
+  ' Indicate that the controller also makes use of the conversion utilities.
+  DccController ..> CoordinateConverter : uses
+  DccController --> CoordinateGroupDAO : uses
+}
+
+'===========================
+' Package: View
+'===========================
+package "view" {
+  
+  class DccGUI {
+    - controller : DccController
+    --
+    + initComponents() : void
+    + onAdd() : void
+    + onUpdate() : void
+    + onDelete() : void
+    + onViewAll() : void
+    + onViewByLabel() : void
+    + displayCoordinateGroups(groups : List<CoordinateGroup>) : void
+    + showError(message : String) : void
+  }
+  
+  DccGUI --> DccController : communicates
+}
+
+'===========================
+' Package: Application (Main)
+'===========================
+package "app" {
+  
+  class DccApplication {
+    --
+    + main(args : String[]) : void
+  }
+  
+  DccApplication --> DccGUI : creates
+  DccApplication --> DccController : creates
+}
+
+@enduml

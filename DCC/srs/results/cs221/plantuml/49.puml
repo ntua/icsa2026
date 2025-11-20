@@ -1,0 +1,48 @@
+@startuml
+package Client {
+  class CoordinateGroupForm {
+    - String label
+    - float r
+    - float theta
+    - float x
+    - float y
+    + setLabel(String)
+    + setPolarCoordinates(float, float)
+    + setCartesianCoordinates(float, float)
+    + create()
+    + modify(CoordinateGroupID)
+  }
+  
+  class CoordinateGroupDisplay {
+    - List<CoordinateGroup> groups
+    + update()
+    + displayGroups()
+  }
+  
+  class MainMenu {
+    + showMainMenu()
+    + goToCreate()
+    + goToModify(CoordinateGroupID)
+    + goToDelete(CoordinateGroupID)
+  }
+}
+
+package Server {
+  class CoordinateGroupDB {
+    - int ID
+    - Date timestamp
+    - String label
+    - float r
+    - float theta
+    - float x
+    - float y
+    + create()
+    + modify(CoordinateGroupID)
+    + delete(CoordinateGroupID)
+    + findByID(CoordinateGroupID)
+    + findAll()
+  }
+}
+
+Client -- Server
+@enduml

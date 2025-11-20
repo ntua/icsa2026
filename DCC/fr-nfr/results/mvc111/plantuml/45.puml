@@ -1,0 +1,62 @@
+@startuml
+
+title Dummy Coordination Conversion Application - MVC Architecture Class Diagram 
+
+package "Frontend" {
+  class CartesianConverter {
+    + convertToCartesian(polarCoord: PolarCoordinate) : CartesianCoordinate
+    + convertFromCartesian(cartesianCoord: CartesianCoordinate) : PolarCoordinate
+  }
+  
+  class PolarConverter {
+    + convertToPolar(cartesianCoord: CartesianCoordinate) : PolarCoordinate
+    + convertFromPolar(polarCoord: PolarCoordinate) : CartesianCoordinate
+  }
+}
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: string
+    - timestamp: datetime
+  
+    # Attributes for conversion
+    - cartesianCoord: CartesianCoordinate
+    - polarCoord: PolarCoordinate
+    
+    + createCoordinateGroup(cartesianOrPolarCoord: CartesianCoordinate | PolarCoordinate) : CoordinateGroup
+    + getCartesianCoordinates() : CartesianCoordinate
+    + getPolarCoordinates() : PolarCoordinate
+  }
+  
+  class MySQLDatabase {
+    - dbConnection: DatabaseConnection
+    - coordinateGroups: List<CoordinateGroup>
+  
+    + storeCoordinateGroup(coordGrp: CoordinateGroup) : void
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup> 
+    + retrieveCoordinateGroupByLabel(label: string): CoordinateGroup | null
+    + modifyCoordinateGroup(coordGrp: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : boolean
+  }
+}
+
+package "Controller" {
+  class Coordinator {
+    - model: Model
+    - view: Frontend
+    
+    + createAndStoreCoordinateGroup(cartesianOrPolarCoord: CartesianCoordinate | PolarCoordinate, label: string): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup> 
+    + retrieveCoordinateGroupByLabel(label: string): CoordinateGroup | null
+    + modifyCoordinateGroup(newLabel: string, newCoords: CartesianCoordinate | PolarCoordinate, id: int) : boolean
+    + deleteCoordinateGroup(id: int) : boolean
+  }
+}
+
+
+Coordinator <|.. Frontend  : Composition 
+MySQLDatabase <.. Coordinator   : Association (uses)
+CartesianConverter <.. CoordinateGroup : Aggregation
+PolarConverter <.. CoordinateGroup : Aggregation
+@enduml

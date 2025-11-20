@@ -1,0 +1,129 @@
+@startuml 
+title DCC Application Class Diagram
+
+package "ui" {
+  class DCCFrame {
+    - coordinatePanel: CoordinatePanel
+    - listPanel: ListPanel
+    - controller: DCCController
+    + DCCFrame()
+    + refreshList()
+    + showError(message: String)
+  }
+
+  class CoordinatePanel {
+    - txtX: JTextField
+    - txtY: JTextField
+    - txtR: JTextField
+    - txtTheta: JTextField
+    - txtLabel: JTextField
+    - btnAdd: JButton
+    - btnUpdate: JButton
+    - btnDelete: JButton
+    + getCartesianInput(): CartesianCoordinate
+    + getPolarInput(): PolarCoordinate
+    + getLabel(): String
+    + clear()
+    + setValues(group: CoordinateGroup)
+  }
+
+  class ListPanel {
+    - table: JTable
+    - txtFilter: JTextField
+    - btnClearFilter: JButton
+    + refreshList(groups: List<CoordinateGroup>)
+    + getSelectedGroup(): CoordinateGroup
+    + applyFilter(label: String)
+  }
+}
+
+package "controller" {
+  class DCCController {
+    - model: CoordinateModel
+    - view: DCCFrame
+    + handleAddCoordinate()
+    + handleUpdateCoordinate()
+    + handleDeleteCoordinate()
+    + handleFilterList()
+    + handleClearFilter()
+    + refreshList()
+  }
+}
+
+package "model" {
+  class CoordinateModel {
+    - dao: CoordinateDAO
+    - converter: CoordinateConverter
+    + createCoordinateGroup(group: CoordinateGroup): int
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+    + filterByLabel(label: String): List<CoordinateGroup>
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(cart: CartesianCoordinate): PolarCoordinate
+    + polarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    - timestamp: DateTime
+    + getters()
+    + setters()
+  }
+
+  class CartesianCoordinate {
+    - x: BigDecimal
+    - y: BigDecimal
+    + getters()
+    + setters()
+  }
+
+  class PolarCoordinate {
+    - r: BigDecimal
+    - theta: BigDecimal
+    + getters()
+    + setters()
+  }
+}
+
+package "dao" {
+  interface CoordinateDAO {
+    + create(group: CoordinateGroup): int
+    + readAll(): List<CoordinateGroup>
+    + update(group: CoordinateGroup)
+    + delete(id: int)
+    + findByLabel(label: String): List<CoordinateGroup>
+  }
+
+  class MySQLCoordinateDAO {
+    - connection: Connection
+    + create(group: CoordinateGroup): int
+    + readAll(): List<CoordinateGroup>
+    + update(group: CoordinateGroup)
+    + delete(id: int)
+    + findByLabel(label: String): List<CoordinateGroup>
+  }
+}
+
+' Relationships
+DCCFrame *-- CoordinatePanel
+DCCFrame *-- ListPanel
+DCCFrame o-- DCCController
+
+DCCController o-- CoordinateModel
+DCCController o-- DCCFrame
+
+CoordinateModel o-- CoordinateDAO
+CoordinateModel o-- CoordinateConverter
+
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+MySQLCoordinateDAO ..|> CoordinateDAO
+
+@enduml

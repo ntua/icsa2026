@@ -1,0 +1,52 @@
+@startuml
+package Frontend {
+    class Main {
+        +main(args : String[])
+    }
+    class CoordinateGroupPanel {
+        +createCoordinateGroup()
+        +retrieveCoordinateGroup()
+        +modifyCoordinateGroup()
+        +deleteCoordinateGroup()
+        +displayCoordinateGroups()
+    }
+}
+
+package Backend {
+    class CoordinateGroup {
+        -id : int
+        -label : String
+        -timestamp : Timestamp
+        -cartesianCoordinates : CartesianCoordinates
+        -polarCoordinates : PolarCoordinates
+    }
+
+    class CartesianCoordinates {
+        -x : double
+        -y : double
+    }
+
+    class PolarCoordinates {
+        -r : double
+        -theta : double
+    }
+
+    class CoordinateConverter {
+        +convertToCartesian(polarCoordinates : PolarCoordinates) : CartesianCoordinates
+        +convertToPolar(cartesianCoordinates : CartesianCoordinates) : PolarCoordinates
+    }
+
+    class DatabaseManager {
+        +saveCoordinateGroup(coordinateGroup : CoordinateGroup)
+        +retrieveCoordinateGroupById(id : int) : CoordinateGroup
+        +retrieveCoordinateGroupByLabel(label : String) : List<CoordinateGroup>
+        +updateCoordinateGroup(coordinateGroup : CoordinateGroup)
+        +deleteCoordinateGroup(id : int)
+    }
+}
+
+CoordinateGroup -- CoordinateConverter
+CoordinateGroup -- DatabaseManager
+CoordinateGroup *-- CartesianCoordinates
+CoordinateGroup *-- PolarCoordinates
+@enduml

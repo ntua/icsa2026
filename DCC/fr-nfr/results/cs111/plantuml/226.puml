@@ -1,0 +1,63 @@
+@startuml
+package "Client" {
+    class Client {
+        + displayCoordinateGroups()
+        + inputCoordinateGroup()
+        + modifyCoordinateGroup()
+        + deleteCoordinateGroup()
+        + requestConversion()
+    }
+
+    class TCPClient {
+        + connectToServer()
+        + sendRequest()
+        + receiveResponse()
+    }
+
+    Client --> TCPClient : "uses"
+}
+
+package "Server" {
+    class Server {
+        + handleRequest()
+        + createCoordinateGroup(Cartesian or Polar)
+        + retrieveCoordinateGroups(label)
+        + retrieveAllCoordinateGroups()
+        + modifyCoordinateGroup(id)
+        + deleteCoordinateGroup(id)
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(x, y)
+        + polarToCartesian(r, theta)
+    }
+
+    class CoordinateGroup {
+        + id : int
+        + label : String
+        + timestamp : Date
+        + x : double
+        + y : double
+        + r : double
+        + theta : double
+        + setCartesian(x, y)
+        + setPolar(r, theta)
+    }
+
+    Server --> CoordinateConverter : "uses"
+    Server --> CoordinateGroup : "manages"
+}
+
+package "Database" {
+    class DatabaseHandler {
+        + connectToDatabase()
+        + saveCoordinateGroup(group: CoordinateGroup)
+        + retrieveCoordinateGroupByLabel(label : String)
+        + retrieveAllCoordinateGroups()
+        + updateCoordinateGroup(id : int, group : CoordinateGroup)
+        + deleteCoordinateGroup(id : int)
+    }
+}
+Server --> DatabaseHandler : "composes"
+
+@enduml

@@ -1,0 +1,34 @@
+@startuml
+package presentation {
+  class View
+  class Controller
+}
+
+package business_logic {
+  class CoordinateGroup
+  class CartesianCoordinate
+  class PolarCoordinate
+  
+  
+}
+CoordinateGroup -> CartesianCoordinate
+CoordinateGroup -> PolarCoordinate
+
+package data_access {
+  class DatabaseConnection
+  class MySQLDatabase
+}
+
+package models {
+  class UserInteractionModel
+  
+ 
+}
+MySQLDatabase --> data_access.DatabaseConnection
+presentation.Controller -> business_logic.UserInteractionModel
+models.UserInteractionModel -d-> data_access.MySQLDatabase
+View -down-> Controller
+CartesianCoordinate -left-> CoordinateGroup 
+PolarCoordinate -right-> CoordinateGroup 
+
+@enduml

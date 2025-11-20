@@ -1,0 +1,66 @@
+@startuml
+
+package Presentation {
+    class DCCGUI {
+        +initializeUI()
+        +addCoordinateGroup()
+        +updateCoordinateGroup()
+        +deleteCoordinateGroup()
+        +viewAllCoordinateGroups()
+        +viewCoordinateGroupByLabel()
+    }
+}
+
+package Application {
+    class CoordinateGroupManager {
+        +createCoordinateGroup(sourceType: String, values: double[], label: String)
+        +modifyCoordinateGroup(id: int, newValues: double[], newLabel: String)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class CoordinateConverter {
+        +convertCartesianToPolar(c: Cartesian): Polar
+        +convertPolarToCartesian(p: Polar): Cartesian
+    }
+
+    class CoordinateGroup {
+        -id: int
+        -timestamp: Date
+        -label: String
+        -cartesian: Cartesian
+        -polar: Polar
+    }
+
+    class Cartesian {
+        -x: double
+        -y: double
+    }
+
+    class Polar {
+        -r: double
+        -theta: double
+    }
+}
+
+package Data {
+    class DatabaseManager {
+        +insertCoordinateGroup(cg: CoordinateGroup)
+        +updateCoordinateGroup(cg: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+}
+
+'--- Associations ---
+DCCGUI --> CoordinateGroupManager : "uses"
+CoordinateGroupManager --> DatabaseManager : "persists data via"
+CoordinateGroupManager --> CoordinateConverter : "uses for conversion"
+CoordinateGroupManager --> CoordinateGroup : "manages"
+CoordinateGroup *-- Cartesian : "contains"
+CoordinateGroup *-- Polar : "contains"
+DatabaseManager --> CoordinateGroup : "stores/retrieves"
+
+@enduml

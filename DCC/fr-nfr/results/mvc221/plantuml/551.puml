@@ -1,0 +1,76 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "model.logic" {
+    class Converter {
+        + fromCartesianToPolar(cartesian: CartesianCoord): PolarCoord
+        + fromPolarToCartesian(polar: PolarCoord): CartesianCoord
+    }
+}
+
+package "model.dao" {
+    class CoordinateGroupDAO {
+        + createOp(coordinateGroup: CoordinateGroup): void
+        + readOp(): List<CoordinateGroup>
+        + updateOp(coordinateGroup: CoordinateGroup): void
+        + deleteOp(id: Integer): void
+        
+        - mysqlConnection: Connection
+    }
+}
+
+package "model" {
+    class CartesianCoord {
+        + x: Double
+        + y: Double
+    }
+
+    class PolarCoord {
+        + r: Double
+        + theta: Double
+    }
+
+    class CoordinateGroup {
+        + id: Integer
+        + label: String
+        + cartesian: CartesianCoord
+        + polar: PolarCoord
+        + timestamp: DateTime
+    }
+}
+
+package "view" {
+    class DCCView {
+        + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        + displayError(message: String): void
+        + getActiveFilter(): String
+        + clearFilter(): void
+        + showAddUpdateForm(): void
+        + showDeleteConfirm(): void
+    }
+}
+
+package "controller" {
+    class DCCController {
+        + initializeView(): void
+        + handleAddCoordinateGroup(label: String, cartesian: CartesianCoord): void
+        + handleUpdateCoordinateGroup(id: Integer, label: String, cartesian: CartesianCoord): void
+        + handleDeleteCoordinateGroup(id: Integer): void
+        + applyFilter(filter: String): void
+        + clearFilter(): void
+        
+        - view: DCCView
+        - dao: CoordinateGroupDAO
+        - converter: Converter
+    }
+}
+
+' Associations
+
+DCCController --> DCCView
+DCCController --> CoordinateGroupDAO
+DCCController --> Converter
+
+CoordinateGroupDAO --> MySQL
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+package Client {
+    package "Frontend" {
+        class DCCApp {
+            - dbConnector: DatabaseConnector
+            + run()
+        }
+    
+        interface DatabaseConnector {
+            + connectToDatabase(connectionString: String) : boolean
+            + executeQuery(query: String) : ResultSet
+            + closeConnection(): void
+        }
+    }
+}
+
+package Server {
+    package "Backend" {
+        class CoordinateGroup {
+            - groupId: int
+            - label: String
+            - creationDate: Date
+            # Cartesian, Polar
+        }
+    
+        interface Database {
+            + saveData(data: DBCoord) : boolean
+            + fetchData(query: String): ResultSet
+        }
+    
+        class DBCoordinateGroup {
+            - id: int
+            - label: String
+            - timestamp: Date
+            # Cartesian, Polar
+            Database <|-- CoordinateGroup
+            UserInterface <|..> Server.Database
+        }
+    }
+}
+
+Client.Frontend.DCCApp --> Server.Backend.DBCoordinateGroup : with composition
+Client.Frontend.DatabaseConnector <|-- Client.Frontend.DCCApp
+@enduml

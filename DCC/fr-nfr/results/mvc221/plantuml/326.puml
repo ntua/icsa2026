@@ -1,0 +1,75 @@
+@startuml
+package presentation {
+ class View {
+  + showMenu()
+  + displayCoordinateGroups()
+  + filterCoordinateGroups(label)
+  + clearFilter()
+}
+
+}
+
+package businesslogic {
+ class Controller {
+  + handleAddCommand(label, cartesianX, cartesianY)
+  + handleUpdateCommand(id, newLabel, cartesianX, cartesianY)
+  + handleDeleteCommand(id)
+  + refreshDisplay()
+}
+
+class Mapper {
+  + convertCartesianToPolar(cartesianX, cartesianY)
+  + convertPolarToCartesian(polarR, polarTheta)
+}
+
+class Converter {
+  - toPrecision(num)
+}
+}
+
+package datamanagement {
+ class CoordinateGroupRepository {
+  + createCoordinateGroup(label, cartesianX, cartesianY)
+  + readAllCoordinateGroups()
+  + updateCoordinateGroup(id, newLabel, cartesianX, cartesianY)
+  + deleteCoordinateGroup(id)
+}
+
+class DatabaseConnection {
+  - connectToDatabase()
+  - disconnectFromDatabase()
+}
+}
+
+package models {
+ class CartesianCoordinate {
+  + x: Decimal
+  + y: Decimal
+}
+
+class PolarCoordinate {
+  + r: Decimal
+  + theta: Decimal
+}
+
+class CoordinateGroup {
+  + id: Integer (auto-generated)
+  + label: String
+  + cartesianCoordinate: CartesianCoordinate
+  + polarCoordinate: PolarCoordinate
+}
+}
+
+
+
+
+
+View <--> Controller : showMenu()/ refreshDisplay()
+Controller --> Mapper : convertCartesianToPolar(cartesianX, cartesianY)
+Mapper --> Converter : toPrecision(num)
+
+Mapper --> Controller : result (polarR, polarTheta)
+
+Controller <--> CoordinateGroupRepository : create/update/deleteCoordinateGroup(id,label, cartesianX, cartesianY, polarR,polarTheta), readAllCoordinateGroups()
+CoordinateGroupRepository <--> DatabaseConnection : saveCoordinateGroup(id, label, cartesianX, cartesianY)
+@enduml

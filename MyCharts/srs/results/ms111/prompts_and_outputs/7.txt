@@ -1,0 +1,218 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here:
+# Software Requirements Specification (SRS)
+
+# MyCharts Application
+
+---
+
+## 1. Introduction
+
+### 1.1 Purpose  
+The MyCharts Application is a web-based service designed to enable users with minimal technical expertise to generate, manage, and download charts in various formats. It simplifies chart creation by providing templates for source data, supporting data uploads. It uses the Highcharts library for chart generation.
+
+### 1.2 Scope  
+This application allows users to:  
+- Download CSV templates for supported chart types.  
+- Upload CSV files to generate charts.  
+- Save and download charts in PDF, PNG, SVG, and HTML formats.  
+- Purchase quotas for chart creation.
+- View and download generated charts.
+
+### 1.3 Definitions, Acronyms, and Abbreviations  
+- **CSV**: Comma-Separated Values file format.  
+- **Quota**: A limit on the number of charts a user can create.  
+- **Highcharts**: JavaScript library used for chart rendering.  
+
+### 1.4 References  
+- Highcharts Library: https://www.highcharts.com  
+- Google Authentication API: https://developers.google.com/identity  
+- CSV Format Specification: https://tools.ietf.org/html/rfc4180  
+
+### 1.5 Overview  
+This document outlines functional and non-functional requirements, use cases, and interface specifications for the MyCharts Application.
+
+---
+
+## 2. System Overview
+
+### 2.1 Product Perspective  
+MyCharts is a SaaS (Software as a Service) standalone web application. It will be offered online and produce revenue by selling credits for chart generation.
+
+### 2.2 Product Functions  
+1. User authentication via Google accounts.  
+2. Download CSV templates for chart types.  
+3. Upload CSV files to generate charts.  
+4. Save charts in PDF, PNG, SVG, and HTML formats.  
+5. Display and manage user-generated charts.  
+6. Charge for quotas needed to create charts.  
+
+### 2.3 User Characteristics  
+Primary users include educators, students, and professionals needing simple chart generation. No coding or technical skills are required.
+
+### 2.4 Operating Environment  
+- **Frontend**: Modern browsers (Chrome, Firefox, Safari).  
+- **Backend**: Application Server with Node.js or Python runtime and database server(s) as needed.  
+- **Network**: Internet connectivity required for service offering.  
+
+### 2.5 Assumptions and Dependencies  
+- Google OAuth is available for user authentication.  
+- Highcharts library is accessible for chart rendering.  
+- Users follow the CSV structure.  
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 Functional Requirements Specification  
+1. Authenticate users via Google accounts.  
+2. Allow download of CSV templates for 3 supported chart types (Basic line, Line with annotations, Basic column).  
+3. Upload CSV file with the user data for chart generation.
+4. Validate uploaded CSV files against the template structure, data types, and mandatory data existence.  
+5. Generate charts with data from the CSV file uploaded by the user, using Highcharts.  
+6. Save charts to the server in PDF, PNG, SVG, and HTML formats.  
+7. Display a dashboard with the history of user-generated charts, including chart previews.  
+8. Download selected chart type.
+9. Charge quotas for chart creation.  
+10. Allow users to delete or download charts. 
+11. Sell quotas and receive payment by a payment gateway
+12. Maintain user profiles containing the following data: Name (from Google account), profile picture (from Google account), email (from Google account), remaining quota, account creation timestamp, last login timestamp.  
+13. Display user's profile info, including remaining quotas.
+
+
+### 3.2 Use Cases  
+
+#### 3.2.1 Use Case Diagram  
+```plantuml
+@startuml
+
+package "UserService" {
+  class UserService {
+      - id: String
+      - quota: int
+      - csvFile: CSV
+
+      + generateChart(csv: CSV): Chart
+      + uploadCSV(file: File): boolean
+  }
+}
+
+package "AuthService" {
+  class AuthService {
+      - id: String
+      - accessToken: string
+
+      + authenticate(credentials: Credentials): accessToken
+      + validateAccessToken(): boolean
+  }
+}
+
+package "CSVService" {
+  class CSVService {
+      - id: String
+      - csvFiles: Map<String, CSV>
+
+      + createCSV(file: File): CSV
+      + readCSV(filename: String): CSV
+  }
+}
+
+package "ChartService" {
+  class ChartService {
+      - id: String
+      - charts: Map<String, Chart>
+
+      + generateChart(csv: CSV): Chart
+  }
+}
+
+User --|> UserService : uses
+UserService ..> AuthService : Uses
+UserService ..> CSVService : Uses
+UserService ..> ChartService : Uses
+
+@enduml
+
+```
+
+The diagram above shows the UserService, which is responsible for handling user-related operations like chart generation and CSV uploading. It relies on AuthService for authentication and CSVService for managing CSV files. Additionally, it uses the ChartService to generate charts based on provided CSV data.
+
+Operations are classified as follows:
+
+- `uploadCSV(file: File)`: Functional requirement—business logic operation
+- `generateChart(csv: CSV): Chart`: Functional requirement—business logic operation
+- `authenticate(credentials: Credentials): accessToken`: Functional requirement—business logic operation
+- `validateAccessToken(): boolean`: Functional requirement—business logic operation
+- `createCSV(file: File): CSV`: Data management operation
+- `readCSV(filename: String): CSV`: Data management operation
+- `generateChart(csv: CSV): Chart`: Data consistency operation
+
+Now let's calculate the architecture characteristics for this simple scenario.
+
+General Characteristics:
+- SI = 2/4 = 0.5 (2 stateless services out of 4 total)
+- DOC = 1/4 = 0.25 (1 service linked to a dedicated data store out of 4 total)
+- SST(S) = 1/4 = 0.25 (1 transaction-aware service out of 4 total)
+
+Characteristics per service:
+- Service_1 (UserService):
+  - SIC = 3 (uploadCSV, generateChart, authenticate)
+  - AIS(in) = 1 (User)
+  - ADS(out) = 3 (AuthService, CSVService, ChartService)
+- Service_2 (AuthService):
+  - SIC = 2 (authenticate, validateAccessToken)
+  - AIS(in) = 0
+  - ADS(out) = 0
+- Service_3 (CSVService):
+  - SIC = 2 (createCSV, readCSV)
+  - AIS(in) = 1 (UserService)
+  - ADS(out) = 0
+- Service_4 (ChartService):
+  - SIC = 1 (generateChart)
+  - AIS(in) = 1 (UserService)
+  - ADS(out) = 0
+
+Characteristics per use case:
+Assuming the following services are involved in completing one use case: UserService, AuthService, CSVService, and ChartService.
+
+- SC = {UserService, AuthService, CSVService, ChartService}
+
+JSON Object:
+```json
+{
+    "SI": [0.5, 0],
+    "DOC": [0.25, 0],
+    "SST": [0.25, 0],
+    "services": [
+        {
+            "service_name": "UserService",
+            "SIC": [3, 2],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [3, 3]
+        },
+        {
+            "service_name": "AuthService",
+            "SIC": [2, 2],
+            "AIS(in)": [0, 1],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "CSVService",
+            "SIC": [2, 2],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "ChartService",
+            "SIC": [1, 1 ],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        }
+    ],
+    "use_cases": [
+        
+    ]
+}
+```

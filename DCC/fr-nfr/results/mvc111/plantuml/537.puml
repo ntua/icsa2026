@@ -1,0 +1,89 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package definitions
+package "Client" {
+    ' View classes
+    class DCCView {
+        + void displayCoordinateGroup()
+        + void showCreateView()
+        + void showModifyView()
+        + void notifyController()
+    }
+
+    class CoordinateGroupPanel {
+        - List<CoordinateGroup> displayedGroups
+        + void refreshDisplay()
+        + void updateGroupList()
+    }
+
+    class InputPanel {
+        + void captureCoordinates()
+        + void captureLabel()
+    }
+}
+
+package "Client.Controller" {
+    ' Controller classes
+    class DCCController {
+        - DCCView view
+        - Database db
+
+        + void createCoordinateGroup(Cartesian, Polar)
+        + void convertCoordinates(Coordinate)
+        + void storeCoordinateGroup(CoordinateGroup)
+        + void retrieveCoordinateGroups()
+        + void modifyCoordinateGroup(int id)
+        + void deleteCoordinateGroup(int id)
+
+        + void initializeView()
+    }
+}
+
+package "Server.Model" {
+    ' Model classes
+    class Coordinate {
+        - int id
+        - float x
+        - float y
+        - float r
+        - float theta
+
+        + void convertToCartesian()
+        + void convertToPolar()
+    }
+
+    class CoordinateGroup {
+        - int groupId
+        - String label
+        - Date timestamp
+        - List<Coordinate> coordinates
+
+        + void addCoordinate(Coordinate)
+        + void removeCoordinate(int id)
+        + void updateLabel(String newLabel)
+    }
+
+    class Database {
+        - Connection connection
+
+        + CoordinateGroup createCoordinateGroup(CoordinateGroup group)
+        + void storeCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> retrieveAllGroups()
+        + CoordinateGroup retrieveGroupById(int id)
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+
+        + void connect()
+        + void disconnect()
+    }
+}
+
+' Associations and Relationships
+DCCController --> DCCView : composition
+DCCController --> Database : uses
+DCCView --> DCCController : notifies
+
+CoordinateGroup *-- Coordinate : aggregation
+Database <|-- Coordinate
+Database <|-- CoordinateGroup
+@enduml

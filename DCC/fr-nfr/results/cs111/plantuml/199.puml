@@ -1,0 +1,85 @@
+@startuml
+scale 0.5
+package "Frontend (Presentation Layer)" {
+  class CoordinateGroupCreation {
+    - product: CartesianPolarConverter
+    + createCoordinateGroup(coordinates: String, coordinateType: String): CoordinateGroup
+  }
+  
+  class CoordinateGroupRetrieval {
+    - product: CoordinateGroupDisplay
+    + retrieveCoordinateGroupByLabel(label: String): Optional<CoordinateGroup>
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+  }
+  
+  class CoordinateGroupModification {
+    - product: CoordinateGroupEditor
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newCoordinates: String, newLabel: String): CoordinateGroup
+  }
+  
+  class CoordinateGroupDeletion {
+    - product: CoordinateGroupRemover
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+  
+  class CoordinateGroupDisplay {
+    - product: SwingComponents
+    + displayCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+}
+
+package "Client-Server (Application Layer)" {
+  class TCPIPConnection {
+    - serverAddress: String
+    - serverPort: Int
+    - establishConnection()
+    - sendData(data: String)
+    - receiveData(): String
+    - closeConnection()
+  }
+}
+
+package "Server (Application Layer)" {
+  class AuthenticationManager {
+    + authenticateUser(username: String, password: String): Boolean
+  }
+  
+  class DatabaseManager {
+    - product: MySQLDatabase
+    - executeQuery(query: String): ResultSet
+  }
+}
+
+package "Data (Data Layer)" {
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - timestamp: LocalDateTime
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+  }
+  
+  class CartesianCoordinates {
+    - x: Double
+    - y: Double
+  }
+  
+  class PolarCoordinates {
+    - r: Double
+    - theta: Double
+  }
+  
+  class MySQLDatabase {
+    + connect()
+    + disconnect()
+    + executeQuery(query: String): ResultSet
+  }
+}
+
+class CartesianPolarConverter {
+  - product: MathComponents
+  + convertCartesianToPolar(x: Double, y: Double): PolarCoordinates
+  + convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates
+}
+
+@enduml

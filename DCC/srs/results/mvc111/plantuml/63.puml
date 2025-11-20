@@ -1,0 +1,49 @@
+@startuml
+
+package "Model" {
+    class CoordinateGroup {
+        +int id
+        +String label
+        +String timestamp
+        +double x
+        +double y
+        +double r
+        +double theta
+        +void convertToPolar()
+        +void convertToCartesian()
+    }
+
+    class CoordinateRepository {
+        +List<CoordinateGroup> findAll()
+        +CoordinateGroup findByLabel(String label)
+        +void save(CoordinateGroup group)
+        +void update(CoordinateGroup group)
+        +void delete(int id)
+    }
+}
+
+package "View" {
+    class CoordinateView {
+        +void displayAll(List<CoordinateGroup> groups)
+        +void displayGroup(CoordinateGroup group)
+        +void displayError(String message)
+    }
+}
+
+package "Controller" {
+    class CoordinateController {
+        -CoordinateRepository repository
+        -CoordinateView view
+        +void createGroup(String label, double x, double y, double r, double theta, String type)
+        +void modifyGroup(int id, String label, double x, double y, double r, double theta, String type)
+        +void deleteGroup(int id)
+        +void viewAllGroups()
+        +void viewGroupByLabel(String label)
+    }
+}
+
+CoordinateController --> CoordinateRepository : uses
+CoordinateController --> CoordinateView : uses
+CoordinateRepository --> CoordinateGroup : manages
+
+@enduml

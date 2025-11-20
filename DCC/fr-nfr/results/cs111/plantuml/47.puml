@@ -1,0 +1,59 @@
+@startuml
+
+package Frontend {
+  interface ICoordinateGroupRepository {
+    +create(coordinateGroup: CoordinateGroup) : UUID
+    +getByLabel(label: String) : CoordinateGroup
+    +getAll() : List<CoordinateGroup>
+    +update(coordinateGroup: CoordinateGroup) : void
+    +delete(id: UUID) : void
+  }
+  
+  class FrontendController {
+    -ICoordinateGroupRepository coordinateGroupRepository
+    +FrontendController(coordinateGroupRepository: ICoordinateGroupRepository)
+    +createCoordinateGroup(cartesianOrPolar: String, x: Double, y: Double, r: Double, theta: Double, label: String) : void
+    +getCoordinateGroupByLabel(label: String) : CoordinateGroup
+    +getAllCoordinateGroups() : List<CoordinateGroup>
+    +modifyCoordinateGroup(id: UUID, cartesianOrPolar: String, x: Double, y: Double, r: Double, theta: Double, label: String) : void
+    +deleteCoordinateGroup(id: UUID) : void
+  }
+  
+  class CoordinateGroup {
+    -UUID id
+    -String label
+    -LocalDateTime timestamp
+    -Map<String, List<Double>> coordinates
+    +CoordinateGroup()
+    +getCoordinates() : Map<String, List<Double>>
+    +setCoordinates(coordinates: Map<String, List<Double>>) : void
+  }
+}
+
+package Backend {
+  class MySQLCoordinateGroupRepository implements ICoordinateGroupRepository {
+    +MySQLCoordinateGroupRepository()
+    +create(coordinateGroup: CoordinateGroup) : UUID
+    +getByLabel(label: String) : CoordinateGroup
+    +getAll() : List<CoordinateGroup>
+    +update(coordinateGroup: CoordinateGroup) : void
+    +delete(id: UUID) : void
+  }
+}
+
+package Network {
+  class TCPIPConnection {
+    -String host
+    -int port
+    +TCPIPConnection(host: String, port: Int)
+    +connect() : void
+    +send(data: String) : void
+    +receive() : String
+  }
+}
+
+FrontendController --> MySQLCoordinateGroupRepository
+FrontendController <-- FrontendController
+TCPIPConnection --> FrontendController
+
+@enduml

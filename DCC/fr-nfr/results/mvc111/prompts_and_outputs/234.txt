@@ -1,0 +1,56 @@
+@startuml
+package model {
+    class CoordinateGroup {
+        id
+        label
+        timestamp
+        cartesianCoordinate
+        polarCoordinate
+    }
+
+    class CartesianCoordinate {
+        x
+        y
+    }
+
+    class PolarCoordinate {
+        r
+        theta
+    }
+
+    CoordinateGroup "1" --> "1" CartesianCoordinate : has
+    CoordinateGroup "1" --> "1" PolarCoordinate : has
+}
+
+package controller {
+    class CoordinateGroupController {
+        createCoordinateGroup()
+        updateCoordinateGroup()
+        deleteCoordinateGroup()
+        getCoordinateGroupById()
+        getAllCoordinateGroups()
+    }
+}
+
+package view {
+    class CoordinateGroupView {
+        displayCoordinateGroups()
+        showCreateCoordinateGroupDialog()
+        showEditCoordinateGroupDialog()
+        showDeleteCoordinateGroupDialog()
+    }
+}
+
+package repository {
+    class CoordinateGroupRepository {
+        saveCoordinateGroup()
+        getCoordinateGroupById()
+        getCoordinateGroupByLabel()
+        getAllCoordinateGroups()
+        deleteCoordinateGroup()
+    }
+}
+
+CoordinateGroupController "1" --> "1" CoordinateGroupRepository : uses
+CoordinateGroupController "1" --> "1" CoordinateGroupView : uses
+@enduml

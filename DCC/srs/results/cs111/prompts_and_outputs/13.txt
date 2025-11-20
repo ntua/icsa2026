@@ -1,0 +1,95 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+' Define packages
+package "Client Application" {
+  interface UserInterface
+
+  entity CoordinateGroup {
+    ID
+    Timestamp
+    Label
+    PolarCoordinates (r, theta)
+    CartesianCoordinates (x,y)
+  }
+
+  class GUIController {
+    + selectCoordinateGroup() : void
+    + viewAllGroups(): void
+    + viewByLabel(label): void
+    + deleteGroup(): void
+  }
+}
+
+package "Server Application" {
+  entity Database {
+    ID
+    Timestamp
+    Label
+    PolarCoordinates (r, theta)
+    CartesianCoordinates (x,y)
+  }
+
+  class DBController {
+    + retrieveGroups() : List<CoordinateGroup>
+    + searchByLabel(label): List<CoordinateGroup>
+    + deleteGroup(groupID): void
+  }
+}
+
+' Associations and dependencies
+UserInterface <|.. GUIController : Uses
+GUIController .. Database : Accesses via DBController
+DBController .|> Database : Manages
+
+' Architecture Representation
+"Client Application" .. "Server Application" : TCP/IP Connection
+@enduml
+```
+
+
+Please note that the class diagram is a simplified representation and may not include all the fine details of your system. It serves as a high-level design overview, ensuring separation of concerns based on the client-server architecture while meeting the functional requirements.

@@ -1,0 +1,128 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + createCoordinateGroup();
+    + updateCoordinateGroup();
+    + deleteCoordinateGroup();
+    + displayCoordinateGroups(filter);
+    + convertCartesianToPolar();
+    + convertPolarToCartesian();
+  }
+  
+  'Java Swing for user interaction'
+  class SwingUserInterface {
+    - userInput: UserInput
+    - coordinator: Coordinator
+    
+    + initialize()
+  }
+}
+
+package Logic {
+  interface CoordinateConverter {
+    + cartesianToPolar(x, y): r, theta
+    + polarToCartesian(r, theta): x, y
+  }
+  'Converts Cartesian coordinates to Polar'
+  class CartesianToPolarConverter  {
+    - epsilon: double
+    
+    + cartesianToPolar(x, y): r, theta
+  }
+  'Converts Polar coordinates to Cartesian'
+  class PolarToCartesianConverter  {
+    - epsilon: double
+    
+    + polarToCartesian(r, theta): x, y
+  }
+}
+
+package Database {
+  interface DatabaseConnection {
+    + connect();
+    + disconnect();
+    + executeQuery(query);
+    + executeUpdate(query);
+  }
+  'MySQL for persistent storage of coordinate groups'
+  class MySQLDatabaseConnection {
+    - connection: Connection
+    
+    + connect()
+    + disconnect()
+    + executeQuery(query)
+    + executeUpdate(query)
+  }
+}
+
+package Model {
+  interface CoordinateGroupManager {
+    + createCoordinateGroup(label, cartesian, polar): int
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id, label, cartesian, polar): void
+    + deleteCoordinateGroup(id): void
+  }
+  
+  'A coordinate group containing Cartesian and Polar coordinates'
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    - timestamp: Date
+    
+    + getId(): int
+    + setId(id: int): void
+    + getLabel(): String
+    + setLabel(label: String): void
+    + getCartesian(): CartesianCoordinates
+    + setCartesian(cartesian: CartesianCoordinates): void
+    + getPolar(): PolarCoordinates
+    + setPolar(polar: PolarCoordinates): void
+    + getTimestamp(): Date
+    + setTimestamp(timestamp: Date): void
+  }
+  
+  'Defines cartesian coordinates as a pair (x, y) of high-precision numbers'
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+    
+    + getX(): double
+    + setX(x: double): void
+    + getY(): double
+    + setY(y: double): void
+  }
+  
+  'Defines polar coordinates as a pair (r, θ) of high-precision numbers'
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+    
+    + getR(): double
+    + setR(r: double): void
+    + getTheta(): double
+    + setTheta(theta: double): void
+  }
+}
+'Manages communication between Frontend and Model layers'
+class Coordinator  {
+  - userInterface: UserInterface
+  - coordinateConverter: CoordinateConverter
+  - coordinateGroupManager: CoordinateGroupManager
+  - databaseConnection: DatabaseConnection
+  
+  + initialize()
+  + convertCartesianToPolar()
+  + convertPolarToCartesian()
+  + createCoordinateGroup()
+  + readCoordinateGroups(filter)
+  + updateCoordinateGroup()
+  + deleteCoordinateGroup()
+}
+
+SwingUserInterface -- Coordinator
+CoordinateConverter -- Coordinator
+MySQLDatabaseConnection -- Coordinator
+@enduml

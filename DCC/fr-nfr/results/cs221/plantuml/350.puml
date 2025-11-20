@@ -1,0 +1,59 @@
+@startuml
+package "Client" {
+  class ClientLogic #FFA500{
+    +convertCartesianToPolar(x: HighPrecisionNumber, y: HighPrecisionNumber): PolarCoordinates
+    +convertPolarToCartesian(r: HighPrecisionNumber, theta: HighPrecisionNumber): CartesianCoordinates
+    +createCoordinateGroup(label: String, x: HighPrecisionNumber, y: HighPrecisionNumber, r: HighPrecisionNumber, theta: HighPrecisionNumber) : CoordinateGroup
+    +readCoordinateGroups() : List<CoordinateGroup>
+    +updateCoordinateGroup(coordinateGroupId: Int, label: String, x: HighPrecisionNumber, y: HighPrecisionNumber, r: HighPrecisionNumber, theta: HighPrecisionNumber): Boolean
+    +deleteCoordinateGroup(coordinateGroupId: Int) : Boolean
+  }
+
+  class CoordinateGroup {
+    -id: Int
+    -label: String
+    -cartesianCoordinates: CartesianCoordinates
+    -polarCoordinates: PolarCoordinates
+
+    +getCartesianCoordinates(): CartesianCoordinates
+    +getPolarCoordinates(): PolarCoordinates
+  }
+
+  class CartesianCoordinates {
+    -x: HighPrecisionNumber
+    -y: HighPrecisionNumber
+
+    +getCoordinates() : (x, y)
+  }
+
+
+  class PolarCoordinates{
+  	-r: HighPrecisionNumber
+    -theta: HighPrecisionNumber
+    
+    +getCoordinates():(r, theta)
+  }
+}
+
+ package "Server" {
+  class ServerLogic #7FFFD4{
+    +createCoordinateGroupRecord(coordinateGroup: CoordinateGroup): Int
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroupRecord(coordinateGroupId: Int, coordinateGroup: CoordinateGroup): Boolean
+    +deleteCoordinateGroupRecord(coordinateGroupId: Int) : Boolean
+  }
+
+  class MySQLDatabase #5F9EA0{
+
+    +saveCoordinateGroupRecord(id: Int, label: String, x: HighPrecisionNumber, y: HighPrecisionNumber, r: HighPrecisionNumber, theta: HighPrecisionNumber): Boolean
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroupRecord(coordinateGroupId: Int, coordinateGroup: CoordinateGroup): Boolean
+    +deleteCoordinateGroupRecord(coordinateGroupId: Int) : Boolean
+  }
+}
+
+ ClientLogic ..o ServerLogic  
+ServerLogic..o MySQLDatabase 
+ CartesianCoordinates <|-- PolarCoordinates
+
+@enduml

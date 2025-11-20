@@ -1,0 +1,53 @@
+@startuml
+
+package "Client" {
+  class DccApp {
+    - coordManager: CoordManager
+    + run()
+  }
+
+  class SwingFrontend {
+    + createUI()
+    + handleEvents()
+  }
+}
+
+package "Server" {
+  class CoordManager {
+    - database: Database
+    + createCoordGroup(cartesianX, cartesianY, polarR, polarTheta, label)
+    + storeCoordGroup(coordGroup)
+    + retrieveCoordGroup(id)
+    + modifyCoordGroup(id, newData)
+    + deleteCoordGroup(id)
+  }
+
+  class CoordGroup {
+    - id: int
+    - cartesian: Cartesian
+    - polar: Polar
+    - label: string
+    - timestamp: datetime
+  }
+
+  class Cartesian {
+    x: float
+    y: float
+  }
+
+  class Polar {
+    r: float
+    theta: float
+  }
+
+  class Database {
+    + connect()
+    + query(query)
+    + disconnect()
+  }
+}
+
+Client "1" -- "a" Server
+SwingFrontend "1" -- "a" DccApp
+
+@enduml

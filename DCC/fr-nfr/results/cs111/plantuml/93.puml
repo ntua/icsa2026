@@ -1,0 +1,61 @@
+@startuml
+
+package "Client" {
+
+  class DCCApplication {
+    + run()
+    - coordinateGroupManager: CoordinateGroupManager
+  }
+
+  class CoordinateGroupManager {
+    + createCoordinateGroup(coordinates: Coordinates, type: String): CoordinateGroup
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroupId: int, updatedCoordinates: Coordinates, label: String): CoordinateGroup
+    + deleteCoordinateGroup(coordinateGroupId: int)
+  }
+
+}
+
+package "Server" {
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: Coordinates
+  }
+
+  abstract class Coordinates {
+    {abstract} getValues(): List<double>
+  }
+
+  class CartesianCoordinates extends Coordinates {
+    - x: double
+    - y: double
+    + getValues(): List<double>
+  }
+
+  class PolarCoordinates extends Coordinates {
+    - r: double
+    - theta: double
+    + getValues(): List<double>
+  }
+
+  interface Database {
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroupId: int, coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(coordinateGroupId: int)
+  }
+
+}
+
+DCCApplication --> CoordinateGroupManager : uses
+CoordinateGroupManager --> Database : communicates with
+
+CoordinateGroup "1" -- "*" Coordinates : contains
+
+@enduml

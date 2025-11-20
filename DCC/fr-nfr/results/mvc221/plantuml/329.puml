@@ -1,0 +1,73 @@
+@startuml
+
+package view {
+    class CoordinateView {
+        -model: CoordinateGroup
+
+        +display(): void
+        +filter_list(label: String): List<CoordinateGroup>
+        +clear_filter(): void
+    }
+}
+
+package controller {
+    class CoordinateController {
+        -model: CoordinateGroup
+        -view: CoordinateView
+
+        +search_coordinates(): List<CoordinateGroup>
+        +convert_cartesian_to_polar(cartesian_coords: CartesionCoordinates): PolarCoordinates
+        +convert_polar_to_cartesian(polar_coords: PolarCoordinates): CartesionCoordinates
+    }
+}
+
+package model {
+    class DatabaseConnection {
+        -connection_url: String
+
+        +connect(): void
+        +disconnect(): void
+    }
+
+    class CoordinateModel {
+        -database_connection: DatabaseConnection
+
+        +save_coordinate_group(coord_group: CoordinateGroup): void
+        +fetch_all_coordinate_groups(): List<CoordinateGroup>
+    }
+    
+    class CoordinateGroup {
+        +id: int
+        +label: String
+        -cartesian_coordinates: CartesionCoordinates
+        -polar_coordinates: PolarCoordinates
+
+        +create(): void
+        +update(): void
+        +delete(): void
+        +read(): List<CoordinateGroup>
+    }
+
+    class CartesionCoordinates {
+        +x: BigDecimal
+        +y: BigDecimal
+    }
+
+    class PolarCoordinates {
+        +r: BigDecimal
+        +theta: BigDecimal
+    }
+}
+
+model.CoordinateGroup -u-> view.CoordinateView : composition
+view.CoordinateView --> model.CoordinateGroup : composition
+
+model.CoordinateGroup --> model.CartesionCoordinates : composition
+model.CoordinateGroup --> model.PolarCoordinates : composition
+
+controller.CoordinateController --> model.CoordinateGroup : composition
+view.CoordinateView --> controller.CoordinateController : composition
+
+model.DatabaseConnection --|> model.CoordinateModel : aggregation
+model.CoordinateModel --|> model.DatabaseConnection : aggregation
+@enduml

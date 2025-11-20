@@ -1,0 +1,111 @@
+@startuml DCC_Application_Class_Diagram
+
+' Client-Side (Java Swing GUI)
+package client {
+    class DCCApp {
+        - String appName
+        - JFrame mainFrame
+        - CreateGroupFrame createFrame
+        - ViewGroupFrame viewFrame
+        
+        + void initGUI()
+        + void showCreateFrame()
+        + void showViewFrame()
+    }
+
+    abstract class CoordinateGroup {
+        - int id
+        - String label
+        - DateTime timestamp
+    }
+
+    class CartesianGroup extends CoordinateGroup {
+        - double x
+        - double y
+    }
+
+    class PolarGroup extends CoordinateGroup {
+        - double r
+        - double theta
+    }
+
+    class CreateGroupFrame {
+        - JTextField xField
+        - JTextField yField
+        - JTextField rField
+        - JTextField thetaField
+        - JButton convertButton
+        - JButton saveButton
+        
+        + void initialize()
+        + void handleConvert()
+        + void handleSave()
+    }
+
+    class ViewGroupFrame {
+        - JTable groupsTable
+        - JButton refreshButton
+        - JButton modifyButton
+        - JButton deleteButton
+        
+        + void initialize()
+        + void handleRefresh()
+        + void handleModify()
+        + void handleDelete()
+    }
+
+    class CoordinateManager {
+        + createCartesianGroup(double x, double y): CartesianGroup
+        + createPolarGroup(double r, double theta): PolarGroup
+        + convertToPolar(CartesianGroup group): PolarGroup
+        + convertToCartesian(PolarGroup group): CartesianGroup
+    }
+
+    class DatabaseAccessManager {
+        - NetworkCommunicator communicator
+        
+        + saveCoordinateGroup(CoordinateGroup group)
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup group)
+        + deleteCoordinateGroup(int id)
+    }
+}
+
+' Server-Side (Database and Communication)
+package server {
+    class DatabaseServer {
+        - MySQLConnector dbConnector
+        
+        + storeCoordinateGroup(CoordinateGroup group)
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup group)
+        + deleteCoordinateGroup(int id)
+    }
+
+    class MySQLConnector {
+        - Connection dbConnection
+        
+        + void connect()
+        + void disconnect()
+        + executeQuery(String query): ResultSet
+    }
+}
+
+' Communication Layer
+class NetworkCommunicator {
+    - Socket clientSocket
+    
+    + void connectToServer(String host, int port)
+    + void sendRequest(String request)
+    + String receiveResponse(): String
+}
+
+' Relationships and Associations
+DCCApp --* CreateGroupFrame
+DCCApp --* ViewGroupFrame
+CreateGroupFrame --* CoordinateManager
+CoordinateManager --* ConversionService
+DatabaseAccessManager --* NetworkCommunicator
+NetworkCommunicator --* DatabaseServer
+
+@enduml

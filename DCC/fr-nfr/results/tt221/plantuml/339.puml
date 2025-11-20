@@ -1,0 +1,61 @@
+@startuml
+package frontend {
+  class SwingUI {
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + getCoordinateInput() : Coordinate
+    + getLabelInput() : String
+    + getSelectedGroupId() : int
+    + updateDisplay()
+  }
+}
+
+package logic {
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double) : PolarCoordinate
+    + polarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinate: CartesianCoordinate
+    - polarCoordinate: PolarCoordinate
+    - timestamp: Date
+
+    + CoordinateGroup(label: String, cartesianCoordinate: CartesianCoordinate)
+    + update(cartesianCoordinate: CartesianCoordinate) : void
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+
+    + CartesianCoordinate(x: double, y: double)
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+
+    + PolarCoordinate(r: double, theta: double)
+  }
+}
+
+package data {
+  class DatabaseManager {
+    - connection: MySQLConnection
+
+    + createCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+
+SwingUI --> logic.CoordinateConverter : uses
+SwingUI --> DatabaseManager : uses
+
+DatabaseManager "1" --> "*" logic.CoordinateGroup : stores
+
+@enduml

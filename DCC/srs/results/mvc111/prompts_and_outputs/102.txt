@@ -1,0 +1,145 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+package model {
+  class CoordinateGroup {
+    +Integer id
+    +String label
+    +Date timestamp
+    +Float r
+    +Float theta
+    +Float x
+    +Float y
+    
+    +getLabel()
+    +getId()
+    +getTimestamp()
+    +getR()
+    +getTheta()
+    +getX()
+    +getY()
+  }
+  
+  class DatabaseManager {
+    -String connectionString
+    -Boolean isConnected
+    
+    +connect(): Boolean
+    +disconnect(): void
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +getCoordinateGroupById(Integer id): CoordinateGroup
+    +getCoordinateGroupByLabel(String label): List<CoordinateGroup>
+    +saveCoordinateGroup(CoordinateGroup group): Boolean
+    +deleteCoordinateGroup(Integer id): Boolean
+  }
+  
+  class CoordinatesConverter {
+    +convertPolarToCartesian(Float r, Float theta): Tuple<Float, Float>
+    +convertCartesianToPolar(Float x, Float y): Tuple<Float, Float>
+  }
+}
+
+package view {
+  class MainWindow {
+    +Button btnViewAll
+    +Button btnViewByLabel
+    +Button btnDelete
+    +TextField txtLabel
+    +CoordinateGroupList lstGroups
+    
+    +initialize(): void
+    +showMessage(String message): void
+  }
+  
+  class CoordinateGroupList {
+    +ListModel listModel
+    +void addItem(CoordinateGroup group): void
+    +void clearItems(): void
+  }
+}
+
+package controller {
+  class Coordinator {
+    -DatabaseManager dbManager
+    -CoordinatesConverter converter
+    -MainWindow view
+    
+    +initialize(DatabaseManager dbManager, CoordinatesConverter converter, MainWindow view): void
+    +onViewAllClicked(): void
+    +onViewByLabelClicked(String label): void
+    +onDeleteClicked(Integer id): void
+  }
+}
+
+' Associations '
+MainWindow --> Coordinator
+Coordinator --> DatabaseManager
+Coordinator --> CoordinatesConverter
+DatabaseManager --> CoordinateGroup
+@enduml
+```
+
+### Explanation:
+
+1. **Model Layer:**
+   - `CoordinateGroup`: Represents a coordinate group with attributes and getter methods.
+   - `DatabaseManager`: Handles database operations like connecting, disconnecting, and CRUD operations for coordinate groups.
+   - `CoordinatesConverter`: Provides utility methods for converting between polar and Cartesian coordinates.
+
+2. **View Layer:**
+   - `MainWindow`: The main application window with UI components (buttons, text fields, list) and methods to handle user interactions.
+   - `CoordinateGroupList`: A custom widget for displaying coordinate groups in the main window.
+
+3. **Controller Layer:**
+   - `Coordinator`: Acts as an intermediary between the view and model layers. It receives input from the view, processes it using the model classes, and updates the view accordingly.
+
+4. **Associations:**
+   - The `MainWindow` class is associated with the `Coordinator` class to handle user interactions.
+   - The `Coordinator` class uses instances of `DatabaseManager` and `CoordinatesConverter` to interact with the database and convert coordinates.
+   - The `DatabaseManager` class is associated with `CoordinateGroup` to perform CRUD operations.
+
+This class diagram ensures a clean separation of concerns according to the MVC pattern, making the system modular, maintainable, and scalable.

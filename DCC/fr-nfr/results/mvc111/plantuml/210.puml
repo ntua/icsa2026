@@ -1,0 +1,77 @@
+@startuml
+
+package "Frontend" {
+  class DccView {
+    +displayCoordinateGroup(coordinateGroup)
+    +getUserInput()
+  }
+  
+  class DccController {
+    -DccModel model
+    +createCoordinateGroup()
+    +storeCoordinateGroup()
+    +retrieveCoordinateGroup(label)
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+}
+
+package "Model" {
+  class DccModel {
+    -Database database
+    -list<CoordinateGroup> coordinateGroups
+    
+    +createCoordinateGroup(cartesian, polar)
+    +storeCoordinateGroup(label)
+    +retrieveCoordinateGroup(label)
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+  
+  class CoordinateGroup {
+    -String label
+    -Date timestamp
+    -list<CartesianCoordinate> cartesianCoordinates
+    -list<PolarCoordinate> polarCoordinates
+    
+    +getLabel()
+    +setLabel()
+    +getTimestamp()
+    +addCartesianCoordinate()
+    +addPolarCoordinate()
+  }
+  
+  class CartesianCoordinate {
+    -double x
+    -double y
+    
+    +getX()
+    +setX()
+    +getY()
+    +setY()
+  }
+  
+  class PolarCoordinate {
+    -double r
+    -double theta
+    
+    +getR()
+    +setR()
+    +getTheta()
+    +setTheta()
+  }
+}
+
+package "Database" {
+  interface MySQLDatabase {
+    +saveData(data: String)
+    +fetchData(query: String): String
+  }
+  
+  MySQLDatabase <|-- DccModel
+}
+
+DccController --> DccView
+DccController --> DccModel
+
+@enduml

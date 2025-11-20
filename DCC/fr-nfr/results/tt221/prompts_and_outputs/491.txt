@@ -1,0 +1,168 @@
+Response:
+Below is an example PlantUML diagram that implements a three-tier architecture (UI, Logic, Data) and captures the classes, attributes, methods, and relationships described in the requirements. You can copy this into a `.puml` file or an online PlantUML renderer.
+
+```plantuml
+@startuml
+
+' ========================================================
+' Packages to illustrate the Three-Tier Architecture
+' ========================================================
+package "UI (Presentation Layer)" as UI {
+    class DCCMainGUI {
+        - coordinateGroupService : CoordinateGroupService
+        --
+        + showUI(): void
+        + addButtonListener(): void
+        + updateButtonListener(): void
+        + deleteButtonListener(): void
+        + filterList(label: String): void
+        + clearFilter(): void
+        --
+        + main(args: String[]): void
+    }
+}
+
+package "Logic (Business Layer)" as Logic {
+    interface CoordinateGroupService {
+        + createGroup(label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + readAllGroups(): List<CoordinateGroup>
+        + updateGroup(id: int, label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + deleteGroup(id: int): void
+        + filterGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateGroupServiceImpl implements CoordinateGroupService {
+        - dao : CoordinateGroupDAO
+        - converter : CoordinateConverter
+        --
+        + createGroup(label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + readAllGroups(): List<CoordinateGroup>
+        + updateGroup(id: int, label: String, xOrR: double, yOrTheta: double, isCartesian: boolean): void
+        + deleteGroup(id: int): void
+        + filterGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + polarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - timestamp : Date
+        - cartesian : CartesianCoordinate
+        - polar : PolarCoordinate
+        --
+        + getId(): int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+        + setId(id: int): void
+        + setLabel(label: String): void
+        + setTimestamp(timestamp: Date): void
+        + setCartesian(c: CartesianCoordinate): void
+        + setPolar(p: PolarCoordinate): void
+    }
+
+    class CartesianCoordinate {
+        - x : double
+        - y : double
+        --
+        + getX(): double
+        + getY(): double
+        + setX(x: double): void
+        + setY(y: double): void
+    }
+
+    class PolarCoordinate {
+        - r : double
+        - theta : double
+        --
+        + getR(): double
+        + getTheta(): double
+        + setR(r: double): void
+        + setTheta(theta: double): void
+    }
+}
+
+package "Data (Persistence Layer)" as Data {
+    interface CoordinateGroupDAO {
+        + create(group: CoordinateGroup): void
+        + readAll(): List<CoordinateGroup>
+        + update(group: CoordinateGroup): void
+        + delete(id: int): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class MySQLCoordinateGroupDAO implements CoordinateGroupDAO {
+        - dbConnection : DBConnection
+        --
+        + create(group: CoordinateGroup): void
+        + readAll(): List<CoordinateGroup>
+        + update(group: CoordinateGroup): void
+        + delete(id: int): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class DBConnection {
+        + getConnection(): java.sql.Connection
+    }
+}
+
+' ========================================================
+' Relationships
+' ========================================================
+
+' UI -> Logic
+UI.DCCMainGUI --> Logic.CoordinateGroupService : uses
+
+' Logic -> Data
+Logic.CoordinateGroupServiceImpl --> Data.CoordinateGroupDAO : uses
+
+' Logic -> Logic
+Logic.CoordinateGroupServiceImpl --> Logic.CoordinateConverter : uses
+
+' Data -> Data
+Data.MySQLCoordinateGroupDAO --> Data.DBConnection : uses
+
+' CoordinateGroup composition of CartesianCoordinate and PolarCoordinate
+Logic.CoordinateGroup *-- Logic.CartesianCoordinate
+Logic.CoordinateGroup *-- Logic.PolarCoordinate
+
+@enduml
+```
+
+### Explanation of the Diagram
+
+1. **UI (Presentation Layer)**  
+   - **DCCMainGUI**  
+     - Responsible for displaying the user interface (Java Swing).  
+     - Maintains a reference to `CoordinateGroupService` to perform Create, Read, Update, and Delete operations.  
+     - Provides methods to handle button listeners (`add`, `update`, `delete`) and to filter the coordinate group list by label.
+
+2. **Logic (Business Layer)**  
+   - **CoordinateGroupService** (Interface)  
+     - Defines the contract for coordinating create, read, update, delete, and filter operations related to coordinate groups.  
+   - **CoordinateGroupServiceImpl** (Implementation)  
+     - Implements the methods declared in `CoordinateGroupService`.  
+     - Depends on a `CoordinateGroupDAO` (to persist data) and on a `CoordinateConverter` (to handle coordinate transformations).  
+   - **CoordinateConverter**  
+     - Provides conversion methods between Cartesian and Polar coordinates.  
+   - **CoordinateGroup**  
+     - Represents a single record containing both Cartesian and Polar coordinates, along with a unique `id`, a `label`, and a `timestamp`.  
+     - Composes two coordinate classes (`CartesianCoordinate` and `PolarCoordinate`) because a `CoordinateGroup` owns them.  
+   - **CartesianCoordinate** / **PolarCoordinate**  
+     - Simple data classes holding high-precision values (`double` in Java) for Cartesian (`x`, `y`) and Polar (`r`, `theta`) coordinates, respectively.
+
+3. **Data (Persistence Layer)**  
+   - **CoordinateGroupDAO** (Interface)  
+     - Declares methods to create, read, update, delete, and filter coordinate group records.  
+   - **MySQLCoordinateGroupDAO** (Implementation)  
+     - Implements the `CoordinateGroupDAO` interface with MySQL-specific logic.  
+     - Uses a `DBConnection` object to communicate with the MySQL database.  
+   - **DBConnection**  
+     - Provides a method (`getConnection()`) to obtain a `java.sql.Connection` to the database, managing TCP/IP settings and other connection details.
+
+This design follows the Single Responsibility Principle by separating concerns into distinct classes (presentation, business logic, and data persistence), and it ensures each layer communicates with the next through clearly defined interfaces and references.

@@ -1,0 +1,75 @@
+@startuml
+package "Application" {
+}
+
+package "Database" {
+}
+
+package "Coordinate Conversion" {
+}
+
+package "BookManager" {
+}
+
+package "UserManager" {
+}
+
+package "TransactionManager" {
+}
+
+Application <|-- Database : uses
+CoordinateConversion <|-- Application : depends on
+BookManager --right-> Database : saves data and fetches data
+UserManager --left-> Database : saves data and fetches data
+TransactionManager --> Database : saves data and fetches data  
+
+class Book {  
+  - id: int  
+}
+
+class CoordinateGroup {  
+  + cartesianCoordinates: String[]  
+  + polarCoordinates: String[]  
+}
+
+class User {  
+  - userId: Int  
+  - name: String  
+  - contactInfo: String  
+}
+
+class Transaction {  
+  + transactionId: int  
+  + bookId: int  
+  + userId: int  
+  + transactionDate: Date  
+}
+
+class CoordinateConversion {  
+  + calculatePolar(x: Double, y: Double): (Double, Double)
+}
+
+package "Database Server" {
+  class Database{
+  + saveData()
+  + fetchData(): String  
+ }
+}
+
+TransactionManager --> DatabaseServer : uses methods
+UserManager --> DatabaseServer : uses methods  
+BookManager --> TransactionManager : saves and retrieves transaction data
+
+Application <|.. BookManager : depends on
+Application <|.. UserManager : depends on
+Application <|.. TransactionManager : depends on
+Application <|.. CoordinateConversion : depends on  
+
+DatabaseServer <|-- Application : uses methods
+BookManager --right-> DatabaseServer : saves and retrieves book data
+UserManager --left-> DatabaseServer : saves and retrieves user data
+TransactionManager --> DatabaseServer : saves and retrieves transaction data  
+
+CoordinateConversion --> CoordinateGroup : contains
+
+@enduml

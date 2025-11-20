@@ -1,0 +1,55 @@
+@startuml
+title Dummy Coordination Conversion Application - Class Diagram (Client-Server Architecture)
+
+package "Client" {
+  class DCCApp {
+    - coordinateManager: CoordinateManager
+    
+    + run()
+  }
+  
+  class CoordinateManager {
+    + createCoordinateGroup(cartesianX: Float, cartesianY: Float, polarR: Float, polarTheta: Float): Integer
+    + modifyCoordinateGroup(id: Integer, ...newValues...) : Void
+    + deleteCoordinateGroup(id: Integer) : Void
+    + retrieveAllGroups() : List<CoordinateGroup>
+    + retrieveGroupByLabel(label: String) : CoordinateGroup
+  }
+}
+
+package "Server" {
+  class MySQLDatabase {
+    - connection: TCPConnection
+    
+    + storeCoordinateGroup(group: CoordinateGroup): Void
+    + getCoordinateGroupById(id: Integer): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getGroupByLabel(label: String): CoordinateGroup
+    
+    -- Connection management methods ...
+  }
+  
+  class TCPConnection {
+    + establishConnection() : Void
+    + sendData(data: Any) : Void
+    + receiveData() : Any
+  }
+}
+
+class CoordinateGroup {
+  - id: Integer
+  - label: String
+  - timestamp: Date
+  - cartesianX: Float
+  - cartesianY: Float
+  - polarR: Float
+  - polarTheta: Float
+  
+  + setLabel(newLabel: String) : Void
+  + getCartesian() : (Float, Float)
+  + getPolar() : (Float, Float)
+}
+
+DCCApp .--> CoordinateManager  #lightgray
+CoordinateManager *-- MySQLDatabase   #lightgray
+@enduml

@@ -1,0 +1,113 @@
+@startuml DCCClassDiagram
+
+' Packages and Classes
+
+package "model" {
+    class CartesianCoordinate {
+        +x: double
+        +y: double
+        +getCartesian(): Double[]
+        +setX(double x)
+        +setY(double y)
+    }
+
+    class PolarCoordinate {
+        +r: double
+        +theta: double
+        +getPolar(): Double[]
+        +setR(double r)
+        +setTheta(double theta)
+    }
+
+    class CoordinateGroup <<Entity>> {
+        +id: Integer
+        +cartesian: CartesianCoordinate
+        +polar: PolarCoordinate
+        +label: String
+        +datetime: Date
+        +getGroupId(): Integer
+        +setLabel(String label)
+    }
+}
+
+package "client" {
+    class DCCApplication <<UI>> {
+        -mainFrame: JFrame
+        -inputPanel: CoordinateInputPanel
+        -resultDisplay: ResultDisplayPanel
+        -listController: Controller
+        +initialize()
+        +showMainFrame()
+    }
+
+    abstract class AbstractPanel {
+        {abstract}
+        #frames
+        +initializeComponents()
+    }
+
+    class CoordinateInputPanel <<UI>> {
+        -inputFields: JTextField[]
+        +getCoordinateValues(): Double[][]
+        +clearInputFields()
+    }
+
+    class ResultDisplayPanel <<UI>> {
+        -resultFields: JLabel[]
+        +updateResultDisplay(CartesianCoordinate, PolarCoordinate)
+    }
+}
+
+package "client.controller" {
+    class Controller {
+        -conversionService: ConversionService
+        -listManager: CoordinateGroupManager
+        +handleInputEvent()
+        +processConversionRequest()
+    }
+}
+
+package "server" {
+    class ConversionService <<Service>> {
+        +convertCartesianToPolar(CartesianCoordinate): PolarCoordinate
+        +convertPolarToCartesian(PolarCoordinate): CartesianCoordinate
+        +validateCoordinateValues(Double[])
+    }
+
+    class CoordinateGroupManager <<Manager>> {
+        -conversionService: ConversionService
+        -dbManager: DatabaseManager
+        +saveCoordinateGroup(CoordinateGroup)
+        +loadCoordinateGroups(): List<CoordinateGroup>
+        +updateCoordinateGroup(CoordinateGroup)
+        +deleteCoordinateGroup(Integer)
+    }
+}
+
+package "dal" {
+    class DatabaseManager <<Repository>> {
+        -connection: Connection
+        +getConnection(): Connection
+        +saveCoordinateGroup(CoordinateGroup)
+        +loadCoordinateGroups(): List<CoordinateGroup>
+        +updateCoordinateGroup(CoordinateGroup)
+        +deleteCoordinateGroup(Integer)
+    }
+}
+
+' Associations
+
+DCCApplication --> Controller
+Controller --> ConversionService
+Controller --> CoordinateGroupManager
+CoordinateGroupManager --> DatabaseManager
+DatabaseManager --> CoordinateGroup: uses
+
+CartesianCoordinate <-- CoordinateGroup
+PolarCoordinate <-- CoordinateGroup
+CoordinateInputPanel <-- DCCApplication
+ResultDisplayPanel <-- DCCApplication
+ConversionService <-- Controller
+CoordinateGroupManager <-- Controller
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+
+package "Frontend (Java Swing)" {
+  class UserInterface {
+    - controller: Controller
+  }
+}
+
+package "Controllers" as ctrl {
+  class Controller {
+    - model: Model
+    - view: UserInterface
+  }
+}
+
+package "Models" as mdl {
+  class Model {
+    - dbManager: DBManager
+    - coordinateGroup: CoordinateGroup
+  }
+}
+
+package "Database (MySQL)" {
+  class DBManager {
+    - connection: TCPIPConnection
+    - database: MySQLDatabase
+  }
+}
+
+class TCPIPConnection {}
+
+class MySQLDatabase {}
+
+class CoordinateGroup {
+  - id: Integer
+  - label: String
+  - timestamp: DateTime
+  - cartesianCoordinates: List<CartesianCoordinate>
+  - polarCoordinates: List<PolarCoordinate>
+  
+  + setCartesianCoordinates(coordinates: List<CartesianCoordinate>)
+  + setPolarCoordinates(coordinates: List<PolarCoordinate>)
+  + toLabeledString(): String
+}
+
+class CartesianCoordinate {
+  - x: Float
+  - y: Float
+}
+
+class PolarCoordinate {
+  - r: Float
+  - theta: Float
+}
+
+UserInterface -- Controller
+Controller --> Model : uses
+Model --> DBManager : uses
+DBManager --> TCPIPConnection : uses
+DBManager --> MySQLDatabase : uses
+
+@enduml

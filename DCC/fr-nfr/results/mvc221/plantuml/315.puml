@@ -1,0 +1,51 @@
+@startuml
+class Model {
+    +CartesianCoord cartesian: CartesianCoord
+    +PolarCoord polar: PolarCoord
+    +List<CoordinateGroup> coordinateGroups: List[CoordinateGroup]
+    
+    +convertToPolar(x: double, y: double): PolarCoord = > x, y
+    +convertFromPolar(r: double, theta: double): CartesianCoord => r, theta 
+    +createCoordinateGroup() : CoordinateGroup = new CoordinateGroup()
+}
+
+class View {
+    +DisplayPanel displayPanel: DisplayPanel
+}
+
+class Controller {
+    +ControllerApp controllerApp: ControllerApp
+    
+    +addNewCoordinateGroup(groupName: String) => view.displayPanel.updateList(controller.model.createCoordinateGroup(groupName))
+    +updateExistingCoordinateGroup(id: Integer, newValues: CartesianCoord, newLabel: String) => view.displayPanel.updateRecord(newValue)
+}
+
+class CoordinateGroup {
+    -identifier id: Int = > 1; timestamp: DateTime
+    -label groupName : String
+    
+    +cartesianValues(): List[CartesianCoord]
+    +polarValues() : List[PolarCoord]
+    +addNewValue(value: CartesianCoord) => model.updateRecord() 
+}
+
+class CartesianCoord {
+    -x: Double = > 1; y: Double
+    
++convertToPolar(): PolarCoord
+}
+
+class PolarCoord {
+    -r: Double
+    -theta: Double = > Degree(0, 360)
+    
++convertFromCartesian(): CartesianCoord
+}
+
+package Database {
+    class MySqlDB{}
+    class MySqlConnection
+}
+
+MySqlDB ^..MySqlConnection
+@enduml

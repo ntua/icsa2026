@@ -1,0 +1,65 @@
+@startuml
+' Class Diagram for Dummy Coordination Conversion Application
+' Using Client-Server Architecture 
+
+' Define Packages
+package "Frontend" <<JavaSwing>> {
+    class UserInterface {
+        + addCoordinateGroup()
+        + updateCoordinateGroup(int id)
+        + deleteCoordinateGroup(int id)
+        + filterGroupsByLabel(String label)
+        + clearFilter()
+        
+        - coordinateList = List<CoordinateGroup>
+        - selectedId: int
+    }
+}
+
+package "Logic" <<Java>> {
+    class CoordinateGroupConverter {
+        + cartesianToPolar(Double x, Double y) : PolarCoordinates
+        + polarToCartesian(Double r, Double theta) : CartesianCoordinates
+
+        - CARTESIAN_TO_POLAR_FORMULA = ... 
+        - POLAR_TO_CARTESIAN_FORMULA = ... 
+    }
+    
+    class CoordinateGroup {
+        + create() : int id
+        + read() : List<CoordinateGroup>
+        
+        - id: int
+        - label: String
+        - cartesian: CartesianCoordinates
+        - polar: PolarCoordinates
+        - timestamp: Datetime
+    }
+}
+
+package "Database Server" <<MySQL>> {
+    class CoordinateGroupRecord {
+        + save(CoordinateGroup group)
+        + retrieveAll(): List<CoordinateGroup>
+        + update(int id, CoordinateGroup group)
+        + delete(int id)
+        
+        - DB_CONNECTION = TCP/IP
+    }
+    
+    class Database {
+        + connect() : Connection
+        - SERVER_ADDRESS: String
+        - PORT: int
+        - USERNAME: String
+        - PASSWORD: String
+    }
+}
+
+
+' Associations 
+UserInterface ..> CoordinateGroupConverter : Converts coords
+UserInterface ..> CoordinateGroup : Manages coordinate groups
+CoordinateGroupConverter ..> CoordinateGroup : Uses group data for conversion
+CoordinateGroup <.. CoordinateGroupRecord : Persistence
+@enduml

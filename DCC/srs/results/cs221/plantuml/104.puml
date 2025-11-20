@@ -1,0 +1,71 @@
+@startuml Client-Server Class Diagram
+
+package "Client" {
+  package "gui" {
+    class CoordinateGroupGUI {
+      + {field} -coordinateGroups : List<CoordinateGroup>
+      + {method} -initialize(): void
+      + {method} -showCoordinateGroupList(): void
+      + {method} -createNewCoordinateGroup(CoordinateGroup): void
+      + {method} -updateCoordinateGroup(CoordinateGroup): void
+      + {method} -deleteCoordinateGroup(int): void
+    }
+  }
+
+  package "controllers" {
+    class CoordinateGroupController {
+      + {field} -gui: CoordinateGroupGUI
+      + {field} -service: CoordinateGroupService
+      + {method} -handleCreate(CoordinateGroup): void
+      + {method} -handleUpdate(CoordinateGroup): void
+      + {method} -handleDelete(int): void
+      + {method} -fetchCoordinateGroups(): List<CoordinateGroup>
+    }
+  }
+}
+
+package "Server" {
+  package "service" {
+    class CoordinateGroupService {
+      + {field} -dao: CoordinateGroupDAO
+      + {method} -createCoordinateGroup(CoordinateGroup): void
+      + {method} -updateCoordinateGroup(CoordinateGroup): void
+      + {method} -deleteCoordinateGroup(int): void
+      + {method} -getCoordinateGroups(): List<CoordinateGroup>
+    }
+  }
+
+  package "dao" {
+    class CoordinateGroupDAO {
+      + {field} -dbConnection: Connection
+      + {method} -create(CoordinateGroup): void
+      + {method} -update(CoordinateGroup): void
+      + {method} -delete(int): void
+      + {method} -findAll(): List<CoordinateGroup>
+    }
+  }
+
+  class Authenticator {
+    + {method} -authenticate(String, String): boolean
+  }
+}
+
+package "Models" {
+  class CoordinateGroup {
+    + {field} -id: int
+    + {field} -timestamp: Date
+    + {field} -label: String
+    + {field} -r: double
+    + {field} -theta: double
+    + {field} -x: double
+    + {field} -y: double
+  }
+}
+
+' Associations
+CoordinateGroupGUI --* CoordinateGroupController
+CoordinateGroupController --* CoordinateGroupService
+CoordinateGroupService --* CoordinateGroupDAO
+CoordinateGroupDAO --* Connection
+
+@enduml

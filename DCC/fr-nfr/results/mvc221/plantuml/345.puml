@@ -1,0 +1,65 @@
+@startuml
+package "frontend" {
+  class DCCView {
+    +displayCoordinateGroups()
+    +getCoordinateInput()
+    +getLabelInput()
+    +getSelectedGroupID()
+    +updateDisplay()
+    +filterCoordinateGroups(String label)
+  }
+
+  class DCCController {
+    - model: DCCModel
+    - view: DCCView
+    +handleAddOperation()
+    +handleUpdateOperation()
+    +handleDeleteOperation()
+    +handleFilterOperation()
+  }
+}
+
+package "backend" {
+  class DCCModel {
+    - coordinateGroups: List<CoordinateGroup>
+    +createCoordinateGroup(double x, double y, String label)
+    +getCoordinateGroup(int id): CoordinateGroup
+    +updateCoordinateGroup(int id, double x, double y, String label)
+    +deleteCoordinateGroup(int id)
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    +getCartesianX(): double
+    +getCartesianY(): double
+    +setCartesianCoordinates(double x, double y)
+
+    +getPolarR(): double
+    +getPolarTheta(): double
+    +setPolarCoordinates(double r, double theta)
+
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+  }
+
+}
+
+DCCView -- DCCController: Request/Response
+DCCController -- DCCModel: Access Data and Logic
+
+
+@enduml

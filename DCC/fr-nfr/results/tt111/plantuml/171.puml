@@ -1,0 +1,61 @@
+@startuml
+
+package "frontend" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups()
+    + createCoordinateGroup()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+}
+
+package "business logic" {
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double) : (r: double, theta: double)
+    + polarToCartesian(r: double, theta: double) : (x: double, y: double)
+  }
+
+  class CoordinateGroupManager {
+    - coordinateConverter: CoordinateConverter
+    + createCoordinateGroup(type: String, values: List<Double>, label: String): CoordinateGroup
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: Point
+    - polarCoordinates: PolarPoint
+  }
+
+  class Point {
+    - x: double
+    - y: double
+  }
+
+  class PolarPoint {
+    - r: double
+    - theta: double
+  }
+}
+
+package "data access" {
+  class DatabaseConnector {
+    + connectToDatabase()
+    + executeQuery(query: String) : List<Object>
+    + insertCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+}
+
+CoordinateGroupView --> CoordinateGroupManager : uses
+CoordinateGroupManager --> CoordinateConverter : uses
+CoordinateGroupManager -> DatabaseConnector : uses
+CoordinateGroup "1" *-- "*" Point : has
+CoordinateGroup "1" *-- "*" PolarPoint : has
+
+@enduml

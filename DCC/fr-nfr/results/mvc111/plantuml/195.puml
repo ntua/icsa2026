@@ -1,0 +1,83 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application Class Diagram - MVC Architecture
+
+package "Frontend" {
+    class DCCView {
+        + displayCoordinateGroups()
+        + showCoordinates(coordinateGroup: CoordinateGroup)
+        + updateLabel(label: String, coordinateGroup: CoordinateGroup)
+        + saveChanges()
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+    }
+
+    class CartesianConverter {
+        + convertToPolar(x: float, y: float): Polar
+        - polarResult : Polar
+    }
+
+    class PolarConverter {
+        + convertToCartesian(r: float, theta: float): Cartesian
+        - cartesianResult : Cartesian
+    }
+}
+
+package "Backend" {
+    class DCCController {
+        - model: DCCModel
+        - view: DCCView
+
+        + createCoordinateGroup()
+        + retrieveCoordinateGroups()
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+    }
+
+    class DCCModel {
+        - dbConnection : DatabaseConnection
+        - coordinateGroups: List<CoordinateGroup>
+
+        + fetchCoordinateGroup(label: String): CoordinateGroup
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + updateTimestamp()
+    }
+}
+
+class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian : Cartesian
+    - polar : Polar
+    - timestamp : Timestamp
+}
+
+class Cartesian {
+    - x: float
+    - y: float
+
+    + convertToPolar(): Polar
+}
+
+class Polar {
+    - r: float
+    - theta: float
+
+    + convertToCartesian(): Cartesian
+}
+
+class DatabaseConnection {
+    - dbHost: String
+    - dbPort : int 
+    - dbName : String 
+
+    + connectToDatabase() : boolean 
+    + executeQuery(query : String) : void 
+}
+
+DCCView .. DCCController
+DCCController .. DCCModel
+DCCController <.. CartesianConverter
+DCCController <.. PolarConverter
+DCCModel .. DatabaseConnection
+
+
+@enduml

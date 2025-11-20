@@ -1,0 +1,57 @@
+@startuml
+!include <C4/C4_Context>
+
+SHOW_LEGEND()
+
+package DCC_Application {
+  package "Client Tier" {
+    class SwingUI {
+      - coordinateGroups : List<CoordinateGroup>
+      + displayCoordinateGroups()
+      + handleCoordinateInput()
+      + saveCoordinateGroup()
+      + retrieveCoordinateGroup()
+      + deleteCoordinateGroup()
+    }
+  }
+
+  package "Server Tier" {
+    class CoordinateConverter {
+      + convertCartesianToPolar(cartesian: CartesianCoordinates) : PolarCoordinates
+      + convertPolarToCartesian(polar: PolarCoordinates) : CartesianCoordinates
+    }
+    class DatabaseManager {
+      - dbConnection: MySQLConnection
+      + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+      + retrieveCoordinateGroup(label: String) : CoordinateGroup
+      + getAllCoordinateGroups() : List<CoordinateGroup>
+      + deleteCoordinateGroup(id: Integer)
+    }
+
+  class CartesianCoordinates {
+    - x: Double
+    - y: Double
+  }
+
+  class PolarCoordinates {
+    - radius: Double
+    - theta: Double
+  }
+
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - creationTimestamp: DateTime
+    - coordinates: List<Coordinate>
+  }
+
+  class Coordinate {
+    + getValues(): List<Double>
+  }
+
+  SwingUI --> CoordinateConverter : uses
+  SwingUI --> DatabaseManager : uses
+  CoordinateGroup "1" *-- "*" Coordinate : contains
+}
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml
+package "Presentation Layer" {
+    class GUI {
+        - showAllCoordinates()
+        - showCoordinatesByLabel(label: String)
+        - addCoordinateGroup(source: String, values: List<Double>, label: String)
+        - updateCoordinateGroup(index: int, source: String, values: List<Double>, label: String)
+        - deleteCoordinateGroup(index: int)
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - polarCoordinates: PolarCoordinates
+        - cartesianCoordinates: CartesianCoordinates
+    }
+
+    class CoordinateConverter {
+        + convertToPolar(x: double, y: double): PolarCoordinates
+        + convertToCartesian(r: double, theta: double): CartesianCoordinates
+    }
+
+    class CoordinateGroupService {
+        - createCoordinateGroup(source: String, values: List<Double>, label: String): CoordinateGroup
+        - updateCoordinateGroup(group: CoordinateGroup, source: String, values: List<Double>, label: String): CoordinateGroup
+        - getAllCoordinateGroups(): List<CoordinateGroup>
+        - getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+        - deleteCoordinateGroup(group: CoordinateGroup)
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateGroupDAO {
+        - save(group: CoordinateGroup)
+        - update(group: CoordinateGroup)
+        - getAll(): List<CoordinateGroup>
+        - getByLabel(label: String): List<CoordinateGroup>
+        - delete(group: CoordinateGroup)
+    }
+}
+
+package "Model" {
+    class PolarCoordinates {
+        - radius: double
+        - angle: double
+    }
+
+    class CartesianCoordinates {
+        - x: double
+        - y: double
+    }
+}
+
+GUI --> CoordinateGroupService
+CoordinateGroupService --> CoordinateGroupDAO
+CoordinateGroupService --> CoordinateConverter
+CoordinateGroup --> PolarCoordinates
+CoordinateGroup --> CartesianCoordinates
+
+@enduml

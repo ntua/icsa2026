@@ -1,0 +1,96 @@
+@startuml
+package "Client" {
+  package "UI" {
+    class DCCFrontend {
+      +createCoordinateGroup()
+      +storeCoordinateGroup()
+      +retrieveCoordinateGroup(label: String)
+      +modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +deleteCoordinateGroup(id: Integer)
+    }
+  }
+
+  package "BusinessLogic" {
+    class CoordinateGroupManager {
+      -coordinateGroups: List<CoordinateGroup>
+      -databaseConnection: DatabaseConnection
+      +createNewCoordinateGroup(cartesian: Cartesian, polar: Polar)
+      +storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +retrieveCoordinateGroup(id: Integer): CoordinateGroup
+      +modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +deleteCoordinateGroup(id: Integer)
+    }
+
+    class CoordinateConverter {
+      +convertCartesianToPolar(cartesian: Cartesian): Polar
+      +convertPolarToCartesian(polar: Polar): Cartesian
+    }
+  }
+
+  package "Database" {
+    class DatabaseConnection {
+      -database: MySQLDatabase
+      +connect()
+      +disconnect()
+      +storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +retrieveCoordinateGroup(id: Integer): CoordinateGroup
+      +modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +deleteCoordinateGroup(id: Integer)
+    }
+  }
+
+  class TCPConnection {
+    -socket: Socket
+    +connect()
+    +disconnect()
+    +sendRequest(request: Request)
+    +receiveResponse(): Response
+  }
+}
+
+package "Server" {
+  class DCCServer {
+    -coordinateGroupManager: CoordinateGroupManager
+    -databaseConnection: DatabaseConnection
+    -tcpConnection: TCPConnection
+    +handleRequest(request: Request): Response
+  }
+
+  package "Database" {
+    class MySQLDatabase {
+      -connectionPool: ConnectionPool
+      +connect()
+      +disconnect()
+      +storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +retrieveCoordinateGroup(id: Integer): CoordinateGroup
+      +modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+      +deleteCoordinateGroup(id: Integer)
+    }
+  }
+
+  class CoordinateGroup {
+    -cartesian: Cartesian
+    -polar: Polar
+    -label: String
+    -id: Integer
+    -timestamp: Timestamp
+    +equals(other: CoordinateGroup): Boolean
+    +hashCode(): Integer
+  }
+
+  class Request {
+    -coordinateGroup: CoordinateGroup
+    -action: Action
+    +equals(other: Request): Boolean
+    +hashCode(): Integer
+  }
+
+  class Response {
+    -result: Result
+    -error: Error
+    +equals(other: Response): Boolean
+    +hashCode(): Integer
+  }
+}
+
+@enduml

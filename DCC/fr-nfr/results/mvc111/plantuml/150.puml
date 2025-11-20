@@ -1,0 +1,63 @@
+@startuml
+
+package model {
+class CoordinateGroup {
+    +cartesianCoordinates: List<Pair>
+    +polarCoordinates: List<Triplet>
+    +label: String
+    
++createGroup(): void
+    +convertToCartesian(): void
+    +convertToPolar(): void
+}
+
+class DatabaseManager {
+    -database: MySQLDatabase
+    -connection: TCPConnection
+    
+  +connectDatabase() : Connection
+    +disconnectDatabase(): Void
+    +storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +retrieveByLabel(label: String): List<CoordinateGroup>
+    +viewAll(): List<CoordinateGroup>
+    +modifyCoordinateGroup(coordinateGroup: CoordinateGroup, newDetails: Map): void
+    +deleteCoordinateGroupById(id: int): void
+}
+}
+
+
+package controller {
+class CoordinateController {
+    -databaseManager: DatabaseManager
+    -view: View
+    
+    +handleUserInput(): void
+    +convertAndCreateGroup(inputType: String, inputValues: List<String>)
+    +saveGroupLabel()
+    +storeCoordinateGroupInDatabase() : int
+    +retrieveGroupsByLabel(label: String): List<CoordinateGroup>
+    +displayAllGroups(): void
+    +modifyGroupDetails(id: int, newValues: Map) : void
+    +deleteGroupById(id: int): void
+}
+}
+package view {
+
+class CoordinateView {
+    -coordController: CoordinateController
+    +displayMenu() : Void
+    +displayCoordinateGroups(coordinates: List<CoordinateGroup>): Void
+    +showMenu() : Void
+    +displayCoordinateGroups(groups: List<CoordinateGroup>): Void
+}
+} 
+
+package database {
+class CoordinateDatabase {
+    -manager: DatabaseManager
+    
+    +addLabelColumn(): void
+    +addTimestampColumn(): void
+}
+}
+@enduml

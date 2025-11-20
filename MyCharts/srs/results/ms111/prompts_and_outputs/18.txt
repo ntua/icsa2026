@@ -1,0 +1,148 @@
+Response:
+```plantuml
+@startuml
+left to right direction
+
+package "User Management Service" {
+    class UserService {
+        + authenticateUser(googleToken): User // Functional requirement
+        + getUserProfile(userId): UserProfile // Functional requirement
+        + updateUserProfile(userProfile): void // Data management operation
+        + syncUserProfile(userProfile): void // Data consistency operation
+    }
+
+    class UserProfile {
+        - userId: string
+        - name: string
+        - profilePicture: string
+        - email: string
+        - remainingQuota: int
+        - accountCreationTimestamp: timestamp
+        - lastLoginTimestamp: timestamp
+    }
+}
+
+package "Chart Generation Service" {
+    class ChartService {
+        + downloadTemplate(chartType): CSVTemplate // Functional requirement
+        + generateChart(userId, csvData, chartType): Chart // Functional requirement
+        + saveChart(chart): void // Data management operation
+        + validateCSV(csvData, chartType): boolean // Functional requirement
+        + decrementQuota(userId): void // Data management operation
+        + syncChartData(chart): void // Data consistency operation
+    }
+
+    class Chart {
+        - chartId: string
+        - userId: string
+        - chartType: string
+        - creationDate: timestamp
+        - highchartsJson: string
+        - formats: list<string>
+    }
+
+    class CSVTemplate {
+        - templateData: string
+    }
+}
+
+package "Chart History Service" {
+    class ChartHistoryService {
+        + getChartHistory(userId): list<Chart> // Functional requirement
+        + getChart(chartId): Chart // Functional requirement
+        + deleteChart(chartId): void // Data management operation
+    }
+}
+
+package "Quota Management Service" {
+    class QuotaService {
+        + purchaseQuota(userId, amount): boolean // Functional requirement
+        + validatePayment(paymentDetails): boolean // Functional requirement
+        + updateQuota(userId, amount): void // Data management operation
+        + syncQuota(userId): void // Data consistency operation
+    }
+}
+
+package "API Gateway" {
+    class APIGateway {
+        + routeRequest(request): response // Flow control operation
+    }
+}
+
+package "Payment Gateway" {
+    class PaymentGateway {
+        + processPayment(paymentDetails): boolean // Functional requirement
+    }
+}
+
+UserService "1" -- "1..*" ChartService : generates
+UserService "1" -- "1..*" ChartHistoryService : accesses
+UserService "1" -- "1..*" QuotaService : manages
+ChartService "1" -- "1..*" Chart : creates
+QuotaService "1" -- "1" PaymentGateway : uses
+APIGateway "1" -- "1..*" UserService : routes
+APIGateway "1" -- "1..*" ChartService : routes
+APIGateway "1" -- "1..*" ChartHistoryService : routes
+APIGateway "1" -- "1..*" QuotaService : routes
+UserService "1" -- "1" UserProfile : manages
+ChartService "1" -- "1" CSVTemplate : provides
+ChartHistoryService "1" -- "1" Chart : manages
+
+@enduml
+```
+
+```json
+{
+    "SI": [1, 1],
+    "DOC": [1, 0.75],
+    "SST": [1.0, 0.75],
+    "services": [
+        {
+            "service_name": "UserService",
+            "SIC": [3, 4],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [3, 3]
+        },
+        {
+            "service_name": "ChartService",
+            "SIC": [5, 5],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "ChartHistoryService",
+            "SIC": [3, 3],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "QuotaService",
+            "SIC": [4, 4],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [1, 1]
+        }
+    ],
+    "use_cases": [
+        {
+            "use_case_name": "Download CSV Template",
+            "SC": [["ChartService", "UserService", "APIGateway"], ["ChartService", "UserService", "APIGateway"]]
+        },
+        {
+            "use_case_name": "Upload CSV and Generate Chart",
+            "SC": [["ChartService", "UserService", "APIGateway"], ["ChartService", "UserService", "APIGateway"]]
+        },
+        {
+            "use_case_name": "View/Download Chart from History",
+            "SC": [["ChartHistoryService", "UserService", "APIGateway"], ["ChartHistoryService", "UserService", "APIGateway"]]
+        },
+        {
+            "use_case_name": "Purchase Additional Quotas",
+            "SC": [["QuotaService", "UserService", "APIGateway", "PaymentGateway"], ["QuotaService", "UserService", "APIGateway", "PaymentGateway"]]
+        },
+        {
+            "use_case_name": "View My Profile",
+            "SC": [["UserService", "APIGateway"], ["UserService", "APIGateway"]]
+        }
+    ]
+}
+```

@@ -1,0 +1,88 @@
+@startuml
+
+package "UI" {
+    class CoordinateUI {
+        + inputCoordinates()
+        + displayCoordinates()
+        + addCoordinateGroup()
+        + updateCoordinateGroup()
+        + deleteCoordinateGroup()
+        + filterCoordinateGroups(label: String)
+        + clearFilter()
+        + refreshDisplay()
+    }
+}
+
+package "Logic" {
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double): PolarCoordinate
+        + polarToCartesian(r: double, theta: double): CartesianCoordinate
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - cartesianCoordinate: CartesianCoordinate
+        - polarCoordinate: PolarCoordinate
+        + getId(): int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesianCoordinate(): CartesianCoordinate
+        + getPolarCoordinate(): PolarCoordinate
+        + setCartesianCoordinate(coord: CartesianCoordinate)
+        + setPolarCoordinate(coord: PolarCoordinate)
+    }
+
+    class CoordinateService {
+        + addCoordinateGroup(group: CoordinateGroup)
+        + updateCoordinateGroup(id: int, group: CoordinateGroup)
+        + deleteCoordinateGroup(id: int)
+        + listCoordinateGroups(): List<CoordinateGroup>
+        + filterCoordinateGroups(label: String): List<CoordinateGroup>
+    }
+
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        + getX(): double
+        + getY(): double
+        + setX(x: double)
+        + setY(y: double)
+    }
+
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        + getR(): double
+        + getTheta(): double
+        + setR(r: double)
+        + setTheta(theta: double)
+    }
+
+    CoordinateGroup "1" *-- "1" CartesianCoordinate
+    CoordinateGroup "1" *-- "1" PolarCoordinate
+    CoordinateService "1" *-- "*" CoordinateGroup
+}
+
+package "Data" {
+    class DatabaseConnection {
+        + connect(): Connection
+        + disconnect()
+    }
+
+    class CoordinateDAO {
+        + createCoordinateGroup(group: CoordinateGroup)
+        + readCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(id: int, group: CoordinateGroup)
+        + deleteCoordinateGroup(id: int)
+    }
+
+    DatabaseConnection "1" --> "1" CoordinateDAO
+}
+
+CoordinateUI "1" --> "1" CoordinateService
+CoordinateService "1" --> "1" CoordinateDAO
+CoordinateService "1" --> "1" CoordinateConverter
+
+@enduml

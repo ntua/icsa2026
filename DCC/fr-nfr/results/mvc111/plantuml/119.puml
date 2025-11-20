@@ -1,0 +1,73 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    + int id
+    + String label
+    + List<CartesianCoordinate> cartesianCoords
+    + List<PolarCoordinate> polarCoords
+    
+    + void addCart(CartesianCoordinate) 
+    + CartesianCoordinate getCart()
+    + void removeCart(int index)
+    
+    + void addPol(PolarCoordinate)
+    + PolarCoordinate getPol()
+    + void removePol(int index)
+  }
+  
+  class Database {
+    - List<CoordinateGroup> groups
+
+    + void addGroup(String label, CoordinateGroup group)
+    + CoordinateGroup searchByLabel(String label)
+    + List<CoordinateGroup> getAllGroups()
+    + boolean deleteGroup(String label)
+    
+    + Connection connectToDB()
+    
+  }
+}
+
+package "View" {
+  class CartesianConversionView {
+    - CoordinateGroup selectedGroup
+
+    + void showCartesianCoords() 
+    + void updateCartLabel(String newLabel)
+    + void addCartesianCoord(double x, double y) 
+    + void removeCartesianCoord(int index)
+    + void modifyCartesianCoord(int index, double x, double y)
+  }
+  
+  class PolarConversionView {
+    - CoordinateGroup selectedGroup
+
+    + void showPolarCoords()
+    + void updatePolLabel(String newLabel)
+    + void addPolarCoord(double r, double theta) 
+    + void removePolarCoord(int index)
+    + void modifyPolarCoord(int index, double r, double theta)
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupController {
+    - Database db
+    
+    + void createNewGroup()
+    + void fetchAllGroups()
+    
+    + String viewCartesianConversion(String label)
+    + String viewPolarConversion(String label)
+
+    + boolean deleteCoordinateGroup(String label)
+    
+  }
+}
+
+
+Database ..> "Model" : Uses 
+"View" ..> CoordinateGroupController: Requests/Responses 
+
+@enduml

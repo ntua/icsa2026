@@ -1,0 +1,49 @@
+@startuml
+package db {
+  class DBConnection
+}
+
+package "model" {
+  class CoordinateGroup {
+    - ID : Integer
+    - label : String
+    - timestamp : Date
+  }
+
+  class CartesianCoordinate {
+    - x : Integer
+    - y : Integer
+  }
+
+  class PolarCoordinate {
+    - r : double
+    - theta : double
+  }
+
+  class model {
+    +createCartesianCoordinate(x: Integer, y: Integer) : void
+    +createPolarCoordinate(r: double, theta: double) : void
+  }
+}
+
+package view {
+  class GUI {
+    - framework : String  // Adding attribute to clarify "Swing framework"
+  }
+}
+
+package controller {
+  class DCCController
+  class CoordinateGroupManager
+
+}
+
+db -> DBConnection
+model -> CoordinateGroup
+view -> GUI
+controller -> DCCController
+CoordinateGroup ..> CartesianCoordinate : composition
+CoordinateGroup ..> PolarCoordinate : composition
+DCCController ..> GUI : association
+CoordinateGroupManager ..> DCCController : composition
+@enduml

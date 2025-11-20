@@ -1,0 +1,54 @@
+@startuml
+' Client Side
+package "Client" {
+    class MainMenu {
+        - selectedOption : string
+        + displayOptions()
+        + handleUserInput()
+    }
+
+    class CoordinateGroupForm {
+        - label : string
+        - polarCoordinates : (r, theta)
+        - cartesianCoordinates : (x, y)
+        
+        + getLabel()
+        + setLabel(string)
+        
+        + getPolarCoordinates()
+        + setPolarCoordinates((r, theta))
+        
+        + getCartesianCoordinates()
+        + setCartesianCoordinates((x, y))
+    }
+
+    class CoordinateGroupDisplay {
+        - coordinateGroups : List<CoordinateGroup>
+        + displayCoordinateGroups()
+        + refreshDisplay()
+    }
+}
+
+' Server Side
+package "Server" {
+    interface DatabaseService {
+        + save(CoordinateGroup)
+        + delete(CoordinateGroup)
+        + getAll(): List<CoordinateGroup>
+    }
+
+    class MySQLDatabaseServiceImpl implements DatabaseService {
+        - databaseConnection : JDBCConnection
+        
+        + save(CoordinateGroup)
+        + delete(CoordinateGroup)
+        + getAll(): List<CoordinateGroup>
+    }
+}
+
+' Associations and Composition
+MainMenu ..> CoordinateGroupForm
+MainMenu ..> CoordinateGroupDisplay
+
+Client <.. Server
+@enduml

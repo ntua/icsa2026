@@ -1,0 +1,70 @@
+@startuml
+
+package "Client" {
+    class DCCApp {
+      - coordinateGroupManager: CoordinateGroupManager
+      + run()
+    }
+
+    class CoordinateGroupManager {
+      + createCoordinateGroup(type: String, values: double[])
+      + storeCoordinateGroup(group: CoordinateGroup)
+      + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+      + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+      + updateCoordinateGroup(groupId: int, newValues: double[], newLabel: String)
+      + deleteCoordinateGroup(groupId: int)
+    }
+
+}
+
+package "Server" {
+
+    class CoordinateGroup {
+       - id: int
+       - label: String
+       - timestamp: Date
+       - cartesianCoordinates: CartesianCoordinates
+       - polarCoordinates: PolarCoordinates
+
+       + getCartesianCoordinates(): CartesianCoordinates
+       + setCartesianCoordinates(coordinates: CartesianCoordinates)
+       + getPolarCoordinates(): PolarCoordinates
+       + setPolarCoordinates(coordinates: PolarCoordinates)
+    }
+
+    class CartesianCoordinates {
+        - x: double
+        - y: double
+    }
+
+    class PolarCoordinates {
+        - r: double
+        - theta: double
+    }
+
+    interface Database {
+      + saveCoordinateGroup(group: CoordinateGroup)
+      + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+      + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+      + updateCoordinateGroup(groupId: int, newValues: double[], newLabel: String)
+      + deleteCoordinateGroup(groupId: int)
+    }
+
+    class MySQLDatabase implements Database {
+        ...
+    }
+
+}
+
+DCCApp "1" -- "*" CoordinateGroupManager : uses 
+
+CoordinateGroupManager "1" -- "*" CoordinateGroup : manages
+
+CoordinateGroup "1" -- "1" CartesianCoordinates : has
+
+CoordinateGroup "1" -- "1" PolarCoordinates : has
+
+CoordinateGroupManager "1" -- "*" MySQLDatabase : communicates with
+
+
+@enduml

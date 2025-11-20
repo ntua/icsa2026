@@ -1,0 +1,70 @@
+@startuml
+!define DARKBLUE #0072b2
+skinparam classAttributeIconSize 0
+left to right direction
+
+package "model" {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: PolarCoordinate
+    - cartesianCoordinates: CartesianCoordinate
+    + getPolarCoordinates(): PolarCoordinate
+    + setPolarCoordinates(PolarCoordinate): void
+    + getCartesianCoordinates(): CartesianCoordinate
+    + setCartesianCoordinates(CartesianCoordinate): void
+  }
+
+  class PolarCoordinate {
+    - radius: double
+    - angle: double
+    + getRadius(): double
+    + setRadius(double): void
+    + getAngle(): double
+    + setAngle(double): void
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + getX(): double
+    + setX(double): void
+    + getY(): double
+    + setY(double): void
+  }
+
+  class CoordinateGroupDao {
+    - dbConnection: Connection
+    + createCoordinateGroup(CoordinateGroup): void
+    + deleteCoordinateGroup(int): void
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(String): CoordinateGroup
+  }
+
+}
+
+package "view" {
+  class CoordinateGroupView {
+    - coordinateGroupList: JList
+    - createButton: JButton
+    - deleteButton: JButton
+    + displayCoordinateGroups(List<CoordinateGroup>): void
+    + getSelectedCoordinateGroup(): CoordinateGroup
+  }
+}
+
+package "controller" {
+  class CoordinateGroupController {
+    - model: CoordinateGroupDao
+    - view: CoordinateGroupView
+    + handleCreateCoordinateGroupEvent(): void
+    + handleDeleteCoordinateGroupEvent(): void
+    + updateView(): void
+  }
+}
+
+CoordinateGroupController "*" -- "1" CoordinateGroupDao
+CoordinateGroupController "*" -- "1" CoordinateGroupView
+CoordinateGroupView "1" -- "*" CoordinateGroup: displays
+@enduml

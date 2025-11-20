@@ -1,0 +1,105 @@
+@startuml
+package com.dummycoordinationconversion {
+  class Coordinate {
+    - id : int
+    - label : String
+    - cartesian : CartesianCoordinate
+    - polar : PolarCoordinate
+
+    + getCartesian()
+    + getPolar()
+    + setCartesian(CartesianCoordinate)
+    + setPolar(PolarCoordinate)
+
+    + convertToPolar()
+    + convertToCartesian()
+
+  }
+}
+
+package com.dummycoordinationconversion.logic {
+  class DatabaseConnection {
+    - host : String
+    - port : int
+    - username : String
+    - password : String
+
+    + connect()
+    + disconnect()
+
+  }
+
+  class CoordinateDAO {
+    - databaseConnection : DatabaseConnection
+
+    + create(Coordinate)
+    + readAll()
+    + update(Coordinate)
+    + delete(int)
+
+  }
+}
+
+package com.dummycoordinationconversion.ui.swing {
+  class JFrame {
+    - title : String
+    - contentPane : JPanel
+
+    + setVisible(boolean)
+    + setDefaultCloseOperation()
+
+  }
+
+  class JTable {
+    - dataModel : DefaultTableModel
+    - columns : int[]
+
+    + getValueAt(int, int)
+
+  }
+}
+
+package com.dummycoordinationconversion.model {
+  class CartesianCoordinate {
+    - x : double
+    - y : double
+
+    + getx()
+    + gety()
+
+  }
+
+  class PolarCoordinate {
+    - r : double
+    - theta : double
+
+    + getr()
+    + gettheta()
+
+  }
+}
+
+package com.dummycoordinationconversion.logic.operation {
+  abstract class Operation {
+    - coordinate : Coordinate
+
+    + execute()
+  }
+
+  class CreateOp extends Operation {
+    + createRecord()
+  }
+
+  class ReadOp extends Operation {
+    + readAllRecords()
+  }
+
+  class UpdateOp extends Operation {
+    + updateRecord(Coordinate)
+  }
+
+  class DeleteOp extends Operation {
+    + deleteRecord(int)
+  }
+}
+@enduml

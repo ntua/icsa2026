@@ -1,0 +1,77 @@
+@startuml
+
+package Frontend {
+    class Frame {
+        + JButton addButton
+        + JButton updateButton
+        + JButton deleteButton
+        + JTextField labelField
+        + JTable coordinateGroupTable
+        + JTextArea textArea
+        + handleAddButtonAction()
+        + handleUpdateButtonAction()
+        + handleDeleteButtonAction()
+    }
+}
+
+package Logic {
+    abstract class Coordinate {
+        protected highPrecisionNumber x
+        protected highPrecisionNumber y
+        protected highPrecisionNumber r
+        protected highPrecisionNumber theta
+        
+        + convertCartesianToPolar()
+        + convertPolarToCartesian()
+    }
+    
+    class CartesianCoordinate extends Coordinate {
+        + getX()
+        + getY()
+    }
+    
+    class PolarCoordinate extends Coordinate {
+        + getR()
+        + getTheta()
+    }
+    
+    class CoordinateGroup {
+        private int id
+        private Date timestamp
+        private String label
+        private CartesianCoordinate cartesianCoordinate
+        private PolarCoordinate polarCoordinate
+        
+        + getId()
+        + getTimestamp()
+        + getLabel()
+        + getCartesianCoordinate()
+        + getPolarCoordinate()
+    }
+    
+    class CoordinateGroupManager {
+        - Database database
+        
+        + create(CoordinateGroup coordinateGroup)
+        + readAll()
+        + update(CoordinateGroup coordinateGroup)
+        + delete(int id)
+    }
+}
+
+package Database {
+    class Database {
+        + connect()
+        + disconnect()
+    }
+    
+    class MySQLDatabase extends Database {
+        + executeQuery(String sql)
+        + executeUpdate(String sql)
+    }
+}
+
+Frontend -> Logic.CoordinateGroupManager
+Logic.CoordinateGroupManager -> Logic.CoordinateGroup
+Logic.CoordinateGroupManager -> Database.MySQLDatabase
+@enduml

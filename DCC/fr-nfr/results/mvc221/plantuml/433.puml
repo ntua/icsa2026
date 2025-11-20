@@ -1,0 +1,53 @@
+@startuml
+
+skinparam class {
+  BackgroundColor white
+}
+
+package "MVC Architecture" <<arch>> {
+
+  package "Model" <<rectangle>> {
+
+    class CoordinateGroup {
+      id : int
+      label : string
+      cartesianX : double
+      cartesianY : double
+      polarR : double
+      polarTheta : double
+
+      +fetchCars()
+      -calculatePolar(double, double)
+      -calculateCartesian(double, double)
+    }
+
+  }
+
+  package "Controller" <<rectangle>> {
+
+    class DCCController {
+      model: CoordinateGroup
+      view: DCCView
+
+      +searchCoordinates()
+      +addCoordinateGroup()
+      +updateCoordinateGroup()
+      +deleteCoordinateGroup()
+    }
+  }
+
+  package "View" <<rectangle>> {
+
+    class DCCView {
+      -controller : DCCController
+      
+      +displayCoordinateGroups()
+      +getInputFromUser()
+    }
+  }
+}
+
+DCCController ..o CoordinateGroup  : Request Data/Response
+DCCController ..o DCCView          : Request/Response
+
+@enduml

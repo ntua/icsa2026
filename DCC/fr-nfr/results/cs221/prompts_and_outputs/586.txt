@@ -1,0 +1,133 @@
+Response:
+Below is an example PlantUML diagram that models the Dummy Coordination Conversion (DCC) Application. In this diagram, the classes are grouped into packages that separate the user interface (Swing-based), the controller (application flow), the logic (domain objects and conversion operations), and the data (database connection and CRUD operations). Each class lists some representative attributes and methods to satisfy the functional requirements and the Single Responsibility Principle.
+
+```plantuml
+@startuml
+'==============================
+' Package: User Interface (Swing)
+'==============================
+package ui {
+  class DccMainFrame {
+    - controller: controller.DccController
+    - coordinateGroupList: List<logic.CoordinateGroup>
+    --
+    + initComponents(): void
+    + addActionListeners(): void
+    + displayCoordinateGroups(groups: List<logic.CoordinateGroup>): void
+    + filterCoordinateGroups(label: String): void
+    + clearFilter(): void
+  }
+}
+
+'==============================
+' Package: Controller
+'==============================
+package controller {
+  class DccController {
+    - dao: data.CoordinateGroupDAO
+    - converter: logic.CoordinateConverter
+    --
+    + addCoordinateGroup(label: String, cartesian: logic.CartesianCoordinate): void
+    + updateCoordinateGroup(group: logic.CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + getAllCoordinateGroups(): List<logic.CoordinateGroup>
+    + filterCoordinateGroups(label: String): List<logic.CoordinateGroup>
+  }
+}
+
+'==============================
+' Package: Business Logic
+'==============================
+package logic {
+  class CartesianCoordinate {
+    - x: BigDecimal
+    - y: BigDecimal
+    --
+    + CartesianCoordinate(x: BigDecimal, y: BigDecimal)
+    + getX(): BigDecimal
+    + getY(): BigDecimal
+  }
+
+  class PolarCoordinate {
+    - r: BigDecimal
+    - theta: BigDecimal
+    --
+    + PolarCoordinate(r: BigDecimal, theta: BigDecimal)
+    + getR(): BigDecimal
+    + getTheta(): BigDecimal
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    - timestamp: Date
+    --
+    + CoordinateGroup(id: int, label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate, timestamp: Date)
+    + getId(): int
+    + getLabel(): String
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + getTimestamp(): Date
+  }
+
+  class CoordinateConverter {
+    --
+    + convertToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    + convertToCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+}
+
+'==============================
+' Package: Data (Persistence)
+'==============================
+package data {
+  class DatabaseConnection {
+    - connection: java.sql.Connection
+    --
+    + getConnection(): java.sql.Connection
+  }
+
+  class CoordinateGroupDAO {
+    - dbConnection: DatabaseConnection
+    --
+    + create(group: logic.CoordinateGroup): void
+    + readAll(): List<logic.CoordinateGroup>
+    + update(group: logic.CoordinateGroup): void
+    + delete(id: int): void
+  }
+}
+
+'==============================
+' Associations between packages/classes
+'==============================
+ui.DccMainFrame --> controller.DccController : "uses"
+controller.DccController --> data.CoordinateGroupDAO : "CRUD operations"
+controller.DccController --> logic.CoordinateConverter : "conversion"
+data.CoordinateGroupDAO --> DatabaseConnection : "uses"
+controller.DccController --> logic.CoordinateGroup : "manages"
+logic.CoordinateGroup --> CartesianCoordinate : "contains"
+logic.CoordinateGroup --> PolarCoordinate : "contains"
+
+@enduml
+```
+
+### Explanation
+
+- **ui Package (User Interface):**
+  - **DccMainFrame** is the Swing-based frame that handles user interactions (inputting coordinates, labels, filtering, etc.) and displays the list of coordinate groups. It depends on the controller for processing user actions.
+  
+- **controller Package (Application Flow):**
+  - **DccController** acts as the mediator between the UI, the data access objects, and the logic. It performs operations such as add, update, delete, and filtering coordinate groups.
+  
+- **logic Package (Business Logic):**
+  - **CartesianCoordinate** and **PolarCoordinate** represent the two coordinate types with high-precision values.
+  - **CoordinateGroup** aggregates a pair of coordinates (both cartesian and polar), along with a unique identifier, a label, and a timestamp.
+  - **CoordinateConverter** provides methods to convert between Cartesian and Polar coordinates.
+  
+- **data Package (Persistence):**
+  - **DatabaseConnection** encapsulates the TCP/IP connection to the MySQL database.
+  - **CoordinateGroupDAO** offers CRUD operations (create, read, update, delete) for managing coordinate groups in the database.
+
+This diagram respects the client–server thick client architecture by clearly separating the UI from the business logic and data persistence layers, and it adheres to the Single Responsibility Principle by ensuring each class has one well-defined role.

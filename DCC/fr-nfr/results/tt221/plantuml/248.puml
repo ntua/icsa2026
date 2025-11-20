@@ -1,0 +1,61 @@
+@startuml
+package "Logic Layer" {
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartesianCoordinates: CartesianCoordinate
+    - polarCoordinates: PolarCoordinate
+    + create(id: Integer): void
+    + read(): List<CoordinateGroup>
+    + update(coordinates: CartesianCoordinate, polarCoordinates: PolarCoordinate): void
+    + delete(id: Integer): void
+  }
+
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+    + calculatePolarCoordinate(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    - r: Double
+    - theta: Double
+    + calculateCartesianCoordinates(): CartesianCoordinate
+  }
+}
+
+package "Data Layer" {
+  class CoordinateGroupRepository {
+    + save(coordinateGroup: CoordinateGroup): void
+    + load(id: Integer): CoordinateGroup
+    + update(coordinateGroup: CoordinateGroup): void
+    + delete(id: Integer): void
+  }
+
+  class MySQLDatabaseConnection {
+    + connect(): void
+    + disconnect(): void
+    + execute(query: String): ResultSet
+  }
+}
+
+package "UI Layer" {
+  class DummyCoordinationConversionApplication {
+    - coordinateGroupRepository: CoordinateGroupRepository
+    - databaseConnection: MySQLDatabaseConnection
+    + run(): void
+    + addCoordinateGroup(label: String, cartesianCoordinates: CartesianCoordinate, polarCoordinates: PolarCoordinate): void
+    + updateCoordinateGroup(id: Integer, cartesianCoordinates: CartesianCoordinate, polarCoordinates: PolarCoordinate): void
+    + deleteCoordinateGroup(id: Integer): void
+  }
+
+  class SwingUserInterface {
+    - application: DummyCoordinationConversionApplication
+    + showAddButton(): void
+    + showUpdateButton(): void
+    + showDeleteButton(): void
+    + addFilter(label: String): void
+    + clearFilter(): void
+  }
+}
+@enduml

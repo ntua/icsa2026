@@ -1,0 +1,103 @@
+@startuml
+title DCC Application Class Diagram
+
+skinparam class {
+  StereotypeFontSize 12
+  AttributeFontSize 10
+  MethodFontSize 10
+}
+
+package "Frontend" <<Client>> {
+
+  class UserInterface {
+    - label: String
+    - coordinateGroup: CoordinateGroup
+
+    + setLabel(String)
+    + getLabel(): String
+    + setCoordinateGroup(CoordinateGroup)
+    + add()
+    + update()
+    + delete()
+    + filter()
+    + clearFilter()
+  }
+}
+
+
+package "Logic" <<Server>> {
+
+  class CartesianConverter {
+    - x: Double
+    - y: Double
+
+    + getX(): Double
+    + getY(): Double
+    + setX(Double)
+    + setY(Double)
+    + convertToPolar(): PolarCoordinates
+  }
+  
+  class PolarConverter {
+    - r: Double
+    - theta: Double
+
+    + getR(): Double
+    + getTheta(): Double
+    + setR(Double)
+    + setTheta(Double)
+    + convertToCartesian(): CartesianCoordinates
+  }
+
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartesianCoords: CartesianCoordinates
+    - polarCoords: PolarCoordinates
+
+    + getId(): Integer
+    + getLabel(): String
+    + getCartesianCoords(): CartesianCoordinates
+    + getPolarCoords(): PolarCoordinates
+    + setId(Integer)
+    + setLabel(String)
+    + setCartesianCoords(CartesianCoordinates)
+    + setPolarCoords(PolarCoordinates)
+  }
+
+  class CoordinateManager {
+    - coordinateGroups: List<CoordinateGroup>
+
+    + createOp()
+    + readOp(): List<CoordinateGroup>
+    + updateOp(coordinateGroup: CoordinateGroup)
+    + deleteOp(id: Integer)
+    + refreshReadList()
+  }
+}
+
+
+package "Database" <<Server>> {
+
+  class DataStorage {
+    - records: Map<Integer, CoordinateGroup>
+
+    + saveRecord(coordinateGroup: CoordinateGroup): void
+    + fetchRecords(): List<CoordinateGroup>
+    + updateRecord(id: Integer, coordinateGroup: CoordinateGroup)
+  }
+
+  class DatabaseConnection {
+    - connection: Connection
+
+    + connect(): Connection
+    + disconnect(): void
+  }
+}
+
+UserInterface .. CartesianConverter : converts cartesian to polar coordinates
+UserInterface .. PolarConverter : converts polar to cartesian coordinates
+CoordinateManager .. DataStorage : saves, reads and updates records
+DatabaseConnection .. DataStorage : connects to database
+
+@enduml

@@ -1,0 +1,79 @@
+@startuml
+
+package Frontend {
+  interface UserInteractions {
+    + inputCoordinateGroup(): Map<String, high-precision>;
+    + inputLabel(): String;
+    + selectOperation(): int;
+    + selectRecord(): int;
+    + filterByLabel(): String;
+  }
+
+  class SwingInterface implements UserInteractions {
+    # swingComponents: SwingComponents
+    
+    + SwingInterface(swingComponents: SwingComponents)
+    + inputCoordinateGroup(): Map<String, high-precision>
+    + inputLabel(): String
+    + selectOperation(): int
+    + selectRecord(): int
+    + filterByLabel(): String
+  }
+}
+
+package Logic {
+  interface CoordinateConverter {
+    + toPolar(x: high-precision, y: high-precision): Map<String, high-precision>
+    + toCartesian(r: high-precision, theta: high-precision): Map<String, high-precision>
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: DateTime
+    - label: String
+    - cartesian: Map<String, high-precision>
+    - polar: Map<String, high-precision>
+    
+    + CoordinateGroup(id: int, timestamp: DateTime, label: String, cartesian: Map<String, high-precision>, polar: Map<String, high-precision>)
+    + getId(): int
+    + setId(id: int)
+    + getTimestamp(): DateTime
+    + setTimestamp(timestamp: DateTime)
+    + getLabel(): String
+    + setLabel(label: String)
+    + getCartesian(): Map<String, high-precision>
+    + setCartesian(cartesian: Map<String, high-precision>)
+    + getPolar(): Map<String, high-precision>
+    + setPolar(polar: Map<String, high-precision>)
+  }
+
+  class DataManager {
+    # databaseConnector: DatabaseConnector
+    
+    + DataManager(databaseConnector: DatabaseConnector)
+    + createOp(coordinateGroup: CoordinateGroup): void
+    + readOp(): List<CoordinateGroup>
+    + updateOp(coordinateGroup: CoordinateGroup): void
+    + deleteOp(id: int): void
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - connection: DatabaseConnection
+    
+    + MySQLDatabase(connection: DatabaseConnection)
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroupById(id: int): void
+  }
+
+interface DatabaseConnection {
+}
+
+class TCPIPConnection implements DatabaseConnection {
+}
+}
+
+@enduml

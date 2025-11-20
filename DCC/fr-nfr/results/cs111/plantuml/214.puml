@@ -1,0 +1,28 @@
+@startuml  
+
+package "Server" {
+    package "Logic Layer" {
+        class OrderProcessor {
+            - paymentProcessor : PaymentProcessor
+            - inventoryManager : InventoryManager
+            + viewAllCoordinateGroups() : List<CoordinateGroup>
+            + createNewCoordinateGroup(cartesian: Cartesian, polar: Polar) : CoordinateGroup
+        }
+    }
+    
+    class DatabaseService {
+    + fetchAll() : List<CoordinateGroup>
+    + fetchById(id: Int) : CoordinateGroup
+} 
+}
+
+DatabaseService -- CoordinateGroupController: communicates with
+LogicLayer.OrderProcessor o-- DatabaseService: uses/accesses
+Storefront  --> CoordinateGroupController : uses
+UserInput -> CartesianConverter: receives
+PolarConverter  --> CartesianConverter: receives
+CartesianConverter o-- LogicLayer.OrderProcessor: delegates
+CoordinateGroupController o-- Storefront: delegates
+CoordinateGroupController --> DatabaseService: communicates with
+
+@enduml

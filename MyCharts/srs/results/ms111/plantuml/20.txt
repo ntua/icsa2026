@@ -1,0 +1,130 @@
+@startuml
+skinparam packageStyle rectangle
+
+'==========================================================
+'                  Gateway
+'==========================================================
+package "MyChartsGateway" {
+  class MyChartsGateway {
+    + downloadTemplate(userId, chartType) : CSVFile ' [flow control operation]
+    + uploadCSV(userId, chartType, csvFile) : Chart ' [flow control operation]
+    + viewChartHistory(userId) : List<Chart> ' [flow control operation]
+    + purchaseQuotas(userId, packageId) : Receipt ' [flow control operation]
+    + viewProfile(userId) : User ' [flow control operation]
+    + signInWithGoogle() : Token ' [flow control operation]
+  }
+}
+
+'==========================================================
+'                  Auth Service
+'==========================================================
+package "AuthService" {
+  class AuthController {
+    + signInWithGoogleOAuth() : Token ' [flow control operation]
+    + validateToken(token) : boolean ' [flow control operation]
+  }
+}
+
+'==========================================================
+'                  Profile Service
+'==========================================================
+package "ProfileService" {
+  class ProfileController {
+    + getUserProfile(userId) : User ' [data management operation]
+    + updateLastLogin(userId) : void ' [data management operation]
+    + updateQuota(userId, amount) : void ' [data management operation]
+  }
+
+  class User {
+    - userId : String
+    - name : String
+    - email : String
+    - profilePicture : String
+    - remainingQuota : int
+    - accountCreationDate : Date
+    - lastLoginDate : Date
+  }
+}
+
+'==========================================================
+'                  Chart Service
+'==========================================================
+package "ChartService" {
+  class ChartController {
+    + generateChart(csvData) : Chart ' [functional requirement-business logic operation]
+    + saveChart(chart) : void ' [data management operation]
+    + getChart(chartId) : Chart ' [data management operation]
+    + getChartsByUser(userId) : List<Chart> ' [data management operation]
+    + notifyQuotaDecrement(userId) : void ' [data consistency operation]
+  }
+
+  class Chart {
+    - chartId : String
+    - chartType : String
+    - creationDate : Date
+    - highchartsJson : String
+  }
+}
+
+'==========================================================
+'                  Template Service
+'==========================================================
+package "TemplateService" {
+  class TemplateController {
+    + getCSVTemplate(chartType) : CSVFile ' [functional requirement-business logic operation]
+  }
+
+  class CSVFile {
+    - fileName : String
+    - content : String
+  }
+}
+
+'==========================================================
+'                  Payment Service
+'==========================================================
+package "PaymentService" {
+  class PaymentController {
+    + purchaseQuota(userId, packageId) : Receipt ' [functional requirement-business logic operation]
+    + processPayment(paymentData) : PaymentResult ' [flow control operation]
+    + notifyProfileServiceQuotaIncrement(userId, purchasedQuota) : void ' [data consistency operation]
+  }
+
+  class PaymentTransaction {
+    - transactionId : String
+    - userId : String
+    - amount : double
+    - status : String
+    - timestamp : Date
+  }
+
+  class Receipt {
+    - receiptId : String
+    - userId : String
+    - purchasedQuota : int
+    - date : Date
+  }
+
+  class PaymentResult {
+    - success : boolean
+    - message : String
+  }
+}
+
+'==========================================================
+'                  Associations / Dependencies
+'==========================================================
+' Gateway calls various services
+MyChartsGateway --> AuthController : "signInWithGoogleOAuth(), validateToken()"
+MyChartsGateway --> TemplateController : "getCSVTemplate()"
+MyChartsGateway --> ChartController : "generateChart(), getChartsByUser(), getChart()"
+MyChartsGateway --> PaymentController : "purchaseQuota(), processPayment()"
+MyChartsGateway --> ProfileController : "getUserProfile(), updateLastLogin()"
+
+' ChartService calls ProfileService for quota decrement
+ChartController --> ProfileController : "notifyQuotaDecrement()"
+
+' PaymentService calls ProfileService for quota increment
+PaymentController --> ProfileController : "notifyProfileServiceQuotaIncrement()"
+
+@enduml

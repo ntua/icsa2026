@@ -1,0 +1,150 @@
+Response:
+Below is an example **PlantUML** class diagram that follows the **MVC** architecture and meets the requirements specified in the SRS. The diagram is split into three packages (**model**, **view**, and **controller**) and includes all major classes, their key attributes, methods, and relationships.
+
+```plantuml
+@startuml
+
+skinparam packageStyle rectangle
+skinparam packageTitleFontColor #FFFFFF
+skinparam packageTitleBackgroundColor #2E86C1
+
+' ==== Packages ====
+package "model" <<Folder>> {
+  ' -- CartesianCoordinate --
+  class CartesianCoordinate {
+    - x : double
+    - y : double
+    
+    + CartesianCoordinate(x : double, y : double)
+    + getX() : double
+    + setX(x : double) : void
+    + getY() : double
+    + setY(y : double) : void
+  }
+
+  ' -- PolarCoordinate --
+  class PolarCoordinate {
+    - r : double
+    - theta : double
+    
+    + PolarCoordinate(r : double, theta : double)
+    + getR() : double
+    + setR(r : double) : void
+    + getTheta() : double
+    + setTheta(theta : double) : void
+  }
+
+  ' -- CoordinateGroup --
+  class CoordinateGroup {
+    - id : int
+    - label : String
+    - createdAt : java.time.LocalDateTime
+    - cartesianCoord : CartesianCoordinate
+    - polarCoord : PolarCoordinate
+    
+    + getId() : int
+    + setId(id : int) : void
+    + getLabel() : String
+    + setLabel(label : String) : void
+    + getCreatedAt() : java.time.LocalDateTime
+    + setCreatedAt(time : java.time.LocalDateTime) : void
+    + getCartesianCoord() : CartesianCoordinate
+    + setCartesianCoord(cart : CartesianCoordinate) : void
+    + getPolarCoord() : PolarCoordinate
+    + setPolarCoord(polar : PolarCoordinate) : void
+  }
+
+  ' -- CoordinateConverter --
+  class CoordinateConverter {
+    + toPolar(cart : CartesianCoordinate) : PolarCoordinate
+    + toCartesian(polar : PolarCoordinate) : CartesianCoordinate
+  }
+
+  ' -- CoordinateGroupDAO --
+  class CoordinateGroupDAO {
+    + save(group : CoordinateGroup) : void
+    + update(group : CoordinateGroup) : void
+    + delete(id : int) : void
+    + findById(id : int) : CoordinateGroup
+    + findByLabel(label : String) : List<CoordinateGroup>
+    + findAll() : List<CoordinateGroup>
+  }
+}
+
+package "view" <<Folder>> {
+  ' -- DCCMainView --
+  class DCCMainView {
+    + showCoordinateGroups(groups : List<CoordinateGroup>) : void
+    + getUserInput() : void
+    + displayError(message : String) : void
+    + displaySuccess(message : String) : void
+    + ...
+  }
+}
+
+package "controller" <<Folder>> {
+  ' -- CoordinateGroupController --
+  class CoordinateGroupController {
+    - view : DCCMainView
+    - dao : CoordinateGroupDAO
+    - converter : CoordinateConverter
+
+    + createCoordinateGroup(coordType : String, xOrR : double, yOrTheta : double, label : String) : void
+    + updateCoordinateGroup(id : int, coordType : String, xOrR : double, yOrTheta : double, label : String) : void
+    + deleteCoordinateGroup(id : int) : void
+    + viewAllCoordinateGroups() : void
+    + viewCoordinateGroupByLabel(label : String) : void
+  }
+}
+
+' ==== Relationships and Associations ====
+' Composition: A CoordinateGroup is composed of a CartesianCoordinate and a PolarCoordinate
+CoordinateGroup *-- CartesianCoordinate : "has"
+CoordinateGroup *-- PolarCoordinate : "has"
+
+' The controller uses the DAO to persist/fetch data
+CoordinateGroupController --> CoordinateGroupDAO : "uses"
+
+' The controller also uses the converter for coordinate transformations
+CoordinateGroupController --> CoordinateConverter : "uses"
+
+' The controller communicates with the main view
+CoordinateGroupController --> DCCMainView : "manages"
+
+@enduml
+```
+
+## Explanation of Key Elements
+
+1. **Packages**  
+   - **model**: Contains domain classes (`CoordinateGroup`, `CartesianCoordinate`, `PolarCoordinate`), the conversion utility (`CoordinateConverter`), and the data-access class (`CoordinateGroupDAO`).
+   - **view**: Contains the Swing-based user interface class (`DCCMainView`).
+   - **controller**: Contains the application controller class (`CoordinateGroupController`), which orchestrates interactions between the `model` and `view`.
+
+2. **Model Layer**  
+   - **`CoordinateGroup`** represents a coordinate group record in the system. It holds an auto-generated ID, a label, a timestamp, and both Cartesian and Polar representations.
+   - **`CartesianCoordinate`** and **`PolarCoordinate`** encapsulate their respective coordinate values (`(x, y)` or `(r, θ)`).  
+   - **`CoordinateConverter`** provides methods to convert between Cartesian and Polar coordinates (`toPolar(...)` and `toCartesian(...)`).  
+   - **`CoordinateGroupDAO`** manages database operations (CRUD: Create, Read, Update, Delete) for `CoordinateGroup`.
+
+3. **View Layer**  
+   - **`DCCMainView`** is the main Swing-based graphical user interface. It provides methods to show lists of coordinates, retrieve user input, and display messages to the user (errors, confirmations, etc.).
+
+4. **Controller Layer**  
+   - **`CoordinateGroupController`** mediates between the user interface (`DCCMainView`) and the model classes (`CoordinateGroupDAO`, `CoordinateConverter`). It handles user actions such as:
+     - Creating a new coordinate group
+     - Updating coordinate groups
+     - Deleting coordinate groups
+     - Viewing all coordinate groups
+     - Finding coordinate groups by label
+     - Converting between coordinate formats before persisting to the database  
+
+5. **Relationships**  
+   - **Composition** between `CoordinateGroup` and both `CartesianCoordinate`/`PolarCoordinate` (a coordinate group “has” these coordinate objects).  
+   - The **controller** has a direct usage relationship with the **DAO** to manipulate data and the **converter** to perform coordinate transformations.  
+   - The **controller** also manages the **view**, calling methods to display data or prompt the user as needed.
+
+This diagram ensures a clear separation of concerns following the **MVC** pattern:
+- The **Model** focuses on data and business logic (including database access).
+- The **View** manages the GUI.
+- The **Controller** coordinates user actions, updating the Model and refreshing the View.

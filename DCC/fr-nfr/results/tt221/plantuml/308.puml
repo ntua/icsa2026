@@ -1,0 +1,99 @@
+@startuml
+scale 0.5
+'Three-Tier Architecture Diagram for Dummy Coordination Conversion Application
+package "Presentation Layer" {
+    class UserInterface {
+        - label: String
+        - cartesianCoordinates: List<Cartesian>
+        - polarCoordinates: List<Polar>
+        + createCoordinateGroup() : void
+        + updateCoordinateGroup(groupId: int, newLabel: String) : void
+        + deleteCoordinateGroup(groupId: int) : void
+        + calculatePolarFromCartesian(cartesianC: Cartesian) : Polar
+        + convertToPolar(): List<Polar> : void
+        + inputCartesianValues() : void
+        + inputPolarValues() : void
+        + filterCoordinateGroupsByLabel(filterValue: String) : void
+    }
+    
+    class DataAccessLayer {
+        - coordGroupRepository: CoordinateGroupRepository
+        # UserInterface -> * (composition)
+        + saveCoordinateGroup(coordinateGroup: Cartesian, polar: Polar) : int
+        + readAllCoordinateGroups() : List<Cartesian>
+        + updateCoordinateGroupRecord(groupId: int, newValues: CoordinatePair[]) : void
+        + deleteCoordinateGroupById(groupId: int): boolean
+    }
+}
+
+package "Business Logic Layer" {
+    class CartesianConverter {
+        - cartesianToPolarMethod: String
+        # UserInterface -> * (association)
+        # DataAccessLayer -> * (composition)
+        + convertCartesianToPolar(cartesianCoordinatePair: CoordinatePair): List<Polar>
+        # LogicPackage -> * (package)
+    }
+    
+    class PolarConverter {
+        - polarToCartesianMethod: String
+        # UserInterface -> * (association)
+        # DataAccessLayer -> * (composition)
+        + convertPolarToCartesian(polarCoordinatePair: CoordinatePair): List<Cartesian>
+    }
+}
+
+package "Data Layer" {
+    class DatabaseConnection {
+        - url: String
+        - username: String
+        - password: String
+        # LogicPackage -> * (composition)
+        + connect() : void
+        + disconnect() : void
+    }
+    
+    package "Database Server" {
+        class CoordinateGroupRepository {
+            - groups: List<CoordinateGroup>
+            # DataAccessLayer -> * (composition)
+        }
+        
+        package "Data Model Layer" {
+            abstract class CoordinatePair {
+                + xValue: Double
+                + yValue: String // For polar coordinates only
+            }
+            
+            class Cartesian extends CoordinatePair {
+              + xValue: Double
+              + yValue: String
+            }
+            
+            class Polar extends CoordinatePair {
+                + rValue: Double
+                + thetaValue: double // Angle in radians
+            }
+            
+            abstract class CoordinateGroup {
+                - id: int
+                - label: String
+                - cartesianCoordinates: List<Cartesian>
+                - polarCoordinates: List<Polar>
+                # DatabaseConnection -> * (association)
+            }
+        }
+        
+        package "Database Server" {
+            class DCCApplication {
+                + connectToDB() : void
+                + disconnectFromDB() : void
+                + executeCreateOperation(coordinateGroup: CoordinateGroup) : int
+                + readAllCoordinatesGroups() : List<CoordinateGroup>
+                + updateCoordinateGroupRecord(groupId: int, newValues: List<CoordinatePair>) : void
+                + deleteCoordinateGroupById(groupId: int) : boolean
+            }
+        }
+    }
+}
+@enduml

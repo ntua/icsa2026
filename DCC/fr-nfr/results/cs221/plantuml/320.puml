@@ -1,0 +1,81 @@
+@startuml
+package "Client" {
+    class CoordinateGroupManager {
+        - coordinateGroupRepository: CoordinateGroupRepository
+        + createCoordinateGroup(label: String, cartesianCoords: CartesianCoordinates)
+        + updateCoordinateGroup(coordinateGroupId: Int, newLabel: String, newCartesianCoords: CartesianCoordinates)
+        + deleteCoordinateGroup(coordinateGroupId: Int)
+    }
+
+    class CoordinateConverter {
+        - coordinateCalculator: CoordinateCalculator
+        + convertCartesianToPolar(cartesianCoords: CartesianCoordinates): PolarCoordinates
+        + convertPolarToCartesian(polarCoords: PolarCoordinates): CartesianCoordinates
+    }
+
+    class FilterService {
+        + filterCoordinateGroups(coordinateGroups: List[CoordinateGroup], labelFilter: String): List[CoordinateGroup]
+    }
+}
+
+package "Server" {
+    class CoordinateGroupRepository {
+        - databaseConnection: DatabaseConnection
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + getCoordinateGroups(): List[CoordinateGroup]
+    }
+
+    class CoordinateCalculator {
+        - coordinateConverter: CoordinateConverter
+        + calculatePolarCoordinates(cartesianCoords: CartesianCoordinates): PolarCoordinates
+        + calculateCartesianCoordinates(polarCoords: PolarCoordinates): CartesianCoordinates
+    }
+}
+
+package "Common" {
+    class CartesianCoordinates {
+        - xHighPrecision: HighPrecisionNumber
+        - yHighPrecision: HighPrecisionNumber
+        + getX(): HighPrecisionNumber
+        + getY(): HighPrecisionNumber
+    }
+
+    class PolarCoordinates {
+        - rHighPrecision: HighPrecisionNumber
+        - thetaHighPrecision: HighPrecisionNumber
+        + getR(): HighPrecisionNumber
+        + getTheta(): HighPrecisionNumber
+    }
+}
+
+package "Common" {
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - cartesianCoords: CartesianCoordinates
+        - polarCoords: PolarCoordinates
+        + getId(): Int
+        + getLabel(): String
+        + getCartesianCoords(): CartesianCoordinates
+        + getPolarCoords(): PolarCoordinates
+    }
+
+    class HighPrecisionNumber {
+        + add(otherHighPrecisionNumber: HighPrecisionNumber): HighPrecisionNumber
+        + subtract(otherHighPrecisionNumber: HighPrecisionNumber): HighPrecisionNumber
+        + multiply(otherHighPrecisionNumber: HighPrecisionNumber): HighPrecisionNumber
+        + divide(otherHighPrecisionNumber: HighPrecisionNumber): HighPrecisionNumber
+    }
+}
+
+CoordinateGroupManager --|> CoordinateConverter : composition
+CoordinateGroupManager --|> FilterService : composition
+
+Server.CoordinateGroupRepository --|> DatabaseConnection : composition
+
+CartesianCoordinates <|-- CoordinateGroup : aggregation
+PolarCoordinates <|-- CoordinateGroup : aggregation
+HighPrecisionNumber <|-- CartesianCoordinates : aggregation
+HighPrecisionNumber <|-- PolarCoordinates : aggregation
+
+@enduml

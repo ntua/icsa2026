@@ -1,0 +1,47 @@
+@startuml
+package "Client" {
+    class GUI {
+        +createCoordinateGroup()
+        +modifyCoordinateGroup()
+        +viewAllCoordinateGroups()
+        +viewCoordinateGroupByLabel()
+        +deleteCoordinateGroup()
+    }
+}
+
+package "Server" {
+    class CoordinateGroup {
+        +id: int
+        +timestamp: DateTime
+        +label: String
+        +cartesianCoordinates: Cartesian
+        +polarCoordinates: Polar
+    }
+
+    class Cartesian {
+        +x: double
+        +y: double
+        +convertToPolar(): Polar
+    }
+
+    class Polar {
+        +r: double
+        +theta: double
+        +convertToCartesian(): Cartesian
+    }
+
+    class Database {
+        +addCoordinateGroup(cg: CoordinateGroup)
+        +updateCoordinateGroup(cg: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+GUI -- Database : "TCP/IP Connection"
+CoordinateGroup o-- Cartesian
+CoordinateGroup o-- Polar
+Database *-- CoordinateGroup
+
+@enduml

@@ -1,0 +1,101 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package Definitions
+package "Model" {
+    ' Coordinate Classes
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+        
+        + CartesianCoordinate(x: Double, y: Double)
+        + toPolar(): PolarCoordinate
+    }
+    
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+        
+        + PolarCoordinate(r: Double, theta: Double)
+        + toCartesian(): CartesianCoordinate
+    }
+
+    ' Coordinate Group Class
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - coordinates: List<Coordinate>
+        
+        + addCoordinate(coord: Coordinate)
+        + removeCoordinate(coord: Coordinate)
+        + getCoordinates(): List<Coordinate>
+        + getId(): Integer
+        + getLabel(): String
+        + setLabel(label: String)
+    }
+
+    ' Data Access Object for Database Operations
+    class CoordinateGroupDAO {
+        - dbConnection: DatabaseConnection
+        
+        + saveCoordinateGroup(group: CoordinateGroup): Boolean
+        + fetchCoordinateGroup(id: Integer): CoordinateGroup
+        + updateCoordinateGroup(group: CoordinateGroup): Boolean
+        + deleteCoordinateGroup(id: Integer): Boolean
+        + searchByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "View" {
+    ' User Interface Components
+    interface DCCView {
+        + displayCoordinateGroups(groups: List<CoordinateGroup>)
+        + showCreateGroupUI()
+        + showEditGroupUI()
+        + showDeleteGroupUI()
+        + getUserInput(): Map<String, String>
+        + showMessage(message: String)
+    }
+    
+    class SwingDCCView implements DCCView {
+        - frame: JFrame
+        - inputPanel: JPanel
+        - table: JTable
+        
+        + SwingDCCView()
+        + initializeUI()
+    }
+}
+
+package "Controller" {
+    ' Controller Class
+    class DCCController {
+        - model: CoordinateGroupDAO
+        - view: DCCView
+        
+        + DCCController(model: CoordinateGroupDAO, view: DCCView)
+        
+        + handleCreateCoordinateGroup()
+        + handleFetchAllGroups()
+        + handleUpdateCoordinateGroup()
+        + handleDeleteCoordinateGroup()
+    }
+}
+
+package "Database" {
+    ' Database Connection Class
+    class DatabaseConnection {
+        - connection: Connection
+        
+        + connect(): Boolean
+        + executeQuery(query: String): ResultSet
+        + closeConnection()
+    }
+}
+
+' Associations Between Classes
+Model::CoordinateGroupDAO --> Database::DatabaseConnection
+Controller::DCCController --> Model::CoordinateGroupDAO
+Controller::DCCController --> View::DCCView
+
+@enduml

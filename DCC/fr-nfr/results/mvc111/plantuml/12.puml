@@ -1,0 +1,76 @@
+@startuml
+package frontend {
+  class PersonController
+  class CoordinateGroupModel
+  class CoordinateGroupView
+}
+
+class User {
+  + username: String
+  + password: String
+
+  - createUser()
+  - authenticateUser()
+}
+
+class CoordinateGroup {
+  + id: Integer (primary key)
+  + label: String
+  + timestamp: Timestamp
+  + cartesianCoordinates: CartesianCoordinates
+  + polarCoordinates: PolarCoordinates
+
+  - createCoordinateGroup()
+  - storeCoordinateGroup()
+  - retrieveCoordinateGroup()
+  - modifyCoordinateGroup()
+  - deleteCoordinateGroup()
+}
+
+class Coordinate {
+  + x: Float (Cartesian)
+  + y: Float (Cartesian)
+  + r: Float (Polar)
+  + theta: Float (Polar)
+
+  - calculatePolarCoordinates()
+  - calculateCartesianCoordinates()
+}
+
+class CartesianCoordinates {
+  + x: Float
+  + y: Float
+
+  - convertToPolar()
+}
+
+class PolarCoordinates {
+  + r: Float
+  + theta: Float
+
+  - convertToCartesian()
+}
+
+package database {
+  class MySQLConnector {
+  - connectToDatabase()
+  - disconnectFromDatabase()
+
+  - storeCoordinateGroup(CoordinateGroup)
+  - retrieveCoordinateGroup(Integer)
+  - modifyCoordinateGroup(CoordinateGroup)
+  - deleteCoordinateGroup(Integer)
+}
+
+}
+
+
+coordinate_group_model ..> CoordinateGroup : composed_of
+
+User ..> User : authentication
+PersonController ..> User : uses
+CoordinateGroupView ..> CoordinateGroup : displays
+CoordinateGroupModel ..> CoordinateGroup : manages
+MySQLConnector ..> MySQLConnector : database_connection
+
+@enduml

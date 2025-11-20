@@ -1,0 +1,70 @@
+@startuml MicroservicesArchitecture
+
+package "User Service" {
+    class UserService {
+        - String userId
+        - String email
+        - int quota
+        - Date creationDate
+        - Date lastLogin
+        
+        + UserService()
+        + void authenticateGoogle() // Flow Control
+        + User getUserDetails() // Functional
+        + void updateQuota(int newQuota) // Data Management
+    }
+    
+    class UserRepository {
+        + void saveUser(User user) // Data Management
+        + User fetchUser(String userId) // Data Management
+    }
+}
+
+package "Chart Service" {
+    class ChartService {
+        - String chartId
+        - String type
+        - String data
+        
+        + ChartService()
+        + Chart generateChart() // Functional
+        + void previewChart() // Functional
+        + void downloadChart() // Functional
+        + void deleteChart() // Data Management
+    }
+    
+    class ChartRepository {
+        + void saveChart(Chart chart) // Data Management
+        + List<Chart> getCharts() // Data Management
+    }
+}
+
+package "Quota Service" {
+    class QuotaService {
+        - int quotaId
+        - int price
+        
+        + QuotaService()
+        + void selectQuota() // Functional
+        + void processPayment() // Functional
+        + void updateQuota() // Data Management
+    }
+    
+    class PaymentGateway {
+        + void processPayment() // Functional
+    }
+}
+
+package "External Interfaces" {
+    class GoogleOAuth {
+        + void authenticate() // Flow Control
+        + User getToken() // Flow Control
+    }
+}
+
+UserService --* UserRepository
+ChartService --* ChartRepository
+QuotaService --* PaymentGateway
+
+UserService ..> GoogleOAuth : uses
+@enduml

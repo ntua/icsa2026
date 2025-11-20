@@ -1,0 +1,68 @@
+@startuml
+!define RECTANGLE class
+
+class CoordinateGroup {
+    +Integer id: int
+    -String label: String
+    +Date timestamp: Date
+}
+note right of CoordinateGroup : "is composed of Cartesian and Polar coordinates" 
+
+package UserInterface {
+  class Application {
+    +void createCoordinateGroup(User user, Cartesian cartesian, Polar polar): void
+    +List<CoordinateGroup> retrieveAllGroups(): List<CoordinateGroup>
+    +List<CoordinateGroup> retrieveGroupByLabel(String label): List<CoordinateGroup>
+  }
+}
+note right of Application : uses MySQL database for coordinate group storage and retrieval.
+  
+package DataPersistence {
+  class DatabaseConnection {
+    +void connect(): void
+    +void disconnect(): void
+    +String executeQuery(String query): String
+  }
+}
+note right of DatabaseConnection : uses TCP/IP connection for communication.
+  
+package DataModel {
+  class CoordinateGroup {
+    +void setCartesianCoordinates(Cartesian cartesian): void
+    +void setPolarCoordinates(Polar polar): void
+  }
+}
+
+package DataAccessObjects {
+  class DatabaseDAO {
+    +List<CoordinateGroup> retrieveAllGroups(): List<CoordinateGroup>
+    +List<CoordinateGroup> retrieveGroupByLabel(String label): List<CoordinateGroup>
+  }
+}
+note right of DatabaseDAO :uses DatabaseConnection for communication.
+  
+class User {
+  -Name: String
+}
+
+class Cartesian {
+    +Double xValue: Double
+    +Double yValue: Double
+}
+
+class Polar {
+    +Double rValue: Double
+    +Double thetaValue: Double
+}
+  
+class CoordinateGroupDAO {
+  -DatabaseConnection dbConn: DatabaseConnection
+  -DatabaseDAO dao: DatabaseDAO
+}
+
+ CoordinateGroup -> Application : contains coordinate group
+DatabaseConnection -> Application : uses
+DatabaseDAO ->Application : uses
+DataModel.CoordinateGroup -> DataAccessObjects.DatabaseDAO : retrieved by
+DataAccessObjects.DatabaseDAO --> DataPersistence.DatabaseConnection : communicates via
+@enduml

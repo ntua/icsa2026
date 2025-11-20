@@ -1,0 +1,66 @@
+@startuml DCC_Application
+
+' Packages
+package "model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - x: Double
+        - y: Double
+        - r: Double
+        - theta: Double
+        - timestamp: DateTime
+    }
+
+    class Converter {
+        + convertCartesianToPolar(x: Double, y: Double): (r: Double, theta: Double)
+        + convertPolarToCartesian(r: Double, theta: Double): (x: Double, y: Double)
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + createCoordinateGroup(group: CoordinateGroup): void
+        + readCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+        + closeConnection(): void
+    }
+}
+
+package "view" {
+    class DCCView extends JFrame {
+        - inputPanel: JPanel
+        - conversionPanel: JPanel
+        - listPanel: JPanel
+        - filterTextField: JTextField
+        + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        + clearFilter(): void
+        + refreshList(): void
+        + showConversionResults(x: Double, y: Double, r: Double, theta: Double): void
+    }
+}
+
+package "controller" {
+    class DCCController {
+        - model: DatabaseManager
+        - converter: Converter
+        - view: DCCView
+        + initialize(): void
+        + createCoordinateGroup(label: String, x: Double, y: Double): void
+        + convertCartesianToPolar(x: Double, y: Double): void
+        + convertPolarToCartesian(r: Double, theta: Double): void
+        + updateCoordinateGroup(id: Integer, label: String, x: Double, y: Double): void
+        + deleteCoordinateGroup(id: Integer): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+        + refreshView(): void
+    }
+}
+
+' Associations
+DCCController --* DatabaseManager
+DCCController --* Converter
+DCCController --> DCCView
+
+DatabaseManager --* CoordinateGroup
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Class Diagram
+
+package "Model" {
+  class CoordinateGroup {
+    +id: int
+    +label: String
+    +cartesianX: double
+    +cartesianY: double
+    +polarR: double
+    +polarTheta: double
+    +timestamp: LocalDateTime
+    +CoordinateGroup(double x, double y, double r, double theta, String label)
+  }
+
+  class CoordinateConverter {
+    +convertToPolar(double x, double y): (double, double)
+    +convertToCartesian(double r, double theta): (double, double)
+  }
+}
+
+package "View" {
+  class DCCView {
+    +displayCoordinateGroups(List<CoordinateGroup>)
+    +getCoordinateInput(): (double, double) 
+    +getPolarCoordinateInput(): (double, double)
+    +getLabelInput(): String
+    +showErrorMessage(String message)
+  }
+
+}
+
+package "Controller" {
+  class DCCController {
+    -coordinateGroupRepository: CoordinateGroupRepository
+    -coordinateConverter: CoordinateConverter
+    -dccView: DCCView
+    +handleAddCoordinateGroup()
+    +handleUpdateCoordinateGroup()
+    +handleDeleteCoordinateGroup()
+    +handleFilterCoordinateGroups(String label)
+  }
+}
+
+package "Database" {
+  class CoordinateGroupRepository {
+    +create(CoordinateGroup coordinateGroup): void
+    +readAll(): List<CoordinateGroup>
+    +update(CoordinateGroup coordinateGroup): void
+    +delete(int id): void
+  }
+
+}
+
+DCCController --> DCCView : uses
+DCCController --> CoordinateConverter: uses
+DCCController --> CoordinateGroupRepository: depends on
+CoordinateGroup <-- CoordinateConverter
+@enduml

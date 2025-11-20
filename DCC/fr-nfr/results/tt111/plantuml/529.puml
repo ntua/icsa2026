@@ -1,0 +1,63 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages for Three-Tier Architecture
+package "Presentation Layer" {
+    class CoordinateGroupUI {
+        + void createCoordinateGroup()
+        + void retrieveCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+        + void showCoordinateGroups()
+    }
+}
+
+package "Application Logic Layer" {
+    class CoordinateGroupManager {
+        + void addCoordinateGroup(CoordinateGroup)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void removeCoordinateGroup(int)
+        + List<CoordinateGroup> getCoordinateGroupById(int)
+        + List<CoordinateGroup> getCoordinateGroupByLabel(String)
+        + void convertCartesianToPolar(Cartesian, Polar)
+        + void convertPolarToCartesian(Polar, Cartesian)
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateGroupDAO {
+        + void saveCoordinateGroup(CoordinateGroup)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + CoordinateGroup retrieveCoordinateGroupById(int)
+        + List<CoordinateGroup> retrieveCoordinateGroupByLabel(String)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(int)
+    }
+}
+
+' Model Classes
+class CoordinateGroup {
+    - int id
+    - String label
+    - Date timestamp
+    - List<Cartesian> cartesianCoordinates
+    - List<Polar> polarCoordinates
+}
+
+class Cartesian {
+    - float x
+    - float y
+}
+
+class Polar {
+    - float r
+    - float theta
+}
+
+' Associations
+CoordinateGroupUI --> CoordinateGroupManager
+CoordinateGroupManager --> CoordinateGroupDAO
+CoordinateGroupManager *-- "1..*" CoordinateGroup
+CoordinateGroup *-- "0..*" Cartesian
+CoordinateGroup *-- "0..*" Polar
+
+@enduml

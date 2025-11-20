@@ -1,0 +1,51 @@
+@startuml
+package "Database" {
+  class Database {
+    + storeProductData(product: Product) : void  
+    + retrieveProductData(productId: int) : Product  
+    + storeCustomerData(customer: Customer) : void  
+    + storeOrderHistory(order: Order) : void  
+    + retrieveOrderHistory(customerId: int) : List<Order>  
+  }
+}
+package "Logic Layer" {
+  class InventoryManager {
+    - stockLevelsMap : Map<Product, Integer>
+    
+    + checkStock(product: Product) : boolean  
+    + updateStock(product: Product, quantity: int) : void  
+  }
+  
+  class PaymentProcessor {
+    - supportedCurrencies : List<String>
+    
+    + processPayment(paymentInfo: PaymentInfo) : boolean  
+    + connectTo3rdParty(paymentInfo: PaymentInfo) : boolean  
+  }
+  
+  class OrderProcessor {
+    - paymentProcessor : PaymentProcessor
+    - inventoryManager : InventoryManager
+    
+    + processOrder(order: Order) : void  
+    + applyDiscount(order: Order, discountCode: String) : float  
+  }
+}
+package "User Interface Layer" {
+  class CoordinateGroupUI {
+    - database : Database
+    
+    + createCoordinateGroup() : void  
+    + storeCoordinateGroup(group: CoordinateGroup) : void  
+    + retrieveCoordinateGroupByLabel(label: String) : List<CoordinateGroup>  
+    + modifyCoordinateGroupDetails(group: CoordinateGroup, details: Map<String, Any>) : void  
+    + deleteCoordinateGroup(groupId: int) : void  
+  }
+}
+CoordinateGroupUI "1" *--* Database: Accesses
+OrderProcessor "1" *--* InventoryManager: Uses
+OrderProcessor "1" *--* PaymentProcessor: Uses
+OrderProcessor "1" --* Database: Accesses
+InventoryManager "1" *--* Database: Accesses
+PaymentProcessor "1" *--* Database: Accesses
+@enduml

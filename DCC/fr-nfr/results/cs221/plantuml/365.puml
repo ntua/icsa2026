@@ -1,0 +1,78 @@
+@startuml
+
+package Frontend {
+  class Frame {
+    - coordGroupsList: List<CoordGroup>
+    + initialize()
+    + addButtonActionPerformed(e: ActionEvent)
+    + updateButtonActionPerformed(e: ActionEvent)
+    + deleteButtonActionPerformed(e: ActionEvent)
+    + refreshDisplay()
+  }
+
+  class InputPanel {
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + updateCartesian()
+    + updatePolar()
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+
+  class DisplayPanel {
+    - tableModel: CustomTableModel
+    + refreshTable(coordGroupsList: List<CoordGroup>)
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - x: double
+    - y: double
+    - r: double
+    - theta: double
+    + convertToPolar()
+    + convertToCartesian()
+  }
+
+  class Cartesian extends Coordinate {
+    + Cartesian(x: double, y: double)
+  }
+
+  class Polar extends Coordinate {
+    + Polar(r: double, theta: double)
+  }
+
+  class CoordGroup {
+    - id: int
+    - label: String
+    - cartesian: Cartesian
+    - polar: Polar
+    - timestamp: Date
+    + CoordGroup(id: int, label: String, cartesian: Cartesian, polar: Polar, timestamp: Date)
+  }
+
+  class DatabaseManager {
+    - dbConnection: DatabaseConnection
+    + CreateOp(coordGroup: CoordGroup)
+    + ReadOp(): List<CoordGroup>
+    + UpdateOp(coordGroup: CoordGroup)
+    + DeleteOp(id: int)
+  }
+}
+
+package Persistence {
+  class DatabaseConnection {
+    - connection: MySQLConnection
+    + executeQuery(query: String): ResultSet
+  }
+}
+
+Frame "1" -- "*" InputPanel
+Frame "2" -- "*" DisplayPanel
+Frontend -- Logic
+Logic -- Persistence
+
+@enduml

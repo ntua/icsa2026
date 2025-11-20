@@ -1,0 +1,35 @@
+@startuml
+' Start of class diagram using PlantUML'
+
+
+class UserInterface {
+    +String label;
+    +void createCoordinateGroup(String inputType);
+    +void modifyCoordinateGroup();
+}
+
+class DatabaseConnection {
+    +int connectionId;
+    +DatabaseConnection() connects to "MySQL";
+    +void saveCoordinateGroup(Coordinate group) saves the coordinate group in the database.
+    +List<Coordinate> retrieveAllGroups() retrieves all coordinate groups from the database.
+}
+
+class Coordinate {
+  -double x; 'Cartesian' or '-radius r'; 'Polar'
+  -double y;   'Cartesian'
+  -double theta; 'Polar'
+    *Coordinate(x,y) constructs a new coordinate object with given values.
+}
+
+class CoordinateGroup {
+ +List<Coordinate> coordinates;
+ +String label;
+ +void addCoordinate(Coordinate coord);
+ +void removeCoordinate(Coordinate coord);
+ }
+
+UserInterface "1" *--* "0..*" DatabaseConnection: uses database connection to save/retrieve data.
+DatabaseConnection "0..*" --* UserInterface: handles user input and output requests.
+
+@enduml

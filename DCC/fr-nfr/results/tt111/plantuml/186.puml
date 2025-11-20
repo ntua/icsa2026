@@ -1,0 +1,64 @@
+@startuml
+skinparam componentStyle uml2
+
+package "DCC Application" <<application>> {
+    class CartesianConverter {
+        +convertCartesianToPolar(x, y) : PolarCoordinates
+        +convertPolarToCartesian(r, theta) : CartesianCoordinates
+    }
+    
+    class PolarConverter {
+        +convertPolarToCartesian(r, theta) : CartesianCoordinates
+        +convertCartesianToPolar(x, y) : PolarCoordinates
+    }
+
+    class UserInterface <<swing>> {
+        *createCoordinateGroup() 
+        *retrieveCoordinateGroups()
+        *modifyCoordinateGroup()
+        *deleteCoordinateGroup() 
+    }
+    
+    class DatabaseManager {
+        +saveCoordinateGroup(group) : void
+        +getCoordinateGroup(label) : CoordinateGroup
+        +getAllCoordinateGroups() : List<CoordinateGroup>
+    }
+}
+
+package "MySQL Database" <<database>> {
+    class CoordinateGroup {
+        +id : int (PK)
+        +label : string
+        +creationTimestamp : datetime
+        -cartesianCoordinates : CartesianCoordinates
+        -polarCoordinates : PolarCoordinates
+        
+        *convertCartesianToPolar() : void
+        *convertPolarToCartesian() : void
+    }
+
+    class CartesianCoordinates {
+        -x : float
+        -y : float
+        
+        *convertToPolar() : PolarCoordinates
+    }
+    
+    class PolarCoordinates {
+        -r : float
+        -theta : float
+        
+        *convertToCartesian() : CartesianCoordinates
+    }
+}
+
+UserInterface ..> CartesianConverter
+UserInterface ..> PolarConverter
+
+UserInterface .down.> DatabaseManager
+DatabaseManager ..|> CoordinateGroup
+
+Note right: The DCC Application manages coordinate groups and provides user interaction, conversion, storage, retrieval, modification, and deletion functionality.
+Note right: MySQL Database stores coordinate groups with their attributes in tables using primary keys (id) for uniqueness. 
+@enduml

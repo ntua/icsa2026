@@ -1,0 +1,50 @@
+@startuml
+' MVC Architecture Packages
+package "Model" {
+  class CartesianCoordinate {
+    x int
+    y int
+
+    +getXY() string[]
+    +setXY(x: int, y: int)
+  }
+
+  class PolarCoordinate {
+    r double
+    theta double
+
+    +getRT() string[]
+    +setRT(r: double, theta: double)
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    *CartesianCoordinate cartesianCoord
+    *PolarCoordinate polarCoord
+    *DatabaseConnection dbConn
+
+    -convertCoordinates() bool
+    -storeCoordinateGroup(label: string) bool
+    -retrieveCoordinateGroup(label: string) CoordinateGroup[]
+    -deleteCoordinateGroup(groupID: int) bool
+  }
+}
+
+package "View" {
+  class SwingUI {
+    +showCoordinateGroups(groups: CoordinateGroup[])
+    +promptUserForInput() InputDetails
+
+    *DCCController controller
+  }
+
+  class InputDetails {
+    label string
+    cartesianX int
+    cartesianY int
+    polarR double
+    polarTheta double
+  }
+}
+@enduml

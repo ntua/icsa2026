@@ -1,0 +1,57 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Class Diagram
+
+package "frontend" {
+  class UserController {
+    +createUserGroup()
+    +storeUserGroup()
+    +retrieveUserGroup()
+    +modifyUserGroup()
+    +deleteUserGroup()
+  }
+}
+
+package "model"{
+  class Coordinate {
+    -x: double
+    -y: double
+    -r: double
+    -theta: double
+    +convertFromCartesian(Coordinate)
+    +convertFromPolar(Coordinate)
+  }
+
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -timestamp: Date
+    -coordinates: List<Coordinate>
+  }
+}
+
+package "database"{
+  class DatabaseManager {
+    +saveUserGroup(CoordinateGroup)
+    +getUserGroupByLabel(String)
+    +getAllUserGroups()
+    +updateUserGroup(CoordinateGroup)
+    +deleteUserGroup(int)
+  }
+}
+
+package "utils"{
+  class CoordinateConverter {
+    +convertCartesianToPolar(Coordinate)
+    +convertPolarToCartesian(Coordinate)
+  }
+}
+
+UserController --|> DatabaseManager: uses
+UserController --> CoordinateConverter : uses
+DatabaseManager --> CoordinateGroup : manages
+CoordinateConverter --> Coordinate : converts
+
+
+@enduml

@@ -1,0 +1,30 @@
+@startuml
+
+
+class CoordinateGroup {
++ cartesian: (double, double) # Cartesian coordinates of the group
++ polar: (double, double)   # Polar coordinates of the group
++ label: String              # Label to identify coordinate groups
+}
+class UserInterfaceModel{
+    + createCoordinateGroup(label:String): void
+    + modifyCoordinateGroup(id:int): CoordinateGroup
+    + deleteCoordinateGroup(id:int): void
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + retrieveCoordinateGroupById(id:int): Option[CoordinateGroup]
+}
+
+class DataAccessLayer {
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup): Unit
+    + deleteCoordinateGroup(id:Int): Unit
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + retrieveCoordinateGroupById(id:int): Option[CoordinateGroup]
+}
+
+class Coordinate {
++ cartesian:(double, double) # Cartesian coordinates of the point
++ polar:(double, double)   # Polar coordinates of the point
+}
+
+
+@enduml

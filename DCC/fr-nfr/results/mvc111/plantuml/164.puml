@@ -1,0 +1,80 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    + id : Integer
+    + label : String
+    - cart_coords : List<CartesianCoord>
+    - pol_coords : List<PolarCoord>
+
+    + __init__()
+    + save()
+    + update(label, cart_coords=null, pol_coords=null)
+    + delete()
+  }
+
+  class CartesianCoord {
+    - x : Float
+    - y : Float
+
+    + __init__(x=0.0, y=0.0)
+  }
+
+  class PolarCoord {
+    - r : Float
+    - theta : Float
+
+    + __init__(r=0.0, theta=0.0)
+  }
+}
+
+package "View" {
+  class SwingUI {
+    - model : Model
+
+    + show_groups()
+    + save_group(group: CoordinateGroup)
+    + update_group(group: CoordinateGroup)
+    + delete_group(id: Integer)
+    + search_by_label(label: String)
+  }
+
+  class LabelSearchResult {
+    + groups : List<CoordinateGroup>
+
+    + __init__(groups=null)
+  }
+}
+
+package "Controller" {
+  class DatabaseConnector {
+    - model : Model
+
+    + connect()
+    + disconnect()
+    + save_group(group: CoordinateGroup)
+    + update_group(id, label, cart_coords=null, pol_coords=null)
+    + delete_group(id: Integer)
+    + search_by_label(label: String)
+  }
+
+  class Coordinator {
+    - controller : Controller
+    - view : View
+
+    + __init__()
+    + save_group(group: CoordinateGroup)
+    + update_group(group: CoordinateGroup)
+    + delete_group(id: Integer)
+    + search_by_label(label: String)
+  }
+}
+
+CoordinateGroup --> CartesianCoord
+CoordinateGroup --> PolarCoord
+
+SwingUI --> LabelSearchResult
+
+DatabaseConnector --> CoordinateGroup
+Coordinator --> SwingUI
+
+@enduml

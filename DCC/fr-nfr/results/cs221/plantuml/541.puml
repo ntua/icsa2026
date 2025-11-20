@@ -1,0 +1,83 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package declarations
+package "Client" {
+    package "GUI" {
+        class CoordinateGroupGUI {
+            + void init()
+            + void addCoordinateGroup(String label, double x, double y)
+            + void updateCoordinateGroup(int id, String label, double x, double y)
+            + void deleteCoordinateGroup(int id)
+            + void refreshAndDisplayList()
+            + void filterByLabel(String label)
+            + void clearFilter()
+        }
+    }
+
+    package "Logic" {
+        class CoordinateConverter {
+            + static double calculateRadius(double x, double y)
+            + static double calculateAngle(double x, double y)
+            + static double calculateX(double r, double theta)
+            + static double calculateY(double r, double theta)
+        }
+
+        class CoordinateGroup {
+            - int id
+            - String label
+            - double x
+            - double y
+            - double r
+            - double theta
+            - Timestamp created
+            - Timestamp modified
+
+            + int getId()
+            + String getLabel()
+            + double getX()
+            + double getY()
+            + double getR()
+            + double getTheta()
+            + void setX(double x)
+            + void setY(double y)
+            + void setR(double r)
+            + void setTheta(double theta)
+        }
+    }
+
+    package "Data Access" {
+        class DataService {
+            - DatabaseServer databaseServer
+
+            + CoordinateGroup createCoordinateGroup(String label, double x, double y)
+            + List<CoordinateGroup> getCoordinateGroups()
+            + void updateCoordinateGroup(CoordinateGroup group)
+            + void deleteCoordinateGroup(int id)
+            + List<CoordinateGroup> filterByLabel(String label)
+        }
+    }
+}
+
+package "Server" {
+    package "Database" {
+        class DatabaseServer {
+            - Connection connection
+
+            + void connect()
+            + void disconnect()
+            + void saveCoordinateGroup(CoordinateGroup group)
+            + CoordinateGroup getCoordinateGroup(int id)
+            + List<CoordinateGroup> getAllCoordinateGroups()
+            + void updateCoordinateGroup(CoordinateGroup group)
+            + void deleteCoordinateGroup(int id)
+        }
+    }
+}
+
+' Associations
+DataService *-- DatabaseServer
+CoordinateGroupGUI *-- DataService
+CoordinateGroupGUI -- CoordinateConverter
+CoordinateGroupGUI -- CoordinateGroup
+
+@enduml

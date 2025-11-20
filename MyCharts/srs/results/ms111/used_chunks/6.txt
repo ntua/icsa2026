@@ -1,0 +1,24 @@
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 4 of 17                                             
+                                         Picture Reference: https://microservices.io/patterns/microservices.html We will cover the most used and discussed design patterns in detail, along with use cases. Here is the list of design patterns that will be covered: 1. Database per Microservices 2. CQRS 3. Event Sourcing 4. Saga 5. (Score: 526.8453998657834)
+
+---
+
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 7 of 17                                             
+and choose your read and write databases. So here, CQRS separates reads and writes into different databases, where commands perform the creation or updating of data, and queries perform read data. Commands are actions with some defined operations like “add the item to bucket” or “check my balance.” So, commands can be published via message brokers, which help applications process them in an async manner. Queries never modify the database. Queries always return the JSON data with DTO objects. In this way, we can isolate the Commands and Queries. (Score: 536.0337200879237)
+
+---
+
+You wrap a function call in a circuit breaker object, which monitors it for failures. Once the failures reach a certain threshold, the circuit breaker trips and all further calls to the circuit breaker return an error, with any further calls skipped. The Circuit Breaker can also be configured to handle failures in different ways, such as returning a default value or a cached response.  (Score: 538.9038884909176)
+
+---
+
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 15 of 17                                             
+ It works by keeping the configurations in an external store, such as a database, file system, or environment variables. When the Microservice is deployed and started, it loads the configuration from the external source. (Score: 541.0008760369471)
+
+---
+
+BFF 6. API Gateway 7. Strangler 8. Circuit Breaker 9. Externalized Configuration 10. Consumer-Driven Contract Tracing    
+ (Score: 561.273661902816)

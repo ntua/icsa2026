@@ -1,0 +1,63 @@
+@startuml
+skinparam backgroundColor White
+skinparam defaultFontName Arial
+skinparam shadowing false
+
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+package DCCApplication {
+    class SwingGUI {
+        + displayCoordinateGroups()
+        - handleLabelSearch(label)
+        - handleViewAll()
+        
+        <<interface>>
+    }
+
+    class TCPClient {
+        + connectToDatabase()
+        - sendGroupData(group)
+        - retrieveGroupData(id)
+        
+        <<interface>>
+    }
+}
+
+
+package MySQLServer {
+    class DatabaseHandler{
+        + storeCoordinateGroup(id, label, timestamp, cartesianX, cartesianY, polarR, polarTheta)
+        + retrieveCoordinateGroupsByLabel(label)
+        + getAllSavedGroups()
+        - deleteCoordinateGroup(id)
+        
+        <<interface>>
+    }
+}
+
+
+class CoordinateGroup {
+    id : int
+    label : string
+    timestamp : datetime
+    
+    cartesianX : double
+    cartesianY : double
+    
+    polarR : double
+    polarTheta : double
+
+    + convertToPolar()
+    + convertToCartesian()
+    
+    <<entity>>
+}
+
+
+DCCApplication.SwingGUI <|-- DCCApplication.TCPClient 
+DCCApplication.TCPClient <|-- MySQLServer.DatabaseHandler :  "uses"
+
+DCCApplication.TCPClient <|.. CoordinateGroup : contains
+MySQLServer.DatabaseHandler <.. CoordinateGroup : stores in database
+
+@enduml

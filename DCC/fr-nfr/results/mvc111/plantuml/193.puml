@@ -1,0 +1,68 @@
+@startuml
+title Dummy Coordination Conversion Application - MVC Architecture
+
+class UserInterface {
+    +createCoordinateGroup()
+    +retrieveCoordinateGroups()
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+}
+
+package "Model" {
+  class CoordinateGroup {
+      - id: int
+      - label: string
+      - timestamp: DateTime
+
+      +getCartesian() : (x, y)
+      +getPolar() : (r, theta)
+  }
+
+  class CartesianCoordinates {
+     + getX() : double 
+     + getY() : double 
+  }
+
+  class PolarCoordinates {
+    + getR() : double 
+    + getTheta() : double 
+  }
+}
+
+package "Controller" {
+   class Controller {
+      -model: Model.CoordinateGroup
+      -view: UserInterface
+
+      +searchByLabel(label: string)
+      +fetchAllGroups()
+      +updateCoordinates(id: int, coordinates: CartesianCoordinates|PolarCoordinates)
+      +deleteGroupByID(id: int)
+  }
+}
+
+
+UserInterface -- Controller : Request/Response
+Controller --> Model.CoordinateGroup : Retrieve / Modify Data
+Model.CoordinateGroup -> Database : Store / Fetch Data
+
+
+database "Database" as DB {
+    class CoordinateGroup {
+        id: int
+        label: string
+        timestamp: DateTime
+        cartesianX: double
+        cartesianY: double
+        polarR: double
+        polarTheta: double
+    }
+}
+
+
+UserInterface --> Controller : Request/Response
+Controller <|-- Model.CoordinateGroup : Data Transfer
+DB <|.. Model.CoordinateGroup : Persistent Storage
+
+
+@enduml

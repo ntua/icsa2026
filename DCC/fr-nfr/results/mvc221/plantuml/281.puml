@@ -1,0 +1,57 @@
+@startuml
+' Software Architecture: MVC
+
+' Model Package
+package "Model" {
+    class CoordinateGroup {
+        +id: int
+        +label: String
+        +cartesian: (x, y)
+        +polar: (r, theta)
+
+        +add()
+        +update(newLabel: String, newCartesian: (x, y), newPolar: (r, theta))
+        +delete()
+    }
+
+    class Database {
+        -connection: TCP/IPConnection
+        +save(coordinateGroup: CoordinateGroup)
+        +readAll(): List<CoordinateGroup>
+        +update(coordinateGroup: CoordinateGroup)
+        +delete(id: int)
+    }
+}
+
+' View Package
+package "View" {
+    class UserInterface {
+        -labelInput: JTextField
+        -cartesianInputs: JTextField[]  # Array for x and y inputs
+        -polarInputs: JTextField[]    # Array for r and theta inputs
+
+        +displayRecordList(recordList: List<CoordinateGroup>)
+        +refreshRecordList()
+        +clearFilter()
+    }
+}
+
+' Controller Package
+package "Controller" {
+    class CoordinatorController {
+        +coordinateGroup: CoordinateGroup  # Current active coordinate group
+        
+        +createNewCoordinateGroup()
+        +handleAddOperation(labelInput: String, cartesianInputs: (x, y), polarInputs: (r, theta))
+        +handleUpdateOperation(id: int, newLabel: String, newCartesianInputs: (x, y), newPolarInputs: (r, theta))
+        +handleDeleteOperation(id: int)
+    }
+}
+
+' Associations and dependencies
+UserInterface ..> CoordinatorController : uses
+CoordinatorController --> CoordinateGroup  : manages
+CoordinatorController --> Database       : interacts with
+Database ..> TCP_IPConnection           : communicates via
+
+@enduml

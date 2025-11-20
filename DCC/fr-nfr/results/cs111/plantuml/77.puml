@@ -1,0 +1,71 @@
+@startuml
+package "Client" {
+    class DCCApplication {
+        - coordinator: Coordinator
+        + run()
+    }
+
+    class Coordinator {
+        - cartographer: Cartographer
+        - polarizer: Polarizer
+        + createCoordinateGroup()
+        + storeCoordinateGroup()
+        + retrieveCoordinateGroup()
+        + modifyCoordinateGroup()
+        + deleteCoordinateGroup()
+    }
+
+    class Cartographer {
+        - x: int
+        - y: int
+        + convertToPolar()
+    }
+
+    class Polarizer {
+        - r: double
+        - theta: double
+        + convertToCartesian()
+    }
+}
+
+package "Server" {
+    class MySQLDatabase {
+        - connection: String
+        - table: String
+        + connect()
+        + disconnect()
+        + saveCoordinateGroup()
+        + fetchCoordinateGroup()
+        + updateCoordinateGroup()
+        + deleteCoordinateGroup()
+    }
+
+    class CoordinateGroup {
+        - id: int (unique auto-generated identifier)
+        - label: String
+        - timestamp: Date
+        - cartesianCoordinates: CartesianCoordinates
+        - polarCoordinates: PolarCoordinates
+    }
+
+    class CartesianCoordinates {
+        - x: int
+        - y: int
+    }
+
+    class PolarCoordinates {
+        - r: double
+        - theta: double
+    }
+}
+
+DCCApplication --> Coordinator
+Coordinator --> Cartographer
+Coordinator --> Polarizer
+
+Cartographer --> CartesianCoordinates
+Polarizer --> PolarCoordinates
+
+CoordinateGroup --> MySQLDatabase
+MySQLDatabase <-- CoordinateGroup
+@enduml

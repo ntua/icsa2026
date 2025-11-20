@@ -1,0 +1,209 @@
+Response:
+(Due to technical issues, the search service is temporarily unavailable.)
+
+Here's the PlantUML class diagram and the requested JSON characteristics based on the SRS and microservices architecture:
+
+```plantuml
+@startuml
+package "Authentication Service" {
+    class AuthenticationService {
+        + authenticateUser(token: str): UserInfo {functional}
+        + refreshToken(refreshToken: str): AccessToken {functional}
+    }
+}
+
+package "User Profile Service" {
+    class UserProfileService {
+        + getUserProfile(userId: str): UserProfile {data management}
+        + updateLastLogin(userId: str): void {data management}
+    }
+    
+    UserProfileService --> UserProfileDB
+    class UserProfileDB {
+        + userId: str
+        + name: str
+        + email: str
+        + profilePicture: str
+        + accountCreation: DateTime
+        + lastLogin: DateTime
+    }
+}
+
+package "Chart Template Service" {
+    class ChartTemplateService {
+        + getCSVTemplate(chartType: str): CSVFile {functional}
+    }
+}
+
+package "Chart Generation Service" {
+    class ChartGenerationService {
+        + validateCSV(file: CSVFile, chartType: str): ValidationResult {functional}
+        + generateChart(data: CSVData): ChartPreview {functional}
+        + saveChart(formats: list): ChartMetadata {data management}
+    }
+}
+
+package "Quota Management Service" {
+    class QuotaService {
+        + getRemainingQuota(userId: str): int {data management}
+        + decrementQuota(userId: str): void {data consistency}
+        + incrementQuota(userId: str, amount: int): void {data consistency}
+    }
+    
+    QuotaService --> QuotaDB
+    class QuotaDB {
+        + userId: str
+        + remainingQuota: int
+    }
+}
+
+package "Payment Service" {
+    class PaymentService {
+        + initiatePayment(userId: str, amount: int): PaymentSession {functional}
+        + handlePaymentCallback(sessionId: str): bool {flow control}
+    }
+    
+    PaymentService --> TransactionDB
+    class TransactionDB {
+        + transactionId: str
+        + userId: str
+        + amount: int
+        + status: str
+    }
+}
+
+package "Chart Storage Service" {
+    class ChartStorageService {
+        + saveChart(chartData: ChartData): ChartMetadata {data management}
+        + getChart(chartId: str, format: str): ChartFile {data management}
+        + deleteChart(chartId: str): void {data management}
+    }
+    
+    ChartStorageService --> ChartStorageDB
+    class ChartStorageDB {
+        + chartId: str
+        + userId: str
+        + formats: list
+        + created: DateTime
+    }
+}
+
+package "Notification Service" {
+    class NotificationService {
+        + sendEmail(userId: str, template: str): void {flow control}
+    }
+}
+
+' Associations
+AuthenticationService --> UserProfileService : fetches\nuser profile
+ChartGenerationService --> ChartTemplateService : validates\nCSV structure
+ChartGenerationService --> QuotaService : checks &\nupdates quota
+ChartGenerationService --> ChartStorageService : saves\ngenerated charts
+PaymentService --> QuotaService : updates quota\non success
+PaymentService --> NotificationService : sends\nconfirmation
+UserProfileService --> AuthenticationService : gets\nuser info
+@enduml
+```
+
+```json
+{
+    "SI": [0.375, 1],
+    "DOC": [0.625, 0.5],
+    "SST": [0.25, 0.125],
+    "services": [
+        {
+            "service_name": "AuthenticationService",
+            "SIC": [2, 2],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [1, 1]
+        },
+        {
+            "service_name": "UserProfileService",
+            "SIC": [2, 2],
+            "AIS(in)": [3, 1],
+            "ADS(out)": [1, 1]
+        },
+        {
+            "service_name": "ChartTemplateService",
+            "SIC": [1, 1],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "ChartGenerationService",
+            "SIC": [3, 3],
+            "AIS(in)": [1, 0],
+            "ADS(out)": [3, 3]
+        },
+        {
+            "service_name": "QuotaService",
+            "SIC": [3, 3],
+            "AIS(in)": [2, 2],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "PaymentService",
+            "SIC": [2, 2],
+            "AIS(in)": [1, 0],
+            "ADS(out)": [2, 2]
+        },
+        {
+            "service_name": "ChartStorageService",
+            "SIC": [3, 3],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        },
+        {
+            "service_name": "NotificationService",
+            "SIC": [1, 1],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [0, 0]
+        }
+    ],
+    "use_cases": [
+        {
+            "use_case_name": "Download Template",
+            "SC": [["ChartTemplateService", "UserProfileService"], ["ChartTemplateService", "UserProfileService"]]
+        },
+        {
+            "use_case_name": "Upload CSV and Generate Chart",
+            "SC": [["ChartGenerationService", "ChartTemplateService", "QuotaService", "ChartStorageService"], ["ChartGenerationService", "ChartTemplateService", "QuotaService", "ChartStorageService"]]
+        },
+        {
+            "use_case_name": "View/Download Charts from History",
+            "SC": [["ChartStorageService", "UserProfileService"], ["ChartStorageService", "UserProfileService"]]
+        },
+        {
+            "use_case_name": "Purchase Quotas",
+            "SC": [["PaymentService", "QuotaService", "NotificationService"], ["PaymentService", "QuotaService", "NotificationService"]]
+        },
+        {
+            "use_case_name": "View Profile",
+            "SC": [["UserProfileService"], ["UserProfileService"]]
+        }
+    ]
+}
+```
+
+**Characteristics Explanation:**
+
+1. **SI (Statelessness Index):** 3/8 = 0.375  
+   (Authentication, ChartTemplate, Notification are stateless)
+
+2. **DOC (Data Ownership):** 5/8 = 0.625  
+   (UserProfile, Quota, Payment, ChartStorage, and their DBs)
+
+3. **SST (Service Support Transactions):** 2/8 = 0.25  
+   (QuotaService and PaymentService have consistency ops)
+
+**Service Interface Count (SIC):**
+- Counts exposed APIs/operations per service
+
+**AIS (Consumers):**
+- Number of distinct services calling each service
+
+**ADS (Dependencies):**
+- Number of external services called by each service
+
+**Use Case Service Collaboration (SC):**
+- Shows service participation per use case following the activity diagrams and requirements

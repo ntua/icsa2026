@@ -1,0 +1,68 @@
+@startuml
+
+package "DCC Application" {
+    class MainController {
+        - model: Model
+        - view: View
+        
+        + handleUserInput() 
+        + updateView() 
+    }
+
+    interface Model {
+        + createCoordinateGroup(cartesian, polar) : void
+        + storeCoordinateGroup(label) : void
+        + retrieveCoordinateGroups(label) : List<CoordinateGroup>
+        + modifyCoordinateGroup(group, changes) : void
+        + deleteCoordinateGroup(group) : void
+    }
+
+    class CoordinateGroup {
+        * id: int (auto-gen)
+        * label: String 
+        * timestamp: Date
+
+        - cartesian: Cartesian
+        - polar: Polar
+        
+        + getCartesian() : Cartesian
+        + setCartesian(cartesian) : void
+        + getPolar() : Polar
+        + setPolar(polar) : void
+    }
+
+    class Cartesian {
+        * x: double
+        * y: double
+
+        + toPolar() : Polar
+    }
+
+    class Polar {
+        * r: double
+        * theta: double
+        
+        + toCartesian() : Cartesian
+    }
+}
+
+package "Database" {
+    class MySQL {
+      -id int
+      -label String
+      -timestamp Date
+
+      -cartesian <<Cartesian>> 
+      -polar <<Polar>> 
+      
+    }
+}
+
+MainController --> Model
+Model <-- View
+Model --> CoordinateGroup
+CoordinateGroup <.. Cartesian : has a
+CoordinateGroup <.. Polar : has a
+MySQL <.. CoordinateGroup
+
+@enduml

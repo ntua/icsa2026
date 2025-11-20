@@ -1,0 +1,59 @@
+@startuml
+
+package "Presentation Tier" {
+    class UserInterface {
+        << Java Swing >>
+        
+        + displayCoordinateGroups()
+        + getUserInput()
+        + addNewGroup(label, x, y)
+        + updateRecord(id, label, x, y)
+        + deleteRecord(id)
+        + refreshAndDisplayList()
+        + filterList(label)
+    }
+}
+
+package "Application Tier" {
+
+    class CoordinateConverter {
+        
+        << Java >>
+        
+        + convertCartesianToPolar(x, y)
+        + convertPolarToCartesian(r, theta)
+    }
+    
+    class DatabaseHandler {
+        << Java >>
+        
+        + createRecord(id, label, x, y)
+        + readRecords()
+        + updateRecord(id, label, x, y)
+        + deleteRecord(id)
+    }
+}
+
+package "Data Tier" {
+
+    class CoordinateGroup {
+        id: Integer
+        datetimeAddedOrModified : String
+        label: String
+        cartesianCoordinates: Pair
+        polarCoordinates: Pair
+        
+        << MySQL >>
+    }
+    
+}
+
+
+UserInterface ..> CoordinateConverter
+UserInterface ..> DatabaseHandler
+CoordinateConverter ..> CoordinateGroup
+DatabaseHandler ..> CoordinateGroup
+
+
+
+@enduml

@@ -1,0 +1,77 @@
+@startuml
+package Model {
+    class CoordinateGroup {
+        +id: int
+        +label: String
+        +timestamp: Date
+        +cartesian: CartesianCoordinate
+        +polar: PolarCoordinate
+        +convertToPolar(): PolarCoordinate
+        +convertToCartesian(): CartesianCoordinate
+        +modify(): void
+        +delete(): void
+    }
+
+    class CartesianCoordinate {
+        +x: double
+        +y: double
+        +convertToPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        +r: double
+        +theta: double
+        +convertToCartesian(): CartesianCoordinate
+    }
+
+    class CoordinateGroupRepository {
+        +save(CoordinateGroup): void
+        +findByLabel(label: String): CoordinateGroup
+        +findAll(): List<CoordinateGroup>
+        +delete(id: int): void
+    }
+
+    CoordinateGroup --> CartesianCoordinate
+    CoordinateGroup --> PolarCoordinate
+}
+
+package View {
+    class CoordinateView {
+        +frame: JFrame
+        +labelField: JTextField
+        +xField: JTextField
+        +yField: JTextField
+        +rField: JTextField
+        +thetaField: JTextField
+        +display(): void
+        +getUserInput(): CoordinateGroup
+    }
+}
+
+package Controller {
+    class CoordinateController {
+        +model: CoordinateGroupRepository
+        +view: CoordinateView
+        +createCoordinateGroup(): void
+        +modifyCoordinateGroup(id: int): void
+        +deleteCoordinateGroup(id: int): void
+        +retrieveCoordinateGroup(label: String): CoordinateGroup
+        +retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    }
+
+    CoordinateController --> CoordinateGroupRepository
+    CoordinateController --> CoordinateView
+}
+
+package Database {
+    class MySQLDatabaseConnection {
+        +connection: Connection
+        +connect(): void
+        +disconnect(): void
+        +executeQuery(query: String): ResultSet
+    }
+
+    CoordinateGroupRepository --> MySQLDatabaseConnection
+}
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+' Define packages for better organization of classes
+package "Client" {
+    class UserInterface {
+        - activeFilter : string
+        - selectedRecord : int
+        + addGroup(label: string, x: double, y: double) : void
+        + updateGroup(id: int, label: string, x: double, y: double) : void
+        + deleteGroup(id: int) : void
+        + refresh() : void
+    }
+}
+package "Server" {
+    class DatabaseManager {
+        - connection : TCP/IPConnection
+        - groups : list<CoordinateGroup>
+        + connectToDB(): boolean
+        + addGroup(group: CoordinateGroup): boolean
+        + updateGroup(id: int, group: CoordinateGroup): boolean
+        + deleteGroup(id: int): boolean
+    }
+}
+package "Logic" {
+    class CoordinateConversion {
+        + cartesianToPolar(x: double, y: double) : PolarCoordinates
+        + polarToCartesian(r: double, theta: double) : CartesianCoordinates
+    }
+    class CoordinateGroup {
+        - id : int
+        - label : string
+        - datetime : string
+        - cartesian : CartesianCoordinates
+        - polar : PolarCoordinates
+        + setLabel(label: string) : void
+        + setDatetime() : void
+        + setCartesian(x: double, y: double) : void
+        + setPolar(r: double, theta: double) : void
+    }
+}
+
+
+' Associations and dependencies between classes
+UserInterface .. DatabaseManager
+DatabaseManager <....> CoordinateGroup
+CoordinateConversion .. CoordinateGroup
+@enduml

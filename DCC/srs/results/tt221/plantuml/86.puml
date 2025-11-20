@@ -1,0 +1,40 @@
+@startuml
+' Packages
+package "presentation" {
+    class CoordinateConverterUI {
+        + displayCoordinateGroup(group: CoordinateGroup): void
+        + requestCoordinateInput(): Coordinate
+        + displayErrorMessage(message: String): void
+    }
+}
+
+package "business_logic" {
+    class CoordinateConverter {
+        + convertCoordinates(group: CoordinateGroup): void
+    }
+
+    class CoordinateGroupManager {
+        + createCoordinateGroup(group: CoordinateGroup): void
+        + modifyCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: int): CoordinateGroup
+    }
+}
+
+package "data_access" {
+    interface CoordinateGroupRepository {
+        + saveCoordinateGroup(group: CoordinateGroup): void
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: int): CoordinateGroup
+    }
+}
+
+' Associations
+CoordinateGroupManager ..> CoordinateConverter : uses
+presentation.CoordinateConverterUI --> business_logic.CoordinateGroupManager : interacts with
+business_logic.CoordinateGroupManager --> data_access.CoordinateGroupRepository : uses
+
+@enduml

@@ -1,0 +1,173 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here:
+# Software Requirements Specification (SRS)
+
+# MyCharts Application
+
+---
+
+## 1. Introduction
+
+### 1.1 Purpose  
+The MyCharts Application is a web-based service designed to enable users with minimal technical expertise to generate, manage, and download charts in various formats. It simplifies chart creation by providing templates for source data, supporting data uploads. It uses the Highcharts library for chart generation.
+
+### 1.2 Scope  
+This application allows users to:  
+- Download CSV templates for supported chart types.  
+- Upload CSV files to generate charts.  
+- Save and download charts in PDF, PNG, SVG, and HTML formats.  
+- Purchase quotas for chart creation.
+- View and download generated charts.
+
+### 1.3 Definitions, Acronyms, and Abbreviations  
+- **CSV**: Comma-Separated Values file format.  
+- **Quota**: A limit on the number of charts a user can create.  
+- **Highcharts**: JavaScript library used for chart rendering.  
+
+### 1.4 References  
+- Highcharts Library: https://www.highcharts.com  
+- Google Authentication API: https://developers.google.com/identity  
+- CSV Format Specification: https://tools.ietf.org/html/rfc4180  
+
+### 1.5 Overview  
+This document outlines functional and non-functional requirements, use cases, and interface specifications for the MyCharts Application.
+
+---
+
+## 2. System Overview
+
+### 2.1 Product Perspective  
+MyCharts is a SaaS (Software as a Service) standalone web application. It will be offered online and produce revenue by selling credits for chart generation.
+
+### 2.2 Product Functions  
+1. User authentication via Google accounts.  
+2. Download CSV templates for chart types.  
+3. Upload CSV files to generate charts.  
+4. Save charts in PDF, PNG, SVG, and HTML formats.  
+5. Display and manage user-generated charts.  
+6. Charge for quotas needed to create charts.  
+
+### 2.3 User Characteristics  
+Primary users include educators, students, and professionals needing simple chart generation. No coding or technical skills are required.
+
+### 2.4 Operating Environment  
+- **Frontend**: Modern browsers (Chrome, Firefox, Safari).  
+- **Backend**: Application Server with Node.js or Python runtime and database server(s) as needed.  
+- **Network**: Internet connectivity required for service offering.  
+
+### 2.5 Assumptions and Dependencies  
+- Google OAuth is available for user authentication.  
+- Highcharts library is accessible for chart rendering.  
+- Users follow the CSV structure.  
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 Functional Requirements Specification  
+1. Authenticate users via Google accounts.  
+2. Allow download of CSV templates for 3 supported chart types (Basic line, Line with annotations, Basic column).  
+3. Upload CSV file with the user data for chart generation.
+4. Validate uploaded CSV files against the template structure, data types, and mandatory data existence.  
+5. Generate charts with data from the CSV file uploaded by the user, using Highcharts.  
+6. Save charts to the server in PDF, PNG, SVG, and HTML formats.  
+7. Display a dashboard with the history of user-generated charts, including chart previews.  
+8. Download selected chart type.
+9. Charge quotas for chart creation.  
+10. Allow users to delete or download charts. 
+11. Sell quotas and receive payment by a payment gateway
+12. Maintain user profiles containing the following data: Name (from Google account), profile picture (from Google account), email (from Google account), remaining quota, account creation timestamp, last login timestamp.  
+13. Display user's profile info, including remaining quotas.
+
+
+### 3.2 Use Cases  
+
+#### 3.2.1 Use Case Diagram  
+```plantuml
+@startuml
+skinparam packageStyle rectangular
+
+package "Microservices" {
+    class UserService {
+        -csvFile : File
+        +uploadCSV() : Void
+        +customizeChart() : Chart
+    }
+    note right of UserService
+        Functional requirement
+    end note
+
+    class ChartGenerationService {
+        -quota : Int
+        -chartData : Data
+        +generateChart() : Chart
+    }
+    note right of ChartGenerationService
+        Functional requirement
+    end note
+
+    class GoogleOAuthService {
+        -accessToken : String
+        +authenticate() : AccessToken
+    }
+    note right of GoogleOAuthService
+        Data management
+    end note
+
+    class ChartAPI {
+        +generateChart(user: User) : Chart
+    }
+    note right of ChartAPI
+        Flow control
+    end note
+}
+
+@enduml
+
+
+Here is the JSON object with the characteristics of the architecture:
+
+{
+    "SI": "(# of stateless services) / |Total number of services|",
+    "DOC": "(# of services that are linked to a dedicated data store) / |Total Number of services|",
+    "SST(S)": "(# of transaction-aware services) / |Total Amount of services|",
+    "services": [
+        {
+            "service_name": "UserService",
+            "SIC": 2,
+            "AIS(in)": 1,
+            "ADS(out)": 0
+        },
+        {
+            "service_name": "ChartGenerationService",
+            "SIC": 3,
+            "AIS(in)": 1,
+            "ADS(out)": 0
+        },
+        {
+            "service_name": "GoogleOAuthService",
+            "SIC": 2,
+            "AIS(in)": 1,
+            "ADS(out)": 0
+        }
+    ],
+    "use_cases": [
+        {
+            "use_case_name": "Upload and Customize Chart",
+            "SC": ["UserService", "ChartGenerationService"]
+        },
+        {
+            "use_case_name": "Google Authentication",
+            "SC": ["UserService", "GoogleOAuthService"]
+        }
+    ]
+}
+
+Note that the number of operations for each service is not provided in this example, so the SIC (Service Interface Count) is an assumption based on the given class diagram. Also, AIS(in) and ADS(out) are assumptions as well, since consumer and provider relationships are not explicitly stated in the given information.
+
+The SI, DOC, and SST(S) values can be calculated once the number of stateless services, services with dedicated data stores, and transaction-aware services have been determined.
+```json
+{}
+```

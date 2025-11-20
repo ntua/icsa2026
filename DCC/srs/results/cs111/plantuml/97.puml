@@ -1,0 +1,86 @@
+@startuml
+package "Client-Server Architecture" {
+
+  package "Client Side" {
+    package "GUI" {
+      class CoordinateGroupGUI {
+        - Button viewAllButton
+        - Button findByLabelButton
+        - Button deleteButton
+        - TextField labelFilter
+        - List coordinateList
+
+        + void initialize()
+        + void showCoordinateGroups(List)
+      }
+    }
+
+    package "Logic" {
+      class ClientApp {
+        - CoordinateGroupGUI gui
+        - CoordinateCoordinator coordinator
+
+        + void startApplication()
+        + void handleUserInput()
+      }
+
+      class CoordinateCoordinator {
+        - CoordinateGroupDAO dao
+
+        + List getAllCoordinateGroups()
+        + List getCoordinateByLabel(String)
+        + void deleteCoordinateGroup(CoordinateGroup)
+      }
+    }
+  }
+
+  package "Server Side" {
+    package "Data Access" {
+      class CoordinateGroupDAO {
+        - Connection dbConnection
+
+        + List getAllCoordinateGroups()
+        + List getCoordinateByLabel(String)
+        + void saveCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(Integer)
+      }
+
+      class Database {
+        + Connection connect()
+        + void disconnect()
+      }
+    }
+  }
+
+  class CoordinateGroup {
+    - Integer id
+    - Date timestamp
+    - String label
+    - PolarCoordinates polar
+    - CartesianCoordinates cartesian
+
+    + String getLabel()
+    + Integer getId()
+  }
+
+  class PolarCoordinates {
+    - Double r
+    - Double theta
+  }
+
+  class CartesianCoordinates {
+    - Double x
+    - Double y
+  }
+}
+
+' Associations
+CoordinateGroupGUI --> ClientApp : Uses
+ClientApp --> CoordinateCoordinator : Contains
+CoordinateCoordinator --> CoordinateGroupDAO : Collaborates
+CoordinateGroupDAO --> Database : Uses
+
+CoordinateGroupGUI *-- List : Displays
+CoordinateGroupDAO *-- List : Returns
+CoordinateGroupDAO *-- CoordinateGroup : Manages
+@enduml

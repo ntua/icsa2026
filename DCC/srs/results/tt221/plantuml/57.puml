@@ -1,0 +1,46 @@
+@startuml
+
+' Packages
+package com.dcc {
+    class CoordinateGroup {
+      - id : int
+      - timestamp : Date
+      - label : String
+      - polarCoordinates : double[]
+      - cartesianCoordinates : double[][]
+      
+      + create()
+      - delete(id : int)
+    }
+}
+
+package com.gui {
+    class GUIController
+    class MenuComponent {
+      // UI components for the menu
+    }
+    class InputForm {
+      // Components to take user input
+    }
+    class DisplayList {
+      // UI component to display list of coordinate groups
+    }
+}
+
+package com.db {
+    class DBConnector {
+      - url : String
+      - username : String
+      - password : String
+      
+      + DBConnector(url : String, username : String, password : String)
+      + connect()
+    }
+}
+
+' Associations
+com.gui.MenuComponent *-- com.dcc.CoordinateGroup : "0..* A Menu can access any number of CoordinateGroups"
+com.gui.InputForm --> com.dcc.CoordinateGroup : "1..* Each InputForm is associated with exactly one CoordinateGroup"
+com.gui.DisplayList --> com.dcc.CoordinateGroup : "* The DisplayList can display any number of CoordinateGroups"
+
+@enduml

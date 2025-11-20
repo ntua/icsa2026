@@ -1,0 +1,61 @@
+@startuml
+!define LIGHTBLUE #ADD8E6
+skinparam package {
+  BackgroundColor LIGHTBLUE
+}
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    + polarCoordinates: List<PolarCoordinate>
+    + cartesianCoordinates: List<CartesianCoordinate>
+    + getPolarCoordinates() : List<PolarCoordinate>
+    + setPolarCoordinates(List<PolarCoordinate>) : void
+    + getCartesianCoordinates(): List<CartesianCoordinate>
+    + setCartesianCoordinates(List<CartesianCoordinate>): void
+
+  }
+  class PolarCoordinate {
+    - radius: double
+    - angle: double
+  }
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+  }
+}
+
+package "View" {
+  class CoordinateGroupListView {
+    + displayCoordinateGroups(List<CoordinateGroup>): void
+  }
+  class CoordinateGroupDetailView {
+    + displayCoordinateGroup(CoordinateGroup): void
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupController {
+    - coordinateGroupRepository: CoordinateGroupRepository
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(String label): CoordinateGroup
+    + deleteCoordinateGroup(CoordinateGroup coordinateGroup): void
+  }
+
+  class CoordinateGroupRepository {
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): CoordinateGroup
+    + delete(CoordinateGroup coordinateGroup): void
+  }
+}
+
+
+CoordinateGroupController --|> CoordinateGroupRepository : uses
+
+CoordinateGroupController --> CoordinateGroupListView
+CoordinateGroupController --> CoordinateGroupDetailView
+
+
+@enduml

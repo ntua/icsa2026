@@ -1,0 +1,106 @@
+@startuml
+
+' ===== Model Package =====
+package "model" {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + updateCoordinates(cart: CartesianCoordinate, pol: PolarCoordinate): void
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + CartesianCoordinate(x: double, y: double)
+    + getX(): double
+    + getY(): double
+    + toPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + PolarCoordinate(r: double, theta: double)
+    + getR(): double
+    + getTheta(): double
+    + toCartesian(): CartesianCoordinate
+  }
+  
+  ' Composition: A CoordinateGroup is composed of its coordinate representations.
+  CoordinateGroup *-- CartesianCoordinate
+  CoordinateGroup *-- PolarCoordinate
+}
+
+' ===== DAO Package (Data Access Objects) =====
+package "dao" {
+  class DBConnector {
+    - connection: Connection
+    + DBConnector(url: String, username: String, password: String)
+    + getConnection(): Connection
+  }
+
+  class CoordinateGroupDAO {
+    - dbConnector: DBConnector
+    + CoordinateGroupDAO(connector: DBConnector)
+    + add(coordinateGroup: model.CoordinateGroup): void
+    + update(coordinateGroup: model.CoordinateGroup): void
+    + delete(id: int): void
+    + getAll(): List<model.CoordinateGroup>
+    + getByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  ' Association: DAO uses a DBConnector for database operations.
+  CoordinateGroupDAO --> DBConnector
+}
+
+' ===== Controller Package =====
+package "controller" {
+  class CoordinateController {
+    - dao: dao.CoordinateGroupDAO
+    + CoordinateController(dao: dao.CoordinateGroupDAO)
+    + addCoordinateGroup(label: String, cart: model.CartesianCoordinate): void
+    + updateCoordinateGroup(group: model.CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + getAllCoordinateGroups(): List<model.CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+    + convertToPolar(cart: model.CartesianCoordinate): model.PolarCoordinate
+    + convertToCartesian(pol: model.PolarCoordinate): model.CartesianCoordinate
+  }
+  
+  ' Dependency: The controller uses the conversion utility.
+  CoordinateController ..> util.CoordinateConverter
+  ' Association: Controller uses DAO for persistence.
+  CoordinateController --> dao.CoordinateGroupDAO
+}
+
+' ===== View Package =====
+package "view" {
+  class MainView {
+    - controller: controller.CoordinateController
+    + MainView(controller: controller.CoordinateController)
+    + display(): void
+    + showCoordinateGroups(groups: List<model.CoordinateGroup>): void
+    + showError(message: String): void
+  }
+  
+  ' Association: The view depends on the controller.
+  MainView --> controller.CoordinateController
+}
+
+' ===== Utility Package =====
+package "util" {
+  class CoordinateConverter {
+    + cartesianToPolar(cart: model.CartesianCoordinate): model.PolarCoordinate
+    + polarToCartesian(pol: model.PolarCoordinate): model.CartesianCoordinate
+  }
+}
+
+@enduml

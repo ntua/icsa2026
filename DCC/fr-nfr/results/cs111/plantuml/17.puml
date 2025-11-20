@@ -1,0 +1,61 @@
+@startuml
+package frontend {
+    class CoordinateInputPanel {
+        + getInputCoordinates() : CoordinateGroup
+    }
+    class CoordinateDisplayPanel {
+        + displayCoordinateGroup(CoordinateGroup)
+    }
+    class DCCApp {
+        - dbClient: DatabaseClient
+        + start()
+    }
+}
+
+package backend {
+  class DatabaseClient {
+      - host: String
+      - port: int
+      + storeCoordinateGroup(CoordinateGroup): void
+      + getCoordinateGroup(String label): CoordinateGroup
+      + getAllCoordinateGroups(): List<CoordinateGroup>
+      + deleteCoordinateGroup(int id): void
+  }
+  class CoordinateConverter {
+    + cartesianToPolar(CartesianCoordinate): PolarCoordinate
+    + polarToCartesian(PolarCoordinate): CartesianCoordinate
+  }
+}
+
+package data {
+  abstract class Coordinate {
+    - dimension: int
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+  }
+}
+
+frontend.DCCApp "1" *-- "1" backend.DatabaseClient
+frontend.DCCApp "1" *-- "1" frontend.CoordinateInputPanel
+frontend.DCCApp "1" *-- "1" frontend.CoordinateDisplayPanel
+backend.CoordinateConverter "1" <-- "*" data.Coordinate
+
+data.CoordinateGroup "1" --> "*" data.Coordinate : contains
+
+
+@enduml

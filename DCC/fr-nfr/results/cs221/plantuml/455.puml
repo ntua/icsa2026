@@ -1,0 +1,46 @@
+@startuml
+class DummyCoordConversionApp { }
+
+class Logic {  
+    +convertCartesianToPolar(cartesian: Cartesian): Polar
+    +convertPolarToCartesian(polar: Polar): Cartesian
+}
+
+class DataOperations { 
+    +createOperation() : void
+    +readOperation() : List<CoordinateGroup>
+    +updateOperation() : void
+    +deleteOperation(id: int) : void
+}
+
+class View { 
+    +displayList(list: List<CoordinateGroup>) : void
+    +filterByLabel(label: String) : List<CoordinateGroup>
+    +clearFilter() : List<CoordinateGroup>
+}
+
+class Controller {  
+    +inputNewCoordinateGroup(cartesian: Cartesian, polar: Polar, label: String) 
+    +executeCreateOperation() : void
+    +updateRecord(record: CoordinateGroup) : void
+    +deleteRecord(id: int) : void
+}
+
+class UI {  
+    +displayList(list: List<CoordinateGroup>) : void
+    +refreshDisplay() : void
+}
+
+DataOperations *-- Controller : uses 
+UI *-* Controller : uses
+Controller *-- Logic : uses
+View *-- DataOperations : uses
+DummyCoordConversionApp *-- Logic: composed of
+DummyCoordConversionApp *-- Controller: composed of
+DummyCoordConversionApp *-- View: composed of
+DummyCoordConversionApp *--  UI: composed of
+Logic --> CoordinateGroup : composes with
+DataOperations <|-- DatabaseConnection : interacts with 
+View -- Controller : communicates through  
+}
+@enduml

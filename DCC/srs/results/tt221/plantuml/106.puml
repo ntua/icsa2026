@@ -1,0 +1,71 @@
+@startuml
+package presentation {
+  class DCCApplicationGUI {
+    - CoordinateGroupList guiList
+    - CreateCoordinateGroupForm createForm
+    - ModifyCoordinateGroupForm modifyForm
+    
+    + void displayMain() 
+    + void showCreateForm()
+    + void showModifyForm()
+    + void refreshList()
+  }
+}
+
+package service {
+  class CoordinateGroupService {
+    - CoordinateGroupDAO dao
+    - DCCApplicationGUI gui
+    
+    + void addCoordinateGroup(CoordinateGroup)
+    + void updateCoordinateGroup(CoordinateGroup)
+    + void deleteCoordinateGroup(int)
+    + List<CoordinateGroup> getAllCoordinateGroups()
+    + void convertPolarToCartesian(CoordinateGroup)
+  }
+}
+
+package dao {
+  class CoordinateGroupDAO {
+    - JDBCConnection connection
+    
+    + void save(CoordinateGroup)
+    + void update(CoordinateGroup)
+    + void delete(int)
+    + List<CoordinateGroup> findAll()
+    + void closeConnection()
+  }
+}
+
+package model {
+  class CoordinateGroup {
+    - int id
+    - String timestamp
+    - String label
+    - PolarCoordinates polarCoords
+    - CartesianCoordinates cartesianCoords
+    
+    + void setLabel(String)
+    + void convertPolarToCartesian()
+    + void convertCartesianToPolar()
+  }
+  
+  class PolarCoordinates {
+    - float r
+    - float theta
+  }
+  
+  class CartesianCoordinates {
+    - float x
+    - float y
+  }
+}
+
+DCCApplicationGUI --> CoordinateGroupService
+CoordinateGroupService --> CoordinateGroupDAO
+CoordinateGroupDAO --> CoordinateGroup
+CoordinateGroupService --> CoordinateGroup
+CoordinateGroup --> PolarCoordinates
+CoordinateGroup --> CartesianCoordinates
+
+@enduml

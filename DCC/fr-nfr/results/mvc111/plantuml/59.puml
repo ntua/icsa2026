@@ -1,0 +1,68 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: string
+    - timestamp: datetime
+    - cartesianCoordinates: List<CartesianCoordinate>
+    - polarCoordinates: List<PolarCoordinate>
+    
+    + CoordinateGroup(label: string)
+    + getCartesianCoordinates(): List<CartesianCoordinate>
+    + getPolarCoordinates(): List<PolarCoordinate>
+    + convertCartesianToPolar(): void
+    + convertPolarToCartesian(): void
+  }
+  
+  class CartesianCoordinate {
+    - x: float
+    - y: float
+    
+    + CartesianCoordinate(x: float, y: float)
+  }
+  
+  class PolarCoordinate {
+    - r: float
+    - theta: float
+    
+    + PolarCoordinate(r: float, theta: float)
+  }
+}
+
+package "View" {
+  class DccView {
+    + update(coordinateGroups: List<CoordinateGroup>)
+    + displayError(message: string)
+  }
+}
+
+package "Controller" {
+  class DccController {
+    - model: Model
+    - view: DccView
+    
+    + DccController(model: Model, view: DccView)
+    + createCoordinateGroup(label: string, x: float, y: float, r: float, theta: float)
+    + storeCoordinateGroup()
+    + retrieveCoordinateGroup(label: string)
+    + modifyCoordinateGroup(id: int, label: string, x: float, y: float, r: float, theta: float)
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+package "Database" {
+  class MySQLDatabase {
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + getCoordinateGroupByLabel(label: string): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+Database -- Controller
+Controller -- Model
+Model -- View
+
+@enduml

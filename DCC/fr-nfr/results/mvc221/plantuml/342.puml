@@ -1,0 +1,76 @@
+@startuml
+
+package "frontend" {
+  class DCCView {
+    +displayCoordinateGroups(List<CoordinateGroup>)
+    +displayErrorMessage(String)
+    +getCoordinatesFromUser(): Coordinates
+    +getLabelFromUser(): String
+    +getSelectedGroupId(): int
+  }
+}
+
+package "controller" {
+  class DCCController {
+    - model: DCCModel
+    - view: DCCView
+    +handleCreateOp()
+    +handleReadOp()
+    +handleUpdateOp()
+    +handleDeleteOp()
+    +handleFilterOp(String)
+    +handleClearFilterOp()
+  }
+
+}
+
+package "model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    +create(): void 
+    +update(CartesianCoordinates, PolarCoordinates): void
+  }
+  
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+    +toPolarCoordinates(): PolarCoordinates
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+    +toCartesianCoordinates(): CartesianCoordinates
+  }
+
+  class DCCModel {
+    - coordinateGroups: List<CoordinateGroup>
+    +createCoordinateGroup(String, CartesianCoordinates): CoordinateGroup
+    +getCoordinateGroupById(int): CoordinateGroup
+    +updateCoordinateGroup(CoordinateGroup): void
+    +deleteCoordinateGroup(int): void
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +filterCoordinateGroupsByLabel(String): List<CoordinateGroup>
+  }
+
+}
+
+package "database" {
+  class MySQLDatabase {
+    +saveCoordinateGroup(CoordinateGroup): void
+    +getCoordinateGroupById(int): CoordinateGroup
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(CoordinateGroup): void
+    +deleteCoordinateGroup(int): void
+    +filterCoordinateGroupsByLabel(String): List<CoordinateGroup>
+  }
+}
+
+DCCController "1" -- "*" DCCModel: uses
+DCCView "1" -- "*" DCCController: uses
+DCCModel "1" -- "*" MySQLDatabase: connects to
+
+@enduml

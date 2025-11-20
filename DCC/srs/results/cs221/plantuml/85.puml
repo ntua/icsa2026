@@ -1,0 +1,48 @@
+@startuml
+package client {
+  class CoordinateConverterUI {
+    + label: String
+    + sourceCoordinateSystem: String
+    + destinationCoordinateSystem: String
+    + sourceX: double
+    + sourceY: double
+    + destinationR: double
+    + destinationTheta: double
+
+    + convertCoordinates()
+    + updateUI()
+  }
+}
+
+package server {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: double, y: double): Coordinate
+    + convertPolarToCartesian(r: double, theta: double): Coordinate
+  }
+
+  class Coordinate {
+    + r: double
+    + theta: double
+    + x: double
+    + y: double
+  }
+
+  class CoordinateDataAccess {
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + loadCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateGroup {
+    + id: int
+    + label: String
+    + timestamp: Date
+    + cartesianCoordinates: Coordinate
+    + polarCoordinates: Coordinate
+  }
+}
+
+client.CoordinateConverterUI <-> server.CoordinateConverterUI: interacts
+server.CoordinateConverterUI -> server.CoordinateConverter: converts coordinates
+server.CoordinateDataAccess <--> server.CoordinateGroup: manages persistence
+@enduml

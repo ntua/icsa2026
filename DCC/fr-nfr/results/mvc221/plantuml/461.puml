@@ -1,0 +1,66 @@
+@startuml
+
+package CoordinateGroup {
+  class CoordinateGroup { 
+    - id: int
+    + cartesianCoordinates: List<CartesianCoordinate>
+    + polarCoordinates: List<PolarCoordinate>
+    
+   }
+   
+class CartesianCoordinate {
+  -- x: double
+  -y: double
+}
+class PolarCoordinate{
+  - r: double
+  - theta: double
+}
+}
+package dataOperations {
+   class CreateOp {
+    - id: int
+     timestamp: String
+     label: String
+     cartesianValues: List<CartesianCoordinate>
+     polarValues: List<PolarCoordinate>
+    }
+   class ReadOp {
+   - records: Map<int, CoordinateGroup>
+   }
+   
+   class UpdateOp {
+   - recordId: int
+    newValues: CoordinateGroup
+    }
+             
+   class DeleteOp {
+    -recordId: int
+    }
+}
+
+package DBManager {
+  class DatabaseConnection {
+    -hostname: String
+     port: int
+     username: String
+     password: String
+  }  
+  
+  class RecordRetrieval {
+  - id: int
+    cartesianCoordinates: List<CartesianCoordinate>
+    polarCoordinates: List<PolarCoordinate>
+    }
+}
+
+ 
+   class Controller {
+   - dbManagerConnection: DatabaseConnection
+   - coordgroupList: Map<int, CoordinateGroup>
+   + addNewRecord()
+   + updateRecord(recordId: int)
+   + deleteRecord(recordId: int)
+   + getRecords() -> records: List<CoordinateGroup>
+}
+@enduml

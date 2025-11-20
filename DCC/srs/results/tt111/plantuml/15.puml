@@ -1,0 +1,61 @@
+@startuml
+' Three-Tier Architecture Definition:
+
+' Define Packages and Classes with Stereotypes
+package "Tier 1: Presentation" <<Tier1>> as t1 {
+  class UserInterface {
+    + Display(): void
+    + GetInput(): void
+  }
+}
+
+package "Tier 2: Application Logic" <<Tier2>> as t2 {
+  class CoordinateGroupService {
+    - findAllCoordinateGroups(): List<CoordinateGroup>
+    - findByLabel(label: string): List<CoordinateGroup>
+    - deleteCoordinateGroup(id: int): void
+  }
+
+  class DatabaseManager {
+    - connectToDatabase(): void
+    - disconnectFromDatabase(): void
+  }
+}
+
+package "Tier 3: Data" <<Tier3>> as t3 {
+  class CoordinateGroup <<Entity>> {
+    ID : int <<PK>>
+    Timestamp : datetime 
+    Label : varchar(255)
+    PolarCoordinates : array of float
+    CartesianCoordinates : array of float
+  }
+
+  class MySQLDatabase {
+    - executeQuery(query: string): ResultSet
+    - closeConnection(): void 
+  }
+}
+
+' Define Relationships
+UserInterface ..> CoordinateGroupService : Uses
+CoordinateGroupService --> DatabaseManager : Uses
+DatabaseManager --> MySQLDatabase : Uses
+CoordinateGroupService --> CoordinateGroup : Manages
+
+' Dependency Injections:
+note right of UserInterface
+  CoordinateGroupService coordSvc
+  DatabaseManager dbMgr
+  MySQLDatabase mysqlDb
+end note 
+
+note left of CoordinateGroupService 
+  dbMgr : DatabaseManager
+end note 
+
+note left of DatabaseManager 
+  mysqlDb : MySQLDatabase
+end note 
+
+@enduml

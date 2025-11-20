@@ -1,0 +1,49 @@
+@startuml
+package com.dcc.model {
+  class CoordinateGroupModel {
+    -id: Integer
+    -label: String
+    -cartesian: CartesianCoordinate
+    -polar: PolarCoordinate
+    +createCartesian(x, y)
+    +createPolar(r, theta)
+    +saveToDatabase()
+    +retrieveByLabel(label)
+    +viewAll()
+  }
+}
+
+package com.dcc.model {
+  class CoordinateGroupController {
+    -model: CoordinateGroupModel
+    -view: CoordinateGroupView
+    +convertCartesianToPolar(cartesian)
+    +convertPolarToCartesian(polar)
+    +saveCoordinateGroup()
+    +retrieveCoordinateGroups()
+    +deleteCoordinateGroup(id)
+  }
+}
+
+package com.dcc.view {
+  class CoordinateGroupView {
+    +displayCoordinateGroup(cartesian, polar)
+    +displayAllCoordinateGroups(groups)
+    +displayError(message)
+  }
+}
+
+package com.dcc.model {
+  class CartesianCoordinate {
+    -x: Double
+    -y: Double
+    +toString()
+  }
+
+  class PolarCoordinate {
+    -r: Double
+    -theta: Double
+    +toString()
+  }
+}
+@enduml

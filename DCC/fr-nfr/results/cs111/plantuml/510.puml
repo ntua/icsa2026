@@ -1,0 +1,68 @@
+@startuml
+' Packages
+package "Client" {
+    class DCCApp {
+        + String label
+        + CoordinateGroup selectedGroup
+        
+        + void createCoordinateGroup(String label, Cartesian cartesian)
+        + void createCoordinateGroup(String label, Polar polar)
+        + void retrieveGroups()
+        + void modifyGroup(Cartesian cartesian)
+        + void modifyGroup(Polar polar)
+        + void deleteGroup(Integer groupId)
+    }
+
+    class CoordinateManager {
+        + void saveCoordinateGroup(String label, Cartesian cartesian)
+        + void saveCoordinateGroup(String label, Polar polar)
+        + List<CoordinateGroup> fetchGroups()
+        + void updateCoordinateGroup(Integer groupId, String label, Cartesian cartesian)
+        + void updateCoordinateGroup(Integer groupId, String label, Polar polar)
+        + void deleteCoordinateGroup(Integer groupId)
+    }
+}
+
+package "Server" {
+    class Database {
+        + void saveCoordinate(Cartesian cartesian)
+        + void saveCoordinate(Polar polar)
+        + List<Cartesian> fetchCartesians()
+        + List<Polar> fetchPolars()
+        + Cartesian fetchCartesianById(Integer id)
+        + Polar fetchPolarById(Integer id)
+        + void updateCartesian(Integer id, Cartesian cartesian)
+        + void updatePolar(Integer id, Polar polar)
+        + void deleteCartesian(Integer id)
+        + void deletePolar(Integer id)
+    }
+}
+
+package "Domain" {
+    class CoordinateGroup {
+        - Integer id
+        - String label
+        - Date timestamp
+        - Cartesian cartesian
+        - Polar polar
+        
+        + CoordinateGroup(String label, Cartesian cartesian, Polar polar)
+    }
+
+    class Cartesian {
+        - Float x
+        - Float y
+    }
+
+    class Polar {
+        - Float r
+        - Float theta
+    }
+}
+
+' Associations
+DCCApp --> CoordinateManager
+CoordinateManager --> Database
+CoordinateGroup *-- Cartesian
+CoordinateGroup *-- Polar
+@enduml

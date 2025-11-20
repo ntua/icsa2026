@@ -1,0 +1,81 @@
+@startuml
+package com.dcc.model {
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: Cartesian
+    - polar: Polar
+    - timestamp: Date
+  }
+
+  class Cartesian {
+    + x: double
+    + y: double
+    + toPolar(): Polar
+  }
+
+  class Polar {
+    + r: double
+    + theta: double
+    + toCartesian(): Cartesian
+  }
+
+  interface CoordinateGroupRepository {
+    + create(CoordinateGroup): void
+    + read(id: int): CoordinateGroup
+    + update(CoordinateGroup): void
+    + delete(id: int): void
+  }
+
+  class MySQLCoordinateGroupRepository implements CoordinateGroupRepository {
+    - dbConnection: DatabaseConnection
+    + constructor(host: String, user: String, password: String)
+    + create(...) #override
+    + read(...) #override
+    + update(...) #override
+    + delete(...) #override
+  }
+}
+
+package com.dcc.controller {
+
+  class DCCController {
+    - view: DCCView
+    - repository: CoordinateGroupRepository
+    + constructor(view: DCCView, repository: CoordinateGroupRepository)
+    + createCoordinateGroup(label: String, cartesian: Cartesian): void
+    + updateCoordinateGroup(id: int, label: String, cartesian: Cartesian): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+package com.dcc.view {
+
+  class DCCView extends JFrame {
+    - controller: DCCController
+    - inputFields: JTextField[]
+    - actionButtons: JButton[]
+    - coordinateTable: JTable
+
+    + constructor(controller: DCCController)
+    + private initComponents(): void
+    + updateTableModel(): void
+  }
+
+  class CoordinateGroupTableModel implements TableModel {
+    - data: List<CoordinateGroup>
+    + getColumnCount(): int
+    + getRowCount(): int
+    + getValueAt(row: int, col: int): Object
+    + setValueAt(value: Object, row: int, col: int): void
+    + addRow(coordinateGroup: CoordinateGroup): void
+  }
+}
+
+DCCController --> DCCView
+DCCController --> MySQLCoordinateGroupRepository
+DCCView --> DCCController
+CoordinateGroup --> Cartesian
+CoordinateGroup --> Polar
+@enduml

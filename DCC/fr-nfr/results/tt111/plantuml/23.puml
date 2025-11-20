@@ -1,0 +1,72 @@
+@startuml
+
+package "Presentation Layer" {
+  class DCCGUI {
+    + createCoordinateGroup()
+    + storeCoordinateGroup()
+    + retrieveCoordinateGroup()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateGroupManager {
+    - DatabaseConnector dbConnector
+    + createCoordinateGroup(coordinates: List<Coordinate>, label: String)
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+    + addCoordinate(coordinate: Coordinate)
+    + removeCoordinate(index: int)
+  }
+
+  abstract class Coordinate {
+    + getValues(): List<double>
+  }
+
+  class CartesianCoordinate extends Coordinate {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinate extends Coordinate {
+    - r: double
+    - theta: double
+  }
+
+}
+
+package "Data Access Layer" {
+  class DatabaseConnector {
+    + connectToDatabase()
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+DCCGUI -- CoordinateGroupManager
+CoordinateGroupManager --> CoordinateConverter
+CoordinateGroupManager <-- CoordinateGroup
+CoordinateGroup "1" *-- "*" Coordinate
+CoordinateGroupManager -- DatabaseConnector
+
+
+
+@enduml

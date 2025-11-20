@@ -1,0 +1,57 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        + createCartesian(x: Float, y: Float): void
+        + createPolar(r: Float, theta: Float): void
+    }
+
+    class CartesianCoordinate {
+        - x: Float
+        - y: Float
+        + convertToPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        - r: Float
+        - theta: Float
+        + convertToCartesian(): CartesianCoordinate
+    }
+}
+
+package "View" {
+    class SwingView {
+        - coordinateGroupController: CoordinateGroupController
+        + displayCoordinateGroups(): void
+        + displayCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    }
+
+    class CoordinateGroupDisplay {
+        - model: CoordinateGroup
+        + update(model: CoordinateGroup): void
+    }
+}
+
+package "Controller" {
+    class CoordinateGroupController {
+        - model: CoordinateGroup
+        - view: SwingView
+        + createCoordinateGroup(): void
+        + storeCoordinateGroup(group: CoordinateGroup): void
+        + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package "Server" {
+    class MySQLDatabase {
+        - connection: Connection
+        + saveData(data: String): void
+        + fetchData(query: String): List<CoordinateGroup>
+    }
+}
+@enduml

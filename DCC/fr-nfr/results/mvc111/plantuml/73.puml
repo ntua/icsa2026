@@ -1,0 +1,22 @@
+@startuml
+!theme plain
+
+package "Server" {
+    class Book { 
+    title, author, isbn, availabilityStatus }
+    class User { 
+    name, contactInfo }
+    class Transaction { 
+    transactionId, bookId, userId, transactionDate }
+    
+    class Database { 
+    saveData(data: String), fetchData(query: String): String }
+}
+
+package "LibraryApp" {
+    class BookManager
+    class UserManager 
+    class TransactionManager
+}
+
+@enduml

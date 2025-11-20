@@ -1,0 +1,66 @@
+@startuml
+
+package Frontend {
+  class Frame {
+    + Swing components
+    - Controller controller
+  }
+  
+  class View {
+    + JTable table
+    + JTextField filterField
+    + JButton addButton, updateButton, deleteButton
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - high-precision numbers x, y or r, theta
+  }
+  
+  class CartesianCoordinate extends Coordinate {}
+  
+  class PolarCoordinate extends Coordinate {}
+  
+  class CoordinateGroup {
+    - List<CartesianCoordinate> cartesians
+    - List<PolarCoordinate> polars
+    }
+  
+  class Converter {
+    + convertCartesianToPolar(CartesianCoordinate) : PolarCoordinate
+    + convertPolarToCartesian(PolarCoordinate) : CartesianCoordinate
+  }
+  
+  class DatabaseManager {
+    - MySQLDatabase database
+    - List<CoordinateGroup> coordinateGroups
+    
+    # CreateOp(label, CoordinateGroup)
+    # ReadOp() : List<CoordinateGroup>
+    # UpdateOp(id, label, CoordinateGroup)
+    # DeleteOp(id)
+  }
+}
+
+package Controllers {
+  class Controller {
+    - Frame view
+    - DatabaseManager dbManager
+    
+    + handleAddButton()
+    + handleUpdateButton()
+    + handleDeleteButton()
+    + handleFilterField()
+    + handleRefreshList()
+  }
+}
+
+Frame "1" -- "*" View
+Controller "1" -- "*" Frame
+Controller "1" -- DatabaseManager
+DatabaseManager "1" -- "*" CoordinateGroup
+CoordinateGroup "1" -- "*" CartesianCoordinate
+CoordinateGroup "1" -- "*" PolarCoordinate
+
+@enduml

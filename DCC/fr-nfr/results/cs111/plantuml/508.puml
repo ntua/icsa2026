@@ -1,0 +1,92 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Client" {
+  package "model" {
+    class CoordinateGroup {
+      - id: Integer
+      - label: String
+      - timestamp: Date
+      - x: Double
+      - y: Double
+      - r: Double
+      - theta: Double
+      
+      + CoordinateGroup(String label, Double x, Double y)
+      + convertToPolar()
+      + convertToCartesian()
+    }
+  }
+
+  package "controller" {
+    class Controller {
+      - mainWindow: MainWindow
+      - serverConnection: Server
+      
+      + handleCreateCoordinateGroup(CoordinateGroup)
+      + handleRetrieveCoordinateGroups()
+      + handleUpdateCoordinateGroup(CoordinateGroup)
+      + handleDeleteCoordinateGroup(Integer)
+    }
+  }
+
+  package "view" {
+    class MainWindow {
+      - coordinateGroup: CoordinateGroup
+      - controller: Controller
+      
+      + showCreateGroupForm()
+      + showRetrieveGroupsList()
+      + showUpdateGroupForm(CoordinateGroup)
+    }
+  }
+}
+
+package "Server" {
+  package "database" {
+    class DatabaseManager {
+      - connection: Connection
+      
+      + storeCoordinateGroup(CoordinateGroup): Boolean
+      + retrieveCoordinateGroup(Integer): CoordinateGroup
+      + retrieveCoordinateGroups(): List<CoordinateGroup>
+      + updateCoordinateGroup(CoordinateGroup): Boolean
+      + deleteCoordinateGroup(Integer): Boolean
+    }
+  }
+
+  package "service" {
+    class Coordinator {
+      - databaseManager: DatabaseManager
+      
+      + createCoordinateGroup(CoordinateGroup): CoordinateGroup
+      + getCoordinateGroup(Integer): CoordinateGroup
+      + getCoordinateGroups(): List<CoordinateGroup>
+      + updateCoordinateGroup(CoordinateGroup): Boolean
+      + deleteCoordinateGroup(Integer): Boolean
+    }
+  }
+
+  package "network" {
+    class Server {
+      - coordinator: Coordinator
+      
+      + handleClientRequest(ClientRequest)
+      + sendResponse(ClientResponse)
+    }
+  }
+}
+
+' Associations
+MainWindow --> Controller
+Controller --> Server
+Server --> Coordinator
+Coordinator --> DatabaseManager
+
+CoordinateGroup --* MainWindow
+CoordinateGroup --* Controller
+CoordinateGroup --* Coordinator
+
+DatabaseManager --* CoordinateGroup
+
+@enduml

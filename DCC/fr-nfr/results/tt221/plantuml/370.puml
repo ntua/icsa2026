@@ -1,0 +1,64 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + inputCoordinateGroup();
+    + inputLabel();
+    + selectOperation();
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>);
+    + filterCoordinateGroups(label: String);
+    + clearFilter();
+  }
+}
+
+package Logic {
+  interface BusinessLogic {
+    + convertCartesianToPolar(x: highPrecisionNumber, y: highPrecisionNumber): PolarCoordinates;
+    + convertPolarToCartesian(r: highPrecisionNumber, theta: highPrecisionNumber): CartesianCoordinates;
+    + createCoordinateGroup(coordinates: Coordinates, label: String): CoordinateGroup;
+    + updateCoordinateGroup(id: int, coordinates: Coordinates, label: String): CoordinateGroup;
+    + deleteCoordinateGroup(id: int): void;
+    + readCoordinateGroups(): List<CoordinateGroup>;
+  }
+
+  class HighPrecisionNumber {
+    + value: float
+  }
+
+  class CartesianCoordinates {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+  }
+
+  class PolarCoordinates {
+    - r: HighPrecisionNumber
+    - theta: HighPrecisionNumber
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    - timestamp: DateTime
+  }
+}
+
+package Database {
+  interface DataAccessObject {
+    + connect(): void
+    + disconnect(): void
+    + createCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+UserInterface -- BusinessLogic
+BusinessLogic -- HighPrecisionNumber
+BusinessLogic -- CartesianCoordinates
+BusinessLogic -- PolarCoordinates
+BusinessLogic -- CoordinateGroup
+DataAccessObject -- DatabaseConnection
+@enduml

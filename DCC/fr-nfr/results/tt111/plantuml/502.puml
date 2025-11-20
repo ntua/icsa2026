@@ -1,0 +1,84 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package definitions
+package presentation {
+    class DCCApp {
+        + JFrame mainFrame
+        + JPanel inputPanel
+        + JTable displayTable
+        + JButton convertButton
+        
+        + void initializeGUI()
+        + void displayCoordinateGroups(List<CoordinateGroup>)
+        + void showConversionResults(Cartesian, Polar)
+    }
+}
+
+package business {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Date timestamp
+        - Cartesian cartesian
+        - Polar polar
+        
+        + CoordinateGroup(String label, Cartesian cartesian)
+        + CoordinateGroup(String label, Polar polar)
+        
+        + void updateLabel(String newLabel)
+        + void updateCartesian(Cartesian newCartesian)
+        + void updatePolar(Polar newPolar)
+    }
+    
+    class CoordinateConverter {
+        + static Cartesian convertPolarToCartesian(Polar polar)
+        + static Polar convertCartesianToPolar(Cartesian cartesian)
+    }
+    
+    class CoordinatorManager {
+        - CoordinateGroupDAO coordinateGroupDAO
+        - CoordinateConverter converter
+        
+        + void createCoordinateGroup(String label, Cartesian cartesian)
+        + void createCoordinateGroup(String label, Polar polar)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+package dataaccess {
+    class DatabaseConnector {
+        - String dbUrl
+        - String username
+        - String password
+        
+        + Connection establishConnection()
+        + void executeQuery(String sql)
+        + ResultSet queryData(String sql)
+        + void closeConnection()
+    }
+    
+    class CoordinateGroupDAO {
+        - DatabaseConnector dbConnector
+        
+        + int createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        
+        + Cartesian retrieveCartesianCoordinates(int id)
+        + Polar retrievePolarCoordinates(int id)
+    }
+}
+
+' Class relationships
+DCCApp --> CoordinatorManager : Uses > (mediates business logic operations)
+CoordinatorManager --> CoordinateConverter : Uses > (for conversion between coordinate types)
+CoordinatorManager --> CoordinateGroupDAO : Uses > (persist and retrieve data)
+CoordinateGroupDAO --> DatabaseConnector : Uses > (database connection and queries)
+
+CoordinateGroup *-- Cartesian : Composition
+CoordinateGroup *-- Polar : Composition
+
+@enduml

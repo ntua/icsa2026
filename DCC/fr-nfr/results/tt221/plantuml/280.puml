@@ -1,0 +1,62 @@
+@startuml
+scale 0.7
+!define CartesianCoordinates as pair(x: high_precision_number, y: high_precision_number)
+!define PolarCoordinates as pair(r: high_precision_number, theta: high_precision_number)
+!define CoordinateGroup as contains(cartesian:CartesianCoordinates, polar:PolarCoordinates)
+
+package "Frontend" {
+    class UserInteractions{
+        + inputNewCoordinateGroup() : void 
+        + calculatePolarFromCartesian(x:high_precision_number, y:high_precision_number): PolarCoordinates
+        + calculateCartesianFromPolar(r: high_precision_number, theta: high_precision_number) : CartesianCoordinates
+    }
+
+    class Display {
+        + refreshAndDisplayList() : void 
+        + filterList(labelValue: String) : void 
+        + clearFilter() : void 
+    }
+}
+
+package "Logic" {
+    class CoordinateConverter{
+        + convertCartesianToPolar(x,y) : PolarCoordinates
+        + convertPolarToCartesian(r, theta): CartesianCoordinates
+    }
+
+    class CoordinateGroupOperations{
+        + createNewCoordinateGroup(label:String, cartesian: CartesianCoordinates, polar: PolarCoordinates) : int
+        + readAllCoordinateGroups() : List<CoordinateGroup> 
+        + updateCoordinateGroup(id:int, label: String, cartesian: CartesianCoordinates, polar: PolarCoordinates) : void 
+        + deleteCoordinateGroup(id:int): void
+    }
+}
+
+
+package "Database" {
+
+    class DatabaseServer{
+        - storeData(data) : void
+        - retrieveData() : data
+    }
+    
+    class Record{
+        int id
+        String label
+        CartesianCoordinates cartesian
+        PolarCoordinates polar
+        datetime timestamp
+    }
+
+    
+}
+
+MySQLServer <|-- DatabaseServer 
+UserInteractions ..> CoordinateConverter : Convert when input is cartesian/polar coordinates
+UserInteractions ..> Display : Refresh and display list after initialization, adding or updating coordinate groups
+UserInteractions ..> CoordinateGroupOperations : Create a new group, Read all groups, Update selected record, Delete selected record
+CoordinateConverter ..> CoordinateGroupOperations : Converts cartesian to polar for addition of a new group 
+Display ..> CoordinateGroupOperations: Reads and displays records when initializing the application or after adding/updating/deleting coordinate groups.
+Display ..> UserInteractions: Filters displayed list of saved coordinate groups by label value entered by user, clears filter and displays all. 
+
+@enduml

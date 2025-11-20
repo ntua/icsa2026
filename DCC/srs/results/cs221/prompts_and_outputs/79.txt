@@ -1,0 +1,81 @@
+Response:
+
+Here is the PlantUML code for a class diagram based on the provided SRS document. It reflects the client-server architecture with a clear separation of responsibilities, representing the required functionalities and associations.
+
+@startuml
+
+package "Client" {
+    class "CoordinateManager" {
+        +createCoordinateGroup(label: String, x: Double, y: Double): void
+        +modifyCoordinateGroup(id: int, label: String, x: Double, y: Double): void
+        +viewCoordinateGroups(): List<CoordinateGroup>
+        +viewCoordinateGroupByLabel(label: String): CoordinateGroup
+        +deleteCoordinateGroup(id: int): void
+    }
+
+    class "CoordinateConverter" {
+        +toPolar(x: Double, y: Double): PolarCoordinate
+        +toCartesian(r: Double, theta: Double): CartesianCoordinate
+    }
+
+    class "GUI" {
+        +displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        +displayErrorMessage(message: String): void
+    }
+
+    CoordinateManager --> CoordinateConverter : uses
+    CoordinateManager --> GUI : uses
+}
+
+package "Server" {
+    class "Database" {
+        +saveCoordinateGroup(group: CoordinateGroup): void
+        +updateCoordinateGroup(group: CoordinateGroup): void
+        +deleteCoordinateGroup(id: int): void
+        +retrieveCoordinateGroups(): List<CoordinateGroup>
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class "CoordinateGroup" {
+        -id: int
+        -label: String
+        -timestamp: Date
+        -cartesianCoordinate: CartesianCoordinate
+        -polarCoordinate: PolarCoordinate
+    }
+
+    class "CartesianCoordinate" {
+        +x: Double
+        +y: Double
+    }
+
+    class "PolarCoordinate" {
+        +r: Double
+        +theta: Double
+    }
+
+    CoordinateGroup *-- CartesianCoordinate : contains
+    CoordinateGroup *-- PolarCoordinate : contains
+    CoordinateManager --> Database : uses
+}
+
+@enduml
+
+
+This PlantUML code defines the required classes and their relationships:
+
+1. **Client-side Classes:**
+   - `CoordinateManager`: Manages user interactions and operations.
+   - `CoordinateConverter`: Converts between Cartesian and Polar coordinates.
+   - `GUI`: Handles user interface tasks.
+
+2. **Server-side Classes:**
+   - `Database`: Interfaces with the MySQL database.
+   - `CoordinateGroup`: Represents a group of coordinates, including metadata.
+   - `CartesianCoordinate` and `PolarCoordinate`: Represent the coordinate types.
+
+3. **Associations:**
+   - `CoordinateGroup` has a composition relationship with `CartesianCoordinate` and `PolarCoordinate`.
+   - Client classes use server classes to perform operations.
+
+The diagram ensures a clear separation of concerns and adheres to the client-server architecture. Let me know if you need further modifications or additional details!

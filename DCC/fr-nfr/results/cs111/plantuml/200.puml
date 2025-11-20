@@ -1,0 +1,53 @@
+@startuml
+
+package "Client" {
+  class DccApp {
+    - databaseConnector: DatabaseConnector
+    + createCoordGroup()
+    + storeCoordGroup()
+    + retrieveCoordGroup()
+    + modifyCoordGroup()
+    + deleteCoordGroup()
+  }
+  
+  class CoordGroup {
+    - id: int
+    - label: string
+    - timestamp: datetime
+    - cartesianCoords: List<CartesianCoord>
+    - polarCoords: List<PolarCoord>
+  }
+  
+  class CartesianCoord {
+    - x: float
+    - y: float
+  }
+  
+  class PolarCoord {
+    - r: float
+    - theta: float
+  }
+}
+
+package "Server" {
+  class DatabaseConnector {
+    + connect()
+    + disconnect()
+    + saveCoordGroup(coordGroup: CoordGroup)
+    + getCoordGroup(id: int)
+    + updateCoordGroup(coordGroup: CoordGroup)
+    + deleteCoordGroup(id: int)
+  }
+  
+  class MySqlDatabase {
+    + executeQuery()
+    + executeUpdate()
+  }
+}
+
+Client.DatabaseConnector -- Server.DatabaseConnector
+DccApp "1" -- "many" CoordGroup
+CoordGroup "1" -- "*" CartesianCoord
+CoordGroup "1" -- "*" PolarCoord
+
+@enduml

@@ -1,0 +1,54 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+package "Presentation Tier" {
+  class UserInterface{
+    + createCoordinateGroup(type: string, x: double, y: double, r: double, theta: double) : void
+    + retrieveCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(id: int, type: string, x: double, y: double, r: double, theta: double, label: string) : void
+    + deleteCoordinateGroup(id: int) : void
+
+    - selectedLabel: string
+  }
+}
+
+
+package "Application Tier" {
+
+  class DCCManager {
+    + convertCoordinates(type: string, x: double, y: double, r: double, theta: double): CoordinateGroup
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(id: int, group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+
+    - databaseConnection [Database] as dbConn
+  }
+}
+
+  class Database {
+    + connectToDB() : void
+    + storeData(data: string) : void
+    + retrieveData(query: string) : string
+    + modifyData(updateQuery: string, data: string) : void
+    + deleteData(deleteQuery: string) : void
+  }
+
+
+class CoordinateGroup {
+  x: double
+  y: double
+  r: double
+  theta: double
+  label: string
+  id: int
+  timestamp: datetime
+
+  + convertToPolar() : void
+  + convertToCartesian() : void
+}
+
+UserInterface <|.. DCCManager  #LightGray
+DCCManager .. Database #LightGray
+
+@enduml

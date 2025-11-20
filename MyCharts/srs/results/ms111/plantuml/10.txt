@@ -1,0 +1,53 @@
+@startuml
+
+package Frontend {
+  class FileUploadComponent {
+    + uploadFile(file: File): void // Functional requirement
+  }
+
+  class ChartPreviewComponent {
+    - chartData: Object
+    + updateChartData(data: Object): void // Data management operation
+    + getChartData(): Object // Functional requirement
+  }
+
+  class ExportFormatSelector {
+    + getSelectedFormat(): string // Functional requirement
+  }
+}
+
+package Backend {
+  class ChartGenerationService {
+    - dataRepository: DataRepository
+    + generateChart(data: Object, format: string): Chart // Functional requirement
+  }
+
+  class AuthenticationService {
+    + authenticateUser(token: string): User // Functional requirement
+  }
+
+  class QuotaManagementService {
+    - quotaStore: QuotaStore
+    + getQuota(userId: string): number // Functional requirement
+    + deductQuota(userId: string, amount: number): void // Data consistency operation
+  }
+
+  class DataRepository {
+    + storeChartData(data: Object): void // Data management operation
+    + retrieveChartData(id: string): Object // Functional requirement
+  }
+
+  class QuotaStore {
+    - users: Map<string, number>
+    + getUserQuota(userId: string): number // Functional requirement
+    + updateUserQuota(userId: string, quota: number): void // Data consistency operation
+  }
+}
+
+Frontend::FileUploadComponent --> Backend::ChartGenerationService : uploadFile() 
+Backend::ChartGenerationService --> Backend::DataRepository : storeChartData()
+Backend::ChartGenerationService <-- Backend::DataRepository : retrieveChartData()
+Frontend::ChartPreviewComponent <-- Backend::ChartGenerationService : generateChart()
+Frontend::ExportFormatSelector --> Backend::ChartGenerationService : getSelectedFormat()
+
+@enduml

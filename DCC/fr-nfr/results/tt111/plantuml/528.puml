@@ -1,0 +1,83 @@
+@startuml DCC Class Diagram
+
+' Packages
+package "dcc.presentation" {
+    class DccMainWindow {
+        - () : void
+        + showCreateGroupDialog(): void
+        + showSearchGroupsDialog(): void
+    }
+    
+    class CreateCoordinateGroupDialog {
+        + createAndSaveCoordinateGroup(cartesian: CartesianCoordinate, polar: PolarCoordinate, label: String): void
+    }
+
+    class SearchCoordinateGroupsDialog {
+        + searchByLabel(label: String): List<CoordinateGroup>
+        + showAllGroups(): List<CoordinateGroup>
+    }
+}
+
+package "dcc.business" {
+    class CoordinateGroupService {
+        - coordinateGroupDao: CoordinateGroupDao
+        
+        + createCoordinateGroup(cartesian: CartesianCoordinate, polar: PolarCoordinate, label: String): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: Integer): CoordinateGroup
+        + updateCoordinateGroup(id: Integer, cartesian: CartesianCoordinate, polar: PolarCoordinate, label: String): void
+        + deleteCoordinateGroup(id: Integer): void
+        + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+    
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesianCoordinates: CartesianCoordinate
+        - polarCoordinates: PolarCoordinate
+        - timestamp: Date
+        
+        + getLabel(): String
+        + setLabel(label: String): void
+    }
+
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+    }
+    
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+    }
+}
+
+package "dcc.dataaccess" {
+    class CoordinateGroupDao {
+        - dbConnection: Connection
+        
+        + save(coordinateGroup: CoordinateGroup): void
+        + findAll(): List<CoordinateGroup>
+        + findById(id: Integer): CoordinateGroup
+        + update(coordinateGroup: CoordinateGroup): void
+        + delete(id: Integer): void
+    }
+}
+
+' Associations
+
+DccMainWindow --> CreateCoordinateGroupDialog : use >
+DccMainWindow --> SearchCoordinateGroupsDialog : use >
+
+CreateCoordinateGroupDialog --> CoordinateGroupService : use >
+SearchCoordinateGroupsDialog --> CoordinateGroupService : use >
+
+CoordinateGroupService --> CoordinateGroupDao : use >
+CoordinateGroupService --> CartesianCoordinate : use >
+CoordinateGroupService --> PolarCoordinate : use >
+CoordinateGroupService --> CoordinateGroup : use > 
+
+CoordinateGroupDao --> CoordinateGroup : manages > 
+
+@enduml

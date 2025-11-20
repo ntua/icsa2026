@@ -1,0 +1,75 @@
+@startuml
+
+class CoordinateGroup {
+    string label
+    CartesianCoordinates cartesian
+    PolarCoordinates polar
+}
+
+package Logic {
+
+  class CartesianCoordinates {
+      double x, y
+  }
+  
+  class PolarCoordinates {
+      double r, theta
+  }
+  
+  class CoordinateConversionService extends CoordinateGroupConversion implements DatabaseConnectorInterface {
+      function convertCartesianToPolar(double x, double y): (double, double) 
+      function convertPolarToCartesian(double r, double theta): (double, double)
+  }
+      
+  class CoordinateGroupConversion {
+      int id;
+      string label;
+      CartesianCoordinates cartesian;
+      PolarCoordinates polar;
+      
+      +create() -> int: [CreateOp]
+      +read() : List<CoordinateGroup>:[ReadOp]
+      +update(int, CoordinateGroup): boolean  // Returns true if update successful, else false
+      +delete(int) : boolean                   // Returns true if deletion successful, else false
+  }
+}
+
+class DatabaseConnectorInterface {
+    +executeQuery(String sql): List<CoordinateGroup>:[ReadOp]
+    +updateRecord(int id, CoordinateGroup): void [UpdateOp]
+    +deleteRecord(int id): boolean              // Returns true if deletion successful, else false
+}
+    
+class DatabaseConnector extends DatabaseConnectorInterface {
+    private String dbConnectionString
+    
+    +DatabaseConnector() : constructor
+    +setDbConnectionString(String) -> void
+    +executeQuery(String sql): List<CoordinateGroup>:[ReadOp]
+    +updateRecord(int id, CoordinateGroup): void [UpdateOp]
+    +deleteRecord(int id): boolean              // Returns true if deletion successful, else false
+}
+    
+class Frontend {
+    private DatabaseConnectorInterface dbConnector; 
+    
+    +Frontend() : constructor
+    +setDbConnector(DatabaseConnectorInterface) -> void: sets the database connector instance to be used by this frontend
+}
+    
+class CoordinateGroupManagementGUI extends Frontend {
+    private DatabaseConnectorInterface dbConnector; 
+    
+    +CoordinateGroupManagementGUI() : constructor
+    +setDbConnector(DatabaseConnectorInterface) -> void: sets the database connector instance to be used by this GUI, and initializes it with default values
+}
+
+Logic .-> CoordinateGroupConversion: uses
+Logic .-- CartesianCoordinates: uses
+Logic .-- PolarCoordinates: uses
+Logic .-- CoordinateConversionService: extends or composes
+
+Frontend .-> CoordinateGroupManagementGUI: uses
+Frontend .-- DatabaseConnectorInterface: uses
+Frontend .--> Logic: communicates with
+@enduml

@@ -1,0 +1,269 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here:
+# Software Requirements Specification (SRS)
+
+# MyCharts Application
+
+---
+
+## 1. Introduction
+
+### 1.1 Purpose  
+The MyCharts Application is a web-based service designed to enable users with minimal technical expertise to generate, manage, and download charts in various formats. It simplifies chart creation by providing templates for source data, supporting data uploads. It uses the Highcharts library for chart generation.
+
+### 1.2 Scope  
+This application allows users to:  
+- Download CSV templates for supported chart types.  
+- Upload CSV files to generate charts.  
+- Save and download charts in PDF, PNG, SVG, and HTML formats.  
+- Purchase quotas for chart creation.
+- View and download generated charts.
+
+### 1.3 Definitions, Acronyms, and Abbreviations  
+- **CSV**: Comma-Separated Values file format.  
+- **Quota**: A limit on the number of charts a user can create.  
+- **Highcharts**: JavaScript library used for chart rendering.  
+
+### 1.4 References  
+- Highcharts Library: https://www.highcharts.com  
+- Google Authentication API: https://developers.google.com/identity  
+- CSV Format Specification: https://tools.ietf.org/html/rfc4180  
+
+### 1.5 Overview  
+This document outlines functional and non-functional requirements, use cases, and interface specifications for the MyCharts Application.
+
+---
+
+## 2. System Overview
+
+### 2.1 Product Perspective  
+MyCharts is a SaaS (Software as a Service) standalone web application. It will be offered online and produce revenue by selling credits for chart generation.
+
+### 2.2 Product Functions  
+1. User authentication via Google accounts.  
+2. Download CSV templates for chart types.  
+3. Upload CSV files to generate charts.  
+4. Save charts in PDF, PNG, SVG, and HTML formats.  
+5. Display and manage user-generated charts.  
+6. Charge for quotas needed to create charts.  
+
+### 2.3 User Characteristics  
+Primary users include educators, students, and professionals needing simple chart generation. No coding or technical skills are required.
+
+### 2.4 Operating Environment  
+- **Frontend**: Modern browsers (Chrome, Firefox, Safari).  
+- **Backend**: Application Server with Node.js or Python runtime and database server(s) as needed.  
+- **Network**: Internet connectivity required for service offering.  
+
+### 2.5 Assumptions and Dependencies  
+- Google OAuth is available for user authentication.  
+- Highcharts library is accessible for chart rendering.  
+- Users follow the CSV structure.  
+
+---
+
+## 3. Functional Requirements
+
+### 3.1 Functional Requirements Specification  
+1. Authenticate users via Google accounts.  
+2. Allow download of CSV templates for 3 supported chart types (Basic line, Line with annotations, Basic column).  
+3. Upload CSV file with the user data for chart generation.
+4. Validate uploaded CSV files against the template structure, data types, and mandatory data existence.  
+5. Generate charts with data from the CSV file uploaded by the user, using Highcharts.  
+6. Save charts to the server in PDF, PNG, SVG, and HTML formats.  
+7. Display a dashboard with the history of user-generated charts, including chart previews.  
+8. Download selected chart type.
+9. Charge quotas for chart creation.  
+10. Allow users to delete or download charts. 
+11. Sell quotas and receive payment by a payment gateway
+12. Maintain user profiles containing the following data: Name (from Google account), profile picture (from Google account), email (from Google account), remaining quota, account creation timestamp, last login timestamp.  
+13. Display user's profile info, including remaining quotas.
+
+
+### 3.2 Use Cases  
+
+#### 3.2.1 Use Case Diagram  
+```plantuml
+@startuml MicroservicesArchitecture
+
+' Packages
+package "Authentication Service" {
+    class OAuthHandler {
+        - String clientId
+        - String clientSecret
+        - boolean isValidToken()
+        - void authenticateUser() // Functional requirement-business logic operation
+        - String generateToken() // Data management operation
+    }
+
+    class SessionManager {
+        - Map<String, UserSession> sessions
+        - void createSession(User user) // Data management operation
+        - void invalidateSession(String sessionId) // Flow control operation
+    }
+}
+
+package "User Management Service" {
+    class UserService {
+        - UserRepository userRepository
+        - void createUser(User user) // Data management operation
+        - User getUserDetails(String userId) // Functional requirement-business logic operation
+        - void updateUserProfile(User user) // Data management operation
+    }
+
+    class UserRepository {
+        - User findByUserId(String userId)
+    }
+}
+
+package "Chart Management Service" {
+    class ChartGenerator {
+        - File validateCSVFile(File file) // Data management operation
+        - Chart generateChart(ChartConfig config) // Functional requirement-business logic operation
+        - void previewChart(Chart chart) // Functional requirement-business logic operation
+    }
+
+    class ChartRepository {
+        - void saveChart(Chart chart)
+        - List<Chart> getChartsForUser(User user)
+    }
+}
+
+package "Quota Management Service" {
+    class QuotaService {
+        - int remainingQuota
+        - void deductQuota(int amount) // Data management operation
+        - void addQuota(int amount) // Functional requirement-business logic operation
+        - boolean hasSufficientQuota(User user, int requiredQuota) // Flow control operation
+    }
+}
+
+package "File Storage Service" {
+    class FileStorage {
+        - File storeFile(File file)
+        - File retrieveFile(String fileId)
+    }
+}
+
+' Relationships and Interactions
+OAuthHandler --> SessionManager : uses
+UserService --> UserRepository : uses
+ChartGenerator --> ChartRepository : uses
+QuotaService --> FileStorage : uses
+
+@enduml
+```
+
+### Microservices Architecture Breakdown
+
+#### 1. **Authentication Service**
+   - Handles user authentication and session management.
+   - **Key Classes**: `OAuthHandler`, `SessionManager`.
+   - **Responsibilities**:
+     - Authenticate users via Google OAuth.
+     - Manage user sessions securely.
+
+#### 2. **User Management Service**
+   - Manages user data and profiles.
+   - **Key Classes**: `UserService`, `UserRepository`.
+   - **Responsibilities**:
+     - CRUD operations for user data.
+     - Validate and update user profiles.
+
+#### 3. **Chart Management Service**
+   - Handles chart generation, validation, and storage.
+   - **Key Classes**: `ChartGenerator`, `ChartRepository`.
+   - **Responsibilities**:
+     - Validate CSV files.
+     - Generate charts based on configurations.
+     - Store and retrieve charts for users.
+
+#### 4. **Quota Management Service**
+   - Manages user quotas and ensures compliance.
+   - **Key Classes**: `QuotaService`.
+   - **Responsibilities**:
+     - Track remaining quota for users.
+     - Deduct or add quota as needed.
+     - Validate sufficient quota before operations.
+
+#### 5. **File Storage Service**
+   - Handles file storage and retrieval.
+   - **Key Class**: `FileStorage`.
+   - **Responsibilities**:
+     - Store files securely.
+     - Retrieve files based on identifiers.
+
+### Architecture Characteristics
+
+- **Statelessness Index (SI)**: All services are designed to be stateless except for the File Storage Service, which may need to maintain session information for file uploads/downloads. Thus, SI = 80%.
+  
+- **Data Ownership**: Each service owns its data, with clear boundaries and no shared databases. Data consistency is maintained through eventual consistency mechanisms.
+
+- **Service Cohesion**: High cohesion within each service, as each service is designed around a single responsibility.
+
+### Use Cases
+
+1. **User Login**
+   - **Involved Services**: Authentication Service, User Management Service.
+   - **Flow**:
+     1. User submits credentials to Authentication Service.
+     2. Authentication Service validates credentials and creates a session.
+     3. Session information is passed to User Management Service for profile retrieval.
+
+2. **Chart Generation**
+   - **Involved Services**: Chart Management Service, Quota Management Service, File Storage Service.
+   - **Flow**:
+     1. User submits CSV file to Chart Management Service.
+     2. Chart Management Service validates the file and checks quota with Quota Management Service.
+     3. If valid, chart is generated and stored via File Storage Service.
+
+### API Gateway Configuration
+
+- **Routing**: Configured to route incoming requests to appropriate services based on URI paths.
+- **Flow Control**: Implements rate limiting, request validation, and circuit breakers for fault tolerance.
+
+This architecture ensures loose coupling, high scalability, and maintainability while adhering to the principles of microservices design.
+```json
+{
+    "SI": [-1, 1],
+    "DOC": [-1, 0.4],
+    "SST": [-1, 0],
+    "services": [
+        {
+            "service_name": "Authentication Service",
+            "SIC": [-1, 3],
+            "AIS(in)": [-1, 0],
+            "ADS(out)": [-1, 1]
+        },
+        {
+            "service_name": "User Management Service",
+            "SIC": [-1, 3],
+            "AIS(in)": [-1, 0],
+            "ADS(out)": [-1, 1]
+        },
+        {
+            "service_name": "Chart Management Service",
+            "SIC": [-1, 3],
+            "AIS(in)": [-1, 0],
+            "ADS(out)": [-1, 1]
+        },
+        {
+            "service_name": "Quota Management Service",
+            "SIC": [-1, 3],
+            "AIS(in)": [-1, 0],
+            "ADS(out)": [-1, 1]
+        },
+        {
+            "service_name": "File Storage Service",
+            "SIC": [-1, 2],
+            "AIS(in)": [-1, 1],
+            "ADS(out)": [-1, 0]
+        }
+    ],
+    "use_cases": [
+
+    ]
+}
+```

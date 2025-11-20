@@ -1,0 +1,67 @@
+@startuml
+package com.dcc.model {
+  -class CoordinateGroup {
+    -id: Integer (unique auto-generated identifier)
+    -label: String (user-defined string label for identification)
+    -createdDate: Date (automatically assigned timestamp)
+    +createCoordinateGroup(cartesian: Cartesian, polar: Polar): void
+    +storeInDatabase(): void
+    +retrieveByLabel(label: String): CoordinateGroup
+    +modifyDetails(): void
+    +deleteFromDatabase(): void
+  }
+  
+  -class Cartesian {
+    -x: Double (Cartesian x-coordinate)
+    -y: Double (Cartesian y-coordinate)
+    +createPolar(r: Double, theta: Double): Polar
+  }
+  
+  -class Polar {
+    -r: Double (polar r-coordinate)
+    -theta: Double (polar θ-angle)
+    +createCartesian(x: Double, y: Double): Cartesian
+  }
+}
+
+package com.dcc.view {
+  -class CoordinateGroupView {
+    +displayCoordinateGroups(): void
+    +displaySingleCoordinateGroup(coordGroup: CoordinateGroup): void
+    +showErrorMessages(error: String): void
+  }
+  
+  -class DatabaseViewer {
+    +displayDatabaseContents(): void
+  }
+}
+
+package com.dcc.controller {
+  -class CoordinateGroupController {
+    -model: CoordinateGroupModel
+    -view: CoordinateGroupView
+    +createNewCoordinateGroup(cartesian: Cartesian, polar: Polar): void
+    +storeInDatabase(coordGroup: CoordinateGroup): void
+    +retrieveByLabel(label: String): CoordinateGroup
+    +modifyDetails(coordGroup: CoordinateGroup): void
+    +deleteFromDatabase(id: Integer): void
+  }
+  
+  -class DatabaseController {
+    -database: MySQLDatabase (MySQL database connection)
+    +connectToDatabase(): void
+    +disconnectFromDatabase(): void
+    +storeInDatabase(coordGroup: CoordinateGroup): void
+    +retrieveByLabel(label: String): CoordinateGroup
+    +modifyDetails(coordGroup: CoordinateGroup): void
+    +deleteFromDatabase(id: Integer): void
+  }
+}
+
+CoordinateGroupController --> CoordinateGroup : Composition
+CoordinateGroup --> Cartesian: Composition
+CoordinateGroup --> Polar: Composition
+CoordinateGroupView --> CoordinateGroupController: Composition
+DatabaseViewer --> DatabaseController: Composition
+
+@enduml

@@ -1,0 +1,130 @@
+@startuml
+'==============================
+' Model Package (Domain Objects)
+'==============================
+package "Model" {
+  class CartesianCoordinate {
+    - x: BigDecimal
+    - y: BigDecimal
+    + CartesianCoordinate(x: BigDecimal, y: BigDecimal)
+    + getX(): BigDecimal
+    + getY(): BigDecimal
+    + setX(x: BigDecimal): void
+    + setY(y: BigDecimal): void
+  }
+
+  class PolarCoordinate {
+    - r: BigDecimal
+    - theta: BigDecimal
+    + PolarCoordinate(r: BigDecimal, theta: BigDecimal)
+    + getR(): BigDecimal
+    + getTheta(): BigDecimal
+    + setR(r: BigDecimal): void
+    + setTheta(theta: BigDecimal): void
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: LocalDateTime
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + CoordinateGroup(id: int, label: String, timestamp: LocalDateTime, cartesian: CartesianCoordinate, polar: PolarCoordinate)
+    + getId(): int
+    + getLabel(): String
+    + getTimestamp(): LocalDateTime
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + setLabel(label: String): void
+    + setTimestamp(timestamp: LocalDateTime): void
+    + setCartesian(cartesian: CartesianCoordinate): void
+    + setPolar(polar: PolarCoordinate): void
+  }
+}
+
+' Composition: A CoordinateGroup is composed of a Cartesian and a Polar coordinate.
+CoordinateGroup *-- "1" CartesianCoordinate : cartesian
+CoordinateGroup *-- "1" PolarCoordinate : polar
+
+'==============================
+' Logic Package (Conversion)
+'==============================
+package "Logic" {
+  class CoordinateConverter {
+    + convertToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    + convertToCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+}
+
+'==============================
+' DAO Package (Database Operations)
+'==============================
+package "DAO" {
+  class CoordinateGroupDAO {
+    + create(cg: CoordinateGroup): void
+    + readAll(): List<CoordinateGroup>
+    + update(cg: CoordinateGroup): void
+    + delete(id: int): void
+  }
+
+  class DatabaseConnectionManager {
+    - connectionString: String
+    - username: String
+    - password: String
+    + getConnection(): Connection
+    + closeConnection(conn: Connection): void
+  }
+}
+
+' Association: The DAO uses the connection manager.
+CoordinateGroupDAO --> DatabaseConnectionManager : uses
+
+'==============================
+' UI Package (Presentation Layer)
+'==============================
+package "UI" {
+  class CoordinateGroupFrame {
+    - controller: CoordinateGroupController
+    + CoordinateGroupFrame(controller: CoordinateGroupController)
+    + display(): void
+    + refreshList(): void
+    + getUserInput(): String
+  }
+}
+
+'==============================
+' Controller Package (Interaction Mediator)
+'==============================
+package "Controller" {
+  class CoordinateGroupController {
+    - view: CoordinateGroupFrame
+    - dao: CoordinateGroupDAO
+    - converter: CoordinateConverter
+    + addCoordinateGroup(label: String, cartesian: CartesianCoordinate): void
+    + addCoordinateGroup(label: String, polar: PolarCoordinate): void
+    + updateCoordinateGroup(cg: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + filterCoordinateGroups(labelFilter: String): List<CoordinateGroup>
+    + refreshCoordinateGroupList(): void
+  }
+}
+
+' Dependencies: Controller uses the UI, DAO, and Logic components.
+CoordinateGroupController --> CoordinateGroupFrame : uses
+CoordinateGroupController --> CoordinateGroupDAO : uses
+CoordinateGroupController --> CoordinateConverter : uses
+CoordinateGroupFrame --> CoordinateGroupController : communicates
+
+'==============================
+' Application Entry Point
+'==============================
+package "Application" {
+  class DCCApplication {
+    + main(args: String[]): void
+  }
+}
+
+' DCCApplication instantiates the Controller.
+DCCApplication --> CoordinateGroupController : creates
+
+@enduml

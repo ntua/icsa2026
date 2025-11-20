@@ -1,0 +1,64 @@
+@startuml
+
+class DatabaseLayer {
+    +connect() : void
+    +disconnect() : void
+}
+
+package "Model Layer" {
+    class CoordinateGroup {
+        -id: Integer
+        -label: String
+        -cartesianCoordinates: List<Cartesian>
+        -polarCoordinates: List<Polar>
+    }
+    
+    interface Converter {
+        +convertToPolar(coords: Cartesian) : Polar
+        +convertFromPolar(coords: Polar) : Cartesian
+    }
+    
+    class Cartesian implements Comparable<Cartesian> {
+        -x: Double
+        -y: Double
+        
+        +compareTo(other: Cartesian): Integer
+    }
+    
+    class Polar implements Comparable<Polar> {
+        -r: Double
+        -theta: Double
+        
+        +compareTo(other: Polar): Integer
+    }
+}
+
+package "Logic Layer" {
+  class Converter {
+    +calculatePolarFromCartesian() : Polar 
+    +calculateCartesianFromPolar() : Cartesian 
+    }
+    
+    class CoordinateGroupManager {
+        -database: DatabaseLayer
+        
+        +createCoordinateGroup(id: Integer, label: String, cartesianCoordinates: List<Cartesian>, polarCoordinates: List<Polar>) : void
+        +readAllCoordinateGroups() : List<CoordinateGroup>
+        +updateCoordinateGroupById(coordinateGroup: CoordinateGroup) : void
+        +deleteCoordinateGroupById(id: Integer) : void
+    }
+}
+
+package PresentationLayer {
+  
+  class MainView {
+        -model: LogicLayer.CoordinateGroupManager
+        +displayListOfGroups() : void 
+        +addNewCoordinateGroup(id: Integer, label: String) : void
+        +updateCoordinateGroupById(coordinateGroupId: Integer) : void
+        +deleteCoordinateGroupById(id: Integer) : void 
+        +inputNewCoordinateGroup(id: Integer, label: String) : void
+    }
+}
+
+@enduml

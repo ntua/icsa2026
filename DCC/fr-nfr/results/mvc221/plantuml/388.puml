@@ -1,0 +1,19 @@
+@startuml 
+class CoordinateGroup {
+   - _id: Integer
+   - cartesianCoordinates: List<Pair>
+   - polarCoordinates: List<Pair>
+   + setCartesianCoordinates(x, y): void
+   + getPolarCoordinates(): Pair[]
+}
+
+class CartesianToPolarConverter {
+   + cartesianToPolar(cartesianPair: Pair): PolarPair
+}
+
+class PolarToCartesianConverter {
+   + polarToCartesian(polarPair: PolarPair): Pair
+}
+
+
+@enduml

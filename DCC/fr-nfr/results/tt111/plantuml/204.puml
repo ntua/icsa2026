@@ -1,0 +1,61 @@
+@startuml
+
+package "Frontend" {
+    class CoordinateGroupCreator {
+        - label: String
+        + createCoordinateGroup(cartesianX: Float, cartesianY: Float, polarR: Float, polarTheta: Float) : CoordinateGroup
+    }
+    
+    class CoordinateGroupDisplay {
+        + displayCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + displayAllCoordinateGroups()
+    }
+    
+    class CoordinateGroupManager {
+        - coordinateGroups: List<CoordinateGroup>
+        + createCoordinateGroup(cartesianX: Float, cartesianY: Float, polarR: Float, polarTheta: Float) : CoordinateGroup
+        + retrieveCoordinateGroupByLabel(label: String) : CoordinateGroup
+        + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+    }
+    
+    CoordinateGroupCreator --> CoordinateGroupManager
+    CoordinateGroupDisplay --> CoordinateGroupManager
+}
+
+package "Model" {
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoordinates
+        - polar: PolarCoordinates
+    }
+    
+    class CartesianCoordinates {
+        - x: Float
+        - y: Float
+    }
+    
+    class PolarCoordinates {
+        - r: Float
+        - theta: Float
+    }
+}
+
+package "Database" as db {
+    interface MySQLDatabase {
+        + saveData(data: String) : Void
+        + fetchData(query: String) : String
+    }
+    
+    MySQLDatabase <|-- DatabaseConnector
+}
+
+CoordinateGroupManager --> CoordinateGroup
+CoordinateGroupManager --> CartesianCoordinates
+CoordinateGroupManager --> PolarCoordinates
+DatabaseConnector --> MySQLDatabase
+
+@enduml

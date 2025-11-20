@@ -1,0 +1,23 @@
+@startuml
+
+package "Microservices" {
+  class Service_Authentication
+  class Service_User
+  class Service_Security
+  class Service_Availability
+
+  Service_Authentication --|> Authentication
+  Service_User --|> User
+  Service_Security --|> Security
+  Service_Availability --|> Availability
+}
+
+package "Data Management" {
+  class Database_Users
+  class Database_Security
+
+  Database_Users --> Service_User : Manages data of
+  Database_Security --> Service_Security : Manages data of
+}
+
+@enduml

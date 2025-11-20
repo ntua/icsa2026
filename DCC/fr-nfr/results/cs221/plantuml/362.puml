@@ -1,0 +1,70 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + displayCoordinateGroupList(coordinateGroups: List<CoordinateGroup>)
+    + displayAddUpdateDialog()
+    + displayDeleteConfirmationDialog()
+    + filterCoordinateGroupsByLabel(label: String)
+    + clearFilter()
+  }
+  
+  class SwingUserInterface implements UserInterface {
+    // Implementation-specific details
+  }
+}
+
+package Logic {
+  enum CoordinateType {
+    CARTESIAN,
+    POLAR
+  }
+
+  class CoordinatePair {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    
+    // Constructor, getters, setters, and methods for coordinate conversion
+  }
+
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - cartesianCoordinates: CoordinatePair
+    - polarCoordinates: CoordinatePair
+    - timestamp: Date
+    
+    // Getters, setters, and methods for coordinate manipulation
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesian: CoordinatePair): CoordinatePair
+    + convertPolarToCartesian(polar: CoordinatePair): CoordinatePair
+  }
+
+  interface DatabaseManager {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+
+  class LogicManager {
+    - coordinateConverter: CoordinateConverter
+    - databaseManager: DatabaseManager
+    
+    + createOp(coordinateGroup: CoordinateGroup)
+    + readOp(): List<CoordinateGroup>
+    + updateOp(coordinateGroup: CoordinateGroup)
+    + deleteOp(id: Int)
+  }
+}
+
+package Data {
+  class MySQLDatabase implements DatabaseManager {
+    // Implementation-specific details
+  }
+}
+
+Frontend ..down-> Logic
+Logic ..down-> Data
+
+@enduml

@@ -1,0 +1,44 @@
+@startuml
+
+!define SHADOWGRADIENT true
+skinparam componentStyle uml2
+hide circle
+
+package UserService {
+  class UserController {
+    + registerUser() // Functional requirement-business logic operation
+    + getUsers()     // Data management operation
+  }
+  
+  class UserDatabase {
+    Users : id, username, email, password
+  }
+}
+
+package OrderService {
+  class OrderController {
+    + createOrder()       // Functional requirement-business logic operation
+    + updateOrderStatus() // Data consistency operation
+  }
+  
+  class OrderDatabase {
+    Orders : id, user_id, items, status
+  }
+}
+
+package InventoryService {
+  class InventoryController {
+    + decrementInventory()   // Functional requirement-business logic operation
+    + getAvailableItems()    // Data management operation
+  }
+
+  class InventoryDatabase {
+    Items : id, name, quantity
+  }
+}
+
+UserController --> UserDatabase : has access to
+OrderController --> OrderDatabase : has access to
+InventoryController --> InventoryDatabase : has access to
+
+@enduml

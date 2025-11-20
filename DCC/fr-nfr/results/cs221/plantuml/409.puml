@@ -1,0 +1,82 @@
+@startuml
+
+package "frontend" {
+  class CoordinateInputView {
+    +getCoordinates(): (double, double)
+    +getCoordinateGroupLabel(): String
+    +displayCoordinateGroups(List<CoordinateGroup>)
+    +updateCoordinateGroupDisplay()
+  }
+}
+
+package "controller" {
+  class DCCController {
+    -coordinateGroupRepository: CoordinateGroupRepository
+    +handleCreateCoordinateGroup(CoordinateInputView)
+    +handleUpdateCoordinateGroup(CoordinateInputView)
+    +handleDeleteCoordinateGroup(int)
+    +handleFilterCoordinateGroups(String)
+  }
+}
+
+package "model" {
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -cartesianCoordinates: CartesianCoordinates
+    -polarCoordinates: PolarCoordinates
+    +getCartesianCoordinates(): CartesianCoordinates
+    +setCartesianCoordinates(CartesianCoordinates)
+    +getPolarCoordinates(): PolarCoordinates
+    +setPolarCoordinates(PolarCoordinates)
+  }
+
+  class CartesianCoordinates {
+    -x: double
+    -y: double
+    +getX(): double
+    +getY(): double
+  }
+
+  class PolarCoordinates {
+    -r: double
+    -theta: double
+    +getR(): double
+    +getTheta(): double
+  }
+
+  class CoordinateConverter {
+    +convertCartesianToPolar(CartesianCoordinates): PolarCoordinates
+    +convertPolarToCartesian(PolarCoordinates): CartesianCoordinates
+  }
+}
+
+package "repository" {
+  interface CoordinateGroupRepository {
+    +createCoordinateGroup(CoordinateGroup): void
+    +getCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(CoordinateGroup): void
+    +deleteCoordinateGroup(int): void
+  }
+
+  class MySQLCoordinateGroupRepository implements CoordinateGroupRepository {
+    -connection: Connection
+    +createCoordinateGroup(CoordinateGroup)
+    +getCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(CoordinateGroup)
+    +deleteCoordinateGroup(int)
+  }
+}
+
+DCCController "1" -- "*" CoordinateGroup : manages
+
+
+CoordinateGroup "*" -- "1" CartesianCoordinates : contains
+CoordinateGroup "*" -- "1" PolarCoordinates : contains
+
+CoordinateConverter "1" -- "*" CartesianCoordinates: converts
+CoordinateConverter "1" -- "*" PolarCoordinates: converts
+
+DCCController "1" -- "1" CoordinateGroupRepository : uses
+
+@enduml

@@ -1,0 +1,25 @@
+@startuml
+
+package "Data Store" {
+  class DataStore
+}
+
+package "Microservices" {
+  class ChartService
+  class UserService
+  class AuthService
+  class CsvParserService
+  class ChartGeneratorService
+}
+
+User --> UserService : Has_one
+GoogleOAuth --> AuthService : Uses
+CsvUploader --> CsvParserService : Uses
+ChartRequest --> ChartGeneratorService : Requires
+
+ChartService ..> UserService : Depends_on
+AuthService ..> UserService : Depends_on
+CsvParserService ..> DataStore : Reads_from
+ChartGeneratorService ..> DataStore : Reads_from
+
+@enduml

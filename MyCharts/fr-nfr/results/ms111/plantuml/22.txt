@@ -1,0 +1,80 @@
+@startuml
+!define REST_SERVICE(name) class name << (S,#FF7700) >>
+
+package "Authentication Service" {
+    REST_SERVICE(GoogleAuthService) {
+        + authenticateUser(googleToken: String): User // Functional requirement-business logic operation
+        + getUserProfile(userId: String): UserProfile // Functional requirement-business logic operation
+    }
+}
+
+package "Template Service" {
+    REST_SERVICE(TemplateService) {
+        + downloadCSVTemplate(chartType: String): File // Functional requirement-business logic operation
+    }
+}
+
+package "Upload Service" {
+    REST_SERVICE(UploadService) {
+        + uploadCSVFile(file: File, userId: String): ValidationResult // Functional requirement-business logic operation
+    }
+}
+
+package "Validation Service" {
+    REST_SERVICE(ValidationService) {
+        + validateCSVFile(file: File, template: Template): ValidationResult // Functional requirement-business logic operation
+    }
+}
+
+package "Chart Generation Service" {
+    REST_SERVICE(ChartGenerationService) {
+        + generateChart(csvData: String, chartType: String): Chart // Functional requirement-business logic operation
+        + saveChart(chart: Chart, formats: List<String>): List<File> // Data management operation
+    }
+}
+
+package "Dashboard Service" {
+    REST_SERVICE(DashboardService) {
+        + getUserChartHistory(userId: String): List<ChartPreview> // Functional requirement-business logic operation
+        + downloadChart(chartId: String, format: String): File // Functional requirement-business logic operation
+    }
+}
+
+package "Quota Service" {
+    REST_SERVICE(QuotaService) {
+        + chargeQuota(userId: String, chartType: String): Boolean // Functional requirement-business logic operation
+        + sellQuota(userId: String, amount: Int): Boolean // Functional requirement-business logic operation
+        + getRemainingQuota(userId: String): Int // Functional requirement-business logic operation
+    }
+}
+
+package "Payment Service" {
+    REST_SERVICE(PaymentService) {
+        + processPayment(userId: String, amount: Int): Boolean // Functional requirement-business logic operation
+    }
+}
+
+package "User Profile Service" {
+    REST_SERVICE(UserProfileService) {
+        + getUserProfile(userId: String): UserProfile // Functional requirement-business logic operation
+        + updateUserProfile(userId: String, profileData: UserProfile): Boolean // Functional requirement-business logic operation
+    }
+}
+
+package "Notification Service" {
+    REST_SERVICE(NotificationService) {
+        + sendNotification(userId: String, message: String): Boolean // Flow control operation
+    }
+}
+
+GoogleAuthService --> UserProfileService: getUserProfile(userId: String)
+TemplateService --> ValidationService: validateCSVFile(file: File, template: Template)
+UploadService --> ValidationService: validateCSVFile(file: File, template: Template)
+UploadService --> ChartGenerationService: generateChart(csvData: String, chartType: String)
+ChartGenerationService --> DashboardService: saveChart(chart: Chart, formats: List<String>)
+DashboardService --> QuotaService: chargeQuota(userId: String, chartType: String)
+QuotaService --> PaymentService: processPayment(userId: String, amount: Int)
+UserProfileService --> DashboardService: getUserChartHistory(userId: String)
+NotificationService --> UserProfileService: sendNotification(userId: String, message: String)
+
+@enduml

@@ -1,0 +1,97 @@
+@startuml DCC_Application_Class_Diagram
+
+' Presentation Layer
+package "Presentation" {
+  class DCCSwingGUI {
+    - List<CoordinateGroup> coordinateGroups
+    - CoordinateGroup selectedGroup
+    
+    + void initialize()
+    + void inputCartesian(x: Double, y: Double)
+    + void inputPolar(r: Double, theta: Double)
+    + void addCoordinateGroup()
+    + void updateCoordinateGroup()
+    + void deleteCoordinateGroup()
+    + void refreshCoordinateList()
+    + void filterByLabel(String label)
+    + void clearFilter()
+  }
+}
+
+' Logic Layer
+package "Logic" {
+  class CartesianCoordinates {
+    - x: Double
+    - y: Double
+    
+    + getCartesian(): Pair<Double, Double>
+  }
+
+  class PolarCoordinates {
+    - r: Double
+    - theta: Double
+    
+    + getPolar(): Pair<Double, Double>
+  }
+
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    - timestamp: DateTime
+    
+    + setId(id: Integer)
+    + setLabel(label: String)
+    + getCoordinateGroup(): Map<String, Object>
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: Double, y: Double): PolarCoordinates
+    + convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates
+  }
+}
+
+' Data Access Layer
+package "DataAccess" {
+  interface CoordinateGroupDAO {
+    + createCoordinateGroup(group: CoordinateGroup): Integer
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id: Integer, group: CoordinateGroup): Boolean
+    + deleteCoordinateGroup(id: Integer): Boolean
+  }
+
+  class MySQLCoordinateGroupDAO implements CoordinateGroupDAO {
+    - connectionProvider: ConnectionProvider
+    
+    + createCoordinateGroup(group: CoordinateGroup): Integer
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id: Integer, group: CoordinateGroup): Boolean
+    + deleteCoordinateGroup(id: Integer): Boolean
+  }
+
+  class ConnectionProvider {
+    + getConnection(): Connection
+  }
+}
+
+' Coordination and Control Layer
+package "Logic" {
+  class CoordinateManager {
+    - dao: CoordinateGroupDAO
+    
+    + addCoordinateGroup(label: String, x: Double, y: Double)
+    + updateCoordinateGroup(id: Integer, label: String, x: Double, y: Double)
+    + deleteCoordinateGroup(id: Integer)
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + filterCoordinateGroups(label: String): List<CoordinateGroup>
+  }
+}
+
+' Relationships
+DCCSwingGUI --> CoordinateManager
+CoordinateManager --> CoordinateConverter
+CoordinateManager --> CoordinateGroupDAO
+MySQLCoordinateGroupDAO --> ConnectionProvider
+
+@enduml

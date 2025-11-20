@@ -1,0 +1,62 @@
+@startuml  
+
+package "Frontend" {  
+class Storefront {  
+    + ProductCatalog : List<Product>  
+    + ShoppingCart : ShoppingCart  
+    + CheckoutInterface : Checkout  
+    + viewProducts() : void  
+    + addToCart(product: Product) : void  
+    + proceedToCheckout() : void  
+  } 
+}  
+
+package "Logic Layer" {  
+class CoordinateConversionService {  
+    1.2 Convert cartesian (x, y) to polar (r, theta) coordinates  
+    1.3 Convert polar (r, theta) to cartesian (x, y) coordinates  
+    + convertToPolar(cartCoord: CartesianCoordinate): PolarCoordinate  
+    + convertToCartesian(polarCoord: PolarCoordinate): CartesianCoordinate  
+}  
+class CoordinateGroupService {  
+    1.4 CreateOp for the current values of the coordinate group and the label  
+    2.3 UpdateOp for the selected record in the list created by the ReadOp  
+    3.6 DeleteOp for the selected record in the list created by the ReadOp  
+}  
+class CoordinateGroupRepository {  
+    1.5 A coordinate group contains cartesian (x, y) and polar (r, theta) coordinates  
+    2.1 CreateOp: create a unique auto-generated integer identifier (id) for the coordinate group edited, add a timestamp, and save the label and the values of the coordinates group as a new record into the database  
+}  
+class CoordinateGroupController {  
+    + inputNewCoordinateGroup(label: String, cartesianCoord: CartesianCoordinate): void  
+    + updateCoordinateGroup(): void  
+    + deleteCoordinateGroup(): void  
+    + refreshAndDisplayCoordinateGroups(): void  
+}  
+class CoordinateGroupFilterController {  
+    + filterByLabel(labelValue: String): void  
+    + clearActiveFilter(): void  
+}  
+}  
+
+package "Data Layer" {  
+class DatabaseConnection {  
+    1.7 TCP/IP connection for the communication between the application and the database  
+}  
+class CoordinateGroupRepositoryImpl {  
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void  
+    + getAllCoordinateGroups(): List<CoordinateGroup>  
+    + updateCoordinateGroup(id: Integer, coordinateGroup: CoordinateGroup): void  
+}  
+class MySqlDatabaseConnection extends DatabaseConnection {  
+    1.8 MySQL for persistent storage of coordinate groups  
+}  
+}  
+
+CoordinateConversionService --> CoordinateGroupController  
+CoordinateGroupService --> CoordinateGroupController  
+CoordinateGroupRepositoryImpl - CoordinateGroupController : composition  
+CoordinateGroupFilterController ---> CoordinateGroupController : aggregation  
+CoordinateGroupController -> MySqlDatabaseConnection: dependency injection  
+}  
+@enduml

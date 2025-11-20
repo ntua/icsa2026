@@ -1,0 +1,48 @@
+@startuml
+skinparam linetype ortho
+skinparam packageStyle rect
+
+package "Client" {
+
+  class CoordinateGroupGUI {
+    - coordinateGroupList: List<CoordinateGroup>
+    + displayCoordinateGroups()
+    + handleDeleteClick(CoordinateGroup group)
+    + createCoordinateGroup()
+    + updateCoordinateGroup()
+  }
+
+}
+
+package "Server" {
+  class CoordinateGroupService {
+    - dao: CoordinateGroupDAO
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(CoordinateGroup group): boolean
+    + saveCoordinateGroup(CoordinateGroup group)
+  }
+
+ class CoordinateGroupDAO {
+    - dataSource: DataSource
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(CoordinateGroup group): boolean
+    + saveCoordinateGroup(CoordinateGroup group)
+  }
+
+class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: String
+    - cartesianCoordinates: String
+ + toString(): String
+ }
+
+
+}
+
+CoordinateGroupGUI "1" -- "*" CoordinateGroup : displays 
+CoordinateGroupService "1" -- "*" CoordinateGroup : manages
+CoordinateGroupService "1" -- "1" CoordinateGroupDAO : uses
+
+@enduml

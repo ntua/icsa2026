@@ -1,0 +1,53 @@
+@startuml
+
+package "GUI" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups()
+    + handleDeleteButtonPress(CoordinateGroup group)
+  }
+}
+
+package "Business Logic" {
+  class CoordinateGroupManager {
+    - databaseConnection: DatabaseConnection
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(CoordinateGroup group): void
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: PolarCoordinates
+    - cartesianCoordinates: CartesianCoordinates
+    + getLabel(): String
+  }
+
+  class PolarCoordinates {
+    - radius: double
+    - angle: double
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+}
+
+package "Data Access" {
+  class DatabaseConnection {
+    + connect(): void
+    + disconnect(): void
+    + executeQuery(String query): ResultSet
+  }
+}
+
+CoordinateGroupView --> CoordinateGroupManager
+CoordinateGroupManager *-- CoordinateGroup
+CoordinateGroupManager --> DatabaseConnection
+CoordinateGroup o-- PolarCoordinates
+CoordinateGroup o-- CartesianCoordinates
+
+
+@enduml

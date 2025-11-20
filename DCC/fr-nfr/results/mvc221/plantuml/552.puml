@@ -1,0 +1,84 @@
+@startuml DCC Application Class Diagram
+
+' Packages
+package "Model" {
+  ' Coordinate Classes
+  class CartesianCoordinates {
+    - x: Double
+    - y: Double
+    
+    + convertToPolar(): PolarCoordinates
+  }
+  
+  class PolarCoordinates {
+    - r: Double
+    - theta: Double
+    
+    + convertToCartesian(): CartesianCoordinates
+  }
+
+  ' Main Model Class
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    - timestamp: Date
+    
+    + addCoordinateGroup()
+    + update()
+    + delete()
+    + getCoordinateGroups(): List<CoordinateGroup>
+  }
+
+  ' Data Access Object (DAO)
+  class DCCDAO {
+    - dbConnection: Connection
+    
+    + createOp(CoordinateGroup): void
+    + readOp(): List<CoordinateGroup>
+    + updateOp(CoordinateGroup): void
+    + deleteOp(Integer): void
+  }
+}
+
+package "View" {
+  ' User Interface Class
+  class DCCView {
+    - coordinateList: JList
+    - xField: JTextField
+    - yField: JTextField
+    - rField: JTextField
+    - thetaField: JTextField
+    - labelField: JTextField
+    
+    + showCoordinateGroups(List<CoordinateGroup>): void
+    + clearFields(): void
+    + setController(DCCController): void
+  }
+}
+
+package "Controller" {
+  ' Controller Class
+  class DCCController {
+    - model: CoordinateGroup
+    - view: DCCView
+    - dao: DCCDAO
+    
+    + initialize(): void
+    + addCoordinateGroup(): void
+    + updateCoordinateGroup(): void
+    + deleteCoordinateGroup(): void
+    + convertCoordinates(): void
+    + filterCoordinateGroups(String): List<CoordinateGroup>
+  }
+}
+
+' Relationships
+DCCController --> DCCView
+DCCController --> CoordinateGroup
+CoordinateGroup --> CartesianCoordinates
+CoordinateGroup --> PolarCoordinates
+DCCDAO --> CoordinateGroup
+
+@enduml

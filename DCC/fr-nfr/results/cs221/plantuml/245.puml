@@ -1,0 +1,38 @@
+@startuml
+package "Presentation Layer" {
+    class DummyCoordinationConversionView {
+        +displayCoordinateGroupList() : void
+        +viewCoordinateGroupDetails(coordinateGroup: CoordinateGroup) : void
+        +filterCoordinateGroupsByLabel(label: String) : void
+    }
+}
+package "Logic Layer" {
+    class CoordinateGroupManager {
+        -coordinateGroups : List<CoordinateGroup>
+        +createCoordinateGroup(cartesianCoordinates: CartesianCoordinates, label: String) : CoordinateGroup
+        +readCoordinateGroups() : List<CoordinateGroup>
+        +updateCoordinateGroup(coordinateGroup: CoordinateGroup, cartesianCoordinates: CartesianCoordinates, label: String) : void
+        +deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    }
+}
+package "Data Layer" {
+    class MySQLDatabase {
+        -connection : TCP/IP Connection
+        +createCoordinateGroupRecord(cartesianCoordinates: CartesianCoordinates, label: String) : void
+        +readAllCoordinateGroups() : List<CoordinateGroup>
+        +updateCoordinateGroupRecord(coordinateGroup: CoordinateGroup) : void
+        +deleteCoordinateGroupRecord(coordinateGroup: CoordinateGroup) : void
+    }
+}
+package "Utility Layer" {
+    class ConversionUtil {
+        +convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates) : PolarCoordinates
+        +convertPolarToCartesian(polarCoordinates: PolarCoordinates) : CartesianCoordinates
+    }
+}
+CoordinateGroupManager --> CoordinateGroup
+CoordinateGroupManager <-- CoordinateGroup
+DummyCoordinationConversionView --> CoordinateGroupManager
+MySQLDatabase --> CoordinateGroupManager
+ConversionUtil --> CoordinateGroupManager
+@enduml

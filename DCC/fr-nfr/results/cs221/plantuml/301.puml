@@ -1,0 +1,59 @@
+@startuml
+!define PackageServicePackage "service" as srv #A13256
+!define PackageDatabasePackage "database" as db #F48FC0
+
+package ServicePackage {
+    class CoordinateGroupController extends Controller {
+        +createCoordinateGroup()
+        +readCoordinateGroups()
+        +updateCoordinateGroup(id, cartesianCoords, polarCoords)
+        +deleteCoordinateGroup(id)
+        
+        -coordGenService
+        -dbAccessService
+    }
+    
+    interface Coordinator {
+        +convertCartesianToPolar()
+        +convertPolarToCartian()
+    }
+
+    class CartesianCoordinates {
+        coordX : double
+        coordY : double
+        
+        +setValues(x, y)
+        +getValues()
+        +toString()
+    }
+    
+    class PolarCoordinates {
+        coordR : double
+        coordTheta: double
+        
+        +setValues(r, theta)
+        +getValues()
+        +toString()
+    }
+}
+
+package DatabasePackage {
+    interface CoordinateGroupRepository {
+        +create(id, label, cartesianCoords, polarCoords, timestamp) : void
+        +read(): List<Record>
+        +update(id, cartesianCoords, polarCoords): void
+        +delete(id): void
+    }
+    
+    class Record {
+        id: int
+        label: String
+        coordGroupId: int
+        cartesianCoords : CartesianCoordinates
+        polarCoords : PolarCoordinates
+        timestamp : DateTime
+        
+        +toString()
+    }
+}
+@enduml

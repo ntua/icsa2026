@@ -1,0 +1,31 @@
+@startuml
+!theme plain
+
+package SystemComponents {
+class User {}
+class CoordinateGroupManager { 
++createCoordinateGroup(type, input); +modifyCoordinateGroup(id, type, newValues); 
+}
+class MySQLDatabaseAdapter { 
++storeCoordinateGroup(coordGroup); +retrieveCoordinateGroups(); +getCoordinateGroupById(label); +deleteCoordinateGroup(id);
+}
+}
+package UserInterfaceLayer{
+class SwingUI extends CoordinateGroupManager { 
+  +createLabelledCoordinateGroup(type, input); 
+  +editCoordinateGroupDetails(id); 
+  +viewAllCoordinateGroups(); 
+}
+}
+package EnterpriseSystemLevel{
+interface CommunicationLayer 
+{ 
++sendData(data); +receiveData(); 
+}
+}
+User - SwingUI : coordManager : uses for coord group management 
+SwingUI <|-- CoordinateGroupManager: implements the interface to manage coordinate groups]
+
+
+
+@enduml

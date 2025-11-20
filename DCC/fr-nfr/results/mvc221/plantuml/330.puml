@@ -1,0 +1,60 @@
+@startuml
+package coordination {
+  class CoordinateGroup {
+    + id: int
+    + label: String
+    + cartesian: CartesianCoordinates
+    + polar: PolarCoordinates
+    + timestamp: Date
+    }
+  class Converter{
+    + convertToPolar(CartesianCoordinates): PolarCoordinates
+    + convertToCartesian(PolarCoordinates): CartesianCoordinates
+    }
+    class  CoordinateGroupRepository{
+    + create(CoordinateGroup): int
+    + read(): List<CoordinateGroup>
+    + update(CoordinateGroup): void
+    + delete(int): void
+    }
+}
+
+package view {
+  class CoordinateGroupView {
+    + display(CoordinateGroup): void
+    + filterByLabel(String): void
+    + clearFilter(): void
+    }
+}
+
+package controller {
+  class CoordinateGroupController {
+    - coordinateGroupRepository: CoordinateGroupRepository
+    - cartesionConverter: CartesionConverter
+    - view: CoordinateGroupView
+    + createCoordinateGroup(CoordinateGroup): void
+    + updateCoordinateGroup(CoordinateGroup): void
+    + deleteCoordinateGroup(int): void
+    }
+}
+
+package model {
+  class CartesianCoordinates {
+    + x: double
+    + y: double
+  }
+  class PolarCoordinates {
+    + r: double
+    + theta: double
+  }
+}
+
+CoordinateGroup --> Converter : uses
+Converter --> PolarCoordinates : conversion
+PolarCoordinates --> CartesianCoordinates : conversion
+
+CoordinateGroupController --> CoordinateGroupRepository : uses
+CoordinateGroupController --> Converter : uses
+CoordinateGroupView --> CoordinateGroupController : uses
+
+@enduml

@@ -1,0 +1,133 @@
+@startuml
+skinparam packageStyle rectangle
+skinparam packageTitleFontColor #FFFFFF
+skinparam packageTitleBackgroundColor #8E44AD
+skinparam packageBorderColor #8E44AD
+skinparam classAttributeIconSize 0
+
+' ============================
+'      Presentation Layer
+' ============================
+package "Presentation Layer" <<Frame>> {
+  class MainView {
+    - CoordinateService coordinateService
+    --
+    + MainView()
+    + createCoordinateGroup()
+    + updateCoordinateGroup()
+    + viewAllCoordinateGroups()
+    + viewCoordinateGroupByLabel()
+    + deleteCoordinateGroup()
+    + showErrorMessage()
+  }
+}
+
+' ============================
+'       Business Layer
+' ============================
+package "Business Layer" <<Frame>> {
+  class CoordinateService {
+    - CoordinateGroupDAO coordinateGroupDAO
+    - CoordinateConverter converter
+    
+    --
+    + CoordinateService(coordinateGroupDAO, converter)
+    + createCoordinateGroup(label: String, xOrR: double, yOrTheta: double, sourceType: String) : void
+    + updateCoordinateGroup(id: int, label: String, xOrR: double, yOrTheta: double, sourceType: String) : void
+    + deleteCoordinateGroup(id: int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+  }
+
+  class CoordinateConverter {
+    --
+    + cartesianToPolar(x: double, y: double) : PolarCoordinate
+    + polarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+}
+
+' ============================
+'     Data Access Layer
+' ============================
+package "Data Access Layer" <<Frame>> {
+  class CoordinateGroupDAO {
+    - DBConnection dbConnection
+
+    --
+    + CoordinateGroupDAO(dbConnection)
+    + save(group: CoordinateGroup) : void
+    + update(group: CoordinateGroup) : void
+    + delete(id: int) : void
+    + findAll() : List<CoordinateGroup>
+    + findByLabel(label: String) : List<CoordinateGroup>
+  }
+
+  class DBConnection {
+    --
+    + connect() : void
+    + getConnection() : java.sql.Connection
+    + closeConnection() : void
+  }
+}
+
+' ============================
+'         Domain Model
+' ============================
+package "Domain Model" <<Frame>> {
+  class CoordinateGroup {
+    - int id
+    - String label
+    - java.time.LocalDateTime timestamp
+    - CartesianCoordinate cartesianCoordinate
+    - PolarCoordinate polarCoordinate
+
+    --
+    + getId() : int
+    + setId(id: int) : void
+    + getLabel() : String
+    + setLabel(label: String) : void
+    + getTimestamp() : LocalDateTime
+    + setTimestamp(time: LocalDateTime) : void
+    + getCartesianCoordinate() : CartesianCoordinate
+    + setCartesianCoordinate(cc: CartesianCoordinate) : void
+    + getPolarCoordinate() : PolarCoordinate
+    + setPolarCoordinate(pc: PolarCoordinate) : void
+  }
+
+  class CartesianCoordinate {
+    - double x
+    - double y
+
+    --
+    + getX() : double
+    + setX(x: double) : void
+    + getY() : double
+    + setY(y: double) : void
+  }
+
+  class PolarCoordinate {
+    - double r
+    - double theta
+
+    --
+    + getR() : double
+    + setR(r: double) : void
+    + getTheta() : double
+    + setTheta(theta: double) : void
+  }
+}
+
+' ============================
+'         Relationships
+' ============================
+MainView --> CoordinateService : uses
+CoordinateService --> CoordinateGroupDAO : uses
+CoordinateService --> CoordinateConverter : depends on
+
+CoordinateGroupDAO --> DBConnection : uses
+
+' Composition: CoordinateGroup contains Cartesian and Polar
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+@enduml

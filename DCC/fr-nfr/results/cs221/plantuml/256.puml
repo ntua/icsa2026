@@ -1,0 +1,66 @@
+@startuml
+package "frontend" {
+
+class SwingGUI {
+  +displayCoordinates(CoordinateGroup group)
+  +getCoordinatesInput() : Coordinate
+  +getLabelInput() : String
+  +selectOperation() : String
+  +displayCoordinateGroups(List<CoordinateGroup> groups)
+  +filterCoordinateGroups(String label)
+}
+
+}
+
+package "logic" {
+
+class CoordinateConverter {
+  +cartesianToPolar(Coordinate cartesian) : Coordinate
+  +polarToCartesian(Coordinate polar) : Coordinate
+}
+
+class CoordinateGroup {
+ -id: int
+ -label: String
+ -creationDate: DateTime
+ -cartesian: Coordinate
+ -polar: Coordinate
+ +getId() : int
+ +getLabel() : String
+ +getCreationDate() : DateTime
+ +getCartesian() : Coordinate
+ +getPolar() : Coordinate
+ +setCartesian(Coordinate cartesian)
+ +setPolar(Coordinate polar)
+
+}
+
+class Coordinate {
+  -x: double
+  -y: double
+ +Coordinate(double x, double y)
+ +getX() : double
+ +getY() : double
+}
+
+
+}
+
+package "persistence" {
+
+class DatabaseManager {
+  +createGroup(CoordinateGroup group)
+  +readGroups() : List<CoordinateGroup>
+  +updateGroup(CoordinateGroup group)
+  +deleteGroup(int id)
+}
+
+}
+
+
+SwingGUI --> CoordinateConverter : uses
+SwingGUI --> DatabaseManager : uses
+CoordinateConverter --> Coordinate: uses
+
+CoordinateGroup "1" -- "*" DatabaseManager : persisted by
+@enduml

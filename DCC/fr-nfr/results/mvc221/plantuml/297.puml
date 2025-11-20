@@ -1,0 +1,69 @@
+@startuml
+
+package Frontend {
+  interface View {
+    + update(model: Model)
+  }
+
+  class FrameController {
+    - view: View
+    - model: Model
+    + FrameController(view: View, model: Model)
+    + actionPerformed(actionEvent: ActionEvent)
+  }
+}
+
+package Logic {
+  class HighPrecisionNumber {
+    - value: double
+    + getValue(): double
+    + setValue(value: double)
+  }
+
+  class CartesianCoordinate extends HighPrecisionNumber {
+    + CartesianCoordinate(x: double, y: double)
+  }
+
+  class PolarCoordinate extends HighPrecisionNumber {
+    - theta: HighPrecisionNumber
+    + PolarCoordinate(r: double, theta: HighPrecisionNumber)
+  }
+
+  class CoordinateConverter {
+    + toPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    + toCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + CoordinateGroup(id: int, timestamp: Date, label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate)
+  }
+
+  class DatabaseConnector {
+    - connection: Connection
+    + connect()
+    + disconnect()
+    + createOp(coordinateGroup: CoordinateGroup)
+    + readOp(): List<CoordinateGroup>
+    + updateOp(coordinateGroup: CoordinateGroup)
+    + deleteOp(id: int)
+  }
+
+  class Model {
+    - databaseConnector: DatabaseConnector
+    - coordinateGroups: List<CoordinateGroup>
+    + Model(databaseConnector: DatabaseConnector)
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + addCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+DatabaseServer -- DatabaseConnector
+
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+package "PresentationLayer" {
+    class DummyCoordinationConversionApp {
+        + run()
+    }
+}
+
+package "BusinessLogicLayer" {
+    class CoordinateGroupManager {
+        - coordinateGroups: List<CoordinateGroup>
+        + createCoordinateGroup(cartesianCoordinates: String, polarCoordinates: String)
+        + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + retrieveCoordinateGroup(label: String): CoordinateGroup
+        + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroup(coordinateGroupId: Int)
+    }
+
+    class CoordinateConversionLogic {
+        + convertCartesianToPolar(cartesianCoordinates: String): String
+        + convertPolarToCartesian(polarCoordinates: String): String
+    }
+}
+
+package "DataAccessLayer" {
+    interface MySQLDatabase {
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + fetchCoordinateGroup(label: String): CoordinateGroup
+    }
+
+    class MySQLConnector {
+        - databaseConnection: DatabaseConnection
+        + connectToDatabase()
+        + disconnectFromDatabase()
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + fetchCoordinateGroup(label: String): CoordinateGroup
+    }
+}
+
+PresentationLayer --> DummyCoordinationConversionApp : Uses
+
+BusinessLogicLayer --> CoordinateGroupManager : Uses
+BusinessLogicLayer --> CoordinateConversionLogic : Uses
+
+DataAccessLayer --> MySQLDatabase : Implements
+DataAccessLayer --> MySQLConnector : Implements
+
+CoordinateGroupManager --> MySQLConnector : Uses
+CoordinateConversionLogic --> MySQLConnector : Uses
+@enduml

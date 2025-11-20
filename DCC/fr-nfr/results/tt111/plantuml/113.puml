@@ -1,0 +1,53 @@
+@startuml
+
+package "Presentation Layer" {
+  class SwingGUI {
+    + createCoordinateGroup(cartesian: Cartesian, polar: Polar) : void
+    + retrieveCoordinateGroupsByLabel(label: String): List<Cartesian> | List<Polar> 
+    + retrieveAllCoordinateGroups(): List<Cartesian> | List<Polar>
+    + modifyCoordinateGroup(id: int, cartesian: Optional[Cartesian], polar: Optional[Polar], label: Optional[String]): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+package "Application Layer" {
+  class DCCConverter {
+    - mysqlConnection : TCP/IP
+
+    + convertToCartesian(polar: Polar) : Cartesian
+    + convertToPolar(cartesian: Cartesian) : Polar 
+
+    + storeCoordinateGroups(label: String, cartesian: List<Cartesian>, polar: List<Polar>) : void 
+    + retrieveCoordinateGroupsByLabel(label: String): List<Cartesian> | List<Polar> 
+    + retrieveAllCoordinateGroups(): List<Cartesian> | List<Polar>
+    + modifyCoordinateGroup(id: int, cartesian: Optional[List<Cartesian>], polar: Optional[List<Polar>], label: Optional[String]): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+
+package "Data Layer" {
+
+  class MySQLConnection {
+    + connect() : TCP/IP
+    + executeQuery(query: String) : ResultSet
+    + close() : void
+  }
+
+
+  class Cartesian {
+    - x : double
+    - y : double
+
+    + toString(): String
+  }
+
+  class Polar {
+    - r : double 
+    - theta : double 
+
+    + toString(): String
+  }
+}
+
+@enduml

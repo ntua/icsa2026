@@ -1,0 +1,66 @@
+@startuml
+package "Client" {
+    class DCCApp {
+        + void createUI()
+        + void handleUserInput()
+    }
+
+    class CoordinateGroupManager {
+        + void createCoordinateGroup(Cartesian)
+        + void createCoordinateGroup(Polar)
+        + void convertCoordinates(Cartesian): Polar
+        + void convertCoordinates(Polar): Cartesian
+        + void storeCoordinateGroup()
+        + List<CoordinateGroup> retrieveCoordinateGroups()
+        + void modifyCoordinateGroup()
+        + void deleteCoordinateGroup()
+    }
+
+    class ServerConnector {
+        + void sendCoordinateGroupToServer(CoordinateGroup)
+        + CoordinateGroup retrieveCoordinateGroupFromServer()
+    }
+
+    class Cartesian {
+        - int x
+        - int y
+        + Cartesian(int x, int y)
+        + Polar convertToPolar(): Polar
+    }
+
+    class Polar {
+        - double r
+        - double theta
+        + Polar(double r, double theta)
+        + Cartesian convertToCartesian(): Cartesian
+    }
+}
+
+package "Server" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - DateTime timestamp
+        - Cartesian cartesian
+        - Polar polar
+        + CoordinateGroup(String label, Cartesian cartesian, Polar polar)
+    }
+
+    class Database {
+        + void storeCoordinateGroup(CoordinateGroup)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + CoordinateGroup retrieveCoordinateGroupById(int id)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+DCCApp --> CoordinateGroupManager
+CoordinateGroupManager --> Cartesian
+CoordinateGroupManager --> Polar
+CoordinateGroupManager --> ServerConnector
+
+ServerConnector --> Database
+
+Database --> CoordinateGroup
+@enduml

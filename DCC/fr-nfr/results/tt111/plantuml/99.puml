@@ -1,0 +1,69 @@
+@startuml
+package "Presentation Layer" {
+  class DCCInterface {
+    + createCoordinateGroup(coordinateType: String, values: List<Double>) : void
+    + storeCoordinateGroup(label: String) : void
+    + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(groupID: int, label: String, values: List<Double>) : void
+    + deleteCoordinateGroup(groupID: int) : void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: double, y: double) : PolarCoordinate
+    + convertPolarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+
+  class CoordinateGroupManager {
+    - databaseConnector : DatabaseConnector
+    + createCoordinateGroup(coordinateType: String, values: List<Double>) : CoordinateGroup
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(groupID: int, label: String, values: List<Double>) : void
+    + deleteCoordinateGroup(groupID: int) : void
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+  }
+
+  abstract class Coordinate {
+    + getValues() : List<Double>
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+  }
+}
+
+package "Database Layer" {
+  class DatabaseConnector {
+    + connectToDatabase() : void
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(groupID: int, label: String, coordinates: List<Coordinate>) : void
+    + deleteCoordinateGroup(groupID: int) : void
+  }
+
+}
+
+DCCInterface --> CoordinateGroupManager : Uses
+CoordinateGroupManager --> CoordinateConverter : Uses
+CoordinateGroupManager --> DatabaseConnector : Uses
+CoordinateGroup "1" *-- "*" Coordinate : Contains
+CartesianCoordinate --|> Coordinate
+PolarCoordinate --|> Coordinate
+@enduml

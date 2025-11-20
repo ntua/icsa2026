@@ -1,0 +1,53 @@
+@startuml
+class Model {
+    +CoordinateGroupManager
+    +DatabaseConnectionManager
+}
+
+package "View" {
+    class UserInterface {
+        -labelField: String
+        -coordinatesListPanel: ListPanel
+        +displayList(list) : void
+        +filterLabels(labels): String [] : void
+        +clearFilter() : void
+    }
+}
+
+package "Controller" {
+    class CoordinateGroupController {
+        +Model model: Model
+        +View view: UserInterface
+        +updateViewWithList(list) : void
+        +addCoordinateGroup() : void
+        +deleteCoordinateGroup(id: int) : void
+        +filterLabelsAndUpdateView(labels: String []) : void
+        +clearFilterAndUpdateView() : void
+    }
+}
+
+package "Implementation" {
+    class DatabaseConnectionManager {
+        -connectionString: String
+        
++connect(): Connection
+        +disconnect(): void
+    }
+    
+class CoordinateGroupManager {
+        +DatabaseConnection connection: Connection
+        -idGenerator: IdGenerator
+        -logicalCoordinates: List<Pair<Double, Double>>
+        -physicalCoordinates: List<Pair<Double, Double>>
+        
++createNewId(): int
+        +convertToCartesian(coord: Pair<Double, Double>): void
+        +convertToPolar(coord: Pair<Double, Double>): void
+        +updateDatabaseWithCoordinateGroup(id: int, label: String, coordinates: List<Pair<Double, Double>>) : void
+    }
+}
+
+Model <|-- Controller
+View <-- CoordinateGroupController
+ 
+@enduml

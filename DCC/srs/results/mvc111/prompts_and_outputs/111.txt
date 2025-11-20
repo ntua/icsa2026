@@ -1,0 +1,116 @@
+Response:
+```plantuml
+@startuml
+' Packages for MVC architecture
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - polarR: double
+        - polarTheta: double
+        - cartesianX: double
+        - cartesianY: double
+        + CoordinateGroup()
+        + convertCoordinates(): void
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + connect(): void
+        + disconnect(): void
+        + saveCoordinateGroup(cg: CoordinateGroup): void
+        + updateCoordinateGroup(cg: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double): (double, double)
+        + polarToCartesian(r: double, theta: double): (double, double)
+    }
+}
+
+package "View" {
+    class MainView {
+        - controller: AppController
+        + initializeUI(): void
+        + displayError(message: String): void
+    }
+
+    class CoordinateFormPanel {
+        - typeComboBox: JComboBox
+        - xField: JTextField
+        - yField: JTextField
+        - rField: JTextField
+        - thetaField: JTextField
+        - labelField: JTextField
+        + getInputValues(): Map<String, String>
+        + clearFields(): void
+    }
+
+    class CoordinateListPanel {
+        - tableModel: DefaultTableModel
+        + updateTable(data: List<CoordinateGroup>): void
+    }
+
+    class ButtonPanel {
+        - addButton: JButton
+        - updateButton: JButton
+        - deleteButton: JButton
+        - viewAllButton: JButton
+        + setController(controller: AppController): void
+    }
+}
+
+package "Controller" {
+    class AppController {
+        - model: DatabaseManager
+        - view: MainView
+        + handleAddButton(): void
+        + handleUpdateButton(): void
+        + handleDeleteButton(): void
+        + handleViewAllButton(): void
+        + handleSearchByLabel(): void
+    }
+}
+
+' Associations and Dependencies
+MainView --> AppController : triggers actions >
+AppController --> DatabaseManager : interacts with >
+AppController --> CoordinateConverter : uses >
+DatabaseManager --> CoordinateGroup : manages >
+MainView *-- CoordinateFormPanel : contains
+MainView *-- CoordinateListPanel : contains
+MainView *-- ButtonPanel : contains
+ButtonPanel --> AppController : notifies >
+
+' Dependency for UI components
+CoordinateFormPanel ..> JTextField : uses
+CoordinateListPanel ..> DefaultTableModel : uses
+@enduml
+```
+
+### Explanation:
+1. **Model Package**:
+   - `CoordinateGroup`: Encapsulates data fields and conversion logic.
+   - `DatabaseManager`: Handles database operations using CRUD methods.
+   - `CoordinateConverter`: Provides static methods for coordinate conversions.
+
+2. **View Package**:
+   - `MainView`: The main GUI window containing panels.
+   - `CoordinateFormPanel`: Handles user input for coordinates and labels.
+   - `CoordinateListPanel`: Displays coordinate groups in a table.
+   - `ButtonPanel`: Contains action buttons and links to the controller.
+
+3. **Controller Package**:
+   - `AppController`: Mediates between View and Model, handling user actions.
+
+### Associations:
+- **Composition**: `MainView` owns panels (`*--`).
+- **Dependency**: `AppController` depends on `DatabaseManager` and `CoordinateConverter`.
+- **Aggregation**: `ButtonPanel` notifies `AppController` about user actions (`-->`).
+- **Navigation**: `MainView` triggers actions in `AppController` (`-->`).
+
+This diagram adheres to MVC by separating data management (Model), UI components (View), and interaction logic (Controller).

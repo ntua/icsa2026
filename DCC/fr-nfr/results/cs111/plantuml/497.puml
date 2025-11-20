@@ -1,0 +1,80 @@
+@startuml DCC_Application_Class_Diagram
+
+package "Client" {
+  class DCCClient {
+    - List<CoordinateGroup> coordinateGroups
+    - CoordinateConverter converter
+    - TCPConnection connection
+    
+    + DCCClient()
+    + createCoordinateGroup(x: float, y: float): void
+    + createCoordinateGroup(r: float, theta: float): void
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + modifyCoordinateGroup(id: int, x: float, y: float): void
+    + modifyCoordinateGroup(id: int, r: float, theta: float): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: float, y: float): PolarCoordinates
+    + convertPolarToCartesian(r: float, theta: float): CartesianCoordinates
+  }
+}
+
+package "Server" {
+  class DatabaseManager {
+    - MySQLDatabase database
+    - TCPConnection connection
+    
+    + storeCoordinateGroup(group: CoordinateGroup): void
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+class TCPConnection {
+  + establishConnection(): boolean
+  + sendData(data: Object): boolean
+  + receiveData(): Object
+  + closeConnection(): void
+}
+
+class MySQLDatabase {
+  + storeCoordinateGroup(group: CoordinateGroup): void
+  + retrieveCoordinateGroup(label: String): CoordinateGroup
+  + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+  + deleteCoordinateGroup(id: int): void
+}
+
+class CoordinateGroup {
+  - id: int
+  - label: String
+  - timestamp: DateTime
+  - cartesian: CartesianCoordinates
+  - polar: PolarCoordinates
+  
+  + getLabel(): String
+  + getId(): int
+  + getCartesianCoordinates(): CartesianCoordinates
+  + getPolarCoordinates(): PolarCoordinates
+}
+
+class CartesianCoordinates {
+  - x: float
+  - y: float
+}
+
+class PolarCoordinates {
+  - r: float
+  - theta: float
+}
+
+'DCCClient' --* 'CoordinateConverter'
+'DCCClient' --* 'TCPConnection'
+'TCPConnection' --* 'DatabaseManager'
+'DatabaseManager' --* 'MySQLDatabase'
+'DatabaseManager' --* 'CoordinateGroup'
+'DCCClient' --* 'CoordinateGroup'
+
+@enduml

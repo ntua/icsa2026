@@ -1,0 +1,131 @@
+Response:
+Here's the PlantUML class diagram for the DCC Application following the thick client-server architecture:
+
+```plantuml
+@startuml
+
+package "Client" {
+    class MainWindow {
+        - clientNetworkHandler: ClientNetworkHandler
+        - currentCoordinateGroup: CoordinateGroup
+        + setupUI()
+        + handleCreate(x: double, y: double, r: double, theta: double, label: String)
+        + handleRetrieve(label: String)
+        + handleUpdate(id: int, x: double, y: double, r: double, theta: double, label: String)
+        + handleDelete(id: int)
+    }
+
+    class ClientNetworkHandler {
+        - socket: Socket
+        - outputStream: ObjectOutputStream
+        - inputStream: ObjectInputStream
+        + connect()
+        + sendRequest(request: Request)
+        + receiveResponse(): Response
+    }
+
+    class CoordinateGroup {
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        + convertToPolar()
+        + convertToCartesian()
+        + getX(): double
+        + getY(): double
+        + getR(): double
+        + getTheta(): double
+    }
+}
+
+package "Server" {
+    class Server {
+        - serverSocket: ServerSocket
+        + start()
+        + stop()
+    }
+
+    class ServerRequestHandler {
+        - databaseManager: DatabaseManager
+        + handleRequest(request: Request): Response
+        + processCreate(coordGroup: CoordinateGroupDTO)
+        + processRetrieve(label: String)
+        + processUpdate(id: int, coordGroup: CoordinateGroupDTO)
+        + processDelete(id: int)
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + saveCoordinateGroup(coordGroup: CoordinateGroupEntity): int
+        + getCoordinateGroups(label: String): List<CoordinateGroupEntity>
+        + updateCoordinateGroup(id: int, coordGroup: CoordinateGroupEntity): boolean
+        + deleteCoordinateGroup(id: int): boolean
+    }
+
+    class CoordinateGroupEntity {
+        - id: int
+        - label: String
+        - timestamp: Timestamp
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        + getters()
+        + setters()
+    }
+}
+
+package "DTO" {
+    class CoordinateGroupDTO {
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        - label: String
+        + getters()
+        + setters()
+    }
+}
+
+MainWindow --> ClientNetworkHandler : uses
+MainWindow --> CoordinateGroup : creates/manipulates
+ClientNetworkHandler --> Server : communicates via\nTCP/IP
+Server --> ServerRequestHandler : creates
+ServerRequestHandler --> DatabaseManager : uses
+DatabaseManager --> CoordinateGroupEntity : manages
+CoordinateGroup ..> CoordinateGroupDTO : converts to
+ServerRequestHandler --> CoordinateGroupDTO : processes
+CoordinateGroupDTO ..> CoordinateGroupEntity : maps to
+
+@enduml
+```
+
+Key components and relationships:
+1. **Client Package**:
+   - `MainWindow`: Handles UI interactions and coordinates operations
+   - `ClientNetworkHandler`: Manages TCP communication with server
+   - `CoordinateGroup`: Domain model with conversion logic
+
+2. **Server Package**:
+   - `Server`: Listens for client connections
+   - `ServerRequestHandler`: Processes client requests
+   - `DatabaseManager`: Manages database operations
+   - `CoordinateGroupEntity`: Database entity model
+
+3. **DTO Package**:
+   - `CoordinateGroupDTO`: Data Transfer Object for network communication
+
+4. **Key Relationships**:
+   - Thick client maintains business logic (coordinate conversions)
+   - TCP/IP communication between client and server
+   - Clear separation between presentation (Client), business logic (Server), and data storage (DatabaseManager)
+   - DTO pattern used for network communication
+   - Database entity separate from domain model
+
+The diagram shows:
+- Composition relationships between main components
+- TCP/IP communication channel
+- Data conversion/mapping relationships
+- Clear separation of client/server responsibilities
+- Complete CRUD operation support through method definitions
+- MySQL database integration through DatabaseManager

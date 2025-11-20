@@ -1,0 +1,70 @@
+@startuml
+
+package "Frontend" {
+    
+class SwingUI {
+        +initializeUI()
+        +showCoordinateGroups()
+        +addNewGroup()
+        +updateExistingGroup()
+        +deleteExistingGroup()
+    }
+
+}
+
+package "Backend" {
+
+class CoordinateConverter {
+        +convertCartesianToPolar(x, y) : (r, theta)
+        +convertPolarToCartesian(r, theta) : (x, y)
+    }
+    
+class DatabaseManager {
+        
+    -connect()
+        -executeCreateOp(label, cartesianValues, polarValues, timestamp)
+        -executeReadOp() : List[CoordinateGroup]
+        -executeUpdateOp(id, label, cartesianValues, polarValues, timestamp)
+        -executeDeleteOp(id)
+    }
+    
+class CoordinateGroup {
+        
+    -cartesian: CartesianCoordinates
+        -polar: PolarCoordinates
+        +getId() : int
+        +setCartesian(x, y)
+        +getCartesian() : CartesianCoordinates
+        +getPolar() : PolarCoordinates
+        +getLabel(): String
+    }
+    
+class CartesianCoordinates {
+        
+    -x: double
+        -y: double
+    }
+    
+class PolarCoordinates {
+        
+    -r: double
+        -theta: double
+    }
+}
+
+package "Database" {
+    
+class CoordinateGroupRecord extends Backend.CoordinateGroup {
+        
++getId() : int
+        +setLabel(label)
+        +setCartesian(x, y)
+        +setPolar(r, theta)
+        +setTimestamp(timestamp)
+    }
+}
+
+CoordinateConverter <|-- Backend.CoordinateGroup
+DatabaseManager <|-- Database
+SwingUI --> UIComponent
+@enduml

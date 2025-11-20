@@ -1,0 +1,96 @@
+@startuml
+package "Presentation Layer" {
+    class DCCApp {
+        + run()
+        - coordinateGroupManager: CoordinateGroupManager
+        - filterController: FilterController
+    }
+    
+    package "User Interface" {
+        class SwingUI {
+            + init()
+            - coordinateGroupDisplay: CoordinateGroupDisplay
+            - filterInput: FilterInput
+        }
+        
+        class CoordinateGroupDisplay {
+            + showCoordinateGroups(List<CoordinateGroup> groups)
+            - coordinateGroupList: List<CoordinateGroup>
+        }
+        
+        class FilterInput {
+            + getFilterString()
+            - filterString: String
+        }
+    }
+}
+
+package "Logic Layer" {
+    class CoordinateGroupManager {
+        + createCoordinateGroup(CoordinateGroup group)
+        + readCoordinateGroups()
+        + updateCoordinateGroup(CoordinateGroup group)
+        + deleteCoordinateGroup(int id)
+        
+        - coordinateGroupRepository: CoordinateGroupRepository
+        
+        - cartesianToPolarConverter: CartesianToPolarConverter
+        - polarToCartesianConverter: PolarToCartesianConverter
+        
+    }
+    
+    class CoordinateGroup {
+        + getCartesianCoordinates()
+        + getPolarCoordinates()
+        
+        - id: int
+        - label: String
+        - cartesianX: HighPrecisionNumber
+        - cartesianY: HighPrecisionNumber
+        - polarR: HighPrecisionNumber
+        - polarTheta: HighPrecisionNumber
+        
+    }
+    
+    class CoordinateGroupRepository {
+        + saveCoordinateGroup(CoordinateGroup group)
+        + getCoordinateGroups()
+        
+        - coordinateGroupList: List<CoordinateGroup>
+    }
+    
+    class CartesianToPolarConverter {
+        + convertCartesianToPolar(CartesianCoordinates coords)
+    }
+    
+    class PolarToCartesianConverter {
+        + convertPolarToCartesian(PolarCoordinates coords)
+    }
+}
+
+package "Data Layer" {
+    class MySQLDatabase {
+        + connect()
+        + disconnect()
+        
+        - coordinateGroupTable: CoordinateGroupTable
+        
+    }
+    
+    class CoordinateGroupTable {
+        + saveCoordinateGroup(CoordinateGroup group)
+        + getCoordinateGroups()
+        
+        - coordinateGroupList: List<CoordinateGroup>
+    }
+}
+
+DCCApp --> SwingUI : Uses
+SwingUI --> CoordinateGroupDisplay : Composition
+FilterInput --> FilterController : Uses
+
+CoordinateGroupManager --> CoordinateGroupRepository : Composition
+CoordinateGroupRepository --> CoordinateGroupTable : Composition
+CartesianToPolarConverter --> PolarToCartesianConverter : Inheritance
+
+@enduml

@@ -1,0 +1,59 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: DateTime
+        + convertCartesianToPolar(): PolarCoordinate
+        + convertPolarToCartesian(): CartesianCoordinate
+        + save(): void
+        + load(label: String): CoordinateGroup
+        + update(newLabel: String, newTimestamp: DateTime): void
+    }
+    
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+        + getCartesianValues(): (Double, Double)
+    }
+    
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+        + getPolarValues(): (Double, Double)
+    }
+}
+
+package "Database" {
+    class MySQLDatabase {
+        + connect(): void
+        + disconnect(): void
+        + save(coordinateGroup: CoordinateGroup): void
+        + load(label: String): CoordinateGroup
+    }
+}
+
+package "GUI" {
+    class SwingGUI {
+        + createWindow(): JFrame
+        + handleUserInput(): void
+        + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>): void
+    }
+}
+
+package "Network" {
+    class TCPConnection {
+        + connectToDatabase(ipAddress: String, portNumber: Integer): void
+        + disconnectFromDatabase(): void
+        + sendCommand(command: String): void
+        + receiveResponse(response: String): void
+    }
+}
+
+CoordinateGroup --|> CartesianCoordinate : Composition
+CoordinateGroup --|> PolarCoordinate : Composition
+
+MySQLDatabase --> TCPConnection : Aggregation
+SwingGUI --> CoordinateGroup : Association
+
+@enduml

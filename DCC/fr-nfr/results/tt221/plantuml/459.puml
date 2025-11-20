@@ -1,0 +1,62 @@
+@startuml
+' Dummy Coordination Conversion (DCC) Application - Class Diagram
+' Three-Tier Architecture: Frontend, Logic, Database Server
+
+package logic {
+class CartesianCoordinates {
+        +double x
+        +double y
+    }
+    
+class PolarCoordinates {
+        +double r
+        +double theta
+    }
+    
+}
+
+package dbserver {
+    class DatabaseConnector {
+        -String url
+        -String username
+        -String password
+    }
+    
+class TransactionManager {
+    +TransactionId getTransactionId()
+    +saveData(data: String)
+    +fetchData(query: String): String
+    }
+    
+    interface Database {  
+    +saveData(data: String)
+    +fetchData(query: String): String
+    }
+    
+}
+
+package main {
+  
+class Book {  
+    -transactionId: Int  
+    -bookId: Int  
+    +saveData(data: String)
+    +fetchData(query: String): String
+} 
+ 
+class Transaction {  
+    -transactionId: Int  
+    -bookId: Int  
+    +saveData(data: String)
+    +fetchData(query: String): String
+} 
+
+} 
+
+CartesianCoordinates <|-- CoordinateGroupConversion
+PolarCoordinates <|-- CoordinateGroupConversion
+DatabaseConnector <-- Book
+CoordinateGroupConversion --> TransactionManager
+DatabaseConnector <-- Transaction
+
+@enduml

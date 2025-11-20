@@ -1,0 +1,74 @@
+@startuml
+!theme plain
+
+package com.dummycoordconversion {
+    class CoordinateGroup {
+        + private int id;
+        + private String label;
+        
+        +String getLabel()
+        -private void setLabel(String label)
+        
+        +List<Coordinate> getCartesianCoordinates()
+        -void addCartesianCoordinate(Coordinate cartesianCoord)
+        
+        +List<Coordinate> getPolarCoordinates()
+        -void addPolarCoordinate(Coordinate polarCoord)
+    }
+    
+    class Coordinate {
+        +double x;
+        +double y;
+        +Coordinate convertToPolar()
+        +Coordinate convertToCartesian()
+    }
+    
+    interface LogicInterface {
+        +List<Coordinate> convertFromCartesian(Coordinate cartesianCoord)
+        +List<Coordinate> convertFromPolar(Coordinate polarCoord)
+    }
+    
+    class CartesianToPolarLogic{
+        -private Coordinate[] polars;
+        +List<Coordinate> convertFromCartesian(Coordinate cartesianCoord)
+        +List<Coordinate> convertFromPolar(Coordinate polarCoord)
+    }
+    
+    class PolarToCartesianLogic {
+        -private Coordinate[] carts;
+        +List<Coordinate> convertFromCartesian(Coordinate cartesianCoord)
+        +List<Coordinate> convertFromPolar(Coordinate polarCoord)
+    }
+    
+    class Product {
+        -private String name;
+        -private int id;
+        -private List<ProductDetail> details;
+        
+        +String getName()
+        +int getId()
+        +List<ProductDetail> getDetails()
+    }
+    
+    interface IOrderProcessor extends IStorefront {
+        +void ProcessPayment(PaymentInfo payment);
+    }
+    
+    interface IStorefront {
+        +void AddProduct()
+        +List<String> ListProducts();
+        +String GetById(int id);
+    }
+    
+    
+    interface IDatabaseAccess {
+        +PaymentInfo GetPaymentDetails(String paymentId);
+    }
+    
+    class Database  {
+        -private List<PaymentInfo> paymentsDb;
+        
+        +PaymentInfo getPaymentDetails(String paymentId) throws Exception;
+    }
+}
+@enduml

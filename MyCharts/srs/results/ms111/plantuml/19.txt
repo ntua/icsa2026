@@ -1,0 +1,76 @@
+@startuml
+
+package "Authentication Service" {
+    class User {
+        - String name
+        - String email
+        - String profilePicture
+        - int remainingQuota
+        - Date accountCreation
+        - Date lastLogin
+        + authenticate() // Functional requirement
+        + getProfile() // Functional requirement
+    }
+}
+
+package "Chart Service" {
+    class Chart {
+        - String chartID
+        - String chartType
+        - Date creationDate
+        - String chartDataJson
+        + generateChart() // Functional requirement
+        + validateCSV() // Functional requirement
+        + saveChart() // Data management operation
+    }
+    
+    class CSVTemplate {
+        - String templateID
+        - String chartType
+        - String templateStructure
+        + downloadTemplate() // Functional requirement
+    }
+}
+
+package "Storage Service" {
+    class ChartStorage {
+        + saveChart() // Data management operation
+        + getChart() // Data management operation
+        + deleteChart() // Data management operation
+    }
+}
+
+package "Quota Service" {
+    class QuotaManager {
+        - int availableQuota
+        + deductQuota() // Functional requirement
+        + checkQuota() // Functional requirement
+        + purchaseQuota() // Functional requirement
+    }
+}
+
+package "Payment Service" {
+    class PaymentGateway {
+        + processPayment() // Flow control operation
+        + validateTransaction() // Data consistency operation
+    }
+}
+
+package "API Gateway" {
+    class APIGateway {
+        + routeRequest() // Flow control operation
+    }
+}
+
+User -[hidden]-> Chart
+User -[hidden]-> QuotaManager
+Chart -- CSVTemplate : "Uses"
+Chart --> ChartStorage : "Stores"
+QuotaManager --> PaymentGateway : "Handles payments"
+QuotaManager --> User : "Updates quota"
+APIGateway --> AuthenticationService : "Routes requests"
+APIGateway --> ChartService : "Routes requests"
+APIGateway --> QuotaService : "Routes requests"
+APIGateway --> PaymentService : "Routes requests"
+
+@enduml

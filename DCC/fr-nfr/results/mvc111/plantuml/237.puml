@@ -1,0 +1,69 @@
+@startuml
+package "DCC Application" {
+    
+    package Model {
+        class CoordinateGroup {
+            - int id
+            - String label
+            - Timestamp timestamp
+            - double x
+            - double y
+            - double r
+            - double theta
+            + createGroup(double x, double y)
+            + createGroup(double r, double theta)
+            + getId()
+            + getLabel()
+            + getTimestamp()
+            + getCartesianCoordinates()
+            + getPolarCoordinates()
+            + setCartesianCoordinates(double x, double y)
+            + setPolarCoordinates(double r, double theta)
+        }
+
+        class MySQLDatabase {
+            + connect()
+            + disconnect()
+            + saveCoordinateGroup(CoordinateGroup group)
+            + getCoordinateGroupByLabel(String label)
+            + getAllCoordinateGroups()
+            + updateCoordinateGroup(CoordinateGroup group)
+            + deleteCoordinateGroup(int id)
+        }
+    }
+
+    package View {
+        class UserInterface {
+            + displayCoordinateGroup(CoordinateGroup group)
+            + getInput()
+            + displayError(String message)
+        }
+    }
+
+    package Controller {
+        class CoordinateGroupController {
+            + createCoordinateGroup(double x, double y)
+            + createCoordinateGroup(double r, double theta)
+            + storeCoordinateGroup(CoordinateGroup group)
+            + retrieveCoordinateGroupByLabel(String label)
+            + retrieveAllCoordinateGroups()
+            + modifyCoordinateGroup(int id, double x, double y)
+            + modifyCoordinateGroup(int id, double r, double theta)
+            + deleteCoordinateGroup(int id)
+        }
+    }
+
+    class TCPIPConnection {
+        + connect()
+        + disconnect()
+        + sendRequest()
+        + receiveResponse()
+    }
+
+    CoordinateGroupController --> CoordinateGroup
+    CoordinateGroupController --> MySQLDatabase
+    UserInterface --> CoordinateGroupController
+    CoordinateGroupController --> TCPIPConnection
+}
+
+@enduml

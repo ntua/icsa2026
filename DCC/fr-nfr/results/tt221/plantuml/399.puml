@@ -1,0 +1,63 @@
+@startuml
+package "Logic" {
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - cartesianCoordinates: Cartesians
+        - polarCoordinates: Polars
+    }
+    
+    class Cartesians {
+        - xHighPrecision: HighPrecisionNumber
+        - yHighPrecision: HighPrecisionNumber
+    }
+    
+    class Polars {
+        - rHighPrecision: HighPrecisionNumber
+        - thetaHighPrecision: HighPrecisionNumber
+    }
+    
+    class Converter {
+        + convertCartesianToPolar(cartesianCoordinates: Cartesians): Polars
+        + convertPolarToCartesian(polarCoordinates: Polars): Cartesians
+    }
+}
+
+package "Data" {
+    class DatabaseManager {
+        - databaseConnection: TCP/IP Connection
+        
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + readAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroup(id: Int)
+        
+        + filterCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "UserInteractions" {
+    class GUI {
+        - SwingComponents
+        
+        + handleAddButtonClicked(coordinateGroup: CoordinateGroup, label: String)
+        + handleUpdateButtonClicked(selectedCoordinateGroup: CoordinateGroup, updatedCoordinateGroup: CoordinateGroup)
+        + handleDeleteButtonClicked(id: Int)
+        + refreshAndDisplayList()
+    }
+}
+
+package "Logic" {
+    class CoordinateConverterManager {
+        + convertCartesianToPolar(cartesianCoordinates: Cartesians): Polars
+        + convertPolarToCartesian(polarCoordinates: Polars): Cartesians
+    }
+}
+
+GUI --> Converter
+CoordinateGroup <-- Converter
+DatabaseManager --> GUI
+CoordinateGroup --> DatabaseManager
+CoordinateConverterManager --> Converter
+
+@enduml

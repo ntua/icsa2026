@@ -1,0 +1,79 @@
+@startuml
+
+package client {
+  class UserInterface {
+  + createUserGroup(CartesianCoordinate, PolarCoordinate): void
+  + storeCoordinateGroup(String, CartesianCoordinate, PolarCoordinate): void
+  + retrieveCoordinateGroups(String): List<CoordinateGroup>
+  + modifyCoordinateGroup(CoordinateGroup, String, CartesianCoordinate, PolarCoordinate): void
+  - deleteCoordinateGroup(int): void
+
+
+}
+}
+note right of UserInterface : "Handles user interaction using Swing"
+
+package server {
+class CoordinatorGroupService {
+  + createCartesianCoordinate(double x, double y): CartesianCoordinate
+  + createPolarCoordinate(double r, double theta): PolarCoordinate
+  + storeCoordinateGroup(CoordinateGroup): void
+  + retrieveCoordinateGroups(String): List<CoordinateGroup>
+  + modifyCoordinateGroup(CoordinateGroup, String, CartesianCoordinate, PolarCoordinate): CoordinateGroup
+  - deleteCoordinateGroup(int): void
+
+}
+  note right of CoordinatorGroupService :"Manages coordinate groups and conversion logic"
+class CoordinateGroup {
+  - id (integer)
+  - label (String)
+  - timestamp (Date)
+
+  note "Represents a single coordinate group with attributes"
+}
+
+class CartesianCoordinate {
+  + x (double)
+  + y (double)
+
+  note "Represents a Cartesian coordinate with values"
+}
+
+class PolarCoordinate {
+  + r (double)
+  + theta (double)
+
+  note "Represents a polar coordinate with values"
+}
+
+class CoordinateGroupDAO {
+  + storeCoordinateGroup(CoordinateGroup): void
+  + retrieveCoordinateGroups(String): List<CoordinateGroup>
+  - deleteCoordinateGroup(int): void
+
+  note "Handles database operations for coordinate groups"
+}
+
+class MySQLDatabase {
+  - connector (TCPConnectionHandler)
+
+  note "Represents the MySQL database connection"
+}
+
+class TCPConnectionHandler {
+  - establishConnection(): void
+  - closeConnection(): void
+
+  note "Handles TCP/IP connections for database communication"
+}
+}
+
+
+CoordinateGroup --o CoordinateGroupDAO : composition
+MySQLDatabase --o TCPConnectionHandler : composition
+UserInterface --> CoordinatorGroupService : creation and modification
+CoordinatorGroupService --> CoordinateGroup : creation and storage
+CoordinateGroup --> CartesianCoordinate : association (one-to-one)
+CoordinateGroup --> PolarCoordinate : association (one-to-one)
+
+@enduml

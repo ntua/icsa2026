@@ -1,0 +1,55 @@
+@startuml
+
+package "Presentation Layer" {
+
+  class DCCApp {
+    + run()
+    - displayCoordinateGroups()
+    - handleCreateCoordinateGroup()
+    - handleRetrieveCoordinateGroup()
+    - handleModifyCoordinateGroup()
+    - handleDeleteCoordinateGroup()
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateGroupManager {
+    - coordinateGroupDAO: CoordinateGroupDAO
+
+    + createCoordinateGroup(label: String, cartesianCoordinates: List<Double>, polarCoordinates: List<Double>): CoordinateGroup
+    + getCoordinateGroup(id: int): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinates: List<Double>
+    - polarCoordinates: List<Double>
+    + convertCoordinates(): void // Handles conversion between Cartesian and Polar 
+
+  }
+}
+
+package "Database Layer" {
+
+  class CoordinateGroupDAO {
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + getCoordinateGroupById(id: int): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+
+  }
+}
+
+DCCApp --> CoordinateGroupManager : Uses
+CoordinateGroupManager --> CoordinateGroupDAO : Uses
+CoordinateGroup <-- CoordinateGroupManager : Creates, Modifies
+CoordinateGroupDAO <-- MySQLDatabase : Accesses
+
+
+@enduml

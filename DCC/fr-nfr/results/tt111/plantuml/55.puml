@@ -1,0 +1,67 @@
+@startuml
+package "Frontend - Swing" {
+  class DccApplication {
+    - coordGroupManager: CoordGroupManager
+    + run()
+  }
+  
+  class CoordinateGroupDialog {
+    + createCoordGroup()
+    + modifyCoordGroup()
+    + deleteCoordGroup()
+  }
+}
+
+package "Business Logic" {
+  class CoordGroupManager {
+    - coordGroups: List<CoordGroup>
+    - databaseConnection: DatabaseConnection
+    
+    + createCoordGroup(cartesian: Cartesian, polar: Polar, label: String)
+    + getCoordGroupByLabel(label: String): CoordGroup
+    + getAllCoordGroups(): List<CoordGroup>
+    + updateCoordGroup(coordGroup: CoordGroup)
+    + deleteCoordGroup(coordGroup: CoordGroup)
+  }
+  
+  class CoordGroup {
+    - id: int
+    - label: String
+    - timestamp: DateTime
+    - cartesian: Cartesian
+    - polar: Polar
+  }
+  
+  class Converter {
+    + convertCartesianToPolar(cartesian: Cartesian): Polar
+    + convertPolarToCartesian(polar: Polar): Cartesian
+  }
+}
+
+package "Database" {
+  class DatabaseConnection {
+    + saveCoordGroup(coordGroup: CoordGroup)
+    + getCoordGroupByLabel(label: String): CoordGroup
+    + getAllCoordGroups(): List<CoordGroup>
+    + updateCoordGroup(coordGroup: CoordGroup)
+    + deleteCoordGroup(coordGroup: CoordGroup)
+  }
+}
+
+package "Data Types" {
+  class Cartesian {
+    x: float
+    y: float
+  }
+  
+  class Polar {
+    r: float
+    theta: float
+  }
+}
+
+DccApplication --> CoordinateGroupDialog
+CoordGroupManager -- CoordGroup
+CoordGroupManager -- Converter
+CoordGroupManager --> DatabaseConnection
+@enduml

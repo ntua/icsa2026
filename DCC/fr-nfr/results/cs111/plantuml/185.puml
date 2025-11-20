@@ -1,0 +1,88 @@
+@startuml
+' Client Package
+package "Client" {
+    class DCCApplication {
+        - dccManager: DCCManager
+        + run()
+    }
+
+    ' Coordinate Manager Package
+    package "Coordinate Managers" {
+        class CartesianConverter {
+            + convertToCartesian(r: Double, theta: Double) : Tuple<Double, Double>
+            + convertFromCartesian(x: Double, y: Double) : Tuple<Double, Double>
+        }
+
+        class PolarConverter {
+            + convertToPolar(x: Double, y: Double) : Tuple<Double, Double>
+            + convertFromPolar(r: Double, theta: Double) : Tuple<Double, Double>
+        }
+    }
+
+    ' DCC Manager Package
+    package "DCC Manager" {
+        class DCCManager {
+            - cartesianConverter: CartesianConverter
+            - polarConverter: PolarConverter
+            - dccDatabase: DCCDatabase
+            + createCoordinateGroup(x: Double, y: Double) : CoordinateGroup
+            + createCoordinateGroup(r: Double, theta: Double) : CoordinateGroup
+            + storeCoordinateGroup(group: CoordinateGroup) : Int
+            + retrieveCoordinateGroups() : List<CoordinateGroup>
+            + retrieveCoordinateGroupByLabel(label: String) : CoordinateGroup
+            + modifyCoordinateGroup(groupId: Int, updates: Map) : Boolean
+            + deleteCoordinateGroup(groupId: Int) : Boolean
+        }
+    }
+}
+
+
+' Server Package
+package "Server" {
+
+    ' MySQL Database Classes
+    package "MySQL Database" {
+        class DCCDatabase {
+            - connection: DBConnection
+            + storeData(data: String) : Boolean
+            + fetchData(query: String) : List<String>
+        }
+
+        class DBConnection {
+            + connect() : Boolean
+            + disconnect() : Boolean
+        }
+    }
+
+    ' Coordinate Group Class
+    package "Coordinate Models" {
+        class CoordinateGroup {
+            - id: Int
+            - label: String
+            - timestamp: Timestamp
+
+            // Cartesian coordinates
+            - x: Double
+            - y: Double
+
+            // Polar coordinates
+            - r: Double
+            - theta: Double
+
+            + getCartesianCoordinates() : Tuple<Double, Double>
+            + setCartesianCoordinates(x: Double, y: Double)
+            + getPolarCoordinates() : Tuple<Double, Double>
+            + setPolarCoordinates(r: Double, theta: Double)
+        }
+    }
+}
+
+
+' Associations
+DCCApplication -down- DCCManager
+DCCManager .. CartesianConverter
+DCCManager .. PolarConverter
+DCCManager .. "MySQL Database"
+
+note left of DCCManager : Uses TCP/IP Connection for communication with the database.
+@enduml

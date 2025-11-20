@@ -1,0 +1,100 @@
+@startuml
+    ' Presentation Layer Package'
+    package ui {
+        class DCCFrame {
+            -coordinatePanel: JPanel
+            -inputPanel: JPanel
+            -listPanel: JPanel
+            -controller: DCCController
+            +initializeUI()
+            +refreshCoordinateList()
+            +showError(message: String)
+            +getInputValues(): Map
+            -handleAddButton()
+            -handleUpdateButton()
+            -handleDeleteButton()
+            -handleFilterButton()
+            -handleClearFilterButton()
+        }
+    }
+
+    ' Business Logic Layer Package'
+    package logic {
+        class DCCController {
+            -coordService: CoordinateService
+            +createCoordinateGroup(label: String, coords: Map): boolean
+            +getAllCoordinateGroups(): List~CoordinateGroup~
+            +updateCoordinateGroup(id: int, coords: Map): boolean
+            +deleteCoordinateGroup(id: int): boolean
+            +filterByLabel(label: String): List~CoordinateGroup~
+        }
+
+        class CoordinateService {
+            -repository: CoordinateRepository
+            +createGroup(group: CoordinateGroup): boolean
+            +getAllGroups(): List~CoordinateGroup~
+            +updateGroup(group: CoordinateGroup): boolean
+            +deleteGroup(id: int): boolean
+            +convertCartesianToPolar(x: double, y: double): PolarCoordinate
+            +convertPolarToCartesian(r: double, theta: double): CartesianCoordinate
+            -validateCoordinates(coords: Map): boolean
+        }
+
+        class CoordinateGroup {
+            -id: int
+            -label: String
+            -cartesian: CartesianCoordinate
+            -polar: PolarCoordinate
+            -timestamp: DateTime
+            +getters()
+            +setters()
+        }
+
+        class CartesianCoordinate {
+            -x: double
+            -y: double
+            +getters()
+            +setters()
+        }
+
+        class PolarCoordinate {
+            -r: double
+            -theta: double
+            +getters()
+            +setters()
+        }
+    }
+
+    ' Data Access Layer Package'
+    package data {
+        class CoordinateRepository {
+            -dbConnection: DatabaseConnection
+            +create(group: CoordinateGroup): boolean
+            +readAll(): List~CoordinateGroup~
+            +update(group: CoordinateGroup): boolean
+            +delete(id: int): boolean
+            +findByLabel(label: String): List~CoordinateGroup~
+        }
+
+        class DatabaseConnection {
+            -connection: Connection
+            -url: String
+            -username: String
+            -password: String
+            +connect(): Connection
+            +disconnect()
+            +executeQuery(query: String): ResultSet
+            +executeUpdate(query: String): int
+        }
+    }
+
+    ' Relationships'
+    DCCFrame --> DCCController
+    DCCController --> CoordinateService
+    CoordinateService --> CoordinateRepository
+    CoordinateService --> CoordinateGroup
+    CoordinateGroup --> CartesianCoordinate
+    CoordinateGroup --> PolarCoordinate
+    CoordinateRepository --> DatabaseConnection
+    
+@enduml

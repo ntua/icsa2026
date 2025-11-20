@@ -1,0 +1,58 @@
+@startuml
+
+package main {
+  class User {
+  + String username
+  + String password
+  + CoordinateGroup[] coordinateGroups
+  - createUser()
+  - login()
+  - logout()
+}
+
+class CoordinateGroup {
+  + Integer id
+  + String label
+  + Timestamp timestamp
+  + CartesianCoordinate cartesianCoord
+  + PolarCoordinate polarCoord
+  - createCartesianCoordinates()
+  - createPolarCoordinates()
+  - storeInDatabase()
+  - retrieveFromDatabase()
+  - modify()
+  - delete()
+}
+
+}
+
+package persistence {
+  class MySQLConnector {
+  + Connection connectToDatabase()
+  - disconnectFromDatabase()
+}
+
+class Database {
+  + CoordinateGroup[] getAllCoordinateGroups()
+  - getCoordinateGroupByLabel(String label)
+  - saveCoordinateGroup(CoordinateGroup group)
+  - updateCoordinateGroup(CoordinateGroup group)
+  - deleteCoordinateGroup(Integer id)
+}
+}
+
+package data {
+  class CartesianCoordinate {
+  + Double x
+  + Double y
+  - createCartesianCoord(double x, double y)
+}
+
+class PolarCoordinate {
+  + Double r
+  + Double theta
+  - createPolarCoord(double r, double theta)
+}
+}
+
+@enduml

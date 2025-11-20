@@ -1,0 +1,90 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages and Classes
+
+package "Model" {
+    class CartesianCoords {
+        - x: double
+        - y: double
+        
+        + toPolar(): PolarCoords
+        + fromPolar(PolarCoords): void
+    }
+
+    class PolarCoords {
+        - r: double
+        - theta: double
+        
+        + toCartesian(): CartesianCoords
+        + fromCartesian(CartesianCoords): void
+    }
+
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoords
+        - polar: PolarCoords
+        
+        + create(): void
+        + read(): List<CoordinateGroup>
+        + update(): void
+        + delete(): void
+    }
+
+    class DatabaseAccessor {
+        - dbConnection: Connection
+        
+        + connect(): boolean
+        + saveCoordinateGroup(CoordinateGroup): boolean
+        + updateCoordinateGroup(CoordinateGroup): boolean
+        + deleteCoordinateGroup(id: Integer): boolean
+        + fetchAllCoordinateGroups(): List<CoordinateGroup>
+        + filterCoordinateGroups(label: String): List<CoordinateGroup>
+    }
+}
+
+package "View" {
+    class DCCView {
+        - gui: JFrame
+        
+        + showGUI(): void
+        + displayCoordinateGroups(List<CoordinateGroup>): void
+        + setInputFields(CartesianCoords, PolarCoords): void
+        + clearInputFields(): void
+        + enableFilter(): void
+        + disableFilter(): void
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - model: CoordinateGroup
+        - view: DCCView
+        - dbAccessor: DatabaseAccessor
+        
+        + initialize(): void
+        + convertCartesianToPolar(CartesianCoords): PolarCoords
+        + convertPolarToCartesian(PolarCoords): CartesianCoords
+        + executeCreateOp(label: String, cartesian: CartesianCoords, polar: PolarCoords): void
+        + executeReadOp(): List<CoordinateGroup>
+        + executeUpdateOp(id: Integer, label: String, cartesian: CartesianCoords, polar: PolarCoords): void
+        + executeDeleteOp(id: Integer): void
+        + refreshView(): void
+        + applyFilter(label: String): void
+        + clearFilter(): void
+    }
+}
+
+' Associations
+
+DCCController --> CoordinateGroup : uses
+DCCController --> DCCView : controls
+DCCController --> DatabaseAccessor : uses
+
+CoordinateGroup *-- CartesianCoords : composition
+CoordinateGroup *-- PolarCoords : composition
+
+DatabaseAccessor -- MySQL : connects to
+
+@enduml

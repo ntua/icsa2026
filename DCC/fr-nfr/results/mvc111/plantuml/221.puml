@@ -1,0 +1,58 @@
+@startuml
+
+' Model'
+class CoordinateGroup {
+    - id : int
+    - label : String
+    - creationTime : Date
+    + CartesianToPolar(x, y) : Polar
+    + PolarToCartesian(r, theta): Cartesian
+}
+
+class CoordinatePair {
+    - x: float
+    - y: float
+    + setX(value: float): void
+    + getX(): float
+    + setY(value: float): void
+    + getY(): float
+}
+
+class PolarCoordinates {
+    - r : float
+    - theta : double
+    + CartesianToPolar(x, y) : CoordinatePair
+    + PolarToCartesian(r, theta): CoordinatePair
+}
+
+CoordinateGroup "1..*"--* CoordinatePair
+' Controller'
+class CoordinateController {
+    - model: CoordinateGroup
+    - view: CoordinateView
+    + addCoordinateGroup() : void
+    + removeCoordinateGroup() : void
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+}
+
+' View'
+class CoordinateView {
+    - model: CoordinateController
+    + render(): String
+    + requestInput(): String
+    + displayAllGroups(): String
+    + searchLabel(labelString: String): List[CoordinateGroup]
+}
+
+' Database (UML doesn't support explicit DB classes, we use the Model class)'
+class DataAccessLayer {
+    - connectionString : String
+}
+DataAccessLayer "1..*"--* CoordinateController 
+
+' Communication layer'
+class TCPConnection {
+    - port: int
+}
+TCPConnection "1..1"--* CoordinateController
+@enduml

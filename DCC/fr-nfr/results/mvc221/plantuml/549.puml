@@ -1,0 +1,91 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages and Classes
+
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        - timestamp: DateTime
+        
+        + getLabel(): String
+        + setLabel(label: String): void
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+        
+        + toPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+        
+        + toCartesian(): CartesianCoordinate
+    }
+
+    class Converter {
+        + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+
+    class DatabaseManager {
+        - connection: TCPConnection
+        
+        + createOp(coordinateGroup: CoordinateGroup): void
+        + readOp(): List<CoordinateGroup>
+        + updateOp(coordinateGroup: CoordinateGroup): void
+        + deleteOp(id: Integer): void
+    }
+}
+
+package "View" {
+    class MainWindow {
+        - inputPanel: JPanel
+        - listPanel: JTable
+        - controller: DCCController
+        
+        + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        + refreshList(): void
+        + showFilteredGroups(filteredGroups: List<CoordinateGroup>): void
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - model: CoordinateGroup
+        - converter: Converter
+        - dbManager: DatabaseManager
+        - view: MainWindow
+        
+        + handleAddAction(label: String, x: Double, y: Double): void
+        + handleUpdateAction(id: Integer, label: String, x: Double, y: Double): void
+        + handleDeleteAction(id: Integer): void
+        + handleFilterAction(filterString: String): void
+        + clearFilter(): void
+    }
+}
+
+' Associations
+
+DCCController --> CoordinateGroup : uses
+DCCController --> Converter : uses
+DCCController --> DatabaseManager : uses
+
+MainWindow "1" --> "1" DCCController : managed by
+
+CoordinateGroup *-- CartesianCoordinate : contains
+CoordinateGroup *-- PolarCoordinate : contains
+
+CartesianCoordinate "1" --* Converter : conversion handled by
+PolarCoordinate "1" --* Converter : conversion handled by
+
+DatabaseManager "1" --* CoordinateGroup : manages
+
+@enduml

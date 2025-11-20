@@ -1,0 +1,52 @@
+@startuml
+
+package "Frontend" {
+class UserInterface {
+- coordGroupList : List<CoordinateGroup>
++ createCoordGroup() : void
++ storeCoordGroup(cg: CoordinateGroup) : void
++ retrieveCoordGroup(label: String) : CoordinateGroup
++ modifyCoordGroup(cg: CoordinateGroup) : void
++ deleteCoordGroup(cg: CoordinateGroup) : void
+}
+}
+
+package "Logic Layer" {
+class Converter {
+- coordGroups : Map<String, CoordinateGroup>
++ convertCartesianToPolar(x: Double, y: Double) : (Double, Double)
++ convertPolarToCartesian(r: Double, theta: Double) : (Double, Double)
+}
+class CoordinateGroupManager {
+- converter : Converter
+- databaseManager : DatabaseManager
+
++ createCoordGroup(cartesian: (Double, Double), polar: (Double, Double), label: String) : CoordinateGroup
++ getCoordGroupByLabel(label: String) : CoordinateGroup
++ updateCoordGroup(cg: CoordinateGroup) : void
++ deleteCoordGroup(cg: CoordinateGroup) : void
+}
+}
+
+package "Database Layer" {
+class DatabaseManager {
+- databaseConnection : DatabaseConnection
+
++ saveCoordGroup(cg: CoordinateGroup) : void
++ getCoordGroupByLabel(label: String) : CoordinateGroup
++ updateCoordGroup(cg: CoordinateGroup) : void
++ deleteCoordGroup(cg: CoordinateGroup) : void
+}
+class DatabaseConnection {
+- connection : MySQLConnection
++ establishConnection() : void
++ closeConnection() : void
+}
+}
+
+UserInterface -- CoordinateGroupManager
+CoordinateGroupManager -- Converter
+CoordinateGroupManager -- DatabaseManager
+DatabaseManager -- DatabaseConnection
+
+@enduml

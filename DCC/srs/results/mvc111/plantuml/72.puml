@@ -1,0 +1,110 @@
+@startuml DCC Class Diagram
+
+' Packages
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: DateTime
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getters()
+    + setters()
+    + toString(): String
+  }
+
+  enum CoordType {
+    CARTESIAN
+    POLAR
+  }
+
+  interface CoordinateDAO {
+    + create(CoordinateGroup group)
+    + update(CoordinateGroup group)
+    + delete(int id)
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+
+  class CoordinateDAOImpl {
+    - connection: Connection
+    + create(CoordinateGroup group)
+    + update(CoordinateGroup group)
+    + delete(int id)
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    - getConnection(): Connection
+  }
+
+  class DatabaseConnection {
+    - instance: DatabaseConnection
+    - connection: Connection
+    - {static} URL: String
+    - {static} USERNAME: String
+    - {static} PASSWORD: String
+    + getInstance(): DatabaseConnection
+    - establishConnection(): Connection
+  }
+}
+
+package "View" {
+  class CoordinateView {
+    - frame: JFrame
+    - coordTypeComboBox: JComboBox
+    - valueField1: JTextField
+    - valueField2: JTextField
+    - labelField: JTextField
+    - coordinateList: JList
+    + initialize()
+    + displayCoordinates(List<CoordinateGroup>)
+    + showErrorMessage(String)
+    + getInputValues(): Map<String, Object>
+    + addCreateListener(ActionListener)
+    + addUpdateListener(ActionListener)
+    + addDeleteListener(ActionListener)
+    + addViewAllListener(ActionListener)
+    + addViewByLabelListener(ActionListener)
+    + refreshView()
+  }
+}
+
+package "Controller" {
+  class CoordinateController {
+    - model: CoordinateGroup
+    - view: CoordinateView
+    - dao: CoordinateDAO
+    - converter: CoordinateConverter
+    + CoordinateController(CoordinateView view, CoordinateDAO dao)
+    + createCoordinateGroup()
+    + updateCoordinateGroup()
+    + deleteCoordinateGroup()
+    + viewAllCoordinateGroups()
+    + viewCoordinateGroupsByLabel()
+    - validateInput(): boolean
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): double[]
+    + polarToCartesian(double r, double theta): double[]
+    - validateCartesian(double x, double y): boolean
+    - validatePolar(double r, double theta): boolean
+  }
+}
+
+' Relationships
+CoordinateController "1" --> "1" CoordinateView: controls >
+CoordinateController "1" --> "1" CoordinateDAO: uses >
+CoordinateController "1" --> "1" CoordinateConverter: uses >
+CoordinateController "1" --> "*" CoordinateGroup: manages >
+CoordinateDAOImpl ..|> CoordinateDAO
+CoordinateDAOImpl --> DatabaseConnection: uses >
+CoordinateGroup --> CoordType: has >
+CoordinateView ..> CoordinateGroup: displays >
+
+note "Observer Pattern:\nView observes Model\nthrough Controller" as N1
+CoordinateView .. N1
+CoordinateController .. N1
+
+@enduml

@@ -1,0 +1,71 @@
+@startuml
+package Authentication {
+  class GoogleAuthenticator {
+    - String clientId
+    - String clientSecret
+    + authenticateUser(String token): Boolean // Functional requirement-business logic operation
+  }
+}
+
+package ChartGeneration {
+  class ChartGenerator {
+    - Highcharts highcharts
+    + generateChart(CSVData data, ChartType type): Chart // Functional requirement-business logic operation
+  }
+
+  class CSVValidator {
+    - String templateStructure
+    + validateCSV(CSVData data): Boolean // Data management operation
+  }
+}
+
+package DataManagement {
+  class UserDataService {
+    - Database database
+    + saveUser(User user): void // Data management operation
+    + getUser(String id): User // Data management operation
+  }
+
+  class ChartDataService {
+    - Database database
+    + saveChart(Chart chart): void // Data management operation
+    + getCharts(): List<Chart> // Data management operation
+  }
+}
+
+package PaymentGateway {
+  class PaymentProcessor {
+    - String paymentGatewayUrl
+    + processPayment(PaymentRequest request): Boolean // Functional requirement-business logic operation
+  }
+}
+
+package QuotaManagement {
+  class QuotaService {
+    - Database database
+    + getRemainingQuota(String userId): Integer // Data management operation
+    + updateQuota(String userId, Integer quota): void // Data consistency operation
+  }
+}
+
+package ServiceOrchestration {
+  class ServiceGateway {
+    - List<Service> services
+    + orchestrateServices(Request request): Response // Flow control operation
+  }
+
+  abstract class Service {
+    {abstract}
+    + processRequest(Request request): Response // Functional requirement-business logic operation
+  }
+}
+
+GoogleAuthenticator --* ChartGenerator : uses
+ChartGenerator --* CSVValidator : uses
+ChartDataService --* QuotaService : updates quota
+QuotaService --* UserDataService : gets user data
+PaymentProcessor --* QuotaService : updates quota
+ServiceGateway --* PaymentProcessor : calls payment processor
+ServiceGateway --* ChartGenerator : calls chart generator
+ServiceGateway --* CSVValidator : calls csv validator
+@enduml

@@ -1,0 +1,55 @@
+@startuml
+title DCC Application Class Diagram
+
+!define colors
+!define color_interface #0000ff
+!define color_entity #ccccff
+
+' Packages
+package "DCC Frontend" {
+    class UserInterface{
+        + createCoordinateGroup()
+        + retrieveCoordinateGroups()
+        - modifyCoordinateGroup()
+        - deleteCoordinateGroup()
+    }
+
+    class CoordinateGroup{
+        * id: int
+        * label: string
+        * timestamp: date
+        
+        + Cartesian: (x, y)
+        + Polar: (r, theta)
+
+        - convertToPolar()
+        - convertToCartesian()
+    }
+}
+
+package "DCC Database" {
+    class CoordinateGroupDB {
+        * id: int
+        * label: string
+        * timestamp: date
+        
+        + Cartesian: (x, y)
+        + Polar: (r, theta)
+
+        - insertIntoDatabase()
+        - retrieveFromDatabase()
+        - deleteFromDatabase()
+    }
+
+    class MySQL{
+        - connect()
+        - query()
+        - closeConnection()
+    }
+}
+
+' Associations
+UserInterface .. CoordinateGroup : 1 : n
+CoordinateGroup -- CoordinateGroupDB : 1 : m "TCP/IP Connection"
+MySQL .. CoordinateGroupDB : 1 : *
+@enduml

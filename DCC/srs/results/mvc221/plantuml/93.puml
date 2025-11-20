@@ -1,0 +1,110 @@
+@startuml
+
+skinparam packageStyle rectangle
+skinparam packageTitleFontColor #FFFFFF
+skinparam packageTitleBackgroundColor #2E86C1
+
+' ==== Packages ====
+package "model" <<Folder>> {
+  ' -- CartesianCoordinate --
+  class CartesianCoordinate {
+    - x : double
+    - y : double
+    
+    + CartesianCoordinate(x : double, y : double)
+    + getX() : double
+    + setX(x : double) : void
+    + getY() : double
+    + setY(y : double) : void
+  }
+
+  ' -- PolarCoordinate --
+  class PolarCoordinate {
+    - r : double
+    - theta : double
+    
+    + PolarCoordinate(r : double, theta : double)
+    + getR() : double
+    + setR(r : double) : void
+    + getTheta() : double
+    + setTheta(theta : double) : void
+  }
+
+  ' -- CoordinateGroup --
+  class CoordinateGroup {
+    - id : int
+    - label : String
+    - createdAt : java.time.LocalDateTime
+    - cartesianCoord : CartesianCoordinate
+    - polarCoord : PolarCoordinate
+    
+    + getId() : int
+    + setId(id : int) : void
+    + getLabel() : String
+    + setLabel(label : String) : void
+    + getCreatedAt() : java.time.LocalDateTime
+    + setCreatedAt(time : java.time.LocalDateTime) : void
+    + getCartesianCoord() : CartesianCoordinate
+    + setCartesianCoord(cart : CartesianCoordinate) : void
+    + getPolarCoord() : PolarCoordinate
+    + setPolarCoord(polar : PolarCoordinate) : void
+  }
+
+  ' -- CoordinateConverter --
+  class CoordinateConverter {
+    + toPolar(cart : CartesianCoordinate) : PolarCoordinate
+    + toCartesian(polar : PolarCoordinate) : CartesianCoordinate
+  }
+
+  ' -- CoordinateGroupDAO --
+  class CoordinateGroupDAO {
+    + save(group : CoordinateGroup) : void
+    + update(group : CoordinateGroup) : void
+    + delete(id : int) : void
+    + findById(id : int) : CoordinateGroup
+    + findByLabel(label : String) : List<CoordinateGroup>
+    + findAll() : List<CoordinateGroup>
+  }
+}
+
+package "view" <<Folder>> {
+  ' -- DCCMainView --
+  class DCCMainView {
+    + showCoordinateGroups(groups : List<CoordinateGroup>) : void
+    + getUserInput() : void
+    + displayError(message : String) : void
+    + displaySuccess(message : String) : void
+    + ...
+  }
+}
+
+package "controller" <<Folder>> {
+  ' -- CoordinateGroupController --
+  class CoordinateGroupController {
+    - view : DCCMainView
+    - dao : CoordinateGroupDAO
+    - converter : CoordinateConverter
+
+    + createCoordinateGroup(coordType : String, xOrR : double, yOrTheta : double, label : String) : void
+    + updateCoordinateGroup(id : int, coordType : String, xOrR : double, yOrTheta : double, label : String) : void
+    + deleteCoordinateGroup(id : int) : void
+    + viewAllCoordinateGroups() : void
+    + viewCoordinateGroupByLabel(label : String) : void
+  }
+}
+
+' ==== Relationships and Associations ====
+' Composition: A CoordinateGroup is composed of a CartesianCoordinate and a PolarCoordinate
+CoordinateGroup *-- CartesianCoordinate : "has"
+CoordinateGroup *-- PolarCoordinate : "has"
+
+' The controller uses the DAO to persist/fetch data
+CoordinateGroupController --> CoordinateGroupDAO : "uses"
+
+' The controller also uses the converter for coordinate transformations
+CoordinateGroupController --> CoordinateConverter : "uses"
+
+' The controller communicates with the main view
+CoordinateGroupController --> DCCMainView : "manages"
+
+@enduml

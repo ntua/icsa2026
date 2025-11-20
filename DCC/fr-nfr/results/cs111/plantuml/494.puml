@@ -1,0 +1,73 @@
+@startuml DCC Class Diagram
+
+' Package definitions
+package "Client" {
+    class DCCClient {
+        - coordinateConverter: CoordinateConverter
+        - serverProxy: DCCServerProxy
+        
+        + DCCClient()
+        + initializeGUI()
+        + handleUserInput()
+        + sendRequest(request: String)
+    }
+
+    class CoordinateConverter {
+        + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+}
+
+package "Server" {
+    class DCCServer {
+        - coordinateManager: CoordinateManager
+        
+        + processRequest(request: String)
+        + handleResponse(response: String)
+    }
+
+    class CoordinateManager {
+        - databaseAccessor: DatabaseAccessor
+        
+        + createCoordinateGroup(group: CoordinateGroup)
+        + retrieveCoordinateGroup(label: String): CoordinateGroup
+        + updateCoordinateGroup(group: CoordinateGroup)
+        + deleteCoordinateGroup(id: Integer)
+    }
+
+    class DatabaseAccessor {
+        + storeCoordinateGroup(group: CoordinateGroup)
+        + loadCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(group: CoordinateGroup)
+        + deleteCoordinateGroup(id: Integer)
+    }
+}
+
+' Data classes
+class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartesianCoordinates: CartesianCoordinate
+    - polarCoordinates: PolarCoordinate
+    - timestamp: Date
+}
+
+class CartesianCoordinate {
+    - x: Double
+    - y: Double
+}
+
+class PolarCoordinate {
+    - r: Double
+    - theta: Double
+}
+
+' Associations
+DCCClient --> CoordinateConverter : uses
+DCCClient --> DCCServer : communicates via
+DCCServer --> CoordinateManager : delegates to
+CoordinateManager --> DatabaseAccessor : interacts with
+CoordinateGroup *-- CartesianCoordinate : contains
+CoordinateGroup *-- PolarCoordinate : contains
+
+@enduml

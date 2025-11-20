@@ -1,0 +1,60 @@
+@startuml
+package gui {
+    class DCCAppGUI {
+        {method} void handleUserInput()
+        {method} void convertCoordinates()
+        {method} void refreshDisplay()
+        {method} void filterGroups(String)
+        {method} void clearFilter()
+    }
+}
+
+package logic {
+    class ConversionUtility {
+        {static} {method} PolarCoordinate convertCartesianToPolar(CartesianCoordinate)
+        {static} {method} CartesianCoordinate convertPolarToCartesian(PolarCoordinate)
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        - timestamp: Date
+    }
+
+    class Coordinator {
+        - dataAccess: DataAccessObject
+        {method} void addCoordinateGroup(String, CartesianCoordinate)
+        {method} void updateCoordinateGroup(int, String, ...)
+        {method} void deleteCoordinateGroup(int)
+        {method} List<CoordinateGroup> getCoordinateGroups()
+        {method} List<CoordinateGroup> filterCoordinateGroups(String)
+    }
+}
+
+package dao {
+    class DataAccessObject {
+        {method} void createCoordinateGroup(CoordinateGroup)
+        {method} List<CoordinateGroup> readAllCoordinateGroups()
+        {method} void updateCoordinateGroup(CoordinateGroup)
+        {method} void deleteCoordinateGroup(int)
+    }
+}
+
+class CartesianCoordinate {
+    - x: double
+    - y: double
+}
+
+class PolarCoordinate {
+    - r: double
+    - theta: double
+}
+
+DCCAppGUI --* Coordinator
+Coordinator --> ConversionUtility
+Coordinator *-- DataAccessObject
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+@enduml

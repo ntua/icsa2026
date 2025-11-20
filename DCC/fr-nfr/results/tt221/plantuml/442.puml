@@ -1,0 +1,53 @@
+@startuml
+package "Frontend" {
+class SwingInterface {
+- view: JFrame
+- labelInput: JTextField
+- coordinatesInput: JTextArea
+- buttonAdd: JButton
+- buttonUpdate: JButton
+- buttonDelete: JButton
+- listCoordinateGroups: JList
+}
+}
+
+package "Logic Layer" {
+class CoordinateGroupManager {
+- coordinateGroups: List<CoordinateGroup>
++ create(label: String, cartesian: Pair<Double, Double>, polar: Pair<Double, Double>): CoordinateGroup
++ read(): List<CoordinateGroup>
++ update(id: Int, label: String, cartesian: Pair<Double, Double>, polar: Pair<Double, Double>): CoordinateGroup
++ delete(id: Int)
++ filterByLabel(label: String): List<CoordinateGroup>
+}
+class CoordinateConverter {
+- toPolar(cartesian: Pair<Double, Double>): Pair<Double, Double>
+- toCartesian(polar: Pair<Double, Double>): Pair<Double, Double>
+}
+}
+
+package "Data Layer" {
+class MySQLDatabase {
+- connection: DatabaseConnection
++ connect(): Boolean
++ disconnect()
++ createTableIfNotExists()
++ insert(coordinateGroup: CoordinateGroup)
++ selectAll(): List<CoordinateGroup>
++ update(coordinateGroup: CoordinateGroup)
++ delete(id: Int)
+}
+class DatabaseConnection {
+- host: String
+- port: Int
+- databaseName: String
+- username: String
+- password: String
+}
+}
+
+SwingInterface "uses" -l-> CoordinateGroupManager
+CoordinateGroupManager "uses" -d-> CoordinateConverter
+CoordinateGroupManager "uses" -u-> MySQLDatabase
+MySQLDatabase "uses" --> DatabaseConnection
+@enduml

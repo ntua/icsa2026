@@ -1,0 +1,58 @@
+@startuml
+package models {
+  class CoordinateGroup {
+    - id : Integer
+    - timestamp : Date
+    - label : String
+    - polarCoordinates : List<PolarCoordinate>
+    - cartesianCoordinates : List<CartesianCoordinate>
+
+    + constructor()
+    + constructor(id, timestamp, label)
+    + delete()
+    + save()
+  }
+
+  class PolarCoordinate {
+    - radius : Double
+    - angle : Double
+
+    + constructor(radius, angle)
+  }
+
+  class CartesianCoordinate {
+    - x : Integer
+    - y : Integer
+
+    + constructor(x, y)
+  }
+}
+
+package controllers {
+  class CoordinateController {
+    - viewAll()
+    - viewByLabel(label)
+    - delete(group)
+
+    + constructor(models.CoordinateGroupRepository)
+  }
+}
+
+package repositories {
+  class CoordinateGroupRepository {
+    + create(coordinateGroup)
+    + read(id : Integer) : models.CoordinateGroup
+    + update(coordinateGroup)
+    + delete(id : Integer)
+  }
+
+  class DatabaseConnector {
+    + connect()
+    + disconnect()
+  }
+}
+
+CoordinateController ..> models.CoordinateGroup : uses
+models.CoordinateGroupRepository ..> models.CoordinateGroup : maintains
+DatabaseConnector ..> models.CoordinateGroup : stores in
+@enduml

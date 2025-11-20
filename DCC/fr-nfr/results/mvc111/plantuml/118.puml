@@ -1,0 +1,56 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application - MVC Architecture
+
+package "DCC Frontend" <<java>> {
+    class CoordinateView {
+        +displayCoordinateGroups()
+        +showDetails(Cartesian, Polar)
+        +updateLabel(String)
+        +deleteGroup()
+    }
+    
+    class Controller {
+        -view: CoordinateView
+        -model: CoordinateModel
+        
+        +createGroup(Cartesian, Polar)
+        +storeGroup()
+        +retrieveGroup(label: String)
+        +modifyGroup()
+        +deleteGroup()
+    }
+}
+
+
+package "DCC Backend" <<mysql>> {
+    class CoordinateModel {
+        -coordinateGroups: List<CoordinateGroup>
+        -label: String
+        
+        +fetchAllGroups()
+        +getGroupByLabel(String label)
+        +saveGroup(Cartesian, Polar)
+        +modifyGroupDetails(String newLabel, Cartesian, Polar)
+        +deleteGroup(Integer id)
+    }
+}
+
+
+class CoordinateGroup {
+    +id: Integer
+    +label: String
+    +timestamp: Date
+    
+    -cartesian: (x, y)
+    -polar: (r, theta)
+
+    +toString(): String
+}
+
+CoordinateView -- Controller : User Events/Actions
+Controller --> CoordinateModel : Request Data
+
+note right of CoordinateGroup
+    Cartesian = {x,y}<br/>Polar = {r,theta}
+end note
+@enduml

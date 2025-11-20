@@ -1,0 +1,82 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Class Diagram
+
+package "Frontend" {
+  class CoordinateGroupCreator {
+    +createCartesianGroup(double x, double y)
+    +createPolarGroup(double r, double theta)
+  }
+  class CoordinateGroupEditor {
+    +modifyGroup(CoordinateGroup group, String label, double[] newValues)
+  }
+  class CoordinateGroupViewer {
+    +displayGroups()
+    +displayGroup(CoordinateGroup group)
+  }
+  class DCCApplication {
+    -client: Client
+  }
+}
+
+package "Domain" {
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -timestamp: Date
+    -coordinates: Coordinate[]
+  }
+  enum CoordinateType {
+    CARTESIAN,
+    POLAR
+  }
+  abstract class Coordinate {
+    +getValue(): double[]
+  }
+  class CartesianCoordinate {
+    -x: double
+    -y: double
+  }
+  class PolarCoordinate {
+    -r: double
+    -theta: double
+  }
+}
+
+package "Database" {
+  class DatabaseManager {
+    +storeGroup(CoordinateGroup group)
+    +retrieveGroupByLabel(String label): CoordinateGroup
+    +retrieveAllGroups(): CoordinateGroup[]
+    +deleteGroup(int id)
+  }
+}
+
+package "Network" {
+  class Client {
+    -serverAddress: String
+    -port: int
+    +connectToServer()
+    +sendCommand(String command)
+    +receiveResponse(): String
+  }
+}
+
+DCCApplication --> CoordinateGroupCreator : uses
+DCCApplication --> CoordinateGroupEditor : uses
+DCCApplication --> CoordinateGroupViewer : uses
+
+CoordinateGroupCreator --> CoordinateGroup : creates
+
+CoordinateGroup <-- CoordinateType
+
+CoordinateGroup --> Coordinate : contains
+
+DatabaseManager --> CoordinateGroup : stores
+
+Client --> DatabaseManager : communicates with
+
+
+
+@enduml

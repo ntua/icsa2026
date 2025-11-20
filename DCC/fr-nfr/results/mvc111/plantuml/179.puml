@@ -1,0 +1,76 @@
+@startuml
+package "Model" {
+  class CoordinateGroupModel {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: List<CartesianCoordinate>
+    - polarCoordinates: List<PolarCoordinate>
+
+    + addCartesianCoordinate(CartesianCoordinate coordinate): void
+    + addPolarCoordinate(PolarCoordinate coordinate): void
+    + getCartesianCoordinates(): List<CartesianCoordinate>
+    + getPolarCoordinates(): List<PolarCoordinate>
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+
+    + getX(): double
+    + getY(): double
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+
+    + getR(): double
+    + getTheta(): double
+  }
+}
+
+package "View" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups(List<CoordinateGroup>): void
+    + displayCoordinateGroup(CoordinateGroup): void
+    + promptForNewCoordinateGroup(): CoordinateGroup
+    + promptForModification(CoordinateGroup): void
+    + displayConfirmationMessage(String message): void
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupController {
+    - model: CoordinateGroupModel
+    - view: CoordinateGroupView
+
+    + createCoordinateGroup(CoordinateGroup): void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + retrieveCoordinateGroupByLabel(String label): CoordinateGroup
+    + updateCoordinateGroup(CoordinateGroup): void
+    + deleteCoordinateGroup(int id): void
+  }
+
+}
+
+package "Database" {
+ class MySQLConnector{
+ + connect(): void
+ + executeQuery(String query): ResultSet
+ + closeConnection(): void
+ }
+}
+
+CoordinateGroupController --> CoordinateGroupModel : uses
+
+CoordinateGroupController --> CoordinateGroupView : uses
+
+CoordinateGroupView --> CoordinateGroupModel : displays
+
+CoordinateGroupModel --> CartesianCoordinate : has
+CoordinateGroupModel --> PolarCoordinate : has
+
+
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+title Dummy Coordination Conversion Application - Three-Tier Architecture
+
+package "Frontend" {
+    class DCCApplication {
+        + createCoordinateGroup(cartesian: Cartesian, polar: Polar)
+        + retrieveCoordinateGroupsByLabel(label: String)
+        + retrieveAllCoordinateGroups()
+        + modifyCoordinateGroup(id: Int, cartesian: Optional<Cartesian>, polar: Optional<Polar>, label: Optional<String>)
+        + deleteCoordinateGroup(id: Int)
+    }
+}
+
+package "Business Logic" {
+    class CoordinateConverter {
+        - convertToCartesian(polar: Polar): Cartesian
+        - convertToPolar(cartesian: Cartesian): Polar
+    }
+
+    class CoordinateManager {
+        - storeCoordinateGroup(coordinateGroup: CoordinateGroup): Int
+        + getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(id: Int, coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroup(id: Int)
+    }
+}
+
+package "Database" {
+    class MySQLDatabase {
+        - saveData(data: String): Boolean
+        + fetchData(query: String): List<String>
+    }
+
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - timestamp: DateTime
+        
+        + setCartesianCoordinates(x: Double, y: Double)
+        + setPolarCoordinates(r: Double, theta: Double)
+    }
+    
+    CoordinateGroup <|.. MySQLDatabase
+}
+
+DCCApplication ..> CoordinateManager : Creates/Modifies Groups
+DCCApplication ..> CoordinateConverter : Conversion Requests
+CoordinateManager ..> MySQLDatabase : Data Persistency
+
+@enduml

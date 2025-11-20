@@ -1,0 +1,54 @@
+@startuml
+
+package Frontend {
+  class SwingView {
+    +displayCoordinateGroups()
+    +displayConvertedCoordinates()
+    +getUserInput()
+    +refreshCoordinateGroupList()
+    +filterCoordinateGroupList()
+    +clearFilter()
+  }
+}
+
+package Logic {
+  class CoordinateConverter {
+    -cartesianToPolar(x: float, y: float): (float, float)
+    -polarToCartesian(r: float, theta: float): (float, float)
+  }
+  
+  class CoordinateGroupLogic {
+    +createCoordinateGroup()
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    +connect()
+    +saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +getCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(id: int, coordinateGroup: CoordinateGroup)
+    +deleteCoordinateGroup(id: int)
+  }
+  
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -cartesianCoordinates: (float, float)
+    -polarCoordinates: (float, float)
+    -timestamp: Date
+  }
+}
+
+SwingView --> CoordinateConverter
+SwingView --> CoordinateGroupLogic
+CoordinateConverter --> MySQLDatabase
+CoordinateConverter --> CoordinateGroup
+
+CoordinateGroupLogic --> MySQLDatabase
+CoordinateGroupLogic --> CoordinateGroup
+
+@enduml

@@ -1,0 +1,100 @@
+@startuml
+
+package "Database" {
+    class CoordinateGroupDAO {
+        + save(coordinateGroup: CoordinateGroup) : String
+        + findById(id: Integer) : CoordinateGroup
+        + update(coordinateGroup: CoordinateGroup, updatedValues: Map<String, Object>) : void
+        + delete(coordinateGroup: CoordinateGroup) : void
+    }
+}
+
+package "Application" {
+    class CoordinateConverter {
+        + convertToCartesian(polarCoord: PolarCoordinate): CartesianCoordinate
+        + convertToPolar(cartesianCoord: CartesianCoordinate): PolarCoordinate
+    }
+}
+
+package "Presentation" {
+    class CoordinateGroupView extends SwingComponent {
+        - coordinateGroups: List<CoordinateGroup>
+        
++ displayCoordinateGroups() : void
+    }
+    
+class CoordinateGroupCreationForm extends Form {
+        + createNewGroup() : void
+    }
+    
+class SwingApplication  {
+    - presentation: Presentation.CoordinateGroupView
+    + logic: Application.CoordinateConverter
+    - private[Database] var dao: Database.CoordinateGroupDAO
+    + init() : void = {}
+}
+}
+
+package "Client" {
+    class CoordinateGroupClient {
+        - presentation: Presentation.CoordinateGroupView
+        - logic: Application.CoordinateConverter
+        
++ connectToServer(host: String, port: Integer) : void
+        + displayUI() : void
+    }
+}
+
+package "Database" {
+    class CoordinateGroup extends Entity<Integer> {
+        + cartesianValues: List<CartesianCoordinate>
+        + polarValues: List<PolarCoordinate>
+        
++ addCartesianValue(cartesianVal: CartesianCoordinate): void
+        + addPolarValue(polarVal: PolarCoordinate): void
+    }
+    
+class DatabaseConnection {
+        - dbUrl: String
+        - port: Integer
+        
++ connect(): void
+    }
+}
+
+package "Application" {
+    class CoordinateGroupManager extends LogicComponent<Integer> {
+        + save(coordinateGroup: CoordinateGroup): String
+        + findById(id: Integer) : CoordinateGroup
+        + update(coordinateGroup: CoordinateGroup, updatedValues: Map<String, Object>) : void
+    }
+}
+
+package "Client" {
+    class SwingApplication extends LogicComponent<Integer> {
+        
++ display(): void
+        + saveCoordinateGroups() : void
+    }
+}
+
+
+class CoordinateGroupDAO <Integer, CoordinateGroup> {
+    
+- connection: DatabaseConnection
+    
+- private[Database] 
+
++ createTable(): Unit = {}
+    
++ findById(id: Integer): CoordinateGroup = {}
+    
++ save(coordinateGroup: CoordinateGroup): String = {}
+    
++ update(coordinateGroup: CoordinateGroup, updatedValues: Map<String, Object>): void = {}
+    
++ delete(coordinateGroup: CoordinateGroup) : Unit = {}
+}
+
+
+@enduml

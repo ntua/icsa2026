@@ -1,0 +1,46 @@
+@startuml
+!include <C4/C4_Context>
+
+package "DCC Application" {
+  class DCCModel {
+    - coordinateGroups: List<CoordinateGroup>
+    + fetchCoordinateGroups(label: String) : List<CoordinateGroup>
+    + fetchAllCoordinateGroups() : List<CoordinateGroup>
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class DCCView {
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + getCoordinateInput() : (double, double) or (double, double)
+    + displayConversionResults(cartesianCoordinates: (double, double), polarCoordinates: (double, double))
+    + showErrorMessage(message: String)
+  }
+
+  class DCCController {
+    - model: DCCModel
+    - view: DCCView
+    + handleCreateCoordinateGroup()
+    + handleRetrieveCoordinateGroups()
+    + handleModifyCoordinateGroup()
+    + handleDeleteCoordinateGroup()
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: DateTime
+    - cartesianCoordinates: (double, double)
+    - polarCoordinates: (double, double)
+    + convertCoordinates()
+  }
+
+}
+
+ DCCController --> DCCModel : Request Data
+DCCController <-- DCCModel : Response Data 
+
+DCCController --> DCCView : Update UI
+DCCView --> DCCController : User Actions
+
+@enduml

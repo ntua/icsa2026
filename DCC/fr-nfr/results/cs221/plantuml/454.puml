@@ -1,0 +1,68 @@
+@startuml
+
+package coordinateGroupsPackage {
+class CoordinateGroup {
+   string label;
+   double cartesianX, cartesianY;
+   double polarR, polarTheta;
+   
++createCoordinateGroup(String label, double x, double y)
+   +convertToPolar()
+   +convertFromPolar()
+   +updateCartesianValues(double newX, double newY)
+}
+}
+
+package coordinateOperationsPackage {
+  class DatabaseConnection {
+    string host;
+    int port;
+    String dbName;
+    string user;
+    string password;
+    
++establishConnection()
+    +closeConnection()
+  }
+  
+class CoordinateGroupsDAO {
+   private Connection connection;
+   
++initializeDatabase(String host, int port, String dbName, String user, String password)
+   +createCoordinateGroup(int id, String label, double cartesianX, double cartesianY, 
+      double polarR, double polarTheta) : CoordinateGroup -> createCoordinateGroup(label, 
+                            cartesianX, cartesianY)
+    +readAllCoordinateGroups() : List[CoordinateGroup] -> readAllCoordinateGroups()
+   +updateCartesianValues(int id, double newX, double newY) : CoordinateGroup
+   +deleteCoordinateGroup(int id) : void
+  }
+}
+
+package userInteractionPackage {
+class UserInterfaceController {
+  private SwingUI ui;
+  private Logic logic;
+  
++initializeComponents()
+  
++createNewCoordinateGroupLabel(String label, double x, double y) : CoordinateGroup -> createCoordinateGroup(label, x, y)
+  +updateCartesianValuesFromPolar(double r, double theta) : void -> convertToCartesian(r, theta)
+  
++add() -> logic.createNewCoordinateGroup();
+  +readAll() -> ui.displayListOfGroups();
+  +updateLabelAndCoordinates(int id) -> logic.updateCartesianValuesFromPolar(id);
+  +deleteSelectedRecord() -> logic.deleteCoordinateGroup(selectedId());
+}
+}
+
+
+package model {
+class CoordinateConverter {
++convertToPolar(double x, double y): (double r, double theta)
+   +convertFromPolar(double r, double theta): (double x, double y)
+}
+}
+UserInterfaceController --> Logic : use
+CoordinateGroupsDAO ..> DatabaseConnection : uses 
+DatabaseConnection <-- ClientApplication : connectsTo 
+@enduml

@@ -1,0 +1,35 @@
+@startuml
+package frontend {
+  class GUIController
+}
+
+package database {
+  class MySQLDatabaseConnection
+}
+
+package businesslogic {
+  class CoordinateGroupRepository
+  class CoordinateGroupConverter
+  class CoordinateGroupService
+}
+
+package model {
+  class CartesianCoordinate
+  class PolarCoordinate
+  class CoordinateGroup
+}
+
+GUIController --> CoordinateGroupService : create_coordinate_group
+CoordinateGroupService --> MySQLDatabaseConnection : store_coordinate_group
+MySQLDatabaseConnection --> CoordinateGroupRepository : retrieve_coordinate_groups
+
+CoordinateGroupConverter --> CoordinateGroup : convert_coordinates
+CoordinateGroupConverter --> CartesianCoordinate : convert_to_cartesian
+CoordinateGroupConverter --> PolarCoordinate : convert_to_polar
+
+CoordinateGroupService --> CoordinateGroupRepository : modify_coordinate_group
+CoordinateGroupService --> MySQLDatabaseConnection : delete_coordinate_group
+
+CoordinateGroupRepository --> CoordinateGroup : get_coordinate_group_by_label
+
+@enduml

@@ -1,0 +1,81 @@
+@startuml
+package dcc.application.model {
+
+  class CoordinateGroup {
+    +id: int
+    +label: String
+    +cartesianCoordinates: CartesianCoordinate
+    +polarCoordinates: PolarCoordinate
+    +datetimeAdded: Date
+
+    +createRecord(): void
+    +updateRecord(): void
+    +deleteRecord(): void
+  }
+
+  class CartesionCoordinate {
+    +x: BigDecimal
+    +y: BigDecimal
+
+    +convertToPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    +r: BigDecimal
+    +theta: BigDecimal
+
+    +convertToCartesian(): CartesianCoordinate
+  }
+}
+
+package dcc.application.controller {
+  class DCCController {
+    -model: CoordinateGroup
+
+    +createCoordinateGroup(): void
+    +updateCoordinateGroup(): void
+    +deleteCoordinateGroup(): void
+
+    +filterCoordinateGroups(label: String): void
+  }
+}
+
+package dcc.application.view {
+  class DCCView {
+    +controller: DCCController
+
+    +displayCoordinateGroups(): void
+    +clearFilter(): void
+  }
+}
+
+package dcc.database {
+  class CoordinateDB {
+    -dbConnection: DBConnection
+
+    +createRecord(coordinateGroup: CoordinateGroup): void
+    +updateRecord(coordinateGroup: CoordinateGroup): void
+    +deleteRecord(id: int): void
+
+    +readRecords(): List<CoordinateGroup>
+  }
+
+  class DBConnection {
+    +connect(): void
+    +disconnect(): void
+  }
+}
+
+package dcc.logic {
+  class CoordinateConverter {
+    +convertCartesianToPolar(cartesianCoordinates: CartesianCoordinate): PolarCoordinate
+    +convertPolarToCartesian(polarCoordinates: PolarCoordinate): CartesianCoordinate
+  }
+}
+
+dcc.application.controller.DCCController --|> dcc.application.model.CoordinateGroup : composition
+dcc.application.view.DCCView --|> dcc.application.controller.DCCController : composition
+
+dcc.database.CoordinateDB --|> dcc.database.DBConnection : composition
+dcc.logic.CoordinateConverter --|> dcc.database.DBConnection : inheritance
+@enduml

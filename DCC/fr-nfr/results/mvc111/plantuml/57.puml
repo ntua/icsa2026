@@ -1,0 +1,82 @@
+@startuml
+
+package "Frontend (Java Swing)" as FE {
+  class CoordinateGroupCreator {
+    - ConversionController conversionController
+  }
+  class CoordinateGroupRetriever {
+    - RetrievalController retrievalController
+  }
+  class CoordinateGroupModifier {
+    - ModificationController modificationController
+  }
+  class CoordinateGroupDeleter {
+    - DeletionController deletionController
+  }
+}
+
+package "Model" as MO {
+    class CartesianCoordinate {
+    - double x
+    - double y
+  }
+  class PolarCoordinate {
+    - double r
+    - double theta
+  }
+  class CoordinateGroup {
+    - List<CartesianCoordinate> cartesianCoordinates
+    - List<PolarCoordinate> polarCoordinates
+    - String label
+    - Date timestamp
+  }
+}
+
+package "Database (MySQL)" as DB {
+  class MySQLDatabase {
+    - List<CoordinateGroup> coordinateGroups
+    - store(cg: CoordinateGroup)
+    - retrieveByLabel(label: String): CoordinateGroup
+    - retrieveAll(): List<CoordinateGroup>
+  }
+}
+package "Controller" as CO {
+  class ConversionController {
+    + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+  }
+  
+  class StorageController {
+    - MySQLDatabase database
+    + save(cg: CoordinateGroup)
+  }
+
+  class RetrievalController {
+    - MySQLDatabase database
+    + findByLabel(label: String): CoordinateGroup
+    + viewAll(): List<CoordinateGroup>
+  }
+
+  class ModificationController {
+    - MySQLDatabase database
+    + updateDetails(cg: CoordinateGroup)
+  }
+
+  class DeletionController {
+    - MySQLDatabase database
+    + remove(cg: CoordinateGroup)
+  }
+}
+
+FE.CoordinateGroupCreator -- CO.ConversionController
+FE.CoordinateGroupRetriever -- CO.RetrievalController
+FE.CoordinateGroupModifier -- CO.ModificationController
+FE.CoordinateGroupDeleter -- CO.DeletionController
+CO.ConversionController -- MO.CartesianCoordinate
+CO.ConversionController -- MO.PolarCoordinate
+CO.StorageController --> DB.MySQLDatabase
+CO.RetrievalController --> DB.MySQLDatabase
+CO.ModificationController --> DB.MySQLDatabase
+CO.DeletionController --> DB.MySQLDatabase
+
+@enduml

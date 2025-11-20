@@ -1,0 +1,87 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+!define JavaSwing as << (Java, Swing) >>
+!define MySQL as <<MySQL>>
+!define TCP_IP as <<TCP/IP Connection>> 
+
+package "Frontend" {
+    class DCCController {
+        - model: DCCModel
+        - view: DCCView
+        + createCoordinateGroup(cartesianOrPolar: String, label: String)
+        + retrieveCoordinateGroups(label: String, viewAll: Boolean)
+        + modifyCoordinateGroup(groupId: Integer, cartesianOrPolar: String, newLabel: String)
+        + deleteCoordinateGroup(groupId: Integer)
+    }
+
+    class DCCView {
+        - controller: DCCController
+        + displayCoordinateGroups()
+        + getUserInput()
+    }
+
+    class DCCModel {
+        - database: MySQLDatabaseConnection
+        + getDatabaseInstance(): MySQLDatabaseConnection
+    }
+}
+
+
+package "Backend" {
+    class DCCApplication {
+        - controller: DCCController
+        - model: DCCModel
+        - view: DCCView
+
+        + run()
+    }
+
+    class CoordinateGroup {
+        - groupId: Integer
+        - label: String
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        - timestamp: Timestamp
+
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+    }
+
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+    }
+}
+
+package "Database" {
+    !define MySQLDBConnection as <<(MySQL Database Connection)>>
+    
+    class MySQLDatabaseConnection {
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + retrieveCoordinateGroups(label: String): ArrayList<CoordinateGroup>
+        + deleteCoordinateGroup(groupId: Integer)
+    }
+
+    class Timestamp {}
+}
+
+DCCApplication -up- DCCController: Controls
+DCCApplication -left- DCCView: Observes
+DCCApplication -down- DCCModel: Manages
+
+DCCController -- DCCView: User Interaction
+DCCController .. DCCModel: Retrieves, Modifies, Deletes
+
+DCCModel -- MySQLDatabaseConnection: Accesses Database
+
+DCCView .. CoordinateGroup: Displays
+
+MySQLDatabaseConnection *-- CoordinateGroup: Stores, Retrieves, Deletes
+
+@enduml

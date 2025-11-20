@@ -1,0 +1,61 @@
+@startuml
+
+package Frontend {
+    class FrameController {
+        - CoordinateGroupModel model
+        - FrameView view
+        
+        + FrameController(CoordinateGroupModel, FrameView)
+        + processUserInput()
+        + updateView()
+    }
+    
+    class FrameView {
+        + setCoordinateGroupList(list: List<CoordinateGroup>)
+        + addNewCoordinateGroup(cg: CoordinateGroup)
+        + updateCoordinateGroup(cg: CoordinateGroup)
+        + deleteCoordinateGroup(id: int)
+    }
+}
+
+package Logic {
+    class CoordinateGroupModel {
+        - Database database
+        
+        + createOp(label: String, cartesian: Pair, polar: Pair)
+        + readOp() : List<CoordinateGroup>
+        + updateOp(id: int, label: String, cartesian: Pair, polar: Pair)
+        + deleteOp(id: int)
+        
+        + convertCartesianToPolar(cartesian: Pair) : Pair
+        + convertPolarToCartesian(polar: Pair) : Pair
+    }
+    
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesian: Pair<Double, Double>
+        - polar: Pair<Double, Double>
+        - timestamp: Date
+        
+        + CoordinateGroup(id, label, cartesian, polar, timestamp)
+    }
+    
+    class Pair<T, U> {
+        _1: T
+        _2: U
+        
+        + Pair(_1: T, _2: U)
+    }
+}
+
+package Database {
+    class Database {
+        + executeQuery(query: String) : ResultSet
+    }
+}
+
+Frontend --* Logic
+Logic --* Database
+
+@enduml

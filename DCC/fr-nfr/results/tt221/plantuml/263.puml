@@ -1,0 +1,54 @@
+@startuml
+
+package "Frontend" {
+  class DCCApplication {
+    + main(String[] args)
+    - displayCoordinateGroups()
+    - handleUserInput()
+    - updateDisplay()
+  }
+}
+
+package "Logic" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(double x, double y): (double, double)
+    + convertPolarToCartesian(double r, double theta): (double, double)
+  }
+
+  class DCCController {
+    - databaseManager: DatabaseManager
+    + createCoordinateGroup(CoordinateGroup group): void
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup group): void
+    + deleteCoordinateGroup(int id): void
+  }
+
+}
+
+package "Data Access" {
+  class DatabaseManager {
+    - dbConnection: MySQLConnection
+    + saveCoordinateGroup(CoordinateGroup group): void
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup group): void
+    + deleteCoordinateGroup(int id): void
+  }
+
+}
+
+DCCApplication -- DCCController : uses
+DCCController -- CoordinateConverter : uses
+DCCController -- DatabaseManager : uses
+
+@enduml

@@ -1,0 +1,154 @@
+Response:
+Below is an example PlantUML class diagram that meets the requirements. In this design, the domain (model) classes are kept in their own package (representing the coordinate group and its two coordinate types), the business layer contains the service and conversion logic, the data layer defines the DAO interface and its MySQL‐based implementation (with a TCP connection to the database), and the presentation layer contains the Swing UI classes and a controller to tie the UI to the business logic.
+
+You can copy the following PlantUML code into your PlantUML editor to visualize the diagram:
+
+```plantuml
+@startuml
+
+'========================
+' Package: Domain / Model
+'========================
+package "dcc.model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        + getId(): int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+        + setCartesian(cart: CartesianCoordinate)
+        + setPolar(pol: PolarCoordinate)
+    }
+    
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        + getX(): double
+        + getY(): double
+    }
+    
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        + getR(): double
+        + getTheta(): double
+    }
+    
+    ' Composition: CoordinateGroup is composed of both coordinate types.
+    CoordinateGroup *-- CartesianCoordinate : has
+    CoordinateGroup *-- PolarCoordinate : has
+}
+
+'========================
+' Package: Business Layer
+'========================
+package "dcc.business" {
+    class CoordinateConverter {
+        + toCartesian(polar: dcc.model.PolarCoordinate): dcc.model.CartesianCoordinate
+        + toPolar(cartesian: dcc.model.CartesianCoordinate): dcc.model.PolarCoordinate
+    }
+    
+    class CoordinateGroupService {
+        - coordinateGroupDAO: dcc.data.CoordinateGroupDAO
+        + createCoordinateGroup(cartesian: dcc.model.CartesianCoordinate, label: String): dcc.model.CoordinateGroup
+        + createCoordinateGroup(polar: dcc.model.PolarCoordinate, label: String): dcc.model.CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): dcc.model.CoordinateGroup
+        + getAllCoordinateGroups(): List<dcc.model.CoordinateGroup>
+        + updateCoordinateGroup(group: dcc.model.CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+    }
+    
+    ' The service uses the conversion logic.
+    CoordinateGroupService ..> CoordinateConverter : uses
+    ' And it depends on the DAO in the data layer.
+    CoordinateGroupService --> dcc.data.CoordinateGroupDAO : uses
+}
+
+'========================
+' Package: Data Access Layer
+'========================
+package "dcc.data" {
+    interface CoordinateGroupDAO {
+        + save(group: dcc.model.CoordinateGroup): void
+        + findByLabel(label: String): dcc.model.CoordinateGroup
+        + findAll(): List<dcc.model.CoordinateGroup>
+        + update(group: dcc.model.CoordinateGroup): void
+        + delete(id: int): void
+    }
+    
+    class MySQLCoordinateGroupDAO {
+        - connection: TCPConnection
+        + save(group: dcc.model.CoordinateGroup): void
+        + findByLabel(label: String): dcc.model.CoordinateGroup
+        + findAll(): List<dcc.model.CoordinateGroup>
+        + update(group: dcc.model.CoordinateGroup): void
+        + delete(id: int): void
+    }
+    
+    ' MySQLCoordinateGroupDAO implements the DAO interface.
+    MySQLCoordinateGroupDAO ..|> CoordinateGroupDAO
+
+    class TCPConnection {
+        - host: String
+        - port: int
+        + connect(): void
+        + disconnect(): void
+    }
+    
+    ' The MySQL DAO uses a TCPConnection to communicate with the MySQL DB.
+    MySQLCoordinateGroupDAO --> TCPConnection : uses
+}
+
+'========================
+' Package: Presentation Layer
+'========================
+package "dcc.presentation" {
+    class MainFrame {
+        - controller: DCCController
+        + display(): void
+    }
+    
+    class DCCController {
+        - service: dcc.business.CoordinateGroupService
+        + createGroup(coordinate: Object, label: String): void
+        + retrieveGroup(label: String): void
+        + retrieveAllGroups(): void
+        + updateGroup(group: dcc.model.CoordinateGroup): void
+        + deleteGroup(id: int): void
+    }
+    
+    ' The MainFrame (a Swing UI frame) uses the controller to handle events.
+    MainFrame --> DCCController : delegates to
+    ' The controller in turn uses the business service.
+    DCCController --> dcc.business.CoordinateGroupService : uses
+}
+
+@enduml
+```
+
+---
+
+### Explanation of the Design
+
+- **Model (dcc.model):**  
+  - **CoordinateGroup** is the domain entity that holds both a Cartesian and a polar coordinate (using composition).  
+  - **CartesianCoordinate** and **PolarCoordinate** represent the two coordinate types.
+
+- **Business (dcc.business):**  
+  - **CoordinateConverter** provides methods to convert one coordinate type into the other.  
+  - **CoordinateGroupService** offers the CRUD operations (create, retrieve, update, delete) for coordinate groups. It accepts one coordinate type as input, performs conversion as needed, and delegates persistence to the DAO.
+
+- **Data (dcc.data):**  
+  - **CoordinateGroupDAO** defines the interface for data operations.  
+  - **MySQLCoordinateGroupDAO** implements the DAO interface and uses a **TCPConnection** (which encapsulates the TCP/IP connection details) to interact with a MySQL database.
+
+- **Presentation (dcc.presentation):**  
+  - **MainFrame** is the Swing-based user interface that displays the application window.  
+  - **DCCController** handles UI events and interacts with the **CoordinateGroupService** to perform operations.
+
+This diagram respects the three-tier architecture (presentation, business, and data), clearly defines the classes and their responsibilities, and shows the associations (including composition and dependency relationships) between them.

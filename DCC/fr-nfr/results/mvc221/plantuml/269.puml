@@ -1,0 +1,58 @@
+@startuml
+package "Model" {
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getCartesianCoordinates(): String
+    + getPolarCoordinates(): String
+  }
+
+}
+
+package "View" {
+
+  class DCCApplicationView {
+    + displayCoordinateGroups(List<CoordinateGroup>): void
+    + getCoordinateInput(): CoordinateGroup
+    + getSelectedGroupId(): int
+    + displayMessage(String): void
+  }
+
+}
+
+package "Controller" {
+
+  class DCCApplicationController {
+    - model: Model
+    - view: View
+
+    + handleAddCoordinateGroup(): void
+    + handleUpdateCoordinateGroup(): void
+    + handleDeleteCoordinateGroup(): void
+    + handleFilterCoordinateGroups(String): void
+  }
+
+}
+
+package "Database" {
+
+  class CoordinateGroupDAO {
+    + create(CoordinateGroup): void
+    + readAll(): List<CoordinateGroup>
+    + update(CoordinateGroup): void
+    + delete(int): void
+  }
+
+}
+
+
+DCCApplicationController --|> Model
+DCCApplicationController --|> View
+DCCApplicationController --> CoordinateGroupDAO : uses
+
+@enduml

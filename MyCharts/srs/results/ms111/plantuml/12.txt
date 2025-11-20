@@ -1,0 +1,52 @@
+@startuml
+package frontend {
+  class ChartingFrontend {
+    - userSession: UserSession
+    + uploadFile(file: File): void // Functional requirement
+    + selectChartType(): void // Functional requirement
+    + selectExportFormat(): void // Functional requirement
+  }
+}
+
+package backend {
+  class AuthenticationService {
+    + authenticateUser(token: string): User // Functional requirement
+  }
+
+  class ChartGenerationService {
+    - csvParser: CSVParser
+    - chartGenerator: ChartGenerator
+    - dataStore: DataStore 
+    + generateChart(csvData: string, chartType: string): Chart // Functional requirement
+  }
+ 
+  class ExportService {
+    + exportChart(chart: Chart, format: string): FileStream // Functional requirement
+  }
+
+  class QuotaManagementService {
+    - quotaRepository: QuotaRepository
+    + getQuota(userId: string): int // Functional requirement
+    + updateQuota(userId: string, amount: int): void // Data management operation
+  }
+
+  class PaymentService {
+    + processPayment(amount: double): void // Functional requirement
+  }
+}
+
+ChartingFrontend --> AuthenticationService : authenticate(OAuthToken) 
+ChartingFrontend --> ChartGenerationService : generateChart(CSVData, chartType)
+ChartingFrontend <-- ChartGenerationService : Chart
+
+ChartGenerationService --> DataStore : storeChart(chart)
+ChartGenerationService --> QuotaManagementService : updateQuota() // Data consistency operation
+
+ChartGenerationService <-- QuotaManagementService : updatedQuota
+ChartGenerationService --> ExportService : exportChart(Chart, format)
+
+ExportService --> ChartGenerationService: getChart(chartId)
+
+
+
+@enduml

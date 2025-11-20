@@ -1,0 +1,54 @@
+@startuml
+
+package "Client" {
+  class DccFrontend {
+    - Swing _frame
+    + interactWithUser()
+    + createCoordinateGroup(cartesianX: float, cartesianY: float, polarR: float, polarTheta: float)
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String)
+    + modifyCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(group: CoordinateGroup)
+  }
+  
+  class CoordinateGroup {
+    - int _id
+    - String _label
+    - Date _timestamp
+    - List<CartesianCoordinate> _cartesianCoordinates
+    - List<PolarCoordinate> _polarCoordinates
+    
+    + Constructor(label: String)
+    + getCartesianCoordinates()
+    + getPolarCoordinates()
+  }
+  
+  class CartesianCoordinate {
+    - float _x
+    - float _y
+    
+    + Constructor(x: float, y: float)
+  }
+  
+  class PolarCoordinate {
+    - float _r
+    - float _theta
+    
+    + Constructor(r: float, theta: float)
+  }
+}
+
+package "Server" {
+  class DccDatabase {
+    - MySQLConnection _connection
+    
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String)
+    + modifyCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(group: CoordinateGroup)
+  }
+}
+
+Client -- Server
+
+@enduml

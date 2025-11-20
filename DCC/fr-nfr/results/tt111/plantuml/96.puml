@@ -1,0 +1,65 @@
+@startuml
+package frontend {
+  class DCCGUI {
+    + createUserInput()
+    + displayCoordinateGroups(List<CoordinateGroup>)
+    + updateCoordinateGroup(CoordinateGroup)
+    + deleteCoordinateGroup(int id)
+  }
+}
+
+package domain {
+  abstract class Coordinate {
+    - double value1
+    - double value2
+    + getCartesian(): Cartesian
+    + getPolar(): Polar
+  }
+
+  class Cartesian extends Coordinate {
+    + Cartesian(double x, double y)
+  }
+
+  class Polar extends Coordinate {
+    + Polar(double r, double theta)
+  }
+
+  class CoordinateGroup {
+    - int id
+    - String label
+    - List<Coordinate> coordinates
+    + getCoordinates(): List<Coordinate>
+    + setCoordinates(List<Coordinate>)
+    + getLabel(): String
+    + setLabel(String label)
+  }
+}
+
+package database {
+  class DatabaseConnection {
+    + connectToDatabase()
+    + storeCoordinateGroup(CoordinateGroup)
+    + retrieveCoordinateGroup(int id): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(int id)
+  }
+
+  class MySQLDAO {
+    - DatabaseConnection connection
+    + MySQLDAO()
+    + storeCoordinateGroup(CoordinateGroup)
+    + retrieveCoordinateGroup(int id): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(int id)
+  }
+
+}
+
+
+frontend.DCCGUI --> domain.CoordinateGroup : uses
+frontend.DCCGUI --> database.DatabaseConnection: uses
+
+domain.CoordinateGroup "1" --> "*" domain.Coordinate : contains
+
+database.DatabaseConnection --> database.MySQLDAO: implements
+@enduml

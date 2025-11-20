@@ -1,0 +1,55 @@
+@startuml
+
+package Frontend {
+    class SwingView {
+        +displayCoordinateGroupList(list: List<CoordinateGroup>)
+        +displayAddUpdateDeleteMessage()
+        +displayFilteredCoordinateGroupList(list: List<CoordinateGroup>)
+        +getLabelFilterValue()
+        +clearLabelFilter()
+    }
+}
+
+package Logic {
+    package Model {
+        class CoordinateGroupModel {
+            -id: int
+            -cartesianCoordinates: Pair<Double, Double>
+            -polarCoordinates: Pair<Double, Double>
+            -label: String
+            -timestamp: Date
+            +convertCartesianToPolar(): void
+            +convertPolarToCartesian(): void
+        }
+        
+        class DatabaseConnection {
+            #connection: MySQLDatabaseConnection
+            #connect()
+            #query(sql: String): ResultSet
+            #saveCoordinateGroup(cg: CoordinateGroupModel)
+            #getAllCoordinateGroups(): List<CoordinateGroupModel>
+            #updateCoordinateGroup(cg: CoordinateGroupModel)
+            #deleteCoordinateGroupById(id: int)
+        }
+    }
+    
+    package Controller {
+        class CoordinateGroupController {
+            -view: SwingView
+            -model: Model.CoordinateGroupModel
+            -databaseConnection: DatabaseConnection
+            +createCoordinateGroup(label: String)
+            +readCoordinateGroups()
+            +updateCoordinateGroup(cg: Model.CoordinateGroupModel)
+            +deleteCoordinateGroupById(id: int)
+            +filterCoordinateGroupsByLabel(label: String)
+        }
+    }
+}
+
+DatabaseConnection -- MySQLDatabaseConnection
+SwingView -- CoordinateGroupController : Request/Response
+CoordinateGroupController --> Logic.Model.CoordinateGroupModel : Request Data
+Logic.Model.CoordinateGroupModel --> DatabaseConnection : Connection
+
+@enduml

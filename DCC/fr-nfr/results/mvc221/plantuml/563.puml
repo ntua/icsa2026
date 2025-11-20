@@ -1,0 +1,77 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesian: CartesianCoord
+        - polar: PolarCoord
+        - timestamp: DateTime
+        
+        + add()
+        + update()
+        + delete()
+        + filterByLabel(String label)
+    }
+
+    class CartesianCoord {
+        - x: Double
+        - y: Double
+        
+        + toPolar(): PolarCoord
+    }
+
+    class PolarCoord {
+        - r: Double
+        - theta: Double
+        
+        + toCartesian(): CartesianCoord
+    }
+    
+    class CoordinateConverter {
+        + fromCartesianToPolar(CartesianCoord): PolarCoord
+        + fromPolarToCartesian(PolarCoord): CartesianCoord
+    }
+
+    class DatabaseAccessor {
+        + createCoordinateGroup(CoordinateGroup)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroup(Integer id)
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - model: CoordinateGroup
+        - view: DCCView
+        - databaseAccessor: DatabaseAccessor
+        
+        + handleAddAction(CartesianCoord, PolarCoord, String label)
+        + handleUpdateAction(Integer id, CartesianCoord, PolarCoord, String label)
+        + handleDeleteAction(Integer id)
+        + convertCoordinates(CoordinateGroup)
+        + refreshCoordinateList()
+    }
+}
+
+package "View" {
+    class DCCView {
+        - controller: DCCController
+        
+        + showInputPanel()
+        + displayResult(CoordinateGroup)
+        + showCoordinateList(List<CoordinateGroup>)
+    }
+}
+
+' Relationships
+DCCController --> DatabaseAccessor : uses
+DCCController --> CoordinateConverter : uses
+DCCController --> CoordinateGroup : manages
+DCCView --> DCCController : delegates
+CoordinateGroup *-- CartesianCoord : composition
+CoordinateGroup *-- PolarCoord : composition
+
+@enduml

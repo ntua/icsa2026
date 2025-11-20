@@ -1,0 +1,60 @@
+@startuml
+
+class UserInterface {
+  - coordinateGroupList : List<CoordinateGroup>
+
+  + createCoordinateGroup(cartesian: Cartesian | polar: Polar) : void
+  + retrieveAllGroups() : void 
+  + retrieveGroupByLabel(label: String) : CoordinateGroup
+  + modifyCoordinateGroup(groupID: int, newValues: Cartesian | Polar, label: String) : void 
+  + deleteCoordinateGroup(groupID: int) : void 
+} 
+
+package "Business Logic Layer" {
+
+  class ConversionManager {
+    - converterFactory : ConverterFactory
+
+    + convertToCartesian(polar: Polar): Cartesian
+    + convertToPolar(cartesian: Cartesian) : Polar
+  } 
+
+  class CoordinateGroup {
+    - id : int 
+    - label : String
+    - timestamp : Timestamp 
+
+    + getCartesian(): Cartesian
+    + getPolar(): Polar
+  }
+} 
+
+package "Data Layer" {
+
+  class ConverterFactory{
+    + createConverter() : IConverter 
+  } 
+  
+  interface IConverter {
+
+    + convertToCartesian(polar: Polar): Cartesian
+    + convertToPolar(cartesian: Cartesian) : Polar
+    
+  } 
+
+  class MySQLDatabase {
+    
+    - dbConnection : TCPConnection 
+
+    + storeCoordinateGroup(group: CoordinateGroup) : void 
+    + retrieveGroupByLabel(label: String) : CoordinateGroup
+    + retrieveAllGroups() : List<CoordinateGroup>
+  } 
+} 
+
+UserInterface --> ConversionManager : Uses  
+ConversionManager --> IConverter : Uses  
+UserInterface .. MySQLDatabase : Communicates through TCP/IP Connection 
+MySQLDatabase .. ConverterFactory : Creates Converters 
+
+@enduml

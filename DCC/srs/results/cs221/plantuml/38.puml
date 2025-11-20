@@ -1,0 +1,66 @@
+@startuml
+
+package gui {
+  class MainMenu {
+    - Button createGroupButton
+    - Button deleteGroupButton
+    - Button viewGroupsButton
+    + void display()
+  }
+
+  class GroupListView {
+    - List<CoordinateGroup> groups
+    + void updateGroupList(List<CoordinateGroup> groups)
+    + void display()
+  }
+
+  class CreateGroupForm {
+    - TextField labelField
+    - TextField polarRField
+    - TextField polarThetaField
+    - TextField cartesianXField
+    - TextField cartesianYField
+    + void submitNewGroup()
+  }
+
+  class DeleteGroupForm {
+    - ComboBox<CoordinateGroup> groupSelectionBox
+    + void deleteSelectedGroup()
+  }
+}
+
+package db {
+  class CoordinateGroupDAO {
+    - DatabaseConnection connection
+    + List<CoordinateGroup> getAllGroups()
+    + void createGroup(CoordinateGroup group)
+    + void deleteGroup(int groupId)
+  }
+
+  class DatabaseConnection {
+    + void connect()
+    + void disconnect()
+  }
+}
+
+package model {
+  class CoordinateGroup {
+    - int id
+    - String label
+    - double polarR
+    - double polarTheta
+    - double cartesianX
+    - double cartesianY
+
+    + CoordinateGroup(String label, double polarR, double polarTheta)
+  }
+}
+
+gui.MainMenu "1" -- "*" gui.GroupListView : displays
+gui.MainMenu "1" -- "*" gui.CreateGroupForm : creates
+gui.MainMenu "1" -- "*" gui.DeleteGroupForm : deletes
+gui.GroupListView "1" -- "*" model.CoordinateGroup : displays
+
+db.CoordinateGroupDAO "1" -- "*" model.CoordinateGroup : manages
+
+@enduml

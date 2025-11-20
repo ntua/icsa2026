@@ -1,0 +1,71 @@
+@startuml
+package "Data Tier" {
+    class CoordinateGroup {
+        +id : int
+        +label : String
+        +timestamp : datetime
+        +cartesianX : double
+        +cartesianY : double
+        +polarR : double
+        +polarTheta : double
+        +setCartesian(x : double, y : double) : void
+        +getLabel() : String
+        +getName() : [CoordinateType]
+    }
+    
+    interface CoordinateGroup {
+        +createNew(label: String): void
+        +convertToPolar(): PolarCoordinates
+        +convertToCartesian(): CartesianCoordinates
+        +getById(id : int) : CoordinateGroup
+        +searchByLabel(label : String) : [CoordinateGroup] set
+        +viewAll() : [CoordinateGroup] list
+        +modifyAndSave(cartesianX : double, cartesianY : double, polarR : double, polarTheta : double) : void
+        +deleteById(id: int) : void
+    }
+    
+    package "Data Tier" {
+        class Database {
+            +connURL : String
+            #databaseName : String = 'mysql'
+            #dataRetrieval() : [CoordinateGroup] list
+            #storeData(coordinates: [CoordinateGroup]) : void
+            #deleteById(id: int) : void
+        }
+    }
+}
+
+package "Application Tier" {
+    package DCCApp {
+        class UIController {
+            +displayAll() : void
+            +searchByLabel(label : String) : [CoordinateGroup] set
+            +modifyAndSave(cartesianX : double, cartesianY : double, polarR : double, polarTheta : double) : boolean
+            #convertToPolar(): PolarCoordinates
+        }
+    }
+}
+
+package "Presentation_Tier" {
+    class SwingFrame {
+        +title : String
+        -contentPane : JPanel = null
+        #UIController : UIComponentRef()
+    }
+    
+    package SwingFramework {
+        class JFrame {
+            +setTitle(String title) : void
+            +addWindowListener(WindowAdapter windowAdapter, ActionEvent e) : void
+            +pack():void
+            +setDefaultCloseOperation(int operation) : void
+            #mainFrame : SwingFrame()
+        }
+    }
+}
+
+UIController -- CoordinateGroup : has a composition relationship with CoordinateGroup for storing, retrieving, modifying, and deleting coordinate groups.
+UIController --> Database: 1..* associations to handle communication using TCP/IP connection.
+Presentation_Tier.SwingFramework.JFrame --> CoordinateGroup : creating a composition relationship with CoordinateGroup for user interaction.
+
+@enduml

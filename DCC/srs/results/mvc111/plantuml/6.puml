@@ -1,0 +1,95 @@
+@startuml
+
+' Define the DB package with relevant classes
+package db {
+  class CoordinateGroup {
+    - id: integer
+    - timestamp: string
+    - label: string
+    - polarCoordinates: PolarCoordinates
+    - cartesianCoordinates: CartesianCoordinates
+  }
+}
+
+' Define the DatabaseConnection class
+class DatabaseConnection {
+  + connect(): void
+  + disconnect(): void
+}
+
+' Define the CoordinateGroupManager class
+class CoordinateGroupManager {
+  + getCoordinateGroups(): List<CoordinateGroup>
+  + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+}
+
+' Define Controllers
+class ViewAllController {
+  + viewAll(): void
+}
+
+class ViewByLabelController {
+  + viewByLabel(label: string): void
+}
+
+class DeleteController {
+  + delete(coordinateGroup: CoordinateGroup): void
+}
+
+' Define the MVCModel class
+class MVCModel {
+  - coordinateGroups: List<CoordinateGroup>
+}
+
+' Define the GUI package with relevant classes
+package gui {
+  class ViewAllView {
+    + display(): void
+  }
+
+  class ViewByLabelView {
+    + display(label: string): void
+  }
+
+  class DeleteView {
+    + display(coordinateGroup: CoordinateGroup): void
+  }
+}
+
+' Define PolarCoordinates and CartesianCoordinates classes (assuming they exist)
+class PolarCoordinates {
+  - r: double
+  - theta: double
+
+  + getR(): double
+  + setR(r: double): void
+  + getTheta(): double
+  + setTheta(theta: double): void
+}
+
+class CartesianCoordinates {
+  - x: double
+  - y: double
+
+  + getX(): double
+  + setX(x: double): void
+  + getY(): double
+  + setY(y: double): void
+}
+
+' Define Relationships
+DatabaseConnection --> db.CoordinateGroup : Manages
+CoordinateGroupManager --> db.CoordinateGroup : Manages
+CoordinateGroupManager --> DatabaseConnection : Uses
+ViewAllController --> CoordinateGroupManager : Uses
+ViewByLabelController --> CoordinateGroupManager : Uses
+DeleteController --> CoordinateGroupManager : Uses
+MVCModel --> db.CoordinateGroup : Contains
+gui.ViewAllView --> ViewAllController : Interacts with
+gui.ViewByLabelView --> ViewByLabelController : Interacts with
+gui.DeleteView --> DeleteController : Interacts with
+PolarCoordinates --> db.CoordinateGroup : Part of
+CartesianCoordinates --> db.CoordinateGroup : Part of
+
+@enduml

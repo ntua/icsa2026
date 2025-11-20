@@ -1,0 +1,90 @@
+@startuml
+skinparam packageStyle frame
+skinparam class {
+  BorderColor Black
+  BackgroundColor White
+  FontColor Black
+  stereotypePosition topLeft
+} 
+
+package "Frontend" <<UI>> {
+
+    class CoordinateGroupEditor  {
+        + add()
+        + update() 
+        + delete() 
+        + refresh() 
+        + displayList()
+    }
+
+    class FilterPanel {
+      + filterByLabel(label) 
+      + clearFilter() 
+    }
+
+
+} 
+
+
+package "Logic" <<Model>> {
+  class CartesianConverter   {
+   + convertToPolar(x,y) 
+   + convertToCartesian(r,theta) 
+  }
+
+  class PolarConverter  {
+    + convertToCartesian(r,theta)
+    + convertToPolar(x,y)
+  }
+  
+  class CoordinateGroup{
+      - id: int 
+      - label: String 
+      - x: double
+      - y: double
+      - r: double
+      - theta: double
+      + getLabel() 
+      + setLabel(label) 
+      + getX() 
+      + setX(x) 
+      + getY() 
+      + setY(y) 
+      + getR()  
+      + setR(r) 
+      + getTheta()
+      + setTheta(theta) 
+}
+
+  class DataOperations {
+    - DB: Database
+    + CreateOp() 
+    + ReadOp(): List<CoordinateGroup> 
+    + UpdateOp(): boolean 
+    + DeleteOp(): boolean
+  } 
+
+CartesianConverter <|-- CoordinateGroup
+PolarConverter <|-- CoordinateGroup
+DataOperations <|-- CoordinateGroup
+
+} 
+
+
+package "Database" <<Persistence>> {
+
+  class Database {
+    - records: Map<int, CoordinateGroup>
+    + saveRecord(id, timestamp, label, x, y, r, theta) 
+    + retrieveAllRecords(): List<CoordinateGroup> 
+    + updateRecord(id, label, x, y, r, theta): boolean
+    + deleteRecord(id): boolean
+
+  }
+}
+
+
+CoordinateGroupEditor <.. FilterPanel
+DataOperations . Database 
+FilterPanel .. CoordinateGroupEditor  
+@enduml

@@ -1,0 +1,31 @@
+@startuml
+
+package Security {
+  class SSLService {
+    - privateKey: string
+    + encryptData(data: string): string
+    # decryptData(encryptedData: string): string
+  }
+}
+
+package Availability {
+  class HealthCheckService {
+    + checkAvailability(): boolean
+  }
+  class PartitionHandler {
+    + handlePartition(): void
+    - recoverServices(): void
+    - maintainConsistency(): void
+  }
+}
+
+package Scalability {
+  class UserLoadBalancer {
+    + balanceUsers(users: User[]): void
+  }
+}
+
+User -> HealthCheckService: checkAvailability()
+PartitionHandler --> PartitionHandler: recoverServices(), maintainConsistency()
+UserLoadBalancer --> SSLService: encryptData()
+@enduml

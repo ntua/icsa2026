@@ -1,0 +1,15 @@
+@startuml
+' Define packages for models
+package Database {
+  ' Classes related to database access
+}
+package UserInterface {
+  ' Classes related to user interface interactions
+}
+package Models {
+  ' Classes representing the business logic and data structures
+}
+' Import classes from other packages as needed, using the keyword "import"
+Database->Models : * (All classes in Database can use all classes in Models)
+UserInterface->Models : *
+@enduml

@@ -1,0 +1,76 @@
+@startuml
+package models {
+  class Coordinate {
+    +x : HighPrecisionNumber
+    +y : HighPrecisionNumber
+    
+    -calculatePolarCoordinates() : PolarCoordinate
+    -calculateCartesianCoordinates() : CartesianCoordinate
+  }
+  
+  class PolarCoordinate {
+    +r : HighPrecisionNumber
+    +theta : HighPrecisionNumber
+  }
+  
+  class CartesianCoordinate {
+    +x : HighPrecisionNumber
+    +y : HighPrecisionNumber
+  }
+}
+
+package data {
+  class CoordinateGroup {
+    -id : Integer
+    -label : String
+    -cartesianCoordinates : Coordinate
+    -polarCoordinates : Coordinate
+    
+    +save() : void
+    +update() : void
+    +delete() : void
+  }
+  
+  class DatabaseConnection {
+    +connect() : void
+    +disconnect() : void
+  }
+}
+
+package logic {
+  class CreateOp {
+    +execute(CoordinateGroup) : CoordinateGroup
+  }
+  
+  class ReadOp {
+    +execute() : List<CoordinateGroup>
+  }
+  
+  class UpdateOp {
+    +execute(CoordinateGroup) : CoordinateGroup
+  }
+  
+  class DeleteOp {
+    +execute(CoordinateGroup) : void
+  }
+}
+
+package frontend {
+  class SwingUI {
+    -coordinateGroupsList : List<CoordinateGroup>
+    
+    +renderList() : void
+    +refreshList() : void
+    +filterList(String) : void
+  }
+}
+
+models.Coordinate --|> data.CoordinateGroup
+data.CoordinateGroup --* data.DatabaseConnection
+logic.CreateOp --* data.CoordinateGroup
+logic.ReadOp --* data.CoordinateGroup
+logic.UpdateOp --* data.CoordinateGroup
+logic.DeleteOp --* data.CoordinateGroup
+frontend.SwingUI --|> data.CoordinateGroup
+
+@enduml

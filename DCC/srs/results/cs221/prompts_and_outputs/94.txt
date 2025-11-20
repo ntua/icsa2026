@@ -1,0 +1,124 @@
+Response:
+```plantuml
+@startuml
+
+'================ Packages =================
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polar: PolarCoordinate
+    - cartesian: CartesianCoordinate
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getPolar(): PolarCoordinate
+    + getCartesian(): CartesianCoordinate
+    + setLabel(label: String): void
+    + setPolar(p: PolarCoordinate): void
+    + setCartesian(c: CartesianCoordinate): void
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + getX(): double
+    + getY(): double
+    + setX(x: double): void
+    + setY(y: double): void
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + getR(): double
+    + getTheta(): double
+    + setR(r: double): void
+    + setTheta(theta: double): void
+  }
+}
+
+package server {
+  class CoordinateGroupService {
+    + createCoordinateGroup(label: String, coord: Object): void
+    + modifyCoordinateGroup(id: int, newLabel: String, coord: Object): void
+    + deleteCoordinateGroup(id: int): void
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+  }
+
+  class Converter {
+    + cartesianToPolar(x: double, y: double): PolarCoordinate
+    + polarToCartesian(r: double, theta: double): CartesianCoordinate
+  }
+
+  class DatabaseAccess {
+    + saveCoordinateGroup(cg: CoordinateGroup): void
+    + updateCoordinateGroup(cg: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+  }
+}
+
+package client {
+  class CoordinateGroupGUI {
+    + showCreateForm(): void
+    + showModifyForm(): void
+    + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+    + displayError(message: String): void
+  }
+
+  class CoordinateGroupClient {
+    - gui: CoordinateGroupGUI
+    + start(): void
+  }
+}
+
+package database {
+  class DatabaseConnection {
+    - url: String
+    - username: String
+    - password: String
+    + connect(): Connection
+    + disconnect(): void
+  }
+}
+
+'================ Associations =================
+model.CoordinateGroup "1" *-- "1" model.PolarCoordinate
+model.CoordinateGroup "1" *-- "1" model.CartesianCoordinate
+
+server.CoordinateGroupService ..> server.DatabaseAccess : uses
+server.CoordinateGroupService ..> server.Converter : uses
+
+database.DatabaseAccess ..> database.DatabaseConnection : uses
+
+client.CoordinateGroupGUI ..> server.CoordinateGroupService : calls
+client.CoordinateGroupGUI ..> model.CoordinateGroup
+
+@enduml
+```
+
+**Explanation of the Diagram:**
+
+- **Packages**:  
+  - **model**: Contains data model classes including `CoordinateGroup`, `CartesianCoordinate`, and `PolarCoordinate`.
+  - **server**: Contains business logic classes like `CoordinateGroupService`, a utility `Converter` for coordinate transformations, and `DatabaseAccess` for database operations.
+  - **client**: Contains GUI-related classes (`CoordinateGroupGUI`) and an entry point client class (`CoordinateGroupClient`).
+  - **database**: Manages low-level database connections through the `DatabaseConnection` class.
+
+- **Class Details**:  
+  - `CoordinateGroup` is composed of one `PolarCoordinate` and one `CartesianCoordinate`, demonstrating a composition relationship.
+  - `CoordinateGroupService` handles CRUD operations and conversions by utilizing `DatabaseAccess` and `Converter`.
+  - `DatabaseAccess` communicates with the actual database using `DatabaseConnection`.
+  - `CoordinateGroupGUI` interacts with `CoordinateGroupService` to perform operations and display data to the user.
+  
+- **Associations**:  
+  - Composition between `CoordinateGroup` and its coordinate representations.
+  - Usage dependencies from `CoordinateGroupService` to both `DatabaseAccess` and `Converter`.
+  - Dependency of `DatabaseAccess` on `DatabaseConnection`.
+  - `CoordinateGroupGUI` calls methods from `CoordinateGroupService` and utilizes `CoordinateGroup` objects.
+
+This design reflects a clear separation between client and server responsibilities, models data accurately, and maps interactions and dependencies consistent with the Client-Server architecture and application requirements.

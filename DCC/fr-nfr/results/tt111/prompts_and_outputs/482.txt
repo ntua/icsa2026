@@ -1,0 +1,114 @@
+Response:
+Here's the PlantUML class diagram for the DCC Application following the three-tier architecture:
+
+```plantuml
+@startuml
+!pragma useIntermediatePackages false
+
+package Presentation {
+    class CoordinateGroupGUI {
+        +createCoordinateGroup()
+        +displayCoordinateGroups()
+        +showModificationDialog()
+        +showDeletionDialog()
+    }
+}
+
+package "Business Logic" {
+    class CoordinateGroupManager {
+        +createCoordinateGroup(coord: Object, label: String)
+        +modifyCoordinateGroup(id: int, newData: Map)
+        +deleteCoordinateGroup(id: int)
+        +retrieveByLabel(label: String): List<CoordinateGroup>
+        +retrieveAll(): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        +convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        +convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+}
+
+package Model {
+    class CoordinateGroup {
+        -id: int
+        -label: String
+        -timestamp: Date
+        -cartesian: CartesianCoordinate
+        -polar: PolarCoordinate
+        +getCartesian(): CartesianCoordinate
+        +getPolar(): PolarCoordinate
+        +setCartesian(c: CartesianCoordinate)
+        +setPolar(p: PolarCoordinate)
+    }
+
+    class CartesianCoordinate {
+        -x: double
+        -y: double
+        +getX(): double
+        +getY(): double
+        +setX(x: double)
+        +setY(y: double)
+    }
+
+    class PolarCoordinate {
+        -radius: double
+        -theta: double
+        +getRadius(): double
+        +getTheta(): double
+        +setRadius(r: double)
+        +setTheta(theta: double)
+    }
+}
+
+package "Data Access" {
+    class DatabaseManager {
+        -connection: Connection
+        +insertCoordinateGroup(group: CoordinateGroup)
+        +updateCoordinateGroup(id: int, group: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+' Associations and Dependencies
+CoordinateGroupGUI --> CoordinateGroupManager : uses >
+CoordinateGroupManager --> DatabaseManager : uses >
+CoordinateGroupManager --> CoordinateConverter : uses >
+CoordinateGroupManager --> CoordinateGroup : manages >
+
+CoordinateGroup *-- CartesianCoordinate : composition
+CoordinateGroup *-- PolarCoordinate : composition
+
+CoordinateConverter ..> CartesianCoordinate : converts
+CoordinateConverter ..> PolarCoordinate : converts
+
+DatabaseManager --> CoordinateGroup : persists
+@enduml
+```
+
+Key elements:
+1. **Architecture Layers**:
+   - Presentation: Handles user interactions through Swing GUI
+   - Business Logic: Manages coordinate conversions and business operations
+   - Data Access: Handles database interactions
+   - Model: Contains data structure definitions
+
+2. **Class Relationships**:
+   - Composition between CoordinateGroup and coordinate types
+   - Dependency injection between layers
+   - Utility class (CoordinateConverter) for coordinate transformations
+   - Clear separation between interface (GUI), business rules, and data storage
+
+3. **Database Integration**:
+   - DatabaseManager handles all SQL operations
+   - Connection management abstracted from other layers
+   - Full CRUD operations implementation
+
+4. **Conversion Logic**:
+   - Dedicated converter class for coordinate transformations
+   - Mathematical transformations encapsulated in business layer
+   - Automatic conversion maintained through business rules
+
+This diagram maintains three-tier architecture principles while fulfilling all functional requirements including coordinate conversion, storage, retrieval, modification, and deletion operations.

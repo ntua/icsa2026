@@ -1,0 +1,74 @@
+@startuml
+
+package Frontend {
+  interface UserInput {
+    + String getLabel(): String
+    + Pair getCartesianCoordinates(): Pair
+    + Pair getPolarCoordinates(): Pair
+  }
+
+  class UserInterface implements UserInput {
+    # Swing components for user interaction
+    
+    + String getLabel(): String
+    + Pair getCartesianCoordinates(): Pair
+    + Pair getPolarCoordinates(): Pair
+  }
+
+  class CoordinateConverter {
+    - UserInterface userInput
+    
+    + convertCartesianToPolar(Pair cartesian) : Pair
+    + convertPolarToCartesian(Pair polar) : Pair
+  }
+}
+
+package Logic {
+  interface DatabaseManager {
+    + createRecord(CoordinateGroup group, String label) : void
+    + readRecords() : List<CoordinateGroup>
+    + updateRecord(int id, CoordinateGroup group) : void
+    + deleteRecord(int id) : void
+  }
+
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Pair cartesian
+    - Pair polar
+    - DateTime timestamp
+    
+    + getId() : int
+    + getLabel() : String
+    + getCartesianCoordinates() : Pair
+    + getPolarCoordinates() : Pair
+    + setCartesianCoordinates(Pair cartesian) : void
+    + setPolarCoordinates(Pair polar) : void
+  }
+
+  class LogicLayer {
+    - DatabaseManager dbManager
+    
+    + handleAddButtonClicked(UserInput userInput, String label) : void
+    + handleUpdateButtonClicked(int id, UserInput userInput, String label) : void
+    + handleDeleteButtonClicked(int id) : void
+    + handleFilterInputChanged(String filter) : void
+  }
+}
+
+package Database {
+  class MySQLDatabaseManager implements DatabaseManager {
+    # MySQL database connection and CRUD operations
+    
+    + createRecord(CoordinateGroup group, String label) : void
+    + readRecords() : List<CoordinateGroup>
+    + updateRecord(int id, CoordinateGroup group) : void
+    + deleteRecord(int id) : void
+  }
+}
+
+UserInterface -- CoordinateConverter
+CoordinateConverter -- LogicLayer
+LogicLayer -- MySQLDatabaseManager
+
+@enduml

@@ -1,0 +1,137 @@
+@startuml DCC Class Diagram
+
+package "client.ui" {
+  class MainWindow {
+    - coordinatePanel: JPanel
+    - inputPanel: JPanel
+    - buttonPanel: JPanel
+    + MainWindow()
+    + initialize()
+    - setupComponents()
+    - setupListeners()
+    + refreshCoordinateList()
+  }
+
+  class CoordinateInputPanel {
+    - labelField: JTextField
+    - xField: JTextField
+    - yField: JTextField
+    - rField: JTextField
+    - thetaField: JTextField
+    - typeComboBox: JComboBox
+    + CoordinateInputPanel()
+    + getInputValues(): Map<String, Double>
+    + getLabel(): String
+    + clearFields()
+    + setFields(CoordinateGroup group)
+    - validateInput(): boolean
+  }
+
+  class CoordinateListPanel {
+    - coordinateTable: JTable
+    - tableModel: DefaultTableModel
+    + CoordinateListPanel()
+    + updateList(List<CoordinateGroup> groups)
+    + getSelectedGroup(): CoordinateGroup
+    - setupTable()
+  }
+}
+
+package "client.controller" {
+  class CoordinateController {
+    - coordinateService: CoordinateService
+    + CoordinateController()
+    + createCoordinateGroup(String label, Map<String, Double> values): void
+    + updateCoordinateGroup(int id, String label, Map<String, Double> values): void
+    + deleteCoordinateGroup(int id): void
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+}
+
+package "shared.model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: LocalDateTime
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    + CoordinateGroup()
+    + getters()
+    + setters()
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+    + CartesianCoordinates(double x, double y)
+    + toPolar(): PolarCoordinates
+    + getters()
+    + setters()
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+    + PolarCoordinates(double r, double theta)
+    + toCartesian(): CartesianCoordinates
+    + getters()
+    + setters()
+  }
+}
+
+package "server.service" {
+  interface CoordinateService {
+    + create(CoordinateGroup group): void
+    + update(CoordinateGroup group): void
+    + delete(int id): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+
+  class CoordinateServiceImpl {
+    - repository: CoordinateRepository
+    + create(CoordinateGroup group): void
+    + update(CoordinateGroup group): void
+    + delete(int id): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+}
+
+package "server.repository" {
+  interface CoordinateRepository {
+    + save(CoordinateGroup group): void
+    + update(CoordinateGroup group): void
+    + delete(int id): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+
+  class MySQLCoordinateRepository {
+    - connection: Connection
+    + save(CoordinateGroup group): void
+    + update(CoordinateGroup group): void
+    + delete(int id): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    - getConnection(): Connection
+  }
+}
+
+' Relationships
+MainWindow *-- CoordinateInputPanel
+MainWindow *-- CoordinateListPanel
+MainWindow o-- CoordinateController
+
+CoordinateController o-- CoordinateService
+CoordinateServiceImpl ..|> CoordinateService
+CoordinateServiceImpl o-- CoordinateRepository
+MySQLCoordinateRepository ..|> CoordinateRepository
+
+CoordinateGroup *-- CartesianCoordinates
+CoordinateGroup *-- PolarCoordinates
+CartesianCoordinates ..> PolarCoordinates
+PolarCoordinates ..> CartesianCoordinates
+
+@enduml

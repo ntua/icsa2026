@@ -1,0 +1,76 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + createGroup();
+    + storeGroup(group: CoordinateGroup);
+    + retrieveGroup(identifier: String);
+    + modifyGroup(group: CoordinateGroup);
+    + deleteGroup(identifier: String);
+  }
+  
+  class SwingInterface implements UserInterface {
+    - CoordinateGroupDao coordinateGroupDao;
+    + createGroup();
+    + storeGroup(group: CoordinateGroup);
+    + retrieveGroup(identifier: String);
+    + modifyGroup(group: CoordinateGroup);
+    + deleteGroup(identifier: String);
+  }
+}
+
+package Core {
+  class Coordinate {
+    - x: Double;
+    - y: Double;
+    - r: Double;
+    - theta: Double;
+    
+    + getCartesian();
+    + setCartesian(x: Double, y: Double);
+    + getPolar();
+    + setPolar(r: Double, theta: Double);
+  }
+  
+  class CoordinateGroup {
+    - id: Int;
+    - label: String;
+    - timestamp: Date;
+    - coordinates: Sequence<Coordinate>;
+    
+    + getId();
+    + setId(id: Int);
+    + getLabel();
+    + setLabel(label: String);
+    + getTimestamp();
+    + setTimestamp(timestamp: Date);
+    + getCoordinates();
+    + setCoordinates(coordinates: Sequence<Coordinate>);
+  }
+}
+
+package Backend {
+  interface CoordinateGroupDao {
+    + save(group: CoordinateGroup): Void;
+    + findByLabel(label: String): CoordinateGroup;
+    + findAll(): Sequence<CoordinateGroup>;
+    + update(group: CoordinateGroup): Void;
+    + delete(identifier: Int): Void;
+  }
+  
+  class MySQLCoordinateGroupDao implements CoordinateGroupDao {
+    - Connection connection;
+    
+    + save(group: CoordinateGroup): Void;
+    + findByLabel(label: String): CoordinateGroup;
+    + findAll(): Sequence<CoordinateGroup>;
+    + update(group: CoordinateGroup): Void;
+    + delete(identifier: Int): Void;
+  }
+}
+
+Frontend.SwingInterface ---> Core.CoordinateGroup
+Core.CoordinateGroup --* Core.Coordinate
+Backend.MySQLCoordinateGroupDao --* Frontend.UserInterface
+
+@enduml

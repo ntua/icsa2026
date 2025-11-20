@@ -1,0 +1,91 @@
+@startuml
+
+' ===== PACKAGES (3-TIER ARCHITECTURE) =====
+package "presentation" <<Folder>> {
+    class DCCGUI {
+        - coordinateService : CoordinateService
+        
+        + createCoordinateGroup(type: String, x: double, y: double, label: String) : void
+        + modifyCoordinateGroup(id: int, type: String, x: double, y: double, label: String) : void
+        + deleteCoordinateGroup(id: int) : void
+        + viewAllCoordinateGroups() : void
+        + viewCoordinateGroupByLabel(label: String) : void
+    }
+}
+
+package "business" <<Folder>> {
+    class CoordinateService {
+        - dao : CoordinateGroupDAO
+        - converter : CoordinateConverter
+        
+        + createCoordinateGroup(type: String, x: double, y: double, label: String) : void
+        + modifyCoordinateGroup(id: int, type: String, x: double, y: double, label: String) : void
+        + deleteCoordinateGroup(id: int) : void
+        + getAllCoordinateGroups() : List<CoordinateGroup>
+        + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    }
+    
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double) : (double, double)
+        + polarToCartesian(r: double, theta: double) : (double, double)
+    }
+    
+    class CoordinateGroup {
+        - id : int
+        - timestamp : Date
+        - label : String
+        - x : double
+        - y : double
+        - r : double
+        - theta : double
+
+        + getId() : int
+        + getTimestamp() : Date
+        + getLabel() : String
+        + getX() : double
+        + getY() : double
+        + getR() : double
+        + getTheta() : double
+        + setLabel(label: String) : void
+        + setX(x: double) : void
+        + setY(y: double) : void
+        + setR(r: double) : void
+        + setTheta(theta: double) : void
+    }
+}
+
+package "data" <<Folder>> {
+    class CoordinateGroupDAO {
+        - dbConnection : DBConnection
+        
+        + create(group: CoordinateGroup) : void
+        + update(group: CoordinateGroup) : void
+        + delete(id: int) : void
+        + findAll() : List<CoordinateGroup>
+        + findByLabel(label: String) : List<CoordinateGroup>
+    }
+    
+    class DBConnection {
+        + getConnection() : Connection
+        + close() : void
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Presentation layer uses services from the Business layer
+presentation.DCCGUI --> business.CoordinateService : uses
+
+' The Service calls upon the DAO for persistence
+business.CoordinateService --> data.CoordinateGroupDAO : calls
+
+' The Service also uses the Converter to transform coordinates
+business.CoordinateService --> business.CoordinateConverter : uses
+
+' The DAO needs a DBConnection to reach the MySQL database
+data.CoordinateGroupDAO --> data.DBConnection : uses
+
+' The DAO manages (CRUD) CoordinateGroup entities
+data.CoordinateGroupDAO --> business.CoordinateGroup : manages
+
+@enduml

@@ -1,0 +1,84 @@
+@startuml
+!pragma useIntermediatePackages false
+
+package Presentation {
+    class CoordinateGroupGUI {
+        +createCoordinateGroup()
+        +displayCoordinateGroups()
+        +showModificationDialog()
+        +showDeletionDialog()
+    }
+}
+
+package "Business Logic" {
+    class CoordinateGroupManager {
+        +createCoordinateGroup(coord: Object, label: String)
+        +modifyCoordinateGroup(id: int, newData: Map)
+        +deleteCoordinateGroup(id: int)
+        +retrieveByLabel(label: String): List<CoordinateGroup>
+        +retrieveAll(): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        +convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        +convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+}
+
+package Model {
+    class CoordinateGroup {
+        -id: int
+        -label: String
+        -timestamp: Date
+        -cartesian: CartesianCoordinate
+        -polar: PolarCoordinate
+        +getCartesian(): CartesianCoordinate
+        +getPolar(): PolarCoordinate
+        +setCartesian(c: CartesianCoordinate)
+        +setPolar(p: PolarCoordinate)
+    }
+
+    class CartesianCoordinate {
+        -x: double
+        -y: double
+        +getX(): double
+        +getY(): double
+        +setX(x: double)
+        +setY(y: double)
+    }
+
+    class PolarCoordinate {
+        -radius: double
+        -theta: double
+        +getRadius(): double
+        +getTheta(): double
+        +setRadius(r: double)
+        +setTheta(theta: double)
+    }
+}
+
+package "Data Access" {
+    class DatabaseManager {
+        -connection: Connection
+        +insertCoordinateGroup(group: CoordinateGroup)
+        +updateCoordinateGroup(id: int, group: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+' Associations and Dependencies
+CoordinateGroupGUI --> CoordinateGroupManager : uses >
+CoordinateGroupManager --> DatabaseManager : uses >
+CoordinateGroupManager --> CoordinateConverter : uses >
+CoordinateGroupManager --> CoordinateGroup : manages >
+
+CoordinateGroup *-- CartesianCoordinate : composition
+CoordinateGroup *-- PolarCoordinate : composition
+
+CoordinateConverter ..> CartesianCoordinate : converts
+CoordinateConverter ..> PolarCoordinate : converts
+
+DatabaseManager --> CoordinateGroup : persists
+@enduml

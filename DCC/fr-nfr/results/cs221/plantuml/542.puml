@@ -1,0 +1,70 @@
+@startuml DCC_Class_Diagram
+
+package "Client" {
+    class DCCClientGUI {
+        + void displayCoordinateGroups()
+        + void handleUserInput()
+        + void refreshDisplay()
+        + void filterCoordinateGroups(String labelFilter)
+    }
+
+    class DCCClientCoordinator {
+        - List<CoordinateGroup> coordinateGroups
+        + void createCoordinateGroup(CartesianCoordinates, PolarCoordinates, String label)
+        + void updateCoordinateGroup(int id, CartesianCoordinates, PolarCoordinates, String label)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + void convertCoordinates(CartesianCoordinates in, PolarCoordinates out)
+        + void convertCoordinates(PolarCoordinates in, CartesianCoordinates out)
+    }
+
+    class CartesianCoordinates {
+        + double x
+        + double y
+        + PolarCoordinates toPolar()
+    }
+
+    class PolarCoordinates {
+        + double r
+        + double theta
+        + CartesianCoordinates toCartesian()
+    }
+}
+
+package "Server" {
+    class DCCServerCoordinator {
+        - CoordinateGroupDAO dao
+        + void processCreateRequest(CoordinateGroup group)
+        + List<CoordinateGroup> processReadRequest()
+        + void processUpdateRequest(int id, CoordinateGroup group)
+        + void processDeleteRequest(int id)
+    }
+
+    class CoordinateGroupDAO {
+        + void save(CoordinateGroup group)
+        + List<CoordinateGroup> findAll()
+        + void update(CoordinateGroup group)
+        + void delete(int id)
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        + int id
+        + String label
+        + CartesianCoordinates cartesian
+        + PolarCoordinates polar
+        + Date timestamp
+    }
+}
+
+DCCClientGUI --* DCCClientCoordinator
+DCCClientCoordinator --* DCCServerCoordinator
+DCCClientCoordinator --* CartesianCoordinates
+DCCClientCoordinator --* PolarCoordinates
+DCCServerCoordinator --* CoordinateGroupDAO
+CoordinateGroupDAO --* CoordinateGroup
+CoordinateGroup --* CartesianCoordinates
+CoordinateGroup --* PolarCoordinates
+
+@enduml

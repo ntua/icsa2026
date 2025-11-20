@@ -1,0 +1,54 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesian: CartesianCoordinates
+        - polar: PolarCoordinates
+        
+        + createOp(label, cartesian, polar)
+        + readOp()
+        + updateOp(cartesian, polar)
+        + deleteOp(id)
+    }
+    
+    package "Coordinates" {
+        class CartesianCoordinates {
+            - x: HighPrecisionNumber
+            - y: HighPrecisionNumber
+            
+            + toPolar()
+        }
+        
+        class PolarCoordinates {
+            - r: HighPrecisionNumber
+            - theta: HighPrecisionNumber
+            
+            + toCartesian()
+        }
+    }
+}
+
+package "Controller" {
+    class CoordinateGroupController {
+        - model: Model
+        
+        + addCoordinateGroup(label, cartesian, polar)
+        + updateCoordinateGroup(id, cartesian, polar)
+        + deleteCoordinateGroup(id)
+        + readAllCoordinateGroups()
+        
+        + filterCoordinateGroupsByLabel(labelFilter)
+    }
+}
+
+package "View" {
+    class CoordinateGroupView {
+        - controller: Controller
+        
+        + displayCoordinateGroups(coordinateGroups)
+        + displayFilteredCoordinateGroups(coordinateGroups)
+        + clearFilter()
+    }
+}
+@enduml

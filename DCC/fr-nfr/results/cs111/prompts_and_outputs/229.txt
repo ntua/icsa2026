@@ -1,0 +1,72 @@
+@startuml
+package frontend {
+  class UserInterface {
+    + createCoordinateGroup()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+    + retrieveCoordinateGroup()
+  }
+}
+
+package model {
+  class CoordinateGroup {
+    + id: int
+    + label: String
+    + timestamp: Date
+    + convertToPolar()
+    + convertToCartesian()
+    + updateCoordinates()
+  }
+
+  class CartesianCoordinates {
+    + x: double
+    + y: double
+    + calculatePolarCoordinates()
+  }
+
+  class PolarCoordinates {
+    + r: double
+    + theta: double
+    + calculateCartesianCoordinates()
+  }
+
+  CoordinateGroup o-- CartesianCoordinates : contains
+  CoordinateGroup o-- PolarCoordinates : contains
+}
+
+package database {
+  class CoordinateDatabase {
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroupByLabel(label: String)
+    + retrieveAllCoordinateGroups()
+    + deleteCoordinateGroup(id: int)
+    + updateCoordinateGroup(group: CoordinateGroup)
+  }
+}
+
+package server {
+  class CoordinateService {
+    + createCoordinateGroup()
+    + getCoordinateGroup()
+    + updateCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+}
+
+package network {
+  class TCPClient {
+    + sendRequest()
+    + receiveResponse()
+  }
+
+  class TCPServer {
+    + listenForRequests()
+  }
+
+  TCPClient --> TCPServer : communicates
+  TCPServer --> CoordinateService : forwards requests
+}
+
+UserInterface --> TCPClient : sends requests
+CoordinateService --> CoordinateDatabase : CRUD operations
+@enduml

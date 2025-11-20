@@ -1,0 +1,61 @@
+@startuml DCC_Application
+
+package "Client" {
+  class UserInterface {
+    + void initialize()
+    + void displayList()
+    + void addCoordinateGroup()
+    + void updateCoordinateGroup()
+    + void deleteCoordinateGroup()
+    + void filterByLabel()
+    + void clearFilter()
+  }
+
+  class CoordinateService {
+    - Database db
+    + CoordinateGroup convertCoordinates(CartesianCoordinate)
+    + CoordinateGroup convertCoordinates(PolarCoordinate)
+    + List<CoordinateGroup> getAllCoordinateGroups()
+    + void createCoordinateGroup(CoordinateGroup)
+    + void updateCoordinateGroup(int id, CoordinateGroup group)
+    + void deleteCoordinateGroup(int id)
+  }
+
+  class CartesianCoordinate {
+    + int x
+    + int y
+    + PolarCoordinate toPolar()
+  }
+
+  class PolarCoordinate {
+    + double r
+    + double theta
+    + CartesianCoordinate toCartesian()
+  }
+}
+
+package "Server" {
+  class Database {
+    + void connect()
+    + void disconnect()
+    + void createCoordinateGroup(CoordinateGroup)
+    + List<CoordinateGroup> readAllCoordinateGroups()
+    + void updateCoordinateGroup(int id, CoordinateGroup)
+    + void deleteCoordinateGroup(int id)
+  }
+
+  class CoordinateGroup {
+    + int id
+    + String label
+    + DateTime timestamp
+    + CartesianCoordinate cartesian
+    + PolarCoordinate polar
+  }
+}
+
+UserInterface ..> CoordinateService : Uses
+CoordinateService ..> Database : Communicates with
+CartesianCoordinate --* CoordinateGroup : Part of
+PolarCoordinate --* CoordinateGroup : Part of
+
+@enduml

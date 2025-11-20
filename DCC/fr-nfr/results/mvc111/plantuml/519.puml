@@ -1,0 +1,66 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesianX: Double
+        - cartesianY: Double
+        - polarR: Double
+        - polarTheta: Double
+        - timestamp: DateTime
+    }
+
+    class DCCModel {
+        + List<CoordinateGroup> coordinateGroups
+        + createCoordinateGroup(label: String, x: Double, y: Double)
+        + convertCartesianToPolar()
+        + convertPolarToCartesian()
+    }
+}
+
+package "DAO" {
+    class DCCDAO {
+        + save(CoordinateGroup)
+        + retrieveById(id: Integer): CoordinateGroup
+        + retrieveAll(): List<CoordinateGroup>
+        + update(CoordinateGroup)
+        + delete(id: Integer)
+        
+        Database mysqlDB
+        DCCDAO --* mysqlDB
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        + createCoordinateGroup(label: String, x: Double, y: Double)
+        + convertCoordinates()
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(id: Integer, newLabel: String, newX: Double, newY: Double)
+        + deleteCoordinateGroup(id: Integer)
+        
+        DCCModel model
+        DCCDAO dao
+        
+        DCCController --* model
+        DCCController --* dao
+    }
+}
+
+package "View" {
+    class DCCView {
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + getInput(): Map<String, Object>
+        
+        DCCController controller
+        DCCView --* controller
+    }
+}
+
+' Associations
+DCCDAO --* MySQLDatabase
+DCCController --> DCCView
+
+@enduml

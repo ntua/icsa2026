@@ -1,0 +1,112 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages and Classes
+
+package "Client" {
+    package "GUI" {
+        class ClientGUI {
+            - void displayCoordinateGroupList()
+            - void handleUserInput()
+            - void refreshDisplay()
+            - void filterCoordinates(String label)
+            - void clearFilter()
+        }
+    }
+
+    package "Controller" {
+        class ClientController {
+            + void processCreateOperation(CoordinateGroup group)
+            + void processReadOperation()
+            + void processUpdateOperation(CoordinateGroup group)
+            + void processDeleteOperation(Integer id)
+            + void refreshCoordinateList()
+            + void filterCoordinates(String label)
+        }
+    }
+
+    package "Model" {
+        abstract class Coordinate {
+            - Double x
+            - Double y
+            - Double r
+            - Double theta
+
+            + getCartesian(): CartesianCoordinate
+            + getPolar(): PolarCoordinate
+        }
+
+        class CartesianCoordinate extends Coordinate {
+            + CartesianCoordinate(Double x, Double y)
+            + convertToPolar(): PolarCoordinate
+        }
+
+        class PolarCoordinate extends Coordinate {
+            + PolarCoordinate(Double r, Double theta)
+            + convertToCartesian(): CartesianCoordinate
+        }
+
+        class CoordinateGroup {
+            - Integer id
+            - String label
+            - DateTime createdAt
+            - DateTime modifiedAt
+            - List<Coordinate> coordinates
+
+            + void addCoordinate(Coordinate coord)
+            + void removeCoordinate(Coordinate coord)
+        }
+    }
+}
+
+package "Server" {
+    package "BusinessLogic" {
+        class CoordinateConversionService {
+            + convertCartesianToPolar(CartesianCoordinate cartesian): PolarCoordinate
+            + convertPolarToCartesian(PolarCoordinate polar): CartesianCoordinate
+            + validateCoordinates(Coordinate coord): Boolean
+        }
+
+        class CoordinateGroupService {
+            + createCoordinateGroup(CoordinateGroup group): Integer
+            + updateCoordinateGroup(CoordinateGroup group): void
+            + deleteCoordinateGroup(Integer id): void
+            + getCoordinateGroups(): List<CoordinateGroup>
+            + filterCoordinateGroups(String label): List<CoordinateGroup>
+        }
+    }
+
+    package "DatabaseAccess" {
+        class DatabaseConnector {
+            - String host
+            - Integer port
+            - String databaseName
+            - String username
+            - String password
+
+            + connect(): Boolean
+            + disconnect(): void
+            + executeCreate(CoordinateGroup group): void
+            + executeRead(): List<CoordinateGroup>
+            + executeUpdate(CoordinateGroup group): void
+            + executeDelete(Integer id): void
+        }
+    }
+}
+
+' Associations
+
+ClientGUI --> ClientController: Uses
+ClientController --> CoordinateGroupService: Uses
+ClientController --> CoordinateConversionService: Uses
+
+CoordinateGroupService --> DatabaseConnector: Uses
+CoordinateGroupService --> CoordinateGroup: Manages
+CoordinateGroupService --> CoordinateConversionService: Uses
+
+DatabaseConnector --> CoordinateGroup: Persists
+
+CoordinateGroup --> Coordinate: Composes
+CartesianCoordinate --> Coordinate: Extends
+PolarCoordinate --> Coordinate: Extends
+
+@enduml

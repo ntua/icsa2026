@@ -1,0 +1,50 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Timestamp
+    - cartesianCoordinates: List<double>
+    - polarCoordinates: List<double>
+  
+    + getCartesianCoordinates(): List<double>
+    + setCartesianCoordinates(List<double>): void
+    + getPolarCoordinates(): List<double>
+    + setPolarCoordinates(List<double>): void
+    + convertCoordinates(): void 
+  }
+
+  class CoordinateConverter {
+   + cartesianToPolar(double x, double y): double[]
+   + polarToCartesian(double r, double theta): double[] 
+  }
+}
+
+package "View" {
+  class DCCView {
+    - controller: DCCController
+    + displayCoordinateGroups(): void
+    + getCoordinateInput(): CoordinateGroup
+    + displayConversionResult(): void
+  }
+}
+
+package "Controller" {
+ class DCCController {
+   - model: CoordinateGroup 
+   - view: DCCView
+
+   + createCoordinateGroup(CoordinateGroup): void
+   + storeCoordinateGroup(CoordinateGroup): void
+   + retrieveCoordinateGroups(String label): List<CoordinateGroup>
+   + modifyCoordinateGroup(CoordinateGroup): void
+   + deleteCoordinateGroup(int id): void
+  }
+}
+
+DCCController "1" -- "*" CoordinateGroup : manages
+DCCView "1" -- "1" DCCController : uses
+CoordinateGroup "*" -- "1" CoordinateConverter : uses for conversion
+
+@enduml

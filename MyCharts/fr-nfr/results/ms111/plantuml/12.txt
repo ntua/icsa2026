@@ -1,0 +1,73 @@
+@startuml
+package UserManagement {
+
+  class User {
+    - name: String
+    - profilePictureUrl: String
+    - email: String
+    - remainingQuota: int
+    - accountCreationTimestamp: Date
+    - lastLoginTimestamp: Date
+  }
+
+  class UserService {
+    + getUserById(userId: int): User // Functional requirement
+    + createUser(authInfo: AuthInfo): User // Functional requirement
+    + updateUser(user: User): void // Functional requirement
+    + deleteUser(userId: int): void // Functional requirement
+    + getRemainingQuota(userId: int): int // Functional requirement
+  }
+
+  class AuthService {
+    + authenticateUser(authCode: String): AuthInfo // Functional requirement
+  }
+}
+
+package ChartManagement {
+
+  class ChartData {
+    - chartId: int
+    - chartType: String
+    - chartData: JSON
+  }
+
+  class ChartService {
+    + createChart(chartData: ChartData): int // Functional requirement
+    + getChartById(chartId: int): ChartData // Functional requirement
+    + updateChart(chartData: ChartData): void // Functional requirement
+    + deleteChart(chartId: int): void // Functional requirement
+  }
+
+}
+package PaymentManagement {
+  class PaymentService {
+    + processPayment(userId: int, amount: double): bool // Functional requirement
+  }
+}
+ 
+ package NotificationManagement {
+  class NotificationService {
+    + sendNotification(userId: int, message: String): void // Functional requirement
+  }
+
+ }
+
+package "API Gateway" as ApiGateway {
+
+}
+
+
+UserService -|> User : manages
+
+ChartService -|> ChartData : manages
+
+AuthService --> UserService : authenticateUser() // Flow control operation
+
+UserService --> PaymentService : processPayment()  // Functional Requirement & Flow Control Operation
+
+UserService --> NotificationService : sendNotification() //Functional Requirement & Flow control operation
+ 
+ApiGateway --> UserService : getUserById(), createUser(), updateUser(), deleteUser(), getRemainingQuota() // Flow control operation
+ApiGateway --> ChartService : createChart(), getChartById(), updateChart(), deleteChart() // Flow control operation
+
+@enduml

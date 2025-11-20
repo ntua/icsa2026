@@ -1,0 +1,78 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id : int
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    
+    + createOp(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+    + readOp() : List<CoordinateGroup>
+    + updateOp(id: int, label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+    + deleteOp(id: int) : void
+    
+  }
+  
+  class CartesianCoordinates {
+    - x : double
+    - y : double
+    
+    + convertToPolar() : PolarCoordinates
+  }
+  
+  class PolarCoordinates {
+    - r : double
+    - theta : double
+    
+    + convertToCartesian() : CartesianCoordinates
+  }
+}
+
+package "View" {
+  class SwingUI {
+    + displayCoordinateGroupList(list: List<CoordinateGroup>) : void
+    + filterCoordinateGroupsByLabel(label: String) : void
+    + clearFilter() : void
+    
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupManager {
+    - databaseConnection : DatabaseConnection
+    
+    + createCoordinateGroup(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+    + readCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+    + deleteCoordinateGroup(id: int) : void
+    
+  }
+}
+
+package "Database" {
+  class DatabaseConnection {
+    - host : String
+    - port : int
+    - username : String
+    - password : String
+    
+    + connect() : void
+    + disconnect() : void
+    
+  }
+  
+  class CoordinateGroupDatabase {
+    - databaseConnection : DatabaseConnection
+    
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + readCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+    + deleteCoordinateGroup(id: int) : void
+    
+  }
+}
+
+CoordinateGroupManager -> CoordinateGroupDatabase : Database connection
+SwingUI -> CoordinateGroupManager : UI interaction
+
+@enduml

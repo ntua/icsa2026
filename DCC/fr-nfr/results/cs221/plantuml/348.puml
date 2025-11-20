@@ -1,0 +1,79 @@
+@startuml
+ 
+package "Client" {
+
+  class DummyCoordConversionApp {
+    + run()
+
+    - displayList(coordinateGroups: List<CoordinateGroup>)
+    - createOp(label: String, coordinates: CoordinateGroup) : int
+    - updateOp(id: int, label: String, coordinates: CoordinateGroup)
+    - deleteOp(id: int)
+  }
+
+  class UserInput {
+    + getCartesianCoordinates() : CartesianCoordinates
+    + getPolarCoordinates() : PolarCoordinates
+    + getLabel() : String
+    
+    - convertCartesianToPolar(cartesian: CartesianCoordinates): PolarCoordinates
+    - convertPolarToCartesian(polar: PolarCoordinates): CartesianCoordinates
+
+  }
+
+  interface DatabaseConnection {
+    + saveData(data: CoordinateGroup)
+    + fetchData(): List<CoordinateGroup>
+    + updateData(id: int, data: CoordinateGroup)
+    + deleteData(id: int)
+  }
+}
+
+
+package "Server" {
+   class MySQLDatabase {
+      - id: int
+      - label: String
+      - cartesianCoordinates: CartesianCoordinates
+      - polarCoordinates: PolarCoordinates
+      - timestamp: String
+
+      + saveCoordinateGroup(group: CoordinateGroup): boolean
+      + fetchAllGroups(): List<CoordinateGroup>
+      + updateGroup(id: int, group: CoordinateGroup) : boolean
+      + deleteGroup(id: int) : boolean
+   }
+}
+
+
+  class CartesianCoordinates {
+    x: double
+    y: double
+
+    - toPolar() : PolarCoordinates
+  }
+
+  class PolarCoordinates {
+    r: double
+    theta: double
+    
+    - toCartesian() : CartesianCoordinates
+  }
+
+  class CoordinateGroup {
+    + getCartesian(): CartesianCoordinates
+    + getPolar(): PolarCoordinates
+    + setLabel(label: String) 
+  }
+
+
+  DummyCoordConversionApp <|.. UserInput : "uses"
+  DummyCoordConversionApp <|.. DatabaseConnection : "uses"
+  
+  UserInput -|> CartesianCoordinates
+  UserInput -|> PolarCoordinates
+
+  CoordinateGroup <|.. MySQLDatabase : "saved in"
+}
+
+@enduml

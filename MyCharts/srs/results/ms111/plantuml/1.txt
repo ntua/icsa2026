@@ -1,0 +1,73 @@
+@startuml
+package GoogleOAuth {
+  class GoogleAuthenticator {
+    - authenticate(): Boolean // Functional requirement-business logic operation
+    - getToken(): String // Data management operation
+  }
+}
+
+package ChartManagement {
+  class ChartManager {
+    - getCharts(): List<Chart> // Data management operation
+    - deleteChart(Chart chart): Void // Data management operation
+    - downloadChart(Chart chart): Void // Functional requirement-business logic operation
+  }
+
+  class Chart {
+    - id: Integer
+    - name: String
+    - data: CSVData
+  }
+}
+
+package ChartGenerator {
+  class ChartGeneratorService {
+    - generateChart(CSVData data, ChartType type): Chart // Functional requirement-business logic operation
+    - validateCSVData(CSVData data): Boolean // Data management operation
+  }
+
+  class CSVData {
+    - headers: List<String>
+    - rows: List<List<String>>
+  }
+
+  enum ChartType {
+    LINE,
+    BAR,
+    PIE
+  }
+}
+
+package QuotaStore {
+  class QuotaService {
+    - getQuotas(): List<Quota> // Data management operation
+    - purchaseQuota(Quota quota): Void // Functional requirement-business logic operation
+  }
+
+  class Quota {
+    - id: Integer
+    - amount: Integer
+    - price: Float
+  }
+}
+
+package UserService {
+  class UserService {
+    - getUserProfile(): UserProfile // Data management operation
+    - updateUserProfile(UserProfile profile): Void // Data management operation
+  }
+
+  class UserProfile {
+    - id: Integer
+    - name: String
+    - email: String
+  }
+}
+
+GoogleAuthenticator --* ChartManager : authenticates user for chart access
+ChartManager --* ChartGeneratorService : uses chart generator to create new charts
+ChartGeneratorService --* CSVData : validates and processes csv data
+QuotaService --* UserService : updates user quota information
+UserService --* GoogleAuthenticator : uses google auth to authenticate users
+
+@enduml

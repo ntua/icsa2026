@@ -1,0 +1,89 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application - Class Diagram
+
+skinparam class {
+  BackgroundColor PaleGreen 
+  BorderColor Black 
+  BorderWidth 2px 
+  RoundCorner 10  
+  FontName "Arial"
+}
+
+package "Logic"  {
+  class CoordinateConverter {
+    +convertCartesianToPolar(x: Double, y: Double): PolarCoordinates #orange
+    +convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates #orange
+
+    private static final double EPSILON = 0.001 #blue
+
+  }
+}
+
+
+package "Data" {
+  class CoordinateGroup {
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    - label: String
+    - timestamp: Timestamp
+    +getCartesianCoordinates(): CartesianCoordinates #yellow
+    +getPolarCoordinates(): PolarCoordinates  #yellow
+
+  }
+}
+
+package "User Interactions" {
+  class Controller {
+
+    - view: View
+    - model: Model 
+
+    +onAddCoordinateGroup(label: String, x: Double, y: Double) #blue
+    +onUpdateCoordinateGroup(id: Int, newLabel: String, newX: Double, newY: Double) #blue
+    +onDeleteCoordinateGroup(id: Int)  #blue
+    +onReadCoordinateGroups()  #blue
+  }
+
+  class View {
+    - controller: Controller 
+    +displayReadOpResults() #red
+    +promptForAddCoordinateGroup() #yellow
+    +filterCoordinateGroupsByLabel(label: String) #orange
+    +clearFilter()#green
+    +onDeleteSelected()  #blue
+
+  }
+}
+
+
+package "Data Operations"{
+  class Model {
+
+    - coordinateGroupList: List<CoordinateGroup> 
+
+    +createOp(label: String, x: Double, y: Double)
+    +readOp()
+    +updateOp(id: Int, newLabel: String, newX: Double, newY: Double) #red
+    +deleteOp(id: Int)
+
+  }
+}
+
+
+
+package "Frontend"{
+  class GUI {
+
+    - controller: Controller 
+
+  }
+}
+
+
+GUI <|.. Controller 
+Controller ..> View  
+Controller ..> Model 
+
+Model *-- CoordinateGroup : contains
+View *-- FilteredList : filters
+@enduml

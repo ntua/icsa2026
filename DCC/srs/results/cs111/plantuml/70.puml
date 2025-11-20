@@ -1,0 +1,82 @@
+@startuml
+
+package "client" {
+    class GUI {
+        - coordinatePanel: JPanel
+        - controlPanel: JPanel
+        + initializeComponents()
+        + displayCoordinates()
+        + showError(message: String)
+        + refreshDisplay()
+    }
+
+    class ClientController {
+        - gui: GUI
+        + createCoordinateGroup(sourceType: CoordinateType, values: double[], label: String)
+        + modifyCoordinateGroup(id: int, sourceType: CoordinateType, values: double[], label: String)
+        + deleteCoordinateGroup(id: int)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "server" {
+    class ServerController {
+        - database: DatabaseManager
+        - converter: CoordinateConverter
+        + handleCreateRequest(CoordinateGroup): boolean
+        + handleModifyRequest(CoordinateGroup): boolean
+        + handleDeleteRequest(int): boolean
+        + handleGetAllRequest(): List<CoordinateGroup>
+        + handleGetByLabelRequest(String): List<CoordinateGroup>
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + connect()
+        + disconnect()
+        + insertCoordinateGroup(CoordinateGroup): boolean
+        + updateCoordinateGroup(CoordinateGroup): boolean
+        + deleteCoordinateGroup(int): boolean
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupsByLabel(String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double): double[]
+        + polarToCartesian(r: double, theta: double): double[]
+    }
+}
+
+package "common" {
+    enum CoordinateType {
+        CARTESIAN
+        POLAR
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - timestamp: DateTime
+        - label: String
+        - cartesianX: double
+        - cartesianY: double
+        - polarR: double
+        - polarTheta: double
+        + getters()
+        + setters()
+    }
+}
+
+' Relationships
+GUI --> ClientController
+ClientController --> ServerController: HTTP/TCP
+ServerController --> DatabaseManager
+ServerController --> CoordinateConverter
+GUI ..> CoordinateGroup: uses
+ClientController ..> CoordinateGroup: uses
+ServerController ..> CoordinateGroup: uses
+DatabaseManager ..> CoordinateGroup: uses
+ClientController ..> CoordinateType: uses
+ServerController ..> CoordinateType: uses
+
+@enduml

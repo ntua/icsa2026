@@ -1,0 +1,73 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+package presentation {
+  class UserInteraction {
+  + String label
+  + double x
+  + double y
+  + double r
+  + double theta
+
+  - calculatePolarCoordinates()
+  - calculateCartesianCoordinates()
+
+  + createCoordinateGroup(UserInteraction)
+  + updateCoordinateGroup(int, UserInteraction)
+  + deleteCoordinateGroup(int)
+}
+}
+
+package logic {
+  class CoordinateGroup {
+  + int id
+  + String label
+  + CartesianCoordinate cartesian
+  + PolarCoordinate polar
+
+  - toString()
+}
+
+class CartesianCoordinate {
+  + double x
+  + double y
+
+  - constructor(double, double)
+}
+
+class PolarCoordinate {
+  + double r
+  + double theta
+
+  - constructor(double, double)
+}
+
+class CoordinateConverter {
+  + CartesianCoordinate convertPolarToCartesian(PolarCoordinate)
+  + PolarCoordinate convertCartesianToPolar(CartesianCoordinate)
+}
+
+class CoordinateRepository {
+  + List<CoordinateGroup> getAllCoordinateGroups()
+  + CoordinateGroup getCoordinateGroup(int id)
+  - saveCoordinateGroup(CoordinateGroup)
+
+  - constructor(MySQLDatabase)
+}
+}
+
+package data {
+  class MySQLDatabase {
+  - connect()
+  - disconnect()
+
+  + List<CoordinateGroup> getAllCoordinateGroups()
+  + CoordinateGroup getCoordinateGroup(int id)
+  - saveCoordinateGroup(CoordinateGroup)
+}
+}
+
+presentation --> logic : Uses
+logic --> data : Uses
+
+@enduml

@@ -1,0 +1,71 @@
+@startuml
+skinparam packageStyle frame
+
+package "Frontend" {
+    class UserInterface {
+        - String label
+        + void setLabel(String)
+        + void displayCoordinateGroups()
+        
+        - CoordinateGroup[] groups #blue
+
+        - Java Swing components for user interaction, coordinate input/output, buttons, etc.
+    }
+
+    class CoordinateConverter {
+        + Cartesian convertToCartesian(Polar) : Cartesian
+        + Polar convertToPolar(Cartesian) : Polar
+    }
+}
+
+package "Business Logic" {
+    class CoordinateGroup {
+        * int id #yellow
+        * String label
+        * Cartesian cartesianCoords
+        * Polar polarCoords
+
+        - void updateCoordinates(CoordinateConverter, UserInterface)
+        
+        -- Other methods for validation and logic handling
+    }
+
+    class DatabaseManager {
+        + void createRecord(int, String, Cartesian, Polar) : int (id of the new record)
+        + CoordinateGroup[] readAllRecords() : CoordinateGroup[]
+        + void updateRecord(int, Cartesian, Polar)
+        + void deleteRecord(int)
+        
+        -- Methods for establishing database connection and managing records
+    }
+}
+
+package "Data Storage" {
+    class Database {
+      - Record[] records #blue
+
+      - MySQL implementation details, data retrieval/storage operations
+    }
+
+    class Record {
+        * int id #yellow
+        * String label
+        * Cartesian cartesianCoords
+        * Polar polarCoords
+        * DateTime datetimeAddedOrModified
+        
+        + void setLabel(String)
+        + void setCartesianCoords(Cartesian)
+        + void setPolarCoords(Polar)
+
+        -- Other methods for record manipulation
+    }
+}
+
+
+UserInterface -down- CoordinateConverter
+UserInterface <.. CoordinateGroup
+CoordinateGroup <.. DatabaseManager
+DatabaseManager <.. Record #yellow
+Record *-- Database
+@enduml

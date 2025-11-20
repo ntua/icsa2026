@@ -1,0 +1,54 @@
+@startuml
+
+package "Frontend (Java & Swing)" {
+  class UserInterface {
+    - CoordinateGroup selectedCoordinateGroup
+    + createCoordinateGroup()
+    + retrieveCoordinateGroupByLabel(label: String)
+    + retrieveAllCoordinateGroups()
+    + modifyCoordinateGroup(cg: CoordinateGroup)
+    + deleteCoordinateGroup(cg: CoordinateGroup)
+  }
+}
+
+package "Application Layer" {
+  class CoordinateConverter {
+    + convertPolarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+  }
+  
+  class CoordinateGroupManager {
+    - MySQLDatabase database
+    + saveCoordinateGroup(cg: CoordinateGroup)
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(cg: CoordinateGroup)
+    + deleteCoordinateGroup(cg: CoordinateGroup)
+  }
+  
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - List<CartesianCoordinate> cartesianCoordinates
+    - List<PolarCoordinate> polarCoordinates
+    
+    + getCartesianCoordinateByIndex(index: int)
+    + getPolarCoordinateByIndex(index: int)
+  }
+}
+
+package "Database (MySQL)" {
+  class MySQLDatabase {
+    - Connection connection
+    
+    + connect()
+    + disconnect()
+  }
+}
+
+UserInterface ..> CoordinateConverter
+UserInterface ..> CoordinateGroupManager
+CoordinateGroupManager --> MySQLDatabase
+
+@enduml

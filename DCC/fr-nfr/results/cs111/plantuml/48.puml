@@ -1,0 +1,48 @@
+@startuml
+class DCCFrame {
+  - CoordinateGroup frameCoordinateGroup
+}
+
+class DBConnectionManager {
+  -- Connection dbConnection
+}
+
+class CoordinateGroupTable {
+  # List<CoordinateGroup> coordinateGroups
+}
+
+class CoordinateGroup {
+  - int id
+  - String label
+  - Timestamp timestamp
+  - CartesianCoordinate cartesian
+  - PolarCoordinate polar
+}
+
+class LabeledObjectStorage {
+  # store(label: String, obj: T) : void
+  # retrieve(label: String) : T
+}
+
+class CartesianCoordinate {
+  - double x
+  - double y
+}
+
+class PolarCoordinate {
+  - double r
+  - double theta
+}
+
+class CoordinateConverter {
+  -- CartesianCoordinate convertToCartesian(PolarCoordinate polar)
+  -- PolarCoordinate convertToPolar(CartesianCoordinate cartesian)
+}
+
+DCCFrame "0.*" -- "1" DCCFrame
+DBConnectionManager "1" -- "*" CoordinateGroupTable
+CoordinateGroupTable "1" <-- "*" CoordinateGroup
+CoordinateGroup "1" -- "*" CartesianCoordinate
+CoordinateGroup "1" -- "*" PolarCoordinate
+DCCFrame "1" -- "1" CoordinateConverter
+@enduml

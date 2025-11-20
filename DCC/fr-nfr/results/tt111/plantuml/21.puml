@@ -1,0 +1,66 @@
+@startuml
+package "frontend" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups()
+    + createCoordinateGroup()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+  class InputHandler {
+    - processInput(String inputType, String coordinates)
+  }
+  class ConversionManager {
+    + convertCartesianToPolar(double x, double y)
+    + convertPolarToCartesian(double r, double theta)
+  }
+
+}
+
+package "businesslogic" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+  }
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+  }
+
+  CoordinateGroup "1" -- "*" CoordinateGroupView : uses
+  CoordinateGroup "1" -- "1" ConversionManager : uses
+}
+
+package "database" {
+
+  class DatabaseConnection {
+    + connectToDatabase()
+    + storeCoordinateGroup(CoordinateGroup group)
+    + retrieveCoordinateGroup(String label)
+    + retrieveAllCoordinateGroups()
+    + deleteCoordinateGroup(int id)
+  }
+
+  class MySQLDatabase {
+    - tables: List<Table>
+  }
+
+
+}
+
+
+
+CoordinateGroupView -- "1" InputHandler : uses
+InputHandler -- "1" ConversionManager : delegates conversion to
+ConversionManager -- "1" CoordinateGroup : creates/updates
+
+
+DatabaseConnection "1" -- "1" MySQLDatabase
+
+@enduml

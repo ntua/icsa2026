@@ -1,0 +1,73 @@
+@startuml
+package "Client" {
+    package "Model" {
+        class CoordinateGroup {
+            - id: Integer
+            - label: String
+            - timestamp: Date
+            - cartesian: CartesianCoordinate
+            - polar: PolarCoordinate
+
+            + addCoordinate()
+            + convertCartesianToPolar()
+            + convertPolarToCartesian()
+            + validateCoordinates()
+        }
+
+        class CartesianCoordinate {
+            - x: Double
+            - y: Double
+
+            + calculateDistanceFromOrigin(): Double
+        }
+
+        class PolarCoordinate {
+            - r: Double
+            - theta: Double
+
+            + calculateMagnitude(): Double
+        }
+
+        class CoordinateGroupDAO {
+            + createCoordinateGroup(label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate): Boolean
+            + retrieveCoordinateGroups(): List<CoordinateGroup>
+            + retrieveCoordinateGroup(id: Integer): CoordinateGroup
+            + updateCoordinateGroup(id: Integer, label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate): Boolean
+            + deleteCoordinateGroup(id: Integer): Boolean
+        }
+    }
+
+    package "View" {
+        class DCCView {
+            - frame: JFrame
+            - inputPanel: JPanel
+            - resultPanel: JPanel
+
+            + displayCoordinateGroups(List<CoordinateGroup>)
+            + showCreateForm()
+            + showUpdateForm(CoordinateGroup)
+            + handleUserInput()
+        }
+    }
+
+    package "Controller" {
+        class DCCController {
+            - model: CoordinateGroupDAO
+            - view: DCCView
+
+            + handleCreateCoordinateGroup(label: String, x: Double, y: Double): Boolean
+            + handleRetrieveAllCoordinateGroups(): List<CoordinateGroup>
+            + handleUpdateCoordinateGroup(id: Integer, label: String, x: Double, y: Double): Boolean
+            + handleDeleteCoordinateGroup(id: Integer): Boolean
+
+            + convertCartesianToPolar(x: Double, y: Double): PolarCoordinate
+            + convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinate
+        }
+    }
+
+    DCCController --> CoordinateGroupDAO : Uses
+    DCCView --> DCCController : Uses
+    CoordinateGroup --> CartesianCoordinate : Composition
+    CoordinateGroup --> PolarCoordinate : Composition
+}
+@enduml

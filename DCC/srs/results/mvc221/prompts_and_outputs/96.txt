@@ -1,0 +1,103 @@
+Response:
+```plantuml
+@startuml
+
+'==========================
+' Model Package
+'==========================
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesianX: BigDecimal
+    - cartesianY: BigDecimal
+    - polarR: BigDecimal
+    - polarTheta: BigDecimal
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + setLabel(label: String): void
+    + getCartesian(): (BigDecimal, BigDecimal)
+    + setCartesian(x: BigDecimal, y: BigDecimal): void
+    + getPolar(): (BigDecimal, BigDecimal)
+    + setPolar(r: BigDecimal, theta: BigDecimal): void
+  }
+
+  class CoordinateGroupDAO {
+    + create(coordinateGroup: CoordinateGroup): void
+    + update(coordinateGroup: CoordinateGroup): void
+    + delete(coordinateGroup: CoordinateGroup): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(label: String): List<CoordinateGroup>
+  }
+
+  class DBConnection {
+    + getConnection(): Connection
+  }
+
+  ' Associations within model package
+  CoordinateGroupDAO ..> CoordinateGroup : uses
+  CoordinateGroupDAO --> DBConnection : uses
+}
+
+'==========================
+' View Package
+'==========================
+package view {
+  class MainView {
+    + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+    + showError(message: String): void
+    + getInputCoordinates(): (BigDecimal, BigDecimal)
+    + getInputPolarCoordinates(): (BigDecimal, BigDecimal)
+    + getLabelInput(): String
+    + setController(controller: CoordinateGroupController): void
+  }
+}
+
+'==========================
+' Controller Package
+'==========================
+package controller {
+  class CoordinateGroupController {
+    - model: CoordinateGroupDAO
+    - view: MainView
+    + createCoordinateGroup(label: String, x: BigDecimal, y: BigDecimal): void
+    + updateCoordinateGroup(id: int, newLabel: String, x: BigDecimal, y: BigDecimal): void
+    + deleteCoordinateGroup(id: int): void
+    + viewAllCoordinateGroups(): void
+    + viewCoordinateGroupByLabel(label: String): void
+    + convertCartesianToPolar(x: BigDecimal, y: BigDecimal): (BigDecimal, BigDecimal)
+    + convertPolarToCartesian(r: BigDecimal, theta: BigDecimal): (BigDecimal, BigDecimal)
+  }
+}
+
+'==========================
+' Associations across packages
+'==========================
+controller.CoordinateGroupController --> model.CoordinateGroupDAO : uses
+controller.CoordinateGroupController --> view.MainView : controls
+view.MainView --> controller.CoordinateGroupController : interacts
+
+@enduml
+```
+
+**Explanation of the Diagram:**
+
+- **Model Package:**  
+  - `CoordinateGroup` holds attributes for both Cartesian and Polar coordinates, along with an auto-generated ID, timestamp, and label.  
+  - `CoordinateGroupDAO` provides CRUD operations for `CoordinateGroup` objects and interacts with the database via `DBConnection`.  
+  - `DBConnection` abstracts the connection mechanism to the MySQL database.
+
+- **View Package:**  
+  - `MainView` represents the GUI, providing methods to display coordinate groups, handle user inputs, and show error messages. It maintains a reference to the controller to delegate user actions.
+
+- **Controller Package:**  
+  - `CoordinateGroupController` acts as the mediator between the view and the model. It handles user actions from the view, performs coordinate conversions, and delegates CRUD operations to the DAO.
+
+**Associations:**
+- The controller relies on the model (`CoordinateGroupDAO`) and view (`MainView`) to perform its operations.
+- The view interacts with the controller to handle events and update the display.
+- Within the model, `CoordinateGroupDAO` uses `CoordinateGroup` for data operations and `DBConnection` to manage database connectivity.
+
+This diagram respects the MVC architecture by clearly separating the responsibilities of the model, view, and controller, and it maps out the necessary classes and their associations according to the requirements.

@@ -1,0 +1,44 @@
+@startuml
+package controllers {
+    class Controller { 
+    + create_coordinate_group(CoordinateGroup cg)
+    + update_coordinate_group(CoordinateGroup cg)
+    + delete_coordinate_group(int id)
+    + read_all_coordinate_groups()
+}
+}
+
+package models {
+    class CoordinateGroup { 
+    - int id
+    - String label
+    - CartesianCoordinate cartesian_coords
+    - PolarCoordinate polar_coords
+    - LocalDateTime datetime_added
+}
+
+class CartesianCoordinate { 
+    - double x
+    - double y
+}
+
+class PolarCoordinate { 
+    - double r
+    - double theta
+}
+}
+
+package utilities {
+    class MySQLConnector {
+    + connect()
+    + disconnect()
+    + execute_query(String query)
+    + save_coordinate_group(CoordinateGroup cg)
+}
+}
+
+Controller --> CoordinateGroup
+CoordinateGroup ..> Controller: composite
+
+MySQLConnector ..> CoordinateGroup: composite
+@enduml

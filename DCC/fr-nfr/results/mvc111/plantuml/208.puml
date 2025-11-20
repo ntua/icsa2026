@@ -1,0 +1,105 @@
+@startuml
+package "Frontend" {
+  class View {
+    - coordGroupLabel : String
+    - coordGroupDetails : String
+  }
+  
+  class Controller {
+    + updateView(coordGroup : Model.CoordinateGroup)
+    + handleUserAction(action : String)
+  }
+}
+
+package "Model" {
+    class CoordinateGroup {
+      - id : Integer
+      - cartesianCoordinates : Array<RealNumber>
+      - polarCoordinates : Array<RealNumber>
+      - label : String
+      - timestamp : DateTime
+    }
+    
+    class Database {
+      + save(coordinateGroup : CoordinateGroup) : Void
+      + retrieveByLabel(label : String) : Optional<CoordinateGroup>
+      + retrieveAll() : Array<CoordinateGroup>
+      + update(coordinateGroup : CoordinateGroup) : Void
+      + delete(id : Integer) : Void
+    }
+  }
+
+package "Database" {
+  class MySQLDatabase implements Model.Database {
+    - connection : TCPIPConnection
+  }
+  
+  class TCPIPConnection {
+    - host : String
+    - port : Integer
+  }
+}
+
+Frontend.View --> Frontend.Controller : interact
+Frontend.Controller --> Model.CoordinateGroup : manipulate
+Model.Database <.. TCPIPConnection : connection
+
+@enduml
+```
+
+In this diagram:
+
+- The `View` class represents the user interface for displaying and editing coordinate groups.
+- The `Controller` class manages user interactions with the view and updates the model accordingly.
+- The `Model` package includes classes representing the domain objects and data access logic.
+  - The `CoordinateGroup` class holds information about a group of coordinates, including conversion between Cartesian and polar formats.
+  - The `RealNumber` class is used to represent both x and y values in Cartesian coordinates and r and θ values in polar coordinates.
+  - The `Database` interface defines methods for storing, retrieving, modifying, and deleting coordinate groups.
+- The `MySQLDatabase` class implements the `Database` interface and uses a `TCPIPConnection` to communicate with the MySQL database.
+@startuml
+package "Frontend" {
+  class View {
+    - coordGroupLabel : String
+    - coordGroupDetails : String
+  }
+  
+  class Controller {
+    + updateView(coordGroup : Model.CoordinateGroup)
+    + handleUserAction(action : String)
+  }
+}
+
+package "Model" {
+    class CoordinateGroup {
+      - id : Integer
+      - cartesianCoordinates : Array<RealNumber>
+      - polarCoordinates : Array<RealNumber>
+      - label : String
+      - timestamp : DateTime
+    }
+    
+    class Database {
+      + save(coordinateGroup : CoordinateGroup) : Void
+      + retrieveByLabel(label : String) : Optional<CoordinateGroup>
+      + retrieveAll() : Array<CoordinateGroup>
+      + update(coordinateGroup : CoordinateGroup) : Void
+      + delete(id : Integer) : Void
+    }
+  }
+
+package "Database" {
+  class MySQLDatabase implements Model.Database {
+    - connection : TCPIPConnection
+  }
+  
+  class TCPIPConnection {
+    - host : String
+    - port : Integer
+  }
+}
+
+Frontend.View --> Frontend.Controller : interact
+Frontend.Controller --> Model.CoordinateGroup : manipulate
+Model.Database <.. TCPIPConnection : connection
+
+@enduml

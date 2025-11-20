@@ -1,0 +1,38 @@
+@startuml
+package MVC {
+class Model {
+    -id: int
+    +cartesianCoordinates: List<(double, double)>
+    +polarCoordinates: List<(double, double)>
+    
++createCoordinateGroup()
+    +storeCoordinateGroup()
+    +retrieveCoordinateGroups()
+}
+
+class View {
+    -model: Model
+   +displayAllCoordinateGroups(): void
+   +searchCoordinateGroupsByLabel(String label): List<Model>
+   +displayCoordinateGroupDetails(Model mdl): void
+   +updateViewWithUserInput()
+}
+
+class Controller {
+  -model: Model
+  -view: View
+  
++handleCartesianToPolarConversion(): void
+  +convertPolarToCartesianCoordinates(): void
+  +receiveUserAction(String action): String
+  
++createAndStoreCoordinateGroup()
+  +retrieveAllCoordinateGroups()
+  +searchForCoordinateGroupByLabel(String label)
+}
+}
+
+Model "1" *--* Controller: Request/Response
+View "1" *--* Controller: Request/Response
+Controller --> Database : Connection
+@enduml

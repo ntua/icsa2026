@@ -1,0 +1,126 @@
+@startuml
+
+' Define Packages
+package controller {
+    class CoordinateGroupController {
+        + init()
+        - handleUserInput()
+        - saveDataToDatabase()
+        - loadDataFromDatabase()
+    }
+    
+    class Controller {
+        + init()
+        - handleUserInput()
+        - saveDataToDatabase()
+        - loadDataFromDatabase()
+    }
+    
+    class CoordinateGroupManager {
+        - List<CoordinateGroup> groups
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + deleteCoordinateGroup(CoordinateGroup group): void
+    }
+}
+
+package model {
+    abstract class Entity {
+        + id : Integer
+        + timestamp : Date
+        + label : String
+    }
+
+    class CoordinateGroup extends Entity {
+        + polarCoordinates : PolarCoordinate[]
+        + cartesianCoordinates : CartesianCoordinate[]
+    }
+
+    class PolarCoordinate {
+        - r : Float
+        - theta : Float
+    }
+
+    class CartesianCoordinate {
+        - x : Float
+        - y : Float
+    }
+}
+
+package view {
+    abstract class View {
+        + display() : Void
+    }
+
+    class CoordinateGroupListView extends View {
+        - coordinateGroups : List<CoordinateGroup>
+        
+        + display() : Void
+    }
+
+    class CoordinateGroupFormView extends View {
+        - coordinateGroup : CoordinateGroup
+        
+        + display() : Void
+    }
+    
+    class MainWindow {
+        + displayCoordinateGroups()
+        + handleDeleteGroupEvent()
+    }
+
+    class GroupCreationForm {
+        + createCoordinateGroup()
+    }
+}
+
+package dataAccess {
+    class DatabaseConnector {
+        + connectToDatabase(): Connection
+        + insertCoordinateGroup(CoordinateGroup group): void
+        + deleteCoordinateGroup(int groupId): void
+    }
+
+    class DataAccessLayer {
+        "Interacts with MySQL database"
+    }
+
+    class MySQLDatabase {
+        "Stores Coordinate Groups"
+        "JDBC Connection"
+    }
+}
+
+package system {
+    class UserInterface {
+        "Java Swing GUI for interaction"
+    }
+
+    class BusinessLogic {
+        "Handles data processing and validation"
+    }
+}
+
+' Define Relationships
+controller.CoordinateGroupController ..> view.CoordinateGroupListView : uses
+controller.CoordinateGroupController ..> view.CoordinateGroupFormView : uses
+controller.CoordinateGroupController --> model.CoordinateGroup : interacts with
+
+controller.CoordinateGroupManager ..> model.CoordinateGroup : manages
+controller.CoordinateGroupManager ..> dataAccess.DatabaseConnector : uses
+
+view.MainWindow ..> controller.CoordinateGroupManager : uses
+view.GroupCreationForm ..> controller.CoordinateGroupManager : uses
+
+model.CoordinateGroup --|> model.Entity
+model.CoordinateGroup --> model.PolarCoordinate : contains
+model.CoordinateGroup --> model.CartesianCoordinate : contains
+
+dataAccess.DatabaseConnector ..> dataAccess.MySQLDatabase : connects to
+dataAccess.DataAccessLayer --> dataAccess.MySQLDatabase : interacts with
+
+system.UserInterface --> system.BusinessLogic : uses
+system.BusinessLogic --> dataAccess.DataAccessLayer : uses
+
+' Optionally, you can adjust or remove duplicate classes if necessary
+
+@enduml

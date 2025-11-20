@@ -1,0 +1,73 @@
+@startuml
+
+package "Frontend (Java Swing)" {
+  class ViewController {
+    - View view
+    - Model model
+    + ViewController(Model, View)
+    + handleCreateGroupButtonClick()
+    + handleRetrieveGroupButtonClick()
+    + handleModifyGroupButtonClick()
+    + handleDeleteGroupButtonClick()
+  }
+  class View {
+    + createGroupInputDialog()
+    + retrieveGroupDialog()
+    + modifyGroupDialog()
+    + deleteGroupDialog()
+  }
+}
+
+package "Model" {
+  class Model {
+    - CoordinateGroupManager coordinateGroupManager
+    + Model(CoordinateGroupManager)
+    + createCoordinateGroup(cartesian, polar, label)
+    + retrieveCoordinateGroupByLabel(label)
+    + modifyCoordinateGroup(id, cartesian, polar, label)
+    + deleteCoordinateGroup(id)
+  }
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - CartesianCoordinate cartesianCoordinate
+    - PolarCoordinate polarCoordinate
+  }
+  class CartesianCoordinate {
+    - double x
+    - double y
+  }
+  class PolarCoordinate {
+    - double r
+    - double theta
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupManager {
+    - Database database
+    + CoordinateGroupManager(Database)
+    + createCoordinateGroup(coordinateGroup)
+    + retrieveCoordinateGroupByLabel(label)
+    + modifyCoordinateGroup(id, coordinateGroup)
+    + deleteCoordinateGroup(id)
+  }
+}
+
+package "Database (MySQL)" {
+  class Database {
+    - Connection connection
+    + Database(Connection)
+    + createCoordinateGroupQuery(coordinateGroup)
+    + retrieveCoordinateGroupByLabelQuery(label)
+    + modifyCoordinateGroupQuery(id, coordinateGroup)
+    + deleteCoordinateGroupQuery(id)
+  }
+}
+
+ViewController -- Model
+Model -- CoordinateGroupManager
+CoordinateGroupManager -- Database
+
+@enduml

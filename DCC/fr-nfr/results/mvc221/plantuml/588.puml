@@ -1,0 +1,125 @@
+@startuml
+' ---------------------------
+' Model Package
+' ---------------------------
+package "model" {
+  
+  class CartesianCoordinate {
+    - double x
+    - double y
+    + CartesianCoordinate(x: double, y: double)
+    + double getX()
+    + double getY()
+    + void setX(x: double)
+    + void setY(y: double)
+  }
+  
+  class PolarCoordinate {
+    - double r
+    - double theta
+    + PolarCoordinate(r: double, theta: double)
+    + double getR()
+    + double getTheta()
+    + void setR(r: double)
+    + void setTheta(theta: double)
+  }
+  
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Date timestamp
+    - CartesianCoordinate cartesian
+    - PolarCoordinate polar
+    + CoordinateGroup(id: int, label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate, timestamp: Date)
+    + int getId()
+    + String getLabel()
+    + Date getTimestamp()
+    + CartesianCoordinate getCartesian()
+    + PolarCoordinate getPolar()
+    + void setLabel(label: String)
+    + void setCartesian(cartesian: CartesianCoordinate)
+    + void setPolar(polar: PolarCoordinate)
+  }
+}
+
+' Composition: A CoordinateGroup “owns” its coordinate objects.
+model.CoordinateGroup *-- model.CartesianCoordinate : contains
+model.CoordinateGroup *-- model.PolarCoordinate : contains
+
+' ---------------------------
+' DAO Package (Data Access)
+' ---------------------------
+package "dao" {
+  
+  class CoordinateGroupDAO {
+    + void create(coordinateGroup: model.CoordinateGroup)
+    + List<model.CoordinateGroup> readAll()
+    + void update(coordinateGroup: model.CoordinateGroup)
+    + void delete(id: int)
+  }
+  
+  class DatabaseConnection {
+    - String url
+    - String username
+    - String password
+    + DatabaseConnection(url: String, username: String, password: String)
+    + Connection connect()
+    + void disconnect()
+  }
+}
+
+' Dependency: DAO uses DatabaseConnection for persistent storage.
+dao.CoordinateGroupDAO --> DatabaseConnection : uses
+
+' ---------------------------
+' Controller Package
+' ---------------------------
+package "controller" {
+  
+  class DccController {
+    - dao.CoordinateGroupDAO dao
+    - view.DccView view
+    + DccController(dao: dao.CoordinateGroupDAO, view: view.DccView)
+    + void addCoordinateGroup(label: String, cartesian: model.CartesianCoordinate)
+    + void addCoordinateGroup(label: String, polar: model.PolarCoordinate)
+    + void updateCoordinateGroup(coordinateGroup: model.CoordinateGroup)
+    + void deleteCoordinateGroup(id: int)
+    + List<model.CoordinateGroup> filterCoordinateGroups(label: String)
+    + void refreshList()
+  }
+  
+  class CoordinateConverter {
+    + static PolarCoordinate cartesianToPolar(cartesian: model.CartesianCoordinate)
+    + static CartesianCoordinate polarToCartesian(polar: model.PolarCoordinate)
+  }
+}
+
+' Dependencies: 
+' - The controller uses the DAO for data operations.
+' - The controller depends on the CoordinateConverter for conversion logic.
+controller.DccController --> dao.CoordinateGroupDAO : uses
+controller.DccController --> CoordinateConverter : uses
+
+' ---------------------------
+' View Package
+' ---------------------------
+package "view" {
+  
+  class DccView {
+    - controller.DccController controller
+    + DccView(controller: controller.DccController)
+    + void displayCoordinateGroups(List<model.CoordinateGroup> coordinateGroups)
+    + model.CartesianCoordinate getInputCartesian()
+    + model.PolarCoordinate getInputPolar()
+    + String getLabelInput()
+    + void refreshDisplay()
+  }
+}
+
+' Dependency: The view delegates user actions to the controller.
+view.DccView --> controller.DccController : delegates
+
+' Additionally, the controller holds a reference to the view to update UI after data operations.
+controller.DccController --> view.DccView : controls
+
+@enduml

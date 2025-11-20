@@ -1,0 +1,58 @@
+@startuml
+package "frontend" {
+class DCCView {
+  + displayCoordinateGroups()
+  + getCoordinateInputFromUser()
+  + displayErrorMessage(String message)
+}
+}
+
+package "controller" {
+class DCCController {
+ - model: DCCModel
+ - view: DCCView
+ + handleAddCoordinateGroup()
+ + handleUpdateCoordinateGroup()
+ + handleDeleteCoordinateGroup()
+ + handleFilterCoordinateGroups()
+ + handleClearFilter()
+}
+}
+
+package "model" {
+class CoordinateGroup {
+  - id: int
+  - label: String
+  - cartesianCoordinates: CartesianCoordinates
+  - polarCoordinates: PolarCoordinates
+  + getCartesianCoordinates(): CartesianCoordinates
+  + setCartesianCoordinates(CartesianCoordinates coordinates)
+  + getPolarCoordinates(): PolarCoordinates
+  + setPolarCoordinates(PolarCoordinates coordinates)
+}
+
+class DCCModel {
+ - coordinateGroups: List<CoordinateGroup>
+ + fetchAllCoordinateGroups(): List<CoordinateGroup>
+ + createCoordinateGroup(String label, CartesianCoordinates cartesianCoordinates): CoordinateGroup
+ + updateCoordinateGroup(CoordinateGroup group)
+ + deleteCoordinateGroup(int id)
+}
+class CartesianCoordinates {
+  - x: double
+  - y: double
+
+}
+class PolarCoordinates {
+ - r: double
+ - theta: double
+}
+}
+
+
+
+DCCView -- DCCController : Request/Response
+DCCController --> DCCModel : Data requests
+DCCModel "1" o-- "*" CoordinateGroup
+
+@enduml

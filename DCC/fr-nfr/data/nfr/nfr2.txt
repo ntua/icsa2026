@@ -1,0 +1,5 @@
+- Frontend: To be developed using Java with the Swing framework for user interaction
+- Logic: To be developed using Java classes, according to the object-oriented design principles
+- Database server: MySQL for persistent storage of coordinate groups
+- Database connection: TCP/IP connection for the communication between the application and the database
+- Design: Apply the "Single Responsibility Principle"

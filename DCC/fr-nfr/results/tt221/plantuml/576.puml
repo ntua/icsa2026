@@ -1,0 +1,87 @@
+@startuml DCC_Application_Class_Diagram
+
+' Presentation Layer
+package "Presentation" {
+    class CoordinateGroupGUI {
+        + void displayCoordinateGroups()
+        + void addCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+        + void filterCoordinateGroups(String label)
+        
+        + CoordinateGroupGUI()
+    }
+}
+
+' Business Logic Layer
+package "Logic" {
+    class CartesianCoordinates {
+        - double x
+        - double y
+        
+        + CartesianCoordinates(double x, double y)
+        + PolarCoordinates convertToPolar()
+    }
+
+    class PolarCoordinates {
+        - double r
+        - double θ
+        
+        + PolarCoordinates(double r, double θ)
+        + CartesianCoordinates convertToCartesian()
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoordinates cartesian
+        - PolarCoordinates polar
+        
+        + CoordinateGroup(int id, String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+    }
+
+    class ConversionService {
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + CoordinateGroup convertCartesianToPolar(CartesianCoordinates cartesian)
+        + CoordinateGroup convertPolarToCartesian(PolarCoordinates polar)
+    }
+}
+
+' Data Access Layer
+package "Data Access" {
+    class CoordinateGroupDAO {
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> filterByLabel(String label)
+    }
+
+    class DatabaseConnection {
+        - String host
+        - int port
+        - String database
+        - String user
+        - String password
+        
+        + void connect()
+        + void disconnect()
+        
+        + DatabaseConnection(String host, int port, String database, String user, String password)
+    }
+}
+
+' Associations
+CoordinateGroupGUI --> ConversionService
+ConversionService --> CoordinateGroupDAO
+ConversionService --> CartesianCoordinates
+ConversionService --> PolarCoordinates
+ConversionService --> CoordinateGroup
+CoordinateGroupDAO --> DatabaseConnection
+CartesianCoordinates --> PolarCoordinates
+PolarCoordinates --> CartesianCoordinates
+
+@enduml

@@ -1,0 +1,125 @@
+@startuml DCC_ClassDiagram
+
+' Packages definition
+package "Client" {
+    class DCCClient {
+        - main(): void
+        + createCoordinateGroup(cartesian: Cartesian): void
+        + createCoordinateGroup(polar: Polar): void
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+        + modifyCoordinateGroup(id: int, newLabel: String, newValue: Coordinate): void
+        + deleteCoordinateGroup(id: int): void
+    }
+
+    class CreateCoordinateGroupGUI {
+        - main(): JFrame
+        + showCreateGUI(): void
+        + getCartesianInput(): Cartesian
+        + getPolarInput(): Polar
+        + submitButtonActionListener(): void
+    }
+
+    class RetrieveCoordinateGroupsGUI {
+        - main(): JFrame
+        + showRetrieveGUI(): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + searchByLabel(label: String): CoordinateGroup
+        + displaySearchResult(result: List<CoordinateGroup>): void
+    }
+
+    class ModifyCoordinateGroupGUI {
+        - main(): JFrame
+        + showModifyGUI(): void
+        + getUpdatedCartesian(id: int): Cartesian
+        + getUpdatedPolar(id: int): Polar
+        + getNewLabel(id: int): String
+        + submitUpdateButtonActionListener(): void
+    }
+
+    class DeleteCoordinateGroupGUI {
+        - main(): JFrame
+        + showDeleteGUI(): void
+        + getIdToDelete(): int
+        + deleteButtonActionListener(): void
+    }
+}
+
+package "Server" {
+    abstract class DatabaseManager {
+        {abstract}
+        + saveCoordinateGroup(coordGroup: CoordinateGroup): void
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+        + retrieveCoordinateGroup(id: int): CoordinateGroup
+        + updateCoordinateGroup(coordGroup: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+    }
+
+    class MySQLDatabase extends DatabaseManager {
+        - connection: Connection
+        + connect(): boolean
+        + disconnect(): void
+        + saveCoordinateGroup(coordGroup: CoordinateGroup): void override
+        + retrieveCoordinateGroups(): List<CoordinateGroup> override
+        + retrieveCoordinateGroup(id: int): CoordinateGroup override
+        + updateCoordinateGroup(coordGroup: CoordinateGroup): void override
+        + deleteCoordinateGroup(id: int): void override
+    }
+
+    class CoordinateGroupService {
+        - dbManager: DatabaseManager
+        + createCoordinateGroup(cartesian: Cartesian): CoordinateGroup
+        + createCoordinateGroup(polar: Polar): CoordinateGroup
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroup(id: int): CoordinateGroup
+        + updateCoordinateGroup(id: int, newLabel: String, newValue: Coordinate): void
+        + deleteCoordinateGroup(id: int): void
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - value: Coordinate
+        + getId(): int
+        + getLabel(): String
+        + getValue(): Coordinate
+        + setLabel(newLabel: String): void
+        + setValue(newValue: Coordinate): void
+    }
+
+    abstract class Coordinate {
+        {abstract}
+        + getX(): double
+        + getY(): double
+    }
+
+    class Cartesian extends Coordinate {
+        - x: double
+        - y: double
+        + constructor(x: double, y: double)
+    }
+
+    class Polar extends Coordinate {
+        - radius: double
+        - angle: double
+        + constructor(radius: double, angle: double)
+        + convertToCartesian(): Cartesian
+    }
+}
+
+' Associations
+DCCClient --> CoordinateGroupService
+CreateCoordinateGroupGUI --> CoordinateGroupService
+RetrieveCoordinateGroupsGUI --> CoordinateGroupService
+ModifyCoordinateGroupGUI --> CoordinateGroupService
+DeleteCoordinateGroupGUI --> CoordinateGroupService
+
+CoordinateGroupService --> DatabaseManager
+MySQLDatabase --|> DatabaseManager
+
+CoordinateGroup --> Cartesian
+CoordinateGroup --> Polar
+Polar --> Cartesian
+
+@enduml

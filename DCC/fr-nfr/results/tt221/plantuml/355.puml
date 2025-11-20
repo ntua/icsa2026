@@ -1,0 +1,96 @@
+@startuml
+scale 0.5
+
+skinparam componentStereotypePosition top,3
+skinparam packageStyle rectangle 
+skinparam classBoundaryPadding 15
+
+package "Presentation Layer" <<JavaColorRHB>> {
+  abstract class Application{
+    +createCoordinateGroup() : void 
+    +readCoordinateGroups( ) : ArrayList<CoordinateGroup> 
+    +updateCoordinateGroup(id: int, coordinateGroup : CoordinateGroup) : void 
+    +deleteCoordinateGroup( id:int ): void 
+  }
+
+  interface UserInteraction{
+  - onInitialize():void
+  - onChangeTypeAction(action : String):void
+}
+component Frontend{
+    class SwingApp implements UserInteraction {
+      +createNewCoordinateGroup() : void 
+      +selectType(type : String) : void 
+      +addFilter(labelValue: String):void
+      +removeFilter():void
+      *coordinateGroupsList : ArrayList<CoordinateGroup>
+    }
+}
+component DataOperations{
+  class DataOp implements UserInteraction{
+   +createCoordinateGroup(coordinateGroup: CoordinateGroup): void 
+   +readCoordinateGroups(): ArrayList<CoordinateGroup> 
+   +updateCoordinateGroup(id : int, coordinateGroup : CoordinateGroup) : void 
+   +deleteCoordinateGroup( id:int ): void
+  }
+}
+
+
+}
+package "Logic Layer"{
+  abstract class Converter{
+    *coordinateGroup: CoordinateGroup 
+    +convertCartesianToPolar() : CoordinateGroup
+    +convertPolarToCartesian():CoordinateGroup
+  }
+  
+  interface CoordinateInterfac{
+  - getLabel(): String
+- setLabel(String label): void 
+  }
+
+  package DataOperations{
+    class CartesianConverter implements Converter  {
+      +convertCartesianToPolar() : CoordinateGroup 
+    }
+    
+   class PolarConverter implements Converter {
+     +convertPolarToCartesian():CoordinateGroup 
+  }
+
+  class CartesianCoordinate {
+      *x : double 
+      *y:double 
+    }
+    
+    class PolarCoordinate {
+       *r : double 
+       *theta : double
+    }
+    class CoordinateGroup implements CoordinateInterface{
+     +label: String
+     *cartesianCoordinate: CartesianCoordinate 
+     *polarCoordinate: PolarCoordinate 
+
+
+    }
+  
+
+  }
+}
+
+
+package "Data Layer" {
+  component DatabaseServer {
+    class MySQL implements UserInteraction {
+      *id : int 
+      +label: String
+      *cartesianCoordinate : CartesianCoordinate 
+     *polarCoordinate: PolarCoordinate
+     *timestamp: Date 
+    }
+  }
+}
+
+
+@enduml

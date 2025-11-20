@@ -1,0 +1,74 @@
+@startuml
+' Package for all Entities related with Coordinate Group
+package coordination {
+    
+    ' Class Definitions
+    class CoordinateGroup {
+        -id: int
+        -timestamp: datetime
+        -label: String
+        -polarCoordinates: double[]
+        -cartesianCoordinates: Point[] // Point is a class with x and y attributes
+
+        +getByLabel(label: String): List<CoordinateGroup>
+        +getById(id: int): CoordinateGroup
+        +deleteById(id: int): boolean
+    }
+
+    class User {
+        -name: String
+
+        +createCoordinateGroup(label: String, polar: CoordinateSystem, cartesian: CoordinateSystem): void
+        +deleteCoordinateGroup(): void
+    }
+
+    class Point {
+        -x: double
+        -y: double
+    }
+
+    ' Enum Definition
+    enum CoordinateSystem { 
+        POLAR 
+        CARTESIAN 
+    }
+
+    ' Interface Definition
+    interface CoordinateGroupOperations {
+        +getByLabel(label: String)
+        +getById(id: int)
+        +deleteById(id: int): boolean
+    }
+
+    ' Relationships
+    CoordinateGroup --> User : contains_user
+    CoordinateGroup ..|> CoordinateGroupOperations
+}
+
+' Package for the Database Connection and Operations
+package database {
+    class DatabaseConnection {
+        +connectToDatabase(): boolean
+
+        -dataSource: String
+        -username: String
+        -password: String
+    }
+
+    ' Corrected Relationship with Fully Qualified Name
+    DatabaseConnection --> coordination.CoordinateGroup : contains_user
+}
+
+' Package for the User Interface which interacts with users and provides feedback from database operations.
+package user_interface {
+    class UserInterface {
+        +displayGroups(): void
+        +displayCoordinateGroup(coordinateGroup: coordination.CoordinateGroup): void
+        +deleteSelectedGroup(): boolean
+    }
+
+    ' Corrected Relationship with Fully Qualified Name
+    UserInterface --> coordination.CoordinateGroup : contains_group
+}
+
+@enduml

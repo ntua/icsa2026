@@ -1,0 +1,87 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "model" {
+    class CartesianCoordinate {
+        +Double x
+        +Double y
+        +getters and setters()
+        +toPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        +Double r
+        +Double theta
+        +getters and setters()
+        +toCartesian(): CartesianCoordinate
+    }
+
+    class CoordinateGroup {
+        +Integer id
+        +String label
+        +CartesianCoordinate cartesian
+        +PolarCoordinate polar
+        +DateTime createdAt
+        +DateTime modifiedAt
+        +getters and setters()
+    }
+}
+
+package "dao" {
+    class CoordinateGroupDAO {
+        +void createCoordinateGroup(CoordinateGroup)
+        +List<CoordinateGroup> getCoordinateGroups(String filter)
+        +void updateCoordinateGroup(Integer, CoordinateGroup)
+        +void deleteCoordinateGroup(Integer)
+        +void connect()
+    }
+}
+
+package "service" {
+    class CoordinateGroupService {
+        -CoordinateGroupDAO dao
+        +void addCoordinateGroup(CoordinateGroup)
+        +List<CoordinateGroup> getCoordinateGroups(String filter)
+        +void updateCoordinateGroup(Integer, CoordinateGroup)
+        +void deleteCoordinateGroup(Integer)
+    }
+}
+
+package "client" {
+    class DCCClient {
+        -CoordinateGroupService service
+        +void addCoordinateGroup(CoordinateGroup)
+        +List<CoordinateGroup> getCoordinateGroups()
+        +void updateCoordinateGroup(CoordinateGroup)
+        +void deleteCoordinateGroup(Integer)
+        +void applyFilter(String)
+        +void clearFilter()
+        +void refreshDisplay()
+    }
+
+    class UserInterface {
+        -DCCClient client
+        +void setupUI()
+        +void handleAddButton()
+        +void handleUpdateButton()
+        +void handleDeleteButton()
+        +void updateDisplay(List<CoordinateGroup>)
+        +void applyFilter(String)
+        +void clearFilter()
+    }
+}
+
+' Associations
+CartesianCoordinate --> PolarCoordinate : Conversion
+PolarCoordinate --> CartesianCoordinate : Conversion
+
+CoordinateGroup *-- CartesianCoordinate : Aggregation
+CoordinateGroup *-- PolarCoordinate : Aggregation
+
+CoordinateGroupDAO --> CoordinateGroup : Persistence
+CoordinateGroupService --> CoordinateGroupDAO : Uses
+DCCClient --> CoordinateGroupService : Uses
+UserInterface --> DCCClient : Composition
+UserInterface --> CoordinateGroup : Display
+
+@enduml

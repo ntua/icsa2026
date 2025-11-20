@@ -1,0 +1,115 @@
+Response:
+```plantuml
+@startuml
+' Packages
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Timestamp
+        - polar: Polar
+        - cartesian: Cartesian
+        + getters()
+        + setters()
+    }
+
+    class Polar {
+        - r: double
+        - theta: double
+        + Polar(r: double, theta: double)
+        + getR(): double
+        + getTheta(): double
+    }
+
+    class Cartesian {
+        - x: double
+        - y: double
+        + Cartesian(x: double, y: double)
+        + getX(): double
+        + getY(): double
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + save(group: CoordinateGroup): void
+        + update(group: CoordinateGroup): void
+        + delete(id: int): void
+        + findAll(): List<CoordinateGroup>
+        + findByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "View" {
+    class MainView {
+        - formView: CoordinateFormView
+        - listView: CoordinateListView
+        + show(): void
+        + displayError(message: String): void
+    }
+
+    class CoordinateFormView {
+        - typeComboBox: JComboBox
+        - xField: JTextField
+        - yField: JTextField
+        - rField: JTextField
+        - thetaField: JTextField
+        - labelField: JTextField
+        + getInputValues(): Map<String, String>
+        + clearFields(): void
+    }
+
+    class CoordinateListView {
+        - groupList: JList<CoordinateGroup>
+        + displayGroups(groups: List<CoordinateGroup>): void
+        + getSelectedGroupId(): int
+    }
+}
+
+package "Controller" {
+    class MainController {
+        - model: DatabaseManager
+        - view: MainView
+        + onCreate(): void
+        + onUpdate(): void
+        + onDelete(): void
+        + onViewAll(): void
+        + onSearchByLabel(): void
+    }
+}
+
+package "Util" {
+    class CoordinateConverter {
+        + {static} toPolar(cart: Cartesian): Polar
+        + {static} toCartesian(polar: Polar): Cartesian
+    }
+}
+
+' Associations and Dependencies
+MainController --> DatabaseManager
+MainController --> MainView
+MainController --> CoordinateConverter
+
+MainView *-- CoordinateFormView
+MainView *-- CoordinateListView
+
+CoordinateGroup *-- Polar
+CoordinateGroup *-- Cartesian
+
+DatabaseManager --> CoordinateGroup: manages
+
+CoordinateFormView ..> MainController : triggers >
+CoordinateListView ..> MainController : triggers >
+
+@enduml
+```
+
+**Explanation:**
+- **Model Package**: Contains `CoordinateGroup` (aggregates `Polar` and `Cartesian` via composition), and `DatabaseManager` (handles database operations).
+- **View Package**: Includes `MainView` (main GUI container), `CoordinateFormView` (input form), and `CoordinateListView` (displays groups). Uses composition for UI components.
+- **Controller Package**: `MainController` orchestrates interactions between the View and Model, and uses `CoordinateConverter` for conversions.
+- **Util Package**: `CoordinateConverter` provides static conversion methods.
+- **Associations**: 
+  - Controller depends on Model and View.
+  - Views trigger actions in the Controller (dashed arrow).
+  - `CoordinateGroup` owns `Polar` and `Cartesian` (composition).
+  - `DatabaseManager` manages `CoordinateGroup` objects.

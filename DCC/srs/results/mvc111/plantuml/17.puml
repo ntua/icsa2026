@@ -1,0 +1,47 @@
+@startuml
+class UserInterface {
+    +viewCoordinateGroups()
+    +addCoordinateGroup(label: string, polarCoordinates: List<PolarPoint>, cartesianCoordinates: List<CartesianPoint>)
+    +deleteCoordinateGroup(id: int)
+}
+
+class CoordinateManager {
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +getCoordinateGroupsByLabel(label: string): List<CoordinateGroup>
+    +addCoordinateGroup(label: string, polarCoordinates: List<PolarPoint>, cartesianCoordinates: List<CartesianPoint>)
+    +deleteCoordinateGroup(id: int)
+}
+
+class DatabaseManager {
+    +fetchAllCoordinateGroups(): List<CoordinateGroup>
+    +fetchCoordinateGroupsByLabel(label: string): List<CoordinateGroup>
+    +storeCoordinateGroup(group: CoordinateGroup)
+    +deleteCoordinateGroup(id: int)
+}
+
+class PolarPoint{
+  r: double
+  theta: double  
+}
+class CartesianPoint {
+  x: double
+  y: double
+}
+
+class CoordinateGroup {
+  id: integer
+  timestamp: date
+  label: string 
+  polarCoordinates: List<PolarPoint>
+  cartesianCoordinates: List<CartesianPoint> 
+}
+
+
+UserInterface ..> CoordinateManager : View All
+UserInterface ..> CoordinateManager : Add
+UserInterface ..> CoordinateManager : Delete
+CoordinateManager ..> DatabaseManager : Fetch All
+CoordinateManager ..> DatabaseManager : Fetch By Label
+CoordinateManager ..> DatabaseManager : Store
+CoordinateManager ..> DatabaseManager : Delete
+@enduml

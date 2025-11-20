@@ -1,0 +1,48 @@
+@startuml
+package "Client" {
+    class CoordinateGroupApp {
+        - coordinateManager: CoordinateManager
+        - databaseConnector: DatabaseConnector
+        + run()
+    }
+    
+    class CoordinateManager {
+        + createCoordinateGroup(label: String, x: double, y: double)
+        + readCoordinateGroups()
+        + updateCoordinateGroup(id: int, label: String, x: double, y: double)
+        + deleteCoordinateGroup(id: int)
+    }
+    
+    class Filter {
+        - filterValue: String
+        + applyFilter(coordinateGroups: List<CoordinateGroup>)
+    }
+}
+
+package "Server" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesianCoordinates: Pair<double, double>
+        - polarCoordinates: Pair<double, double>
+        - timestamp: Date
+    }
+    
+    class Database {
+        + saveData(data: String)
+        + fetchData(query: String): String
+    }
+    
+    class MySQLDatabase implements Database {
+        + saveData(data: String)
+        + fetchData(query: String): String
+    }
+}
+
+CoordinateGroupApp --> CoordinateManager
+CoordinateManager --> Filter
+Filter --> CoordinateGroup
+CoordinateGroup --> Server.Database
+
+CoordinateManager --> Server.Database : CRUD operations
+@enduml

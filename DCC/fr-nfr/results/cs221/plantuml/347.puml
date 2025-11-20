@@ -1,0 +1,56 @@
+@startuml
+
+!define Single Responsibility Principle (SRP): A class should have only one reason to change.
+
+class CartesianCoordinate {
+    + x: Double
+    + y: Double
+
+    + convertToPolar(): PolarCoordinate
+
+    - constructor(x, y)
+}
+
+class PolarCoordinate {
+    + r: Double
+    + theta: Double
+
+    + convertToCartesian(): CartesianCoordinate
+
+    - constructor(r, theta)
+}
+
+class CoordinateGroup {
+    + id: Integer
+    + label: String
+    + cartesian: CartesianCoordinate
+    + polar: PolarCoordinate
+
+    + createOp()
+    + readOp()
+    + updateOp()
+    + deleteOp()
+
+    - constructor(label, cartesian, polar)
+}
+
+
+package "Frontend" {
+    class SwingGUI 
+
+    SwingGUI <|.. CoordinateGroup
+    SwingGUI <-- CartesianCoordinate
+    SwingGUI <-- PolarCoordinate
+}
+
+CoordinateGroup <|.. CartesianCoordinate
+CoordinateGroup <|.. PolarCoordinate
+
+
+package "Database Layer" {
+    class MySQL
+
+    MySQL ..|> CoordinateGroup
+}
+
+@enduml

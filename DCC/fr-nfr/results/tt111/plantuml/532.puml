@@ -1,0 +1,62 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Presentation" {
+    class DCCAppGUI {
+        + void createCoordinateGroup()
+        + void searchCoordinateGroups()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+    }
+}
+
+package "Logic" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Date timestamp
+        - CartesianCoord cartesian
+        - PolarCoord polar
+    }
+
+    class CartesianCoord {
+        - double x
+        - double y
+    }
+
+    class PolarCoord {
+        - double r
+        - double theta
+    }
+
+    class Converter {
+        + static CartesianCoord convertPolarToCartesian(PolarCoord polar)
+        + static PolarCoord convertCartesianToPolar(CartesianCoord cartesian)
+    }
+
+    class DCCCoordinator {
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> searchCoordinateGroups(String label)
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+package "DataAccess" {
+    class CoordinateGroupDAO {
+        + void save(CoordinateGroup group)
+        + void update(CoordinateGroup group)
+        + void delete(int id)
+        + List<CoordinateGroup> findAll()
+        + List<CoordinateGroup> findByLabel(String label)
+    }
+}
+
+' Associations
+DCCAppGUI ..> DCCCoordinator : Uses
+DCCCoordinator ..> CoordinateGroupDAO : Uses
+DCCCoordinator ..> Converter : Uses
+CoordinateGroup *-- CartesianCoord : Compose
+CoordinateGroup *-- PolarCoord : Compose
+
+@enduml

@@ -1,0 +1,78 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages for Separation of Concerns
+package "Presentation Layer" {
+  class DCCUI {
+    + void initializeUI()
+    + void displayCoordinateGroupList()
+    + void addCoordinateGroup()
+    + void updateCoordinateGroup()
+    + void deleteCoordinateGroup()
+    + void refreshDisplay()
+    + void filterByLabel()
+    + void clearFilter()
+  }
+}
+
+package "Business Logic Layer" {
+  class CoordinateService {
+    - List<CoordinateGroup> coordinateGroups
+    + CoordinateGroup createCoordinateGroup(String label, CartesianCoordinate cartesian)
+    + List<CoordinateGroup> getAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup group)
+    + void deleteCoordinateGroup(int id)
+    + void convertCartesianToPolar(CartesianCoordinate cartesian)
+    + void convertPolarToCartesian(PolarCoordinate polar)
+  }
+
+  class CoordinateGroup {
+    + int id
+    + String label
+    + DateTime timestamp
+    + CartesianCoordinate cartesianCoordinates
+    + PolarCoordinate polarCoordinates
+  }
+
+  class CartesianCoordinate {
+    + double x
+    + double y
+    + PolarCoordinate toPolar()
+  }
+
+  class PolarCoordinate {
+    + double r
+    + double theta
+    + CartesianCoordinate toCartesian()
+  }
+}
+
+package "Data Access Layer" {
+  class CoordinateDAO {
+    - DatabaseConnection dbConnection
+    + void saveCoordinateGroup(CoordinateGroup group)
+    + List<CoordinateGroup> loadAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup group)
+    + void deleteCoordinateGroup(int id)
+  }
+
+  class DatabaseConnection {
+    + void connect()
+    + void disconnect()
+    + void executeQuery(String query)
+    + ResultSet executeRetrieveQuery(String query)
+  }
+}
+
+' Associations
+DCCUI --> CoordinateService : Uses > 
+CoordinateService --> CoordinateDAO : Delegates to 
+CoordinateService --> CoordinateGroup : Manages 
+CoordinateService --> CartesianCoordinate : Converts 
+CoordinateService --> PolarCoordinate : Converts 
+CoordinateDAO --> DatabaseConnection : Uses 
+CoordinateGroup --> CartesianCoordinate : Contains 
+CoordinateGroup --> PolarCoordinate : Contains
+CartesianCoordinate --> PolarCoordinate : Converts to 
+PolarCoordinate --> CartesianCoordinate : Converts to
+
+@enduml

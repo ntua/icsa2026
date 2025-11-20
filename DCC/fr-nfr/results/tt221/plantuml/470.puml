@@ -1,0 +1,81 @@
+@startuml
+package "ui" {
+    class MainUI {
+        - coordinateService: CoordinateService
+        - databaseService: DatabaseService
+        - filter: String
+        + displayCoordinateGroups(groups: List<CoordinateGroup>)
+        + refreshData()
+        + addCoordinateGroup(x: double, y: double, label: String)
+        + updateCoordinateGroup(id: int, x: double, y: double)
+        + deleteCoordinateGroup(id: int)
+        + applyFilter(filter: String)
+        + clearFilter()
+    }
+}
+
+package "logic" {
+    class CoordinateService {
+        + toPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        + toCartesian(polar: PolarCoordinate): CartesianCoordinate
+        + createCoordinateGroup(x: double, y: double, label: String): CoordinateGroup
+        + updateCoordinateGroup(id: int, x: double, y: double, label: String): CoordinateGroup
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - createdAt: Date
+        - updatedAt: Date
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        + getId(): int
+        + getLabel(): String
+        + setLabel(label: String)
+        + getCartesian(): CartesianCoordinate
+        + getPolar(): PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        + getX(): double
+        + getY(): double
+    }
+
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        + getR(): double
+        + getTheta(): double
+    }
+}
+
+package "data" {
+    class DatabaseService {
+        + createCoordinateGroup(group: CoordinateGroup): int
+        + readCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + filterCoordinateGroups(label: String): List<CoordinateGroup>
+        + clearFilter(): List<CoordinateGroup>
+    }
+    
+    class CoordinateRepository {
+        - connection: Connection
+        + create(group: CoordinateGroup): int
+        + readAll(): List<CoordinateGroup>
+        + update(id: int, group: CoordinateGroup): void
+        + delete(id: int): void
+        + filterByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+MainUI --> CoordinateService : uses
+MainUI --> DatabaseService : uses
+CoordinateService --> CoordinateGroup : manages
+CoordinateGroup *-- CartesianCoordinate : contains
+CoordinateGroup *-- PolarCoordinate : contains
+DatabaseService --> CoordinateRepository : uses
+
+@enduml

@@ -1,0 +1,65 @@
+@startuml
+
+package "Frontend" {
+  class UserInterface {
+    + displayCoordinateGroups() : void 
+    + promptUserInput() : string 
+  }
+} 
+
+package "Logic" {
+  abstract class CoordinateConverter {
+    <<abstract>> 
+    # convertCartesianToPolar(x: double, y: double): PolarCoordinates
+    # convertPolarToCartesian(r: double, theta: double): CartesianCoordinates
+  }
+
+  class CartesianConverter {
+    * cartesianToPolar(x: double, y: double) : PolarCoordinates
+    * polarToCartesian(r: double, theta: double) : CartesianCoordinates
+  }
+
+  class PolarConverter {
+    * polarToCartesian(r: double, theta: double) : CartesianCoordinates
+    * cartesianToPolar(x: double, y: double) : PolarCoordinates
+  }
+} 
+
+package "Data Operations" {
+  class DatabaseManager { 
+    + createCoordinateGroupRecord(coordinateGroup: CoordinateGroup): int
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroupRecord(id: int, coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroupRecord(id: int): void
+
+    - getDatabaseConnection(): DatabaseConnection
+  }
+
+  class CoordinateGroup { 
+    * id : int
+    * label : string
+    * cartesianCoordinates : CartesianCoordinates
+    * polarCoordinates : PolarCoordinates
+    * addedOrModifiedTimestamp : datetime
+  }
+
+  class CartesianCoordinates { 
+    x : double
+    y : double 
+  }
+  
+  class PolarCoordinates { 
+    r : double
+    theta : double 
+  } 
+} 
+
+UserInterface ..> DatabaseManager: Uses
+DatabaseManager <.. CoordinateGroup: Stores & Retrieves Data
+DatabaseManager <.. CartesianCoordinates: Stores & Retrieves Data
+DatabaseManager <.. PolarCoordinates: Stores & Retrieves Data
+CoordinateConverter *-- CoordinateGroup: Converts Coordinates
+CartesianConverter --> PolarConverter
+PolarConverter --> CartesianConverter 
+
+@enduml

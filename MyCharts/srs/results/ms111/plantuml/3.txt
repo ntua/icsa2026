@@ -1,0 +1,60 @@
+@startuml
+package ChartService {
+  class ChartGenerator {
+    - chartType: String
+    - csvData: String
+    + generateChart(): void // Functional requirement-business logic operation
+    + validateCSV(): boolean // Data management operation
+  }
+
+  class ChartRepository {
+    - charts: List<Chart>
+    + saveChart(chart: Chart): void // Data management operation
+    + getCharts(): List<Chart> // Data management operation
+  }
+}
+
+package UserService {
+  class UserAuthenticator {
+    - username: String
+    - password: String
+    + authenticate(): boolean // Functional requirement-business logic operation
+    + getUserData(): UserData // Data management operation
+  }
+
+  class UserProfile {
+    - userData: UserData
+    + updateProfile(): void // Functional requirement-business logic operation
+    + getProfilePicture(): String // Data management operation
+  }
+}
+
+package QuotaService {
+  class QuotaManager {
+    - quota: Integer
+    + checkQuota(): boolean // Functional requirement-business logic operation
+    + updateQuota(): void // Data consistency operation
+  }
+
+  class PaymentGateway {
+    - paymentData: String
+    + processPayment(): void // Functional requirement-business logic operation
+    + getPaymentStatus(): String // Data management operation
+  }
+}
+
+package APIGateway {
+  class APIGatewayController {
+    + handleRequest(request: Request): Response // Flow control operation
+    + routeRequest(): void // Flow control operation
+  }
+}
+
+ChartGenerator --* ChartRepository : uses
+UserAuthenticator --* UserProfile : uses
+QuotaManager --* PaymentGateway : uses
+APIGatewayController --* ChartGenerator : calls
+APIGatewayController --* UserAuthenticator : calls
+APIGatewayController --* QuotaManager : calls
+
+@enduml

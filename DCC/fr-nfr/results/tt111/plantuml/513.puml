@@ -1,0 +1,72 @@
+@startuml DCC_App
+
+' Package definitions
+package "Presentation" {
+    class CoordinateGroupGUI {
+        + void createCoordinateGroup()
+        + void retrieveCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+    }
+}
+
+package "Business Logic" {
+    class Coordinator {
+        + void createCoordinateGroup()
+        + void retrieveCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+    }
+
+    class CoordinateConverter {
+        + PolarCoordinates cartToPolar(CartesianCoordinates)
+        + CartesianCoordinates polarToCart(PolarCoordinates)
+    }
+}
+
+package "Data Access" {
+    class DataAccessObject {
+        + void saveCoordinateGroup()
+        + CoordinateGroup retrieveCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+    }
+
+    class ConnectionManager {
+        + Connection getConnection()
+    }
+}
+
+package "Models" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Timestamp timestamp
+        - CartesianCoordinates cartesianCoords
+        - PolarCoordinates polarCoords
+    }
+
+    abstract class Coordinates {
+    }
+
+    class CartesianCoordinates extends Coordinates {
+        - double x
+        - double y
+    }
+
+    class PolarCoordinates extends Coordinates {
+        - double r
+        - double theta
+    }
+}
+
+' Class associations
+
+CoordinateGroupGUI --* Coordinator
+Coordinator --* DataAccessObject
+Coordinator --* CoordinateConverter
+DataAccessObject --* ConnectionManager
+CoordinateGroup --* CartesianCoordinates
+CoordinateGroup --* PolarCoordinates
+
+@enduml

@@ -1,0 +1,73 @@
+@startuml
+
+package "Frontend - View" {
+  class CoordinateConversionApp {
+    - controller: Controller
+    + createView() : void
+  }
+  
+  class CoordinateGroupTable {
+    - model: CoordinateGroupTableModel
+    + updateDisplay() : void
+  }
+}
+
+package "Frontend - Controller" {
+  class Controller {
+    - view: CoordinateConversionApp
+    - model: Model
+    - conversionService: ConversionService
+    - databaseManager: DatabaseManager
+    
+    + handleAddButtonClicked() : void
+    + handleUpdateButtonClicked() : void
+    + handleDeleteButtonClicked() : void
+    + handleFilterTextFieldChanged() : void
+    + handleClearFilterButtonClicked() : void
+  }
+}
+
+package "Model - Domain" {
+  interface Coordinate {
+    - x: highPrecisionNumber
+    - y: highPrecisionNumber
+  }
+  
+  class CartesianCoordinate implements Coordinate {
+    + CartesianCoordinate(x, y)
+  }
+  
+  class PolarCoordinate {
+    - r: highPrecisionNumber
+    - theta: highPrecisionNumber
+    
+    + convertToCartesian() : CartesianCoordinate
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - label: string
+    - cartesianCoordinates: List<CartesianCoordinate>
+    - polarCoordinates: List<PolarCoordinate>
+    
+    + CoordinateGroup(id, label)
+  }
+}
+
+package "Model - Service" {
+  class ConversionService {
+    - convertCartesianToPolar(cartesianCoordinate: CartesianCoordinate) : PolarCoordinate
+    - convertPolarToCartesian(polarCoordinate: PolarCoordinate) : CartesianCoordinate
+  }
+}
+
+package "Database Layer" {
+  class DatabaseManager {
+    + createOp(coordinateGroup: CoordinateGroup) : void
+    + readOp() : List<CoordinateGroup>
+    + updateOp(id: int, coordinateGroup: CoordinateGroup) : void
+    + deleteOp(id: int) : void
+  }
+}
+
+@enduml

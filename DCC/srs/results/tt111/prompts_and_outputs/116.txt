@@ -1,0 +1,122 @@
+Response:
+Below is an example PlantUML class diagram that follows the three‐tier architecture (presentation, business, data, and model) and incorporates all the required classes and associations based on the SRS:
+
+```plantuml
+@startuml
+' ===== Model Package =====
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + setLabel(label: String): void
+    + setCartesian(cart: CartesianCoordinate): void
+    + setPolar(polar: PolarCoordinate): void
+  }
+  
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + CartesianCoordinate(x: double, y: double)
+    + getX(): double
+    + getY(): double
+  }
+  
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + PolarCoordinate(r: double, theta: double)
+    + getR(): double
+    + getTheta(): double
+  }
+  
+  ' Composition: A CoordinateGroup is composed of a Cartesian and a Polar coordinate.
+  CoordinateGroup *-- CartesianCoordinate : has
+  CoordinateGroup *-- PolarCoordinate : has
+}
+
+' ===== Data Access Package =====
+package data {
+  class DBConnection {
+    - url: String
+    - username: String
+    - password: String
+    + getConnection(): Connection
+  }
+  
+  class CoordinateGroupDAO {
+    - dbConnection: DBConnection
+    + insert(group: model.CoordinateGroup): void
+    + update(group: model.CoordinateGroup): void
+    + delete(id: int): void
+    + getAll(): List<model.CoordinateGroup>
+    + findByLabel(label: String): List<model.CoordinateGroup>
+  }
+}
+
+' ===== Business Package =====
+package business {
+  class CoordinateConverter {
+    + convertToCartesian(polar: model.PolarCoordinate): model.CartesianCoordinate
+    + convertToPolar(cart: model.CartesianCoordinate): model.PolarCoordinate
+  }
+  
+  class CoordinateGroupService {
+    - dao: data.CoordinateGroupDAO
+    - converter: CoordinateConverter
+    + addCoordinateGroup(label: String, type: String, a: double, b: double): void
+    + updateCoordinateGroup(id: int, newLabel: String, type: String, a: double, b: double): void
+    + getAllCoordinateGroups(): List<model.CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+    + deleteCoordinateGroup(id: int): void
+  }
+  
+  ' Associations: Service uses DAO and Converter to perform its operations.
+  CoordinateGroupService --> data.CoordinateGroupDAO : uses
+  CoordinateGroupService --> CoordinateConverter : uses
+}
+
+' ===== Presentation Package =====
+package presentation {
+  class DCCFrame {
+    - service: business.CoordinateGroupService
+    + display(): void
+    + handleCreate(): void
+    + handleUpdate(): void
+    + handleViewAll(): void
+    + handleViewByLabel(): void
+    + handleDelete(): void
+  }
+  
+  ' DCCFrame delegates user actions to the business layer.
+  DCCFrame --> business.CoordinateGroupService : uses
+}
+
+@enduml
+```
+
+### Explanation
+
+- **Model Layer (model package):**
+  - **CoordinateGroup:** Contains an auto-generated unique ID, a timestamp, a unique label, and has composed attributes for both Cartesian and Polar coordinates.
+  - **CartesianCoordinate & PolarCoordinate:** Represent the two coordinate formats.
+  
+- **Data Access Layer (data package):**
+  - **DBConnection:** Handles the connection to the MySQL database.
+  - **CoordinateGroupDAO:** Provides methods to insert, update, delete, and retrieve coordinate groups from the database.
+  
+- **Business Layer (business package):**
+  - **CoordinateConverter:** Provides methods to convert between Cartesian and Polar coordinate representations.
+  - **CoordinateGroupService:** Contains the business logic for creating, modifying, retrieving, and deleting coordinate groups. It makes use of both the DAO and the converter.
+  
+- **Presentation Layer (presentation package):**
+  - **DCCFrame:** Represents the Swing-based GUI through which the user interacts with the application. It invokes the services provided by the business layer.
+
+This diagram reflects the separation of concerns as described in the SRS and clearly shows the associations and dependencies between classes.

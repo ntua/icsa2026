@@ -1,0 +1,57 @@
+@startuml
+package "Presentation Layer" {
+    class MainFrame {
+        + open()
+        + close()
+    }
+    class CoordinateForm {
+        + displayForm()
+        + getCoordinateInput(): CoordinateGroup
+    }
+    class CoordinateListView {
+        + displayList(groups: List<CoordinateGroup>)
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateService {
+        + createGroup(group: CoordinateGroup)
+        + updateGroup(group: CoordinateGroup)
+        + deleteGroup(id: int)
+        + getAllGroups(): List<CoordinateGroup>
+        + getGroupByLabel(label: String): CoordinateGroup
+        + convertToPolar(x: double, y: double): (double r, double theta)
+        + convertToCartesian(r: double, theta: double): (double x, double y)
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateRepository {
+        + save(group: CoordinateGroup)
+        + update(group: CoordinateGroup)
+        + delete(id: int)
+        + findById(id: int): CoordinateGroup
+        + findByLabel(label: String): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+    }
+}
+
+package "Data Model" {
+    class CoordinateGroup {
+        + id: int
+        + label: String
+        + timestamp: Date
+        + x: double
+        + y: double
+        + r: double
+        + theta: double
+    }
+}
+
+MainFrame --> CoordinateForm
+MainFrame --> CoordinateListView
+CoordinateForm --> CoordinateService : calls
+CoordinateListView --> CoordinateService : calls
+CoordinateService --> CoordinateRepository : interacts
+CoordinateRepository --> CoordinateGroup : CRUD
+@enduml

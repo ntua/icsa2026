@@ -1,0 +1,72 @@
+@startuml
+
+package "Client" {
+    class DCCApplication {
+        - label: String
+        - cartesianCoordinates: List<Cartesian>
+        - polarCoordinates: List<Polar>
+        
+        + createCoordinateGroup(label: String, coordinates: List)
+        + storeCoordinateGroup()
+        + retrieveCoordinateGroup()
+        + modifyCoordinateGroup()
+        + deleteCoordinateGroup()
+    }
+    
+    class ConversionUtils {
+        + convertToCartesian(polar: Polar): Cartesian
+        + convertToPolar(cartesian: Cartesian): Polar
+        
+        DCCApplication .label*-> ConversionUtils
+    }
+}
+
+package "Server" {
+    class CoordinateGroupService {
+        - dbConnection: DatabaseConnector
+        - coordinateGroups: List<CoordinateGroup>
+    
+        + store(coordinateGroup: CoordinateGroup)
+        + retrieveByLabel(label: String): List<CoordinateGroup>
+        + viewAll(): List<CoordinateGroup>
+        + modifyAndSave(coordinateGroup: CoordinateGroup, newValues: Either<Cartesian, Polar>, newLabel: String)
+        + delete(coordinateGroupId: Int)
+    }
+    
+    class DatabaseConnector {
+        - hostname: String
+        - portNumber: int
+        
+        DCCApplication <|>-- CoordinateGroupService : uses >
+    }
+    
+    class Coordinate {
+        - id: int
+        
+    Database <|-- Coordinate
+}
+  
+class Cartesian extends Coordinate {
+        - x: Double
+        - y: Double
+    }
+  
+class Polar extends Coordinate {
+        - r: Double
+        - theta: double
+    }
+    
+
+Server.CoordinateGroupService --> Server.DatabaseConnector : uses >
+
+class CoordinateGroup {
+    - id: int
+    - label: String
+    - creationTime: Timestamp
+    
+}
+}
+DCCApplication --> ConversionUtils
+DCCApplication *--> CoordinateGroupService
+DatabaseConnector <|-- MySQLDatabase : uses >
+@enduml

@@ -1,0 +1,66 @@
+@startuml
+package ui {
+  class DCCView {
+    +displayCoordinateGroups(List<CoordinateGroup>)
+    +getCoordinateInput(): Coordinate
+    +getLabelInput(): String
+    +displayErrorMessage(String)
+  }
+}
+
+package logic {
+  class DCCController {
+    - model: DCCModel
+    - view: DCCView
+    +handleCreate()
+    +handleUpdate(CoordinateGroup)
+    +handleDelete(int id)
+    +handleRead()
+    +filterCoordinateGroups(String label): List<CoordinateGroup>
+  }
+
+  class Coordinate {
+    - x: double
+    - y: double
+    +Coordinate(double x, double y)
+    +toPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    +PolarCoordinate(double r, double theta)
+    +toCartesian(): Coordinate
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesian: Coordinate
+    - polar: PolarCoordinate
+    - timestamp: Date
+    +CoordinateGroup(int id, String label, Coordinate cartesian, PolarCoordinate polar)
+  }
+
+}
+
+package data {
+  class DCCModel {
+    - dbConnection: DatabaseConnection
+    +createCoordinateGroup(CoordinateGroup): void
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(CoordinateGroup): void
+    +deleteCoordinateGroup(int id): void
+  }
+
+  class DatabaseConnection {
+    +connectToDatabase(): void
+    +executeSQLQuery(String query): ResultSet
+  }
+}
+
+data.DCCModel <--> DCCController : used by 
+data.DCCModel --> DatabaseConnection : uses
+DCCController --> DCCView : uses
+
+@enduml

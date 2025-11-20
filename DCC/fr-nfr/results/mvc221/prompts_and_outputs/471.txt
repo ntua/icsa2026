@@ -1,0 +1,69 @@
+@startuml
+
+' Define packages based on MVC architecture
+package "Model" {
+    ' Coordinate class to represent cartesian and polar formats
+    class Coordinate {
+        +double x
+        +double y
+        +double r
+        +double theta
+        +void convertToPolar()
+        +void convertToCartesian()
+    }
+
+    ' CoordinateGroup class to represent a group with cartesian and polar coordinates
+    class CoordinateGroup {
+        +int id
+        +String label
+        +Coordinate cartesianCoordinate
+        +Coordinate polarCoordinate
+        +DateTime timestamp
+        +CoordinateGroup(int id, String label, Coordinate cartesian, Coordinate polar)
+    }
+
+    ' CoordinateRepository class for data operations
+    class CoordinateRepository {
+        +List<CoordinateGroup> coordinateGroups
+        +CoordinateGroup createCoordinateGroup(String label, Coordinate cartesian, Coordinate polar)
+        +List<CoordinateGroup> readAllGroups()
+        +void updateCoordinateGroup(int id, Coordinate cartesian, Coordinate polar)
+        +void deleteCoordinateGroup(int id)
+    }
+}
+
+package "View" {
+    ' Main UI class for user interactions
+    class MainUI {
+        +void displayCoordinateList(List<CoordinateGroup> groups)
+        +void displayCoordinateDetails(CoordinateGroup group)
+        +void getInputCoordinates()
+        +void setLabelFilter(String label)
+        +void clearLabelFilter()
+    }
+}
+
+package "Controller" {
+    ' Controller class to handle user actions
+    class CoordinateController {
+        -CoordinateRepository repository
+        -MainUI view
+        +CoordinateController(CoordinateRepository repo, MainUI ui)
+        +void handleCreate(String label, Coordinate cartesian, Coordinate polar)
+        +void handleRead()
+        +void handleUpdate(int id, Coordinate cartesian, Coordinate polar)
+        +void handleDelete(int id)
+        +void handleFilter(String label)
+        +void clearFilter()
+    }
+}
+
+' Define associations between classes in the MVC structure
+CoordinateGroup "1" *-- "1" Coordinate : contains
+CoordinateRepository "1" *-- "1..*" CoordinateGroup : manages
+CoordinateController "1" *-- "1" CoordinateRepository : uses
+CoordinateController "1" *-- "1" MainUI : interacts with
+MainUI ..> CoordinateController : "notifies"
+MainUI --> CoordinateGroup : "displays"
+
+@enduml

@@ -1,0 +1,92 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    
+    + createOp(): void
+    + readOp(): List<CoordinateGroup>
+    + updateOp(CoordinateGroup): void
+    + deleteOp(id: Int): void
+  }
+  
+  class Coordinate {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    
+    + convertToPolar(): PolarCoordinates
+    + convertFromPolar(PolarCoordinates): CartesianCoordinates
+  }
+  
+  class CartesianCoordinates extends Coordinate {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    
+    + getCartesianCoordinate(): HighPrecisionNumber
+  }
+  
+  class PolarCoordinates extends Coordinate {
+    - r: HighPrecisionNumber
+    - theta: HighPrecisionNumber
+    
+    + getPolarCoordinate(): HighPrecisionNumber
+  }
+}
+package "View" {
+  class GUI {
+    - coordinateGroupList: List<CoordinateGroup>
+    
+    + displayCoordinateGroups(): void
+    + filterCoordinateGroups(label: String): void
+    + clearFilter(): void
+  }
+  
+  class CoordinateGroupDisplay {
+    - id: Int
+    - label: String
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    
+    + displayCoordinateGroup(CoordinateGroup): void
+  }
+}
+package "Controller" {
+  class DCCApplication {
+    - coordinateGroupModel: CoordinateGroup
+    
+    + createOp(): CoordinateGroup
+    + readOp(): List<CoordinateGroup>
+    + updateOp(coordinateGroup: CoordinateGroup): void
+    + deleteOp(id: Int): void
+    
+    + filterCoordinateGroups(label: String): void
+    + clearFilter(): void
+  }
+}
+package "Database" {
+  class MySQLDatabase {
+    - coordinateGroupList: List<CoordinateGroup>
+    
+    + createOp(coordinateGroup: CoordinateGroup): void
+    + readOp(id: Int): CoordinateGroup
+    + updateOp(coordinateGroup: CoordinateGroup): void
+    + deleteOp(id: Int): void
+    
+    + filterCoordinateGroups(label: String): List<CoordinateGroup>
+  }
+}
+CoordinateGroup --> CartesianCoordinates : contains
+CoordinateGroup --> PolarCoordinates : contains
+
+GUI --> DCCApplication : uses
+
+DCCApplication --> CoordinateGroup : creates
+DCCApplication --> CoordinateGroup : reads
+
+MySQLDatabase --> CoordinateGroup : stores
+
+Coordinate --> PolarCoordinates : convert_to_polar
+PolarCoordinates --> CartesianCoordinates : convert_from_cartesian
+@enduml

@@ -1,0 +1,69 @@
+@startuml
+package Database {
+  interface IDBConnection {
+    +connect()
+    +disconnect()
+    +executeQuery(query: String): ResultSet
+    +executeUpdate(query: String): int
+  }
+
+  class MySQLDBConnection implements IDBConnection {
+    #_connection: java.sql.Connection
+    
+    +connect()
+    +disconnect()
+    +executeQuery(query: String): ResultSet
+    +executeUpdate(query: String): int
+  }
+
+  class CoordinateGroupTable {
+    -tableName: String
+    -columns: List<String>
+    
+    +CoordinateGroupTable(name: String, columns: List<String>)
+    +create()
+    +insert(cg: CoordinateGroup)
+    +update(cg: CoordinateGroup)
+    +delete(id: int)
+    +getByLabel(label: String): List<CoordinateGroup>
+  }
+}
+
+package Model {
+  class CoordinateGroup {
+    -id: int
+    -timestamp: Date
+    -label: String
+    -polarCoordinates: String
+    -cartesianCoordinates: String
+    
+    +CoordinateGroup(id: int, timestamp: Date, label: String, polar: String, cartesian: String)
+    +getId(): int
+    +getTimestamp(): Date
+    +getLabel(): String
+    +getPolarCoordinates(): String
+    +getCartesianCoordinates(): String
+  }
+}
+
+package View {
+  class CoordinateGroupView {
+    -coordinateGroups: List<CoordinateGroup>
+    
+    +CoordinateGroupView(cgList: List<CoordinateGroup>)
+    +display()
+    +filterByLabel(label: String): List<CoordinateGroup>
+  }
+}
+
+package Controller {
+  class CoordinateGroupController {
+    -view: CoordinateGroupView
+    -model: CoordinateGroupTable
+    
+    +CoordinateGroupController(v: CoordinateGroupView, m: CoordinateGroupTable)
+    +findByLabel(label: String): List<CoordinateGroup>
+    +delete(cg: CoordinateGroup)
+  }
+}
+@enduml

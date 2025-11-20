@@ -1,0 +1,56 @@
+@startuml
+!include <C4/C4_Context>
+
+title Dummy Coordination Conversion (DCC) Application
+
+
+package Client {
+  class Controller {
+    + processInput() : void 
+    + displayCoordinateGroups() : void
+    + filterCoordinateGroups(String label) : List<CoordinateGroup>
+  }
+
+  class View {
+    + displayList(List<CoordinateGroup>) : void
+    + displayCoordinates(CoordinateGroup) : void
+    + getInputs() : (double x, double y, String label) 
+  }
+
+}
+
+package Server {
+   package dbaccess {
+     class DatabaseConnector {
+       + connectToDatabase() : void
+       + saveCoordinateGroup(CoordinateGroup group) : void
+       + getCoordinateGroups() : List<CoordinateGroup>
+       + updateCoordinateGroup(CoordinateGroup group) : void
+       + deleteCoordinateGroup(int id) : void
+     }
+   }
+
+   class CoordinateConverter {
+     + cartesianToPolar(double x, double y) : (double r, double theta)
+     + polarToCartesian(double r, double theta) : (double x, double y)
+   }
+   class CoordinateGroup {
+      - id: int
+      - label: String
+      - x: double
+      - y: double
+      - r: double
+      - theta: double
+      + CoordinateGroup(double x, double y, String label)
+      + CoordinateGroup(double r, double theta, String label) 
+   }
+
+}
+
+View -- Controller : Uses
+Controller -- DatabaseConnector : Uses
+DatabaseConnector -- CoordinateGroup : Manages
+Controller -- CoordinateConverter : Uses
+
+
+@enduml

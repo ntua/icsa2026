@@ -1,0 +1,54 @@
+@startuml
+title DCC Application Class Diagram
+
+!define package_style rect #FFFFFF " "
+skinparam componentStyle uml2
+skinparam defaultFontName Arial, helvetica
+skinparam sequenceMessageFontName Arial,helvetica
+hide circle
+
+package Frontend {
+    class UserInterface {
+        - display()
+        - getInput(type)
+        + handleInput()
+    }
+
+    class CoordinateConverter {
+        + convertCartesianToPolar(x, y)
+        + convertPolarToCartesian(r, theta)
+    }
+}
+
+package Backend {
+    class DatabaseConnection {
+        - establishTCPConnection()
+        - queryDatabase(query)
+        - closeTCPConnection()
+    }
+
+    class DBManager {
+        - connectToDB(host, port, dbname, username, password)
+        + saveCoordinateGroup(cg)
+        + retrieveCoordinateGroups(label)
+        + modifyCoordinateGroup(cg, label)
+        + deleteCoordinateGroup(id)
+    }
+
+    class CoordinateGroup {
+        <<ID>> - id : int  // Unique identifier
+        - label : String   // User-defined string label
+        - timestamp : Date
+
+        <<Cartesian>> - x, y: double
+        <<Polar>> - r, theta: double
+    }
+}
+
+
+UserInterface --> CoordinateConverter : uses
+CoordinateConverter .. DatabaseConnection : converts to/from
+DatabaseConnection .. DBManager : communicates with
+DBManager --|> CoordinateGroup : stores/retrieves/modifies/deletes
+
+@enduml

@@ -1,0 +1,58 @@
+@startuml
+
+package "Client" {
+    class "CoordinateManager" {
+        +createCoordinateGroup(label: String, x: Double, y: Double): void
+        +modifyCoordinateGroup(id: int, label: String, x: Double, y: Double): void
+        +viewCoordinateGroups(): List<CoordinateGroup>
+        +viewCoordinateGroupByLabel(label: String): CoordinateGroup
+        +deleteCoordinateGroup(id: int): void
+    }
+
+    class "CoordinateConverter" {
+        +toPolar(x: Double, y: Double): PolarCoordinate
+        +toCartesian(r: Double, theta: Double): CartesianCoordinate
+    }
+
+    class "GUI" {
+        +displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        +displayErrorMessage(message: String): void
+    }
+
+    CoordinateManager --> CoordinateConverter : uses
+    CoordinateManager --> GUI : uses
+}
+
+package "Server" {
+    class "Database" {
+        +saveCoordinateGroup(group: CoordinateGroup): void
+        +updateCoordinateGroup(group: CoordinateGroup): void
+        +deleteCoordinateGroup(id: int): void
+        +retrieveCoordinateGroups(): List<CoordinateGroup>
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class "CoordinateGroup" {
+        -id: int
+        -label: String
+        -timestamp: Date
+        -cartesianCoordinate: CartesianCoordinate
+        -polarCoordinate: PolarCoordinate
+    }
+
+    class "CartesianCoordinate" {
+        +x: Double
+        +y: Double
+    }
+
+    class "PolarCoordinate" {
+        +r: Double
+        +theta: Double
+    }
+
+    CoordinateGroup *-- CartesianCoordinate : contains
+    CoordinateGroup *-- PolarCoordinate : contains
+    CoordinateManager --> Database : uses
+}
+
+@enduml

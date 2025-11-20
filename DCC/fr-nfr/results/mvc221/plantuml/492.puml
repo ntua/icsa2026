@@ -1,0 +1,157 @@
+@startuml
+' ==========================
+'  PlantUML Styling (optional)
+' ==========================
+skinparam packageTitleBackgroundColor #DDDDDD
+skinparam packageTitleFontColor #000000
+skinparam packageBorderColor #BBBBBB
+skinparam classAttributeIconSize 0
+
+' ==========================
+'  Packages
+' ==========================
+package "model" {
+    class "CartesianCoordinate" as cartesian {
+        - x : BigDecimal
+        - y : BigDecimal
+        --
+        + getX() : BigDecimal
+        + getY() : BigDecimal
+        + setX(x : BigDecimal) : void
+        + setY(y : BigDecimal) : void
+    }
+
+    class "PolarCoordinate" as polar {
+        - r : BigDecimal
+        - theta : BigDecimal
+        --
+        + getR() : BigDecimal
+        + getTheta() : BigDecimal
+        + setR(r : BigDecimal) : void
+        + setTheta(theta : BigDecimal) : void
+    }
+
+    class "CoordinateGroup" as coordGroup {
+        - id : int
+        - label : String
+        - dateTime : LocalDateTime
+        - cartesian : CartesianCoordinate
+        - polar : PolarCoordinate
+        --
+        + getId() : int
+        + getLabel() : String
+        + getDateTime() : LocalDateTime
+        + getCartesian() : CartesianCoordinate
+        + getPolar() : PolarCoordinate
+        + setLabel(label : String) : void
+        + setCartesian(cartesian : CartesianCoordinate) : void
+        + setPolar(polar : PolarCoordinate) : void
+        + updateTimestamp() : void
+    }
+
+    class "CoordinateConverter" as converter {
+        + toPolar(cart : CartesianCoordinate) : PolarCoordinate
+        + toCartesian(pol : PolarCoordinate) : CartesianCoordinate
+    }
+
+    class "CoordinateService" as service {
+        - repository : ICoordinateRepository
+        - converter : CoordinateConverter
+        --
+        + createCoordinateGroup(label : String, cart : CartesianCoordinate, pol : PolarCoordinate) : CoordinateGroup
+        + readAll() : List<CoordinateGroup>
+        + readById(id : int) : CoordinateGroup
+        + updateCoordinateGroup(group : CoordinateGroup) : void
+        + deleteCoordinateGroup(id : int) : void
+        + filterByLabel(label : String) : List<CoordinateGroup>
+    }
+}
+
+package "repository" {
+    interface "ICoordinateRepository" as iRepo {
+        + create(group : CoordinateGroup) : CoordinateGroup
+        + findAll() : List<CoordinateGroup>
+        + findById(id : int) : CoordinateGroup
+        + update(group : CoordinateGroup) : void
+        + deleteById(id : int) : void
+    }
+
+    class "MySQLCoordinateRepository" as mysqlRepo {
+        - dbConnection : DatabaseConnection
+        --
+        + create(group : CoordinateGroup) : CoordinateGroup
+        + findAll() : List<CoordinateGroup>
+        + findById(id : int) : CoordinateGroup
+        + update(group : CoordinateGroup) : void
+        + deleteById(id : int) : void
+    }
+
+    class "DatabaseConnection" as dbConn {
+        - host : String
+        - port : int
+        - dbName : String
+        - user : String
+        - password : String
+        - connection : Connection
+        --
+        + connect() : void
+        + disconnect() : void
+        + getConnection() : Connection
+    }
+}
+
+package "controller" {
+    class "CoordinateController" as controller {
+        - service : CoordinateService
+        - mainView : MainView
+        --
+        + handleAdd() : void
+        + handleUpdate() : void
+        + handleDelete() : void
+        + handleFilter() : void
+        + handleClearFilter() : void
+        + initialize() : void
+    }
+}
+
+package "view" {
+    class "MainView" as mainView {
+        - controller : CoordinateController
+        - coordinateTable : JTable
+        - labelFilterField : JTextField
+        - cartesianInputX : JTextField
+        - cartesianInputY : JTextField
+        - polarInputR : JTextField
+        - polarInputTheta : JTextField
+        --
+        + showCoordinateGroups(groups : List<CoordinateGroup>) : void
+        + getFilterLabel() : String
+        + getNewCartesianCoordinate() : CartesianCoordinate
+        + getNewPolarCoordinate() : PolarCoordinate
+        + setController(controller : CoordinateController) : void
+        + initializeUI() : void
+    }
+}
+
+' ==========================
+'  Relationships
+' ==========================
+
+' Model relationships
+coordGroup *-- cartesian : "has"
+coordGroup *-- polar : "has"
+
+service ..> converter : "uses"
+service --> iRepo : "repository"
+
+iRepo <|.. mysqlRepo
+mysqlRepo --> dbConn
+
+' Controller relationships
+controller --> service
+controller --> mainView
+
+' View relationships
+mainView --> controller
+
+@enduml

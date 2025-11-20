@@ -1,0 +1,47 @@
+@startuml
+
+package "Client" {
+  class DccApp {
+    - coordManager: CoordManager
+    + run()
+  }
+
+  class CoordManager {
+    + createCoordGroup(label: String, cartesian: List<Coord>, polar: List<Coord>)
+    + storeCoordGroup(coordGroup: CoordGroup)
+    + retrieveCoordGroup(query: String): CoordGroup
+    + modifyCoordGroup(coordGroup: CoordGroup)
+    + deleteCoordGroup(coordGroup: CoordGroup)
+  }
+
+  class CoordGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoords: List<Coord>
+    - polarCoords: List<Coord>
+  }
+
+  class Coord {
+    - x: float
+    - y: float
+    - r: float
+    - theta: float
+  }
+}
+
+package "Server" {
+  interface Database {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+
+  class MySQLDatabase implements Database {
+    - connection: TCPIPConnection
+  }
+}
+
+Client.DccApp --> Server.MySQLDatabase : uses
+Client.CoordManager --> Server.MySQLDatabase : stores and retrieves data
+
+@enduml

@@ -1,0 +1,42 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        + String label:String  
+        + Long id : long = null  
+        
+        - List<Coordinate> coordinatesList:List<Coordinate>
+
+        // Conversion methods
+        + CartesianToPolar(Cartesian x, Cartesian y): Polar
+        + PolarToCartesian(Polar r, Polar theta): (Cartesian x, Cartesian y) 
+        
+    }
+    
+    class Coordinate {
+        - float x:float
+        - float y:float
+        - float r:float
+        - float theta:float
+    }
+}
+
+package "Controller" {
+    interface ICoordGroupManager {
+        + void create(String label, List<Coordinate> coordinates);
+        + CoordinateGroup getById(long id);
+        + List<CoordinateGroup> getByLabel(String label);
+        + void modify(long id, String newLabel, List<Coordinate> newCoordinatesList);
+        + void delete(long id); 
+    }
+}
+
+class CoordManager implements ICoordGroupManager {
+    @visibly
+    private final Connection dbConnection;
+    + void create(String label, List<Coordinate> coordinates) {}
+    + CoordinateGroup getById(long id) {}
+    + List<CoordinateGroup> getByLabel(String label) {}
+    + void modify(long id, String newLabel, List<Coordinate> newCoordinatesList) {}
+    + void delete(long id) {}
+} 
+@enduml

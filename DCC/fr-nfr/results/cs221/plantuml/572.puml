@@ -1,0 +1,87 @@
+@startuml DCCApplicationClassDiagram
+
+package "Client" {
+  class DCCApplication {
+    - String frameTitle
+    - CoordinateGroup currentCoordinateGroup
+    - CoordinateGroupDAO dao
+    - JFrame mainFrame
+    
+    + void initialize()
+    + void createAndShowGUI()
+    + void handleAdd()
+    + void handleUpdate()
+    + void handleDelete()
+    + void handleFilter(String label)
+    + void refreshList()
+  }
+
+  class CoordinateGroup {
+    - int id
+    - String label
+    - CartesianCoordinate cartesian
+    - PolarCoordinate polar
+    - Timestamp createdTimestamp
+    - Timestamp modifiedTimestamp
+    
+    + int getId()
+    + String getLabel()
+    + CartesianCoordinate getCartesian()
+    + PolarCoordinate getPolar()
+    + void setId(int id)
+    + void setLabel(String label)
+    + void setCartesian(CartesianCoordinate cartesian)
+    + void setPolar(PolarCoordinate polar)
+  }
+
+  class CartesianCoordinate {
+    - double x
+    - double y
+    
+    + double getX()
+    + double getY()
+    + void setX(double x)
+    + void setY(double y)
+    + PolarCoordinate convertToPolar()
+  }
+
+  class PolarCoordinate {
+    - double r
+    - double theta
+    
+    + double getR()
+    + double getTheta()
+    + void setR(double r)
+    + void setTheta(double theta)
+    + CartesianCoordinate convertToCartesian()
+  }
+
+  class CoordinateGroupDAO {
+    - DatabaseService dbService
+    
+    + void createCoordinateGroup(CoordinateGroup group)
+    + List<CoordinateGroup> getAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup group)
+    + void deleteCoordinateGroup(int id)
+    + List<CoordinateGroup> getCoordinateGroupsByLabel(String label)
+  }
+}
+
+package "Server" {
+  class DatabaseService {
+    - Connection dbConnection
+    
+    + void saveToDatabase(CoordinateGroup group)
+    + List<CoordinateGroup> retrieveFromDatabase()
+    + void updateInDatabase(CoordinateGroup group)
+    + void deleteFromDatabase(int id)
+    + List<CoordinateGroup> getByLabelFromDatabase(String label)
+  }
+}
+
+DCCApplication *-- CoordinateGroupDAO
+CoordinateGroupDAO --* DatabaseService
+CoordinateGroup --* CartesianCoordinate
+CoordinateGroup --* PolarCoordinate
+
+@enduml

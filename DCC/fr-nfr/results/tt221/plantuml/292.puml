@@ -1,0 +1,70 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + interact(): void
+  }
+
+  class SwingUserInterface implements UserInterface {
+    - logic: Logic
+
+    + interact(): void
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - x: high-precision number
+    - y: high-precision number
+    - r: high-precision number
+    - theta: high-precision number
+
+    + toPolar(): Coordinate
+    + toCartesian(): Coordinate
+  }
+
+  class CartesianCoordinate extends Coordinate {}
+
+  class PolarCoordinate extends Coordinate {}
+
+  class CoordinateGroup {
+    - id: unique integer identifier
+    - timestamp: datetime
+    - label: string
+    - cartesian: List<CartesianCoordinate>
+    - polar: List<PolarCoordinate>
+
+    + addCoordinate(coordinate: Coordinate): void
+  }
+
+  class Logic {
+    - dbManager: DBManager
+
+    + createCoordinateGroup(): CoordinateGroup
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup): void
+    + deleteCoordinateGroup(group: CoordinateGroup): void
+  }
+}
+
+package Database {
+  class DBManager {
+    - dbConnection: DBConnection
+
+    + connect(): void
+    + disconnect(): void
+    + createOp(group: CoordinateGroup): void
+    + readOp(): List<CoordinateGroup>
+    + updateOp(group: CoordinateGroup): void
+    + deleteOp(group: CoordinateGroup): void
+  }
+}
+
+package Utils {
+  class HighPrecisionNumber {}
+}
+
+SwingUserInterface -- Logic
+Logic -- DBManager
+DBManager -- Utils.HighPrecisionNumber
+@enduml

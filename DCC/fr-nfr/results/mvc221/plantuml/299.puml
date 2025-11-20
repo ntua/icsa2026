@@ -1,0 +1,60 @@
+@startuml
+
+package "Frontend - Swing" {
+  class View {
+    - controller: Controller
+  }
+}
+
+package "Model - Logic" {
+  class Coordinate {
+    + x: high-precision number
+    + y: high-precision number
+    + r: high-precision number
+    + theta: high-precision number
+  }
+
+  class CartesianCoordinate {
+    - coordinate: Coordinate
+  }
+
+  class PolarCoordinate {
+    - coordinate: Coordinate
+  }
+
+  class CoordinateGroup {
+    - id: unique integer identifier
+    - timestamp: datetime
+    - label: string
+    - cartesianCoordinates: set<CartesianCoordinate>
+    - polarCoordinates: set<PolarCoordinate>
+  }
+
+  class CoordinateGroupManager {
+    + CreateOp(label: string, cartesianCoords: set<CartesianCoordinate>, polarCoords: set<PolarCoordinate>) : CoordinateGroup
+    + ReadOp() : set<CoordinateGroup>
+    + UpdateOp(coordinateGroup: CoordinateGroup) : void
+    + DeleteOp(id: unique integer identifier) : void
+  }
+}
+
+package "Controller - Swing" {
+  class Controller {
+    - view: View
+    - coordinateGroupManager: CoordinateGroupManager
+  }
+}
+
+package "Database - MySQL" {
+  class DatabaseConnection {
+    - connection: TCP/IP connection
+  }
+}
+
+View -- Controller
+Controller -- CoordinateGroupManager
+CoordinateGroupManager -- CartesianCoordinate
+CoordinateGroupManager -- PolarCoordinate
+Controller -- DatabaseConnection
+
+@enduml

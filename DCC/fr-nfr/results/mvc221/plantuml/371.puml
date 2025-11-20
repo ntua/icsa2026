@@ -1,0 +1,56 @@
+@startuml
+
+package Frontend {
+  class View {
+    - String label
+    + displayList()
+    + getLabelFilter()
+    + getSelectedRecord()
+    + updateList()
+  }
+  
+  class Controller {
+    + Model model
+    + View view
+    + handleAdd()
+    + handleUpdate()
+    + handleDelete()
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - high-precision numbers x, y or r, theta
+    + toPolar()
+    + toCartesian()
+  }
+  
+  class Cartesian extends Coordinate {}
+  
+  class Polar extends Coordinate {}
+  
+  class CoordinateGroup {
+    - id: int
+    - timestamp: datetime
+    - label: string
+    - cartesianCoordinates: Cartesian
+    - polarCoordinates: Polar
+    + toDatabaseRecord()
+    + fromDatabaseRecord()
+  }
+}
+
+package Database {
+  class DatabaseConnection {
+    - MySQL database
+    + createTable()
+    + insertRecord()
+    + selectRecords()
+    + updateRecord()
+    + deleteRecord()
+  }
+}
+
+Frontend ..> Logic
+Logic ..> Database
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+
+!define PackageBoxBorder none
+
+package "Data Model" {
+  class CoordinateGroup{
+    ID : int primary key
+    Timestamp: datetime
+    Label: string unique
+    PolarCoordinates[r, theta]
+    CartesianCoordinates[x, y]
+    
+    +toString()
+  }
+  
+}
+
+
+
+package "Controller" {
+  class Controller{
+    +getCoordinateGroupsByLabel(label:string) CoordinateGroup[]
+    +createNewCG(timestamp:datetime, label:string, polarCords:[float, float], cartesianCords:[float, float]) 
+    +deleteCG(id:int)
+    
+  }
+}
+
+
+package "View" {
+  class GUI{
+    -coordinateGroups:CoordinateGroup[]
+    -selectedLabel : string
+    -selectedCG : CoordinateGroup
+    
+    +showCGList()
+    +updateCGList()
+    +setFilter(label:string) 
+    +showAllCoordinates()
+    
+  }
+  
+}
+
+
+
+
+GUI ..> Controller : selects label, invokes create new CG or deleteCG
+Controller ..> "Data Model" : creates/deletes coordiantes groups, retrieve all coords
+
+
+@enduml

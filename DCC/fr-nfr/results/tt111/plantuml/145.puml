@@ -1,0 +1,56 @@
+@startuml
+package "Presentation Layer" {
+class CoordinationInterface {
+    - coordinateGroupLabel : String  
+    + createCoordinateGroup(cartesian: (x, y) | polar: (r, theta)) : void  
+    + modifyCoordinateGroup(coordinateGroupId: int, cartesian: (x, y) | polar: (r, theta), label: String) : void  
+    + deleteCoordinateGroup(coordinateGroupId: int) : void  
+    + retrieveCoordinateGroups() : List<CartesianOrPolar>  
+    + searchCoordinateGroups(label: String): List<CartesianOrPolar>  
+    + viewAllCoordinateGroups() : List<CartesianOrPolar>
+}
+}
+
+package "Application Tier" {
+class CoordinationConverter {
+    - cartesianToPolarConversion(cartesian: (x, y)) -> polar = > (r, theta)  
+    - polarToCartesianConversion(polar: (r, theta)) -> (x, y): void 
+}
+class DatabaseConnector {
+    + connectToDatabase() : Connection  
+    + disconnectFromDatabase() : void
+}
+class CoordinateGroupManager {
+    + storeCoordinateGroup((cartesian: (x,y) | polar: (r, theta), label: String): int) : void 
+    + retrieveCoordinateGroupById(coordinateGroupId: int): CartesianOrPolar  
+    + modifyCoordinateGroupDetails(coordinateGroupId: int, cartesian: (x, y) | polar: (r, theta), label: String) : void  
+    + deleteCoordinateGroup(coordinateGroupId: int): boolean 
+}
+}
+
+package "Data Tier" {
+class CoordinateGroupDao {
+    - coordinateGroups : List<CartesianOrPolar>  
+    + storeCoordinateGroupAttributes() : Connection  
+    + retrieveCoordinateGroups(): List<CoordinateGroupDAO>  
+    + searchCoordinateGroups(label: String): List<CoordinateGroupDAO>  
+}
+class CoordinateGroupRepository {
+    - coordinateGroupId : int 
+    - cartesianValues : (x, y)
+    - polarValues : (r, theta)
+    - label : String  
+    + convertToOtherType(cartesian: (x, y) | polar: (r, theta)) : void  
+}
+class MySQLDatabase {
+    - connectionString : String 
+    - tableName : String
+    + insertCoordinateGroup() : Connection  
+    + deleteCoordinateGroup() : void
+}
+}
+
+
+"Presentation Layer" --> "Application Tier"
+
+@enduml

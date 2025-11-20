@@ -1,0 +1,48 @@
+@startuml
+
+' Define package for Database Operations
+package db {
+    class CoordinateGroupDB {
+    -createRecord()
+    -fetchRecords()
+    -updateRecord()
+    -deleteRecord()
+    }
+}
+package View {
+class CoordinateView {
+    +displayAllCoordinatesGroups() 
+    +displayFilteredCoordinatesGroups(filterLabel) 
+    }
+}
+
+' Controller Package - Handling User Actions & Data Operations
+class CoordinateController {
+    -model: models.CoordinateGroupLogic
+    -dbConnection: db.CoordinateGroupDB
+    -view: views.CoordinateView
+    +inputNewCoordinateGroup(cartesianX, cartesianY, polarR, polarTheta, label) 
+    +updateSelectedRecord(recordId, newCartesianValues, newPolarValues) 
+    +deleteSelectedRecord(recordId) 
+    +applyFilter(filterLabel) 
+    +convertCartesianToPolar(cartesianX, cartesianY) 
+    +calculateCoordinates(polarR, polarTheta)
+}
+
+' Define Model Package - Logic for Managing Coordinate Groups
+package model {
+    class CoordinateGroupLogic {
+    +create(cartesianX, cartesianY) method to execute CreateOp based on the current values of the coordinate group and the label
+    +read() method to fetch all records from database
+    +update(recordId, newCartesianValues, newPolarValues) method to update a record with user-entered values 
+    +delete(recordId) method to delete a record from database
+    + CartesianToPolarConversion()
+    + PolarToCartesianConversion()
+  }
+}
+
+
+CoordinateView --  CoordinateController : refreshAllRecords()
+model.CoordinateGroupLogic *--* CoordinateController : uses > 
+
+@enduml

@@ -1,0 +1,75 @@
+@startuml
+package Frontend {
+  class Frame {
+    +createView()
+  }
+  class View {
+    -model: Model
+    -controller: Controller
+    +displayCoordinateGroupList(list)
+    +displayCoordinateGroupDetails(group)
+    +promptCreateCoordinateGroup()
+    +promptUpdateCoordinateGroup()
+    +promptDeleteCoordinateGroup()
+  }
+}
+
+package Logic {
+  interface Model {
+    +createOp(label, cartesian, polar)
+    +readOp()
+    +updateOp(id, label, cartesian, polar)
+    +deleteOp(id)
+    +filterOp(label)
+    +clearFilterOp()
+  }
+  
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -cartesian: Pair<Double, Double>
+    -polar: Pair<Double, Double>
+    -timestamp: Date
+    +convertCartesianToPolar()
+    +convertPolarToCartesian()
+  }
+  
+  class Database {
+    +saveCoordinateGroup(group)
+    +loadCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(group)
+    +deleteCoordinateGroupById(id)
+  }
+  
+  abstract class Controller {
+    -model: Model
+    -view: View
+    +createCoordinateGroup()
+    +updateCoordinateGroup()
+    +deleteCoordinateGroup()
+    +filterCoordinateGroupsByLabel(label)
+    +clearFilter()
+  }
+  
+  class ConversionController extends Controller {
+    +convertCartesianToPolar()
+    +convertPolarToCartesian()
+  }
+}
+
+package Persistence {
+  class MySQLDatabase implements Database {
+    +saveCoordinateGroup(group)
+    +loadCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(group)
+    +deleteCoordinateGroupById(id)
+  }
+}
+
+Frame -- View
+View -- Model
+Model <|-- CoordinateGroup
+Model <.. MySQLDatabase
+Controller <.. Model
+ConversionController -- CoordinateGroup
+@enduml

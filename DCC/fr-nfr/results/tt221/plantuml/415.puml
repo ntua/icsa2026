@@ -1,0 +1,45 @@
+@startuml
+
+package "Presentation" {
+  class DCCGUI {
+    + displayCoordinateGroups()
+    + handleUserInput()
+    + updateDisplay()
+  }
+}
+
+package "Logic" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double): (double, double)
+    + polarToCartesian(r: double, theta: double): (double, double)
+  }
+}
+
+package "Data" {
+  class DatabaseConnector {
+    - url: String
+    + connect(): void
+    + createCoordinateGroup(group: CoordinateGroup): void
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+DCCGUI --> CoordinateConverter : uses
+DCCGUI --> DatabaseConnector : uses
+
+CoordinateGroup "1" -- "*" DCCGUI : displayed
+
+@enduml

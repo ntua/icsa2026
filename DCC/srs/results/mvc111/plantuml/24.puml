@@ -1,0 +1,47 @@
+@startuml
+package Controller {
+  class MainController {
+    - view: View
+    - model: Model
+    
+    + MainController(view: View, model: Model)
+    + run()
+    + handleViewCoordinateGroupsByLabelEvent(label: String)
+    + handleDeleteCoordinateGroupEvent(coordinateGroupId: Int)
+  }
+}
+
+package Model {
+  class Database {
+    - connection: MySQLConnection
+    
+    + Database(connection: MySQLConnection)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    + deleteCoordinateGroupById(id: Int)
+  }
+  
+  class CoordinateGroup {
+    ID: Int
+    Timestamp: DateTime
+    Label: String
+    PolarCoordinates: String
+    CartesianCoordinates: String
+    
+    + CoordinateGroup(ID: Int, Timestamp: DateTime, Label: String, PolarCoordinates: String, CartesianCoordinates: String)
+  }
+}
+
+package View {
+  class MainView {
+    - controller: MainController
+    - model: Model
+    
+    + MainView(controller: MainController, model: Model)
+    + render()
+    + showCoordinateGroupsByLabel(coordinateGroups: List<CoordinateGroup>)
+    + showEmptyListMessage()
+    + deleteCoordinateGroupById(id: Int)
+  }
+}
+@enduml

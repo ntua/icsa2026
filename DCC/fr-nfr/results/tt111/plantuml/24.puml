@@ -1,0 +1,71 @@
+@startuml
+
+package "Frontend" {
+  class DCCGUI {
+    + showCoordinateGroups()
+    + createCoordinateGroup()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+
+}
+
+package "Business Logic" {
+  class CoordinateGroupController {
+    - coordinateGroupService: CoordinateGroupService
+    + createCoordinateGroup(coordinates: String, type: String)
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroup(label: String): CoordinateGroup
+    + modifyCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    + getCartesianCoordinates(): CartesianCoordinates
+    + setCartesianCoordinates(coordinates: CartesianCoordinates)
+    + getPolarCoordinates(): PolarCoordinates
+    + setPolarCoordinates(coordinates: PolarCoordinates)
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+  }
+
+}
+
+package "Data Access" {
+  class CoordinateGroupService {
+    - databaseConnection: DatabaseConnection
+    + createCoordinateGroup(group: CoordinateGroup): void
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroup(label: String): CoordinateGroup
+    + modifyCoordinateGroup(group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+  class DatabaseConnection {
+    + connectToDatabase()
+    + executeQuery(query: String) : ResultSet
+  }
+
+  CoordinateGroupService --> DatabaseConnection : uses
+  DCCGUI --> CoordinateGroupController : uses
+  CoordinateGroupController --> CoordinateGroupService : uses
+  CoordinateGroupController --> CoordinateGroup : creates & modifies
+  CoordinateGroup --> CartesianCoordinates : has a
+  CoordinateGroup --> PolarCoordinates : has a
+}
+
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+
+!define SingleResponsibility "Single Responsibility Principle" as #green
+!define PackageBorder "borderColor=#000000 borderWidth=1"
+!define Association "association" as dotted
+!define Aggregation "aggregation" as diamond solid
+!define Composition "composition" as diamond dashed
+!define Inheritance "inheritance" as <|--
+!define MethodVisibility "+ method visibility" as #blue
+!define FieldVisibility "- field visibility" as #red
+
+
+package "Logic - Controller" {
+  class CartesianConverter {
+    + convertToPolar(x, y) : polar coordinates (r, theta)
+    + convertToCartesian(r, theta) : cartesian coordinates (x, y)
+    
+    <<SingleResponsibility>> 
+  }
+}
+
+package "Data Operations - Model" {
+
+  class CoordinateGroup { 
+    * id : int #unique auto-generated identifier
+    * label : string 
+    * x : double #cartesian coordinate value
+    * y : double #cartesian coordinate value
+    * r : double #polar coordinate value
+    * theta : double #polar coordinate value
+    
+    + updateValues(new_x, new_y) : void
+    
+    <<SingleResponsibility>>
+  }
+
+  class Database { 
+    - connection : TCP/IP #database connection object
+
+    + saveRecord(coordinateGroup) : int #saves the record and returns the unique id
+    + getRecords() : list of CoordinateGroups #returns a list of saved records
+    
+    <<SingleResponsibility>> 
+  }
+}
+
+package "User Interactions - View" {
+
+  class UserInterface { 
+
+    * activeFilterLabel : string 
+    * coordinateGroupList : list of CoordinateGroups #list to display
+
+    + addCoordinateGroup(coordinateGroup)
+    + deleteCoordinateGroup()
+    + updateCoordinateGroup()
+    + refreshCoordinateGroupList()
+    
+    <<SingleResponsibility>>
+  }
+}
+
+
+@enduml

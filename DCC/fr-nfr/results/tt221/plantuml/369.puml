@@ -1,0 +1,67 @@
+@startuml
+
+package Frontend {
+  class CoordinateConverterApplication {
+    - SwingFrame view
+    
+    + main(args: String[]) : void
+    + createView() : void
+    + processUserInput() : void
+  }
+  
+  class SwingFrame {
+    - JFrame frame
+    - JButton addButton, updateButton, deleteButton, filterButton, clearFilterButton
+    - JTextField labelField, xField, yField, rField, thetaField
+    - JTable coordinateTable
+    - JTextArea messageArea
+    
+    + createViewComponents() : void
+    + createEventHandlers() : void
+  }
+}
+
+package Logic {
+  class CoordinateGroup {
+    - int id
+    - LocalDateTime timestamp
+    - String label
+    - List<Double> cartesianCoordinates
+    - List<Double> polarCoordinates
+    
+    + CoordinateGroup(label: String, cartesian: List<Double>, polar: List<Double>) : void
+    + toRecord() : Map<String, Object>
+  }
+  
+  class Converter {
+    + toPolar(cartesian: List<Double>) : List<Double>
+    + toCartesian(polar: List<Double>) : List<Double>
+  }
+}
+
+package DataOperations {
+  class DatabaseManager {
+    - DataSource dataSource
+    
+    + connect() : void
+    + createTable() : void
+    + insertRecord(record: Map<String, Object>) : int
+    + getRecords() : List<Map<String, Object>>
+    + updateRecord(id: int, record: Map<String, Object>) : int
+    + deleteRecord(id: int) : int
+  }
+}
+
+package Utils {
+  class DataSource {
+    - String url, user, password
+    
+    + DataSource(url: String, user: String, password: String) : void
+  }
+}
+
+Frontend ..> Logic
+Logic ..> DataOperations
+DataOperations ..> Utils
+
+@enduml

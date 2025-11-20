@@ -1,0 +1,78 @@
+@startuml
+'Define package
+package coord_converter {
+''Coordinate Group Base Classes'''
+    class Cartesian extends CoordinateGroup{
+        float x;
+        float y;
+        
+        Cartesian(float x, float y)
+        toPolar() 
+    }
+    
+class Polar extends CoordinateGroup{
+        float r;
+        double theta;
+        
+        Polar(float x, float y)
+        toCartesian()
+}
+    
+class CoordinateGroup{
+  string label;
+        
+  CoordinateGroup(){}
+          
+  createLabel() 
+}
+}
+    
+'Database Management Classes'
+class DatabaseConnection {
+    String hostname;
+    int port;
+    string dbName;
+    string username;
+    string password;
+    Connect(){}
+}
+
+class SQLCommand{
+  Connection conn;
+        
+  SQLCommand(DatabaseConnection conn)
+        
+  executeQuery() 
+ }
+
+''Application Classes'
+class Application {
+        DatabaseConnection dbConn
+        Application(){}
+        ConnectToDb() 
+        createCoordinateGroup(label){
+        retrieveCoordinateGroup(){}
+    }
+    
+''User Interface Classes'
+class SwingUI {
+  Application app;
+        
+  SwingUI(Application app)
+        
+  createCoordinateGroup() {}
+          
+  displayAllGroups() {}
+          
+  retrieveCoordinateGroup() {}
+          
+  modifyCoordinateGroup() {}
+    }
+
+'Define associations between classes
+Cartesian <|-- CoordinateGroup: composition
+Polar <|-- CoordinateGroup: composition
+SwingUI "1" *-coord_converter : association
+Application "1" -- coord_converter: association
+}
+@enduml

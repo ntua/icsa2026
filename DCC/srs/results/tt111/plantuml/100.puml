@@ -1,0 +1,56 @@
+@startuml
+package "Presentation Layer" {
+    class CoordinateGroupUI {
+        - Button viewAllButton
+        - Button findByLabelButton
+        - Button deleteButton
+        - TextField labelField
+        - List<CoordinateGroup> coordinateList
+
+        + void initView()
+        + void refreshList()
+        + void showEmptyListMessage()
+    }
+}
+
+package "Application Layer" {
+    class CoordinateGroupCoordinator {
+        - CoordinateGroupDAO dao
+        - CoordinateGroupUI ui
+
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + List<CoordinateGroup> getCoordinateGroupsByLabel(String label)
+        + void deleteCoordinateGroup(CoordinateGroup group)
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateGroupDAO {
+        - Connection dbConnection
+        - ResultSet resultSet
+
+        + List<CoordinateGroup> findAllCoordinateGroups()
+        + List<CoordinateGroup> findCoordinateGroupsByLabel(String label)
+        + void deleteCoordinateGroup(CoordinateGroup group)
+    }
+}
+
+package "Domain Model" {
+    class CoordinateGroup {
+        - Integer id
+        - Date timestamp
+        - String label
+        - Double r
+        - Double theta
+        - Double x
+        - Double y
+
+        + CoordinateGroup(Integer id, Date timestamp, String label, Double r, Double theta, Double x, Double y)
+    }
+}
+
+' Associations
+CoordinateGroupUI --> CoordinateGroupCoordinator : Uses
+CoordinateGroupCoordinator --> CoordinateGroupDAO : Delegates to
+CoordinateGroupDAO --> CoordinateGroup : Persists/Retrieves
+@enduml

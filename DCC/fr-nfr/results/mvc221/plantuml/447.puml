@@ -1,0 +1,107 @@
+@startuml
+
+package "Frontend - View" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: float, y: float): (float, float)
+    + convertPolarToCartesian(r: float, theta: float): (float, float)
+    + createCoordinateGroup() : CoordinateGroup
+  }
+  
+  class MainFrame {
+    - coordinateConverter: CoordinateConverter
+    - controlPanel: ControlPanel
+    - displayArea: DisplayArea
+
+    + initialize() : void
+  }
+  
+  class ControlPanel {
+    - mainFrame: MainFrame
+    - inputPanel: InputPanel
+    - buttonPanel: ButtonPanel
+
+    + initialize() : void
+  }
+
+  class InputPanel {
+    - cartesianInputField: JTextField
+    - polarInputField: JTextField
+    - labelInputField: JTextField
+
+    + initialize() : void
+  }
+
+  class ButtonPanel {
+    - mainFrame: MainFrame
+    - addButton: JButton
+    - updateButton: JButton
+    - deleteButton: JButton
+    - refreshButton: JButton
+    - filterButton: JButton
+    - clearFilterButton: JButton
+
+    + initialize() : void
+  }
+
+  class DisplayArea {
+    - mainFrame: MainFrame
+    - tableModel: CoordinateGroupTableModel
+    - coordinateGroupJTable: JTable
+
+    + initialize() : void
+  }
+}
+
+package "Logic Layer - Controller" {
+  interface UserInteractionController {
+    - mainFrame: MainFrame
+    + handleAddButtonClicked() : void
+    + handleUpdateButtonClicked() : void
+    + handleDeleteButtonClicked() : void
+    + handleRefreshButtonClicked() : void
+    + handleFilterButtonClicked(filterText: String) : void
+    + handleClearFilterButtonClicked() : void
+  }
+  
+  class CoordinateGroupController {
+    - userInteractionController: UserInteractionController
+    - coordinateGroupDao: CoordinateGroupDao
+
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup) : int
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+  }
+}
+
+package "Logic Layer - Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinates: (float, float)
+    - polarCoordinates: (float, float)
+    - timestamp: Date
+
+    + getId() : int
+    + setId(id: int) : void
+    + getLabel() : String
+    + setLabel(label: String) : void
+    + getCartesianCoordinates() : (float, float)
+    + setCartesianCoordinates(x: float, y: float) : void
+    + getPolarCoordinates() : (float, float)
+    + setPolarCoordinates(r: float, theta: float) : void
+    + getTimestamp() : Date
+    + setTimestamp(timestamp: Date) : void
+  }
+  
+  interface CoordinateGroupDao {
+    - coordinateGroupController: CoordinateGroupController
+
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup) : int
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+  }
+}
+
+@enduml

@@ -1,0 +1,72 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Class Diagram
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Timestamp
+    - cartesianCoordinates: CartesianCoordinate 
+    - polarCoordinates: PolarCoordinate
+    + convertToCartesian()
+    + convertToPolar()
+  }
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+  }
+
+  enum CoordinateType {
+    CARTESIAN, POLAR
+  }
+}
+
+package "View" {
+  class DCCView {
+    + displayCoordinateGroups()
+    + displayCreateGroupForm()
+    + displayModifyGroupForm(CoordinateGroup)
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - model: CoordinateModel
+    - view: DCCView
+    + createCoordinateGroup(CoordinateType, double, double)
+    + retrieveCoordinateGroups(String)
+    + modifyCoordinateGroup(CoordinateGroup)
+    + deleteCoordinateGroup(int)
+  }
+}
+
+package "Database" {
+  class CoordinateModel {
+    - dbConnection: MySQLConnection
+    + saveCoordinateGroup(CoordinateGroup)
+    + getCoordinateGroupById(int): CoordinateGroup
+    + getCoordinateGroupsByLabel(String): List<CoordinateGroup>
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(int)
+  }
+
+  class MySQLConnection {
+    # connection: Connection
+  }
+}
+
+
+
+DCCController --> DCCView: Request/Response
+
+DCCController --> CoordinateModel: Data Access
+
+
+@enduml

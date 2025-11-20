@@ -1,0 +1,87 @@
+@startuml
+title Dummy Coordination Conversion Application: MVC Architecture Class Diagram
+
+skinparam shadowing false
+skinparam componentStyle uml2
+skinparam classAttributeIconSize 1
+
+' Custom styling
+skinparam class {
+    BackgroundColor #F6F6F6
+    BorderColor gray
+}
+
+' Controllers
+package Controller {
+class "PolarCoordinateViewController" as PolarController {
+    + void submitCartesianCoordinates()
+    + void submitPolarCoordinates()
+}
+
+class "CartesianCoordinateViewController" as CartesianController {
+    + void submitPolarCoordinates()
+    + void submitCartesianCoordinates()
+}
+
+class "MainViewController" as MainController {
+    + void createGroup()
+}
+}
+
+' Models
+package Model {
+class "PolarCoordinateModel" as PolarModel {
+    - List<PolarCoordinate> polarCoordinates
+    + double getR()
+    + double getTheta()
+    + CartesianCoordinate convertToCartesian()
+}
+
+class "CartesianCoordinateModel" as CartesianModel {
+    - List<CartesianCoordinate> cartesianCoordinates
+    + double getX()
+    + double getY()
+    + PolarCoordinate convertToPolar()
+}
+
+class "MainModel" as MainModel  {
+    - List<Group> groups
+}
+}
+
+package View {
+
+' Views
+class "PolarCoordinateView" as PolarView
+class "CartesianCoordinateView" as CartesianView 
+class "MainView" as MainView 
+}
+
+' Associations
+DummyApp -- PolarController
+
+
+CartesianController -- PolarModel
+CartesianController -- PolarView
+CartesianController -- CartesianModel
+CartesianController -- CartesianView
+
+MainController -- MainModel
+MainController -- MainView
+
+' Notes
+note right of DummyApp : MVC Architecture
+
+note top of PolarController 
+  Polar Coordinate Component
+end note
+
+note top of CartesianController
+  Cartesian Coordinate Component
+end note
+
+note top of MainController
+  Application Management Component
+end note
+
+@enduml

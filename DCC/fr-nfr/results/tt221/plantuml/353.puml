@@ -1,0 +1,47 @@
+@startuml
+
+    !define JavaColorRHBFA8 #A87FA8
+    !define JavaColorRHB21E #B2631E
+    !define JavaColorRH5479 #546299
+
+    package "Presentation Tier" {
+        class UserInterface {
+        - label: String
+        - cartesianCoordinates: CartesianCoord
+        - polarCoordinates: PolarCoord
+        
+        + createCoordinateGroup()
+        + updateCoordinateGroup()
+        + deleteCoordinateGroup()
+        + displayCoordinateGroups()
+    }
+    }
+    
+    package "Application Tier" {
+        abstract class Coordinate {
+        * id: int
+        * timestamp: datetime
+
+        + setTimestamp()
+    }
+
+    class CartesianCoord extends Coordinate
+    class PolarCoord extends Coordinate
+    }
+    
+    package "Data Tier" {
+        class DatabaseManager {
+        - connection: TCPConnection
+        - records: [Coordinate]
+        
+        + addRecord(record: Coordinate)
+        + getRecords(): [Coordinate]
+        + updateRecord(record: Coordinate)
+        + deleteRecord(id: int)
+    }
+    }
+    
+    UserInterface .. Coordinate
+    UserInterface .. DatabaseManager
+
+@enduml

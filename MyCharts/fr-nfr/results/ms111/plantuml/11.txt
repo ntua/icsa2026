@@ -1,0 +1,63 @@
+@startuml
+package "User Management Service" {
+
+  class UserManagementService {
+      + registerUser(email: String, name: String): User // Functional requirement
+      + getUserProfile(userId: int): UserProfile // Functional requirement
+      + updateUserProfile(userId: int, profileData: UserProfile): void // Functional requirement
+      + deleteUser(userId: int): void // Functional requirement
+
+  }
+}
+
+package "Chart Generation Service" {
+
+  class ChartGenerationService {
+      - generateChart(chartData: Map<String,Double>): ChartData // Functional Requirement
+  }
+}
+
+
+package "Chart Storage Service" {
+ class ChartStorageService {
+     + storeChart(chartId: String, chartData: ChartData): void // Data management operation
+
+ }
+}
+
+package "Quota Management Service" {
+
+ class QuotaManagementService {
+      + getRemainingQuota(userId: int): int // Functional requirement
+      + updateQuota(userId: int, quotaChange: int): void // Data consistency operation (can be asynchronous)
+ }
+
+}
+
+package "Payment Gateway Integration" {
+
+class PaymentGatewayIntegration {
+    + processPayment(amount: Double, userId: int): PaymentResult // Functional Requirement 
+}
+
+}
+ package "User Authentication Service"{
+
+ class UserAuthenticationService{
+      - validateToken(token: String): boolean // Flow control operation (authentication check)
+ }
+
+
+}
+
+
+
+UserManagementService --> UserProfile : has a
+ChartGenerationService --> ChartData : generates
+ChartData -> ChartStorageService : stores
+
+UserManagementService -- QuotaManagementService : uses
+PaymentGatewayIntegration -- UserManagementService: communicates with 
+UserAuthenticationService --> UserManagementService : authenticates
+
+@enduml

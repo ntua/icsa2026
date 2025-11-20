@@ -1,0 +1,42 @@
+@startuml
+' Classes in the Client Package
+class Client {
+  - connection: Connection
+  + connect()
+  + disconnect()
+  + viewAllGroups()
+  + viewGroupByLabel(label)
+  + addGroup(group)
+  + deleteGroup(group)
+}
+
+' Classes in the Server Package
+class Server {
+  - database: Database
+  + handleConnectionRequest(client)
+  + handleViewAllGroups(client)
+  + handleViewGroupByLabel(client, label)
+  + handleAddGroup(client, group)
+  + handleDeleteGroup(client, group)
+}
+
+' Association between Client and Connection
+Client "1" --|> "1" Connection : uses
+
+' Association between Server and Database
+Server "1" --|> "*" Database : accesses
+
+' Associations for handling requests
+Server <|-- "n" Client : handles connections, views, adds, deletes
+
+' Define the Connection class in a separate package (optional)
+package "Connection Package" {
+  class Connection {
+    - socket: Socket
+    + connect(serverAddress)
+    + disconnect()
+    + sendData(data)
+    + receiveData()
+  }
+}
+@enduml

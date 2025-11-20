@@ -1,0 +1,42 @@
+@startuml
+
+package "Client" {
+  class CoordinateGroupApp {
+    + createCoordinateGroup(cartesianX: float, cartesianY: float, polarR: float, polarTheta: float, label: string): void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroupByLabel(label: string): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: string
+    - timestamp: datetime
+    - cartesianCoordinates: Pair<float, float>
+    - polarCoordinates: Pair<float, float>
+  }
+}
+
+package "Server" {
+  interface Database {
+    + saveData(data: string): void
+    + fetchData(query: string): string
+  }
+
+  class MySQLDatabase implements Database {
+    # databaseConnection: DatabaseConnection
+
+    + connectToDatabase(): void
+    + disconnectFromDatabase(): void
+    + saveData(data: string): void
+    + fetchData(query: string): string
+  }
+}
+
+Client "1" -- "a" Server: TCP/IP Connection
+CoordinateGroupApp "1" -- "*" CoordinateGroup: Composition
+Server.MySQLDatabase "1" -- "*" Client.CoordinateGroup: Aggregation
+
+@enduml

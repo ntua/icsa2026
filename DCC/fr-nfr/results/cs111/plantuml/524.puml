@@ -1,0 +1,79 @@
+@startuml DCC_Application_Class_Diagram
+    package "Client" {
+        class DCCClient {
+            + String label
+            + List<CoordinateGroup> coordinateGroups
+            
+            + void createCoordinateGroup(String label, Coordinate cartesianOrPolar)
+            + void storeCoordinateGroup(CoordinateGroup group)
+            + void retrieveCoordinateGroup(String label)
+            + void modifyCoordinateGroup(CoordinateGroup group)
+            + void deleteCoordinateGroup(Integer id)
+        }
+
+        class Converter {
+            + static Cartesian convertPolarToCartesian(Polar polar)
+            + static Polar convertCartesianToPolar(Cartesian cartesian)
+        }
+
+        class CoordinateGroup {
+            + Integer id
+            + String label
+            + Date timestamp
+            + Cartesian cartesian
+            + Polar polar
+            
+            + void setLabel(String label)
+            + void setCartesian(Cartesian cartesian)
+            + void setPolar(Polar polar)
+        }
+
+        class Cartesian {
+            + Double x
+            + Double y
+        }
+
+        class Polar {
+            + Double r
+            + Double theta
+        }
+    }
+
+    package "Server" {
+        interface Database {
+            + void saveCoordinateGroup(CoordinateGroup group)
+            + CoordinateGroup retrieveCoordinateGroupById(Integer id)
+            + List<CoordinateGroup> retrieveAllCoordinateGroups()
+            + void updateCoordinateGroup(CoordinateGroup group)
+            + void deleteCoordinateGroup(Integer id)
+        }
+
+        class DatabaseManager implements Database {
+            + Connection databaseConnection
+            
+            + void saveCoordinateGroup(CoordinateGroup group)
+            + CoordinateGroup retrieveCoordinateGroupById(Integer id)
+            + List<CoordinateGroup> retrieveAllCoordinateGroups()
+            + void updateCoordinateGroup(CoordinateGroup group)
+            + void deleteCoordinateGroup(Integer id)
+        }
+
+        class ConnectionManager {
+            + Socket clientSocket
+            + Socket serverSocket
+            
+            + void establishConnection()
+            + void sendCoordinateGroup(CoordinateGroup group)
+            + CoordinateGroup receiveCoordinateGroup()
+        }
+    }
+
+    DCCClient --* CoordinateGroup : Manages
+    DCCClient --* Converter : Uses
+    DCCClient --* ConnectionManager : Communicates with
+
+    DatabaseManager --* Database : Implements
+    CoordinateGroup --* Cartesian : Contains
+    CoordinateGroup --* Polar : Contains
+
+@enduml

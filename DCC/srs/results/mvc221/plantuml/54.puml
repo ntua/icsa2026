@@ -1,0 +1,79 @@
+@startuml
+package "Model" as m {
+  class CoordinateGroup {
+    - int id
+    - Date timestamp
+    - String label
+    - float polarCoordinatesR
+    - float polarCoordinatesTheta
+    - float cartesianCoordinatesX
+    - float cartesianCoordinatesY
+    
+    + CoordinateGroup(int, Date, String, float, float, float, float)
+    + getId() : int
+    + setId(int) : void
+    + getTimestamp() : Date
+    + setTimestamp(Date) : void
+    + getLabel() : String
+    + setLabel(String) : void
+    + getPolarCoordinatesR() : float
+    + setPolarCoordinatesR(float) : void
+    + getPolarCoordinatesTheta() : float
+    + setPolarCoordinatesTheta(float) : void
+    + getCartesianCoordinatesX() : float
+    + setCartesianCoordinatesX(float) : void
+    + getCartesianCoordinatesY() : float
+    + setCartesianCoordinatesY(float) : void
+  }
+  
+  class CoordinateGroupDao {
+    - DataSource dataSource
+    
+    + CoordinateGroupDao(DataSource)
+    + create(CoordinateGroup) : int
+    + read(int) : CoordinateGroup
+    + update(CoordinateGroup) : void
+    + delete(int) : void
+    + list() : List<CoordinateGroup>
+  }
+}
+
+package "View" as v {
+  class MainMenuView {
+    - Controller controller
+    
+    + MainMenuView(Controller)
+    + render() : void
+  }
+  
+  class CoordinateGroupFormView {
+    - Controller controller
+    
+    + CoordinateGroupFormView(Controller)
+    + renderCreate() : void
+    + renderModify(CoordinateGroup) : void
+  }
+  
+  class CoordinateGroupDisplayListView {
+    - Controller controller
+    
+    + CoordinateGroupDisplayListView(Controller)
+    + render() : void
+  }
+}
+
+package "Controller" as c {
+  class Controller {
+    - Model model
+    - View view
+    
+    + Controller(Model, View)
+    + handleCreateCoordinateGroupButtonClicked() : void
+    + handleModifyCoordinateGroupButtonClicked() : void
+    + handleDeleteCoordinateGroupButtonClicked() : void
+  }
+}
+
+m -- c
+c -- v
+@enduml

@@ -1,0 +1,44 @@
+@startuml  
+package "Presentation Layer" {
+    class DCCAppUI {
+        - cartesianCoordinates: List<Cartesian>
+        - polarCoordinates: List<Polar>
+        + run()
+        + convertToPolar(cartesianGroup: Cartesian) : Polar
+        + convertToCartesian(polarGroup: Polar) : Cartesian
+    }
+} 
+
+package "Business Logic Layer" {
+    class DCCAppUI2DB {
+        - dccConnection: DatabaseConnector
+        - cartesianCoordinateGroups: List<Cartesian>
+        - polarCoordinateGroups: List<Polar>
+        + run() 
+        + create(cartesianGroup: Cartesian, label: String) : CoordinateGroup  
+        + convertToOtherFormat(group: CoordinateGroup, targetType: String) : CoordinateGroup  
+    }
+    class DCCCoordinationConversion {
+        - cartesianConverter: CartesianToPolarConverter
+        - polarConverter: PolarToCartesianConverter
+        + convert(group: CoordinateGroup, targetType: String) : CoordinateGroup  
+    }
+} 
+
+package "Data Storage Layer" {
+    class DatabaseConnector {
+        - databaseConnectionString: String
+        - connectionAttributes: ConnectionInfo
+        + connect() : boolean
+        + disconnect() : void
+    }
+    
+    class CoordinateGroupService {
+        - cartesianGroups: List<Cartesian>
+        - polarGroups: List<Polar>
+        + store(group: CoordinateGroup) : int
+        + retrieveByLabel(label: String) : List<CoordinateGroup>  
+        + viewAll() : List<CoordinateGroup> 
+    }
+} 
+@enduml

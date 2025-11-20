@@ -1,0 +1,130 @@
+@startuml
+title Dummy Coordination Conversion Application - Class Diagram 
+
+package "Frontend" {
+  class MainFrame {
+    + addButton: Button
+    + updateButton: Button
+    + deleteButton: Button
+    + listView: ListView
+    + labelField: TextField
+    + coordinatesGroups: List<CoordinatesGroup>
+    
+    + initialize(): void
+    + displayAllCoordinateGroups() : void 
+    + filterByLabel(labelString: String) : void 
+  }
+
+  class CoordinatesInput {
+    + cartesianTextFieldX : TextField
+    + cartesianTextFieldY : TextField  
+    + polarTextFieldR : TextField
+    + polarTextFieldTheta : TextField
+    + labelField: TextField
+    
+    + getCartesianValues() : CartesianCoordinates 
+    + getPolarValues() : PolarCoordinates 
+
+  }
+}
+
+
+package "Logic Layer" {
+  class CoordinatesConverter { 
+    + convertToPolar(x: double, y: double): PolarCoordinates
+    + convertToCartesian(r: double, theta: double) : CartesianCoordinates
+  }
+
+  class CoordinatesGroupManager {
+    * idGenerator : IdGenerator
+    * timestamp: Timestamp
+    
+    - coordinatesGroupsMap : Map<Integer, CoordinatesGroup> 
+    - databaseConnection : DatabaseConnection
+
+    + getNewId() : int
+    + createCoordinateGroup(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates) : void
+    + getAllCoordinateGroups(): List<CoordinatesGroup>
+    + updateCoordinateGroup(id: Integer, label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates): void
+    + deleteCoordinateGroup(id: Integer) : void
+  }
+}
+
+
+package "Data Layer" {
+  class CoordinatesGroup {
+   - id : int
+   - label : String 
+   - coordinates : List<Coordinates>
+   
+   + getId():int
+   + getLabel() : String
+   + getCartesianCoordinates() : CartesianCoordinates
+   + getPolarCoordinates() : PolarCoordinates
+  }
+
+  class Coordinates {
+    * x: double
+    * y: double 
+    * r: double 
+    * theta: double 
+
+    + getX() : double
+    + setX(value: double) : void
+
+    + getY():double
+    + setY(value: double):void
+    
+    + getR():double
+    + setR(value:double):void
+    
+    + getTheta():double
+    + setTheta(value:double):void
+  }
+
+  class CartesianCoordinates {
+    - x: double 
+    - y: double 
+    
+    + getX():double
+    + setX(value: double): void
+
+    + getY():double
+    + setY(value:double):void
+    
+  }
+
+  class PolarCoordinates {
+    - r : double  
+    - theta : double 
+
+    + getR() : double
+    + setR(value: double) : void
+    
+    + getTheta() : double 
+    + setTheta(value:double) : void 
+  }
+
+  class DatabaseConnection{
+
+    * host:String
+    * port:int
+    * user: String
+    * password:String
+
+    - connection: Connection 
+
+    + connect():void
+    + disconnect():void
+
+
+  }
+}
+
+
+MainFrame --> CoordinatesConverter
+MainFrame .. CoordinatesGroupManager : Uses
+CoordinatesInput .. CoordinatesConverter 
+CoordinatesInput .. CoordinatesGroupManager 
+
+@enduml

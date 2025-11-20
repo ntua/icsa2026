@@ -1,0 +1,61 @@
+@startuml DCC_Application_Class_Diagram
+
+' Client-side classes
+package "Client" {
+    class DCCApp {
+        - Runs the application
+        + run()
+    }
+
+    class CoordinateManager {
+        - Manages coordinate conversions and operations
+        + createCoordinateGroup(x: float, y: float): void
+        + convertToPolar(x: float, y: float): (float, float)
+        + convertToCartesian(r: float, theta: float): (float, float)
+    }
+
+    class StorageManager {
+        - Manages database interactions
+        + storeCoordinateGroup(label: String, x: float, y: float): void
+        + retrieveCoordinateGroup(label: String): CoordinateGroup[]
+        + updateCoordinateGroup(id: int, label: String, x: float, y: float): void
+        + deleteCoordinateGroup(id: int): void
+    }
+
+    class NetworkManager {
+        - Handles communication with the server
+        + sendRequest(request: String): String
+        + receiveResponse(response: String): String
+    }
+}
+
+' Server-side classes
+package "Server" {
+    class CoordinateGroup {
+        - Represents a stored coordinate group
+        + id: int
+        + label: String
+        + timestamp: Date
+        + cartesianX: float
+        + cartesianY: float
+        + polarR: float
+        + polarTheta: float
+    }
+
+    class DatabaseManager {
+        - Manages the MySQL database operations
+        + storeCoordinateGroup(label: String, x: float, y: float): void
+        + retrieveCoordinateGroups(): CoordinateGroup[]
+        + updateCoordinateGroup(id: int, label: String, x: float, y: float): void
+        + deleteCoordinateGroup(id: int): void
+    }
+}
+
+' Associations
+DCCApp --* CoordinateManager
+DCCApp --* StorageManager
+StorageManager --* NetworkManager
+NetworkManager --* DatabaseManager
+DatabaseManager --* CoordinateGroup
+
+@enduml

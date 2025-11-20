@@ -1,0 +1,54 @@
+@startuml
+package com.dcc.app{
+  package model{
+    class CoordinateGroup{
+      - id : Integer
+      - label : String
+      - timestamp : Date
+      - polarCoordinates : PolarCoordinates
+      - cartesianCoordinates : CartesianCoordinates
+
+      + delete()
+    }
+  }
+
+  package controller{
+    class CoordinateGroupController{
+      - coordinateGroupRepository : CoordinateGroupRepository
+      + delete(coordinateGroup: CoordinateGroup)
+    }
+  }
+
+  package repository{
+    interface CoordinateGroupRepository{
+      + delete(coordinateGroup: CoordinateGroup)
+    }
+
+    class MySQLCoordinateGroupRepository implements CoordinateGroupRepository{
+      - connectionPool : ConnectionPool
+
+      + delete(coordinateGroup: CoordinateGroup)
+    }
+  }
+
+  package service{
+    class CoordinateGroupService{
+      - coordinateGroupController : CoordinateGroupController
+      - coordinateGroupMapper : CoordinateGroupMapper
+
+      + delete(coordinateGroup: CoordinateGroup)
+    }
+  }
+
+  package view{
+    interface CoordinateGridView{
+      + display(coordinateGroupList: List<CoordinateGroup>)
+    }
+
+    class SwingCoordinateGridView implements CoordinateGridView{
+      + display(coordinateGroupList: List<CoordinateGroup>)
+    }
+  }
+}
+
+@enduml

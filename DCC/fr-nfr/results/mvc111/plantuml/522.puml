@@ -1,0 +1,74 @@
+@startuml DCCApplicationClassDiagram
+
+' Packages
+package "com.dcc.model" {
+    class Coordinate {
+        - x: double
+        - y: double
+        + getCartesian(): String
+    }
+
+    class Polar {
+        - r: double
+        - theta: double
+        + getPolar(): String
+    }
+
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesianCoordinates: List<Coordinate>
+        - polarCoordinates: List<Polar>
+
+        + addCartesianCoordinate(coord: Coordinate)
+        + addPolarCoordinate(coord: Polar)
+        + convertToPolar()
+        + convertToCartesian()
+    }
+}
+
+package "com.dcc.controller" {
+    class DCCController {
+        - model: CoordinateGroup
+        - view: DCCView
+        - dbConnection: DCCDatabase
+
+        + createNewCoordinateGroup(label: String, x: Double, y: Double): void
+        + storeCoordinateGroup(): void
+        + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+        + updateCoordinateGroup(id: Integer, newLabel: String): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package "com.dcc.view" {
+    class DCCView {
+        - guiComponents: Swing Components
+
+        + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        + getUserInput(): Map<String, Object>
+        + showResult(message: String): void
+    }
+}
+
+package "com.dcc.database" {
+    class DCCDatabase {
+        - connection: JDBC Connection
+
+        + storeCoordinateGroup(group: CoordinateGroup): void
+        + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+        + updateCoordinateGroup(id: Integer, group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+' Associations
+DCCController --> CoordinateGroup : Uses
+DCCController --> DCCView : Controls
+DCCController --> DCCDatabase : Interacts
+CoordinateGroup --> Coordinate : Composes
+CoordinateGroup --> Polar : Composes
+DCCDatabase --> CoordinateGroup : Persists
+
+@enduml

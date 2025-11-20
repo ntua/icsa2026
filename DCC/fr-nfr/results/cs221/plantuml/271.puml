@@ -1,0 +1,77 @@
+@startuml
+' Client Side
+package "Client" {
+  class GUI {
+    + addCoordinateGroup()
+    + updateCoordinateGroup()
+    + deleteCoordinateGroup()
+    + filterGroups(label)
+    + clearFilter()
+    <<JavaSwing>>
+  }
+
+  class UserInteractionHandler {
+    * coordinateGroup: CoordinateGroup
+    - userLabel: String
+
+    + getUserInput()
+    + getCartesianCoordinates(): CartesianCoordinates
+    + getPolarCoordinates(): PolarCoordinates
+    
+    + convertCartesianToPolar(): PolarCoordinates
+    + convertPolarToCartesian(): CartesianCoordinates
+
+    <<Java>>
+  }
+}
+
+
+' Server Side
+package "Server" {
+
+  class CoordinateGroup {
+    * id: Integer 
+    * label: String
+    * cartesianCoords: CartesianCoordinates
+    * polarCoords: PolarCoordinates
+    * timestamp: Datetime
+
+    <<MySQLTable>>
+  }
+
+  class CartesianCoordinates {
+    - x: Float
+    - y: Float
+
+    + toPolar(): PolarCoordinates
+  }
+
+  class PolarCoordinates {
+    - r: Float
+    - theta: Float
+
+    + toCartesian(): CartesianCoordinates
+  }
+
+  ' Database Operations
+  class DBOperations {
+    + createOp(coordinateGroup) 
+    + readOp() : List[CoordinateGroup]
+    + updateOp(id, newCoords): CoordinateGroup
+    + deleteOp(id)
+    
+    <<Java>>
+  }
+}
+
+
+' Associations and Dependencies
+UserInteractionHandler .. GUI : interacts with
+UserInteractionHandler --> DBOperations : calls methods to handle data operations
+DBOperations -up- CoordinateGroup 
+
+CartesianCoordinates <|-up- CoordinateGroup 
+PolarCoordinates <|-up- CoordinateGroup 
+
+
+@enduml

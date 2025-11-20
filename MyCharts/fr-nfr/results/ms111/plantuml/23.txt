@@ -1,0 +1,110 @@
+@startuml
+
+' Packages for Microservices
+package "AuthService" {
+  class User {
+    -String googleId
+    -String name
+    -String email
+    -String profilePicture
+    -int remainingQuota
+    -DateTime accountCreation
+    -DateTime lastLogin
+    +authenticateWithGoogle(token: String) // Functional requirement-business logic operation
+    +getProfile(): User // Functional requirement-business logic operation
+    +saveProfile(user: User) // Data management operation
+  }
+}
+
+package "TemplateService" {
+  class Template {
+    -String chartType
+    -String csvStructure
+    +getTemplate(chartType: String): Template // Functional requirement-business logic operation
+    +saveTemplate(template: Template) // Data management operation
+  }
+}
+
+package "UploadService" {
+  class UploadedFile {
+    -String fileId
+    -String userId
+    -String filePath
+    -String chartType
+    +uploadCsv(file: File, userId: String): UploadedFile // Functional requirement-business logic operation
+    +validateCsv(file: File, template: Template): Bool // Functional requirement-business logic operation
+    +saveFile(file: UploadedFile) // Data management operation
+  }
+}
+
+package "ChartService" {
+  class Chart {
+    -String chartId
+    -String userId
+    -String chartType
+    -String dataCsvPath
+    -String pdfPath
+    -String pngPath
+    -String svgPath
+    -String htmlPath
+    +generateChart(file: UploadedFile): Chart // Functional requirement-business logic operation
+    +saveChart(chart: Chart) // Data management operation
+    +exportChart(chartId: String, format: String): File // Functional requirement-business logic operation
+  }
+}
+
+package "DashboardService" {
+  class Dashboard {
+    -String userId
+    -List<Chart> charts
+    +getChartHistory(userId: String): List<Chart> // Functional requirement-business logic operation
+    +deleteChart(chartId: String) // Functional requirement-business logic operation
+    +syncCharts(userId: String) // Data consistency operation
+  }
+}
+
+package "QuotaService" {
+  class Quota {
+    -String userId
+    -int remainingQuota
+    +deductQuota(userId: String) // Functional requirement-business logic operation
+    +purchaseQuota(userId: String, amount: int): Payment // Functional requirement-business logic operation
+    +saveQuota(quota: Quota) // Data management operation
+    +syncQuota(userId: String) // Data consistency operation
+  }
+  class Payment {
+    -String paymentId
+    -String userId
+    -int amount
+    +processPayment(userId: String, amount: int): Payment // Functional requirement-business logic operation
+  }
+}
+
+package "StorageService" {
+  class Storage {
+    -String fileId
+    -String filePath
+    +storeFile(file: File): String // Data management operation
+    +retrieveFile(fileId: String): File // Data management operation
+  }
+}
+
+' Associations
+User --> "1" Quota : manages
+UploadedFile --> "1" Template : validates_against
+Chart --> "1" UploadedFile : generates_from
+Dashboard --> "many" Chart : displays
+Quota --> "1" Payment : initiates
+Chart --> "1" Storage : stores_in
+UploadedFile --> "1" Storage : stores_in
+Template --> "1" Storage : stores_in
+
+' Service Dependencies (Flow Control)
+AuthService ..> QuotaService : "deductQuota" // Flow control operation
+UploadService ..> TemplateService : "getTemplate" // Flow control operation
+ChartService ..> UploadService : "uploadCsv" // Flow control operation
+DashboardService ..> ChartService : "getChartHistory" // Flow control operation
+QuotaService ..> ChartService : "generateChart" // Flow control operation
+StorageService ..> ChartService : "storeFile" // Flow control operation
+
+@enduml

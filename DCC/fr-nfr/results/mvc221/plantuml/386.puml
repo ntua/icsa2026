@@ -1,0 +1,69 @@
+@startuml
+package model {
+    class CoordinateGroup {
+        +id: int
+        +label: String
+        -cartesianCoordinates: List<Cartesian>
+        -polarCoordinates: List<Polar>
+        
+        +create()
+        +read()
+        +update()
+        +delete()
+    }
+    
+    class Cartesian {
+        +x: Double
+        +y: Double
+        +convertToPolar(): Polar
+    }
+    
+    class Polar {
+        +r: Double
+        +theta: Double
+        +convertToCartesian(): Cartesian
+    }
+}
+package view {
+    interface CoordinateGroupList {
+        +add(coordinateGroup: CoordinateGroup)
+        +update(coordId: int, coordinateGroup: CoordinateGroup)
+        +delete(coordId: int)
+        
+        +filterByLabel(label: String): List<CoordinateGroup>
+    }
+}
+package controller {
+    class DCCApplication {
+        -model: model.CoordinateGroupList
+        -view: view.CoordinateGroupList
+        
+        -logic: Logic
+        -databaseConnection: DatabaseConnection
+        
+        +initialize()
+        +addCoordinateGroup(label: String, cartesian: Cartesian)
+        +updateCoordinateGroup(coordId: int, polar: Polar)
+        +deleteCoordinateGroup(coordId: int)
+    }
+}
+package infrastructure {
+    class Logic {
+        -model: model.CoordinateGroupList
+        
+        +convertCartesianToPolar(cartesian: Cartesian): Polar
+        +convertPolarToCartesian(polar: Polar): Cartesian
+    }
+    
+    interface DatabaseConnection {
+        +createRecord()
+        +readRecords()
+        +updateRecord(coordId: int, record)
+        +deleteRecord(coordId: int)
+        
+        -databaseName: String
+        -connectionString: String
+    }
+}
+
+@enduml

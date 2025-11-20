@@ -1,0 +1,76 @@
+@startuml
+package "Client" {
+    class DCCApp {
+        - coordinator: Coordinator
+        - database: DatabaseServer
+
+        + run()
+        + createCoordinateGroup(label, cartesianCoords, polarCoords)
+        + readCoordinateGroups()
+        + updateCoordinateGroup(id, newCartesianCoords, newPolarCoords)
+        + deleteCoordinateGroup(id)
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesianCoords: CartesianCoordinates
+        - polarCoords: PolarCoordinates
+
+        + getCartesianCoords()
+        + getPolarCoords()
+    }
+
+    class CartesianCoordinates {
+        - x: double
+        - y: double
+
+        + getX()
+        + getY()
+    }
+
+    class PolarCoordinates {
+        - r: double
+        - theta: double
+
+        + getR()
+        + getTheta()
+    }
+}
+
+package "Server" {
+    class DatabaseServer {
+        - connection: TCPConnection
+
+        + saveCoordinateGroup(coordinateGroup)
+        + readCoordinateGroups()
+        + updateCoordinateGroup(id, newCartesianCoords, newPolarCoords)
+        + deleteCoordinateGroup(id)
+    }
+
+    class Coordinator {
+        - coordinateGroups: List<CoordinateGroup>
+
+        + addCoordinateGroup(coordinateGroup)
+        + getCoordinateGroups()
+        + updateCoordinateGroup(id, newCartesianCoords, newPolarCoords)
+        + deleteCoordinateGroup(id)
+    }
+}
+
+package "Utility" {
+    class TCPConnection {
+        - host: String
+        - port: int
+
+        + connect()
+        + disconnect()
+    }
+
+    class Filter {
+        - label: String
+
+        + filter(coordinateGroups)
+    }
+}
+@enduml

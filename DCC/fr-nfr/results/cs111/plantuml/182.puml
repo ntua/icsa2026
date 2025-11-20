@@ -1,0 +1,68 @@
+@startuml
+skinparam shadowing false
+
+package "Client" {
+    class DCCApplication {
+        + createCoordinateGroup(x: Double, y: Double, r: Double, theta: Double) : CoordinateGroup
+        + getCoordinateGroups() : List<CoordinateGroup>
+        + getCoordinateGroupByLabel(label: String) : CoordinateGroup
+        + updateCoordinateGroup(coordinateGroupId: Int, x: Double, y: Double, r: Double, theta: Double, label: String) : Boolean
+        + deleteCoordinateGroup(coordinateGroupId: Int) : Boolean
+    }
+}
+
+
+package "Server" {
+    class MySQLDatabase {
+        * connect() : void
+        * disconnect() : void
+        * storeCoordinateGroup(coordinateGroup: CoordinateGroup) : int
+        * retrieveAllCoordinateGroups() : List<CoordinateGroup>
+        * retrieveCoordinateGroupByLabel(label: String) : CoordinateGroup
+        * updateCoordinateGroup(coordinateGroupId: Int, coordinateGroup: CoordinateGroup) : Boolean
+        * deleteCoordinateGroup(coordinateGroupId: Int) : Boolean
+    }
+
+    class CartesianConverter {
+        + convertToPolar(x: Double, y: Double): PolarCoordinates
+        - toPolarFormula(double x, double y): PolarCoordinates // hidden implementation detail
+    }
+    
+    class PolarConverter {
+        + convertToCartesian(r: Double, theta: Double): CartesianCoordinates
+        - toCartesianFormula(double r, double theta): CartesianCoordinates // hidden implementation detail
+    }
+}
+
+
+class CoordinateGroup { 
+    * cartesian : CartesianCoordinates
+    * polar : PolarCoordinates
+    * label : String
+    * timestamp : Date
+    
+    + getX() : Double
+    + getY() : Double
+    + getR() : Double
+    + getTheta() : Double
+    + setLabel(label: String) : void
+}
+
+
+class CartesianCoordinates {
+    - x : Double
+    - y : Double
+    
+    + getDistanceFromOrigin() : Double // additional method based on the context
+    + toString(): String // helpful for debugging or displaying information about the object. 
+}
+
+
+class PolarCoordinates { 
+    - r : Double
+    - theta : Double
+    
+    + toDegrees() : Double // additional method based on the context
+    + toString(): String // helpful for debugging or displaying information about the object. 
+}
+@enduml

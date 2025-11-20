@@ -1,0 +1,53 @@
+@startuml
+
+package "Client" {
+    class DccApplication {
+        - coordinateGroupManager: CoordinateGroupManager
+        + run()
+        + inputCoordinateGroup()
+        + convertCartesianToPolar()
+        + convertPolarToCartesian()
+        + addCoordinateGroup()
+        + updateCoordinateGroup()
+        + deleteCoordinateGroup()
+        + refreshDisplay()
+        + filterDisplay()
+        + clearFilter()
+    }
+
+    class Coordinate {
+        - x: high-precision number
+        - y: high-precision number
+        - r: high-precision number
+        - theta: high-precision number
+    }
+
+    class CoordinateGroup {
+        - id: unique auto-generated integer
+        - label: string
+        - cartesianCoordinates: List<Coordinate>
+        - polarCoordinates: List<Coordinate>
+        - timestamp: datetime
+    }
+
+    class CoordinateGroupManager {
+        - coordinateGroups: List<CoordinateGroup>
+        + create(label: string, cartesianCoordinates: List<Coordinate>, polarCoordinates: List<Coordinate>) : CoordinateGroup
+        + read() : List<CoordinateGroup>
+        + update(id: int, label: string, cartesianCoordinates: List<Coordinate>, polarCoordinates: List<Coordinate>) : void
+        + delete(id: int) : void
+    }
+}
+
+package "Database Server" {
+    class MySqlDatabase {
+        - connection: TCP/IP connection
+        + executeQuery(query: string) : ResultSet
+        + executeUpdate(query: string) : int
+    }
+}
+
+DccApplication --> CoordinateGroupManager
+CoordinateGroupManager --> MySqlDatabase
+
+@enduml

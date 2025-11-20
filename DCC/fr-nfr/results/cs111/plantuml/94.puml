@@ -1,0 +1,47 @@
+@startuml
+package "Client" {
+    class DCCApplication {
+        + createCoordinateGroup(type: String, values: double[])
+        + storeCoordinateGroup(group: CoordinateGroup)
+        + retrieveCoordinateGroups(criteria: String)
+        + modifyCoordinateGroup(groupId: int, modifications: Map<String, Object>)
+        + deleteCoordinateGroup(groupId: int)
+
+    }
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double): double[]
+        + polarToCartesian(r: double, theta: double): double[]
+    }
+    DCCApplication --> CoordinateConverter
+}
+
+package "Server" {
+  class MySQLDatabase {
+      - connect()
+      - disconnect()
+      + storeCoordinateGroup(group: CoordinateGroup) : int
+      + getCoordinateGroups(criteria: String) : List<CoordinateGroup>
+      + updateCoordinateGroup(groupId: int, modifications: Map<String, Object>)
+      + deleteCoordinateGroup(groupId: int)
+  }
+  class CoordinateGroup {
+      - id: int
+      - label: String
+      - timestamp: Date
+      - cartesianCoordinates: double[] 
+      - polarCoordinates: double[]
+
+      + getCartesianCoordinates(): double[]
+      + setCartesianCoordinates(double[] coordinates): void
+      + getPolarCoordinates(): double[]
+      + setPolarCoordinates(double[] coordinates): void
+  }
+
+  MySQLDatabase <-- CoordinateGroup : "stores"
+}
+
+DCCApplication --> MySQLDatabase: "communicates via TCP/IP"
+
+
+
+@enduml

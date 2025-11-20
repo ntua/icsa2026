@@ -1,0 +1,82 @@
+@startuml
+package model {
+    class CoordinateGroup {
+        - id: Integer
+        - timestamp: Date
+        - label: String
+        - polarCoordinates: List<PolarCoordinate>
+        - cartesianCoordinates: List<CartesianCoordinate>
+
+        + getLabel(): String
+        + getPolarCoordinates(): List<PolarCoordinate>
+        + getCartesianCoordinates(): List<CartesianCoordinate>
+    }
+
+    class PolarCoordinate {
+        - r: Double
+        - theta: Double
+    }
+
+    class CartesianCoordinate {
+        - x: Double
+        - y: Double
+    }
+
+    class CoordinateConverter {
+        + convertPolarToCartesian(PolarCoordinate): CartesianCoordinate
+        + convertCartesianToPolar(CartesianCoordinate): PolarCoordinate
+    }
+}
+
+package controller {
+    class MainController {
+        - coordinateGroupDAO: CoordinateGroupDAO
+
+        + viewAllGroups(): List<CoordinateGroup>
+        + viewGroupByLabel(String): List<CoordinateGroup>
+        + deleteGroup(CoordinateGroup): void
+        + addGroup(CoordinateGroup): void
+        + updateGroup(CoordinateGroup): void
+    }
+}
+
+package persistence.dao {
+    class CoordinateGroupDAO {
+        - dbConnection: DatabaseConnection
+
+        + findAll(): List<CoordinateGroup>
+        + findByLabel(String): List<CoordinateGroup>
+        + delete(CoordinateGroup): void
+        + save(CoordinateGroup): void
+        + update(CoordinateGroup): void
+    }
+
+    class DatabaseConnection {
+        + connect(): Boolean
+        + disconnect(): void
+        + executeQuery(String): ResultSet
+        + executeUpdate(String): void
+    }
+}
+
+package view.gui {
+    class CoordinateGroupGUI {
+        - controller: MainController
+
+        + displayGroups(List<CoordinateGroup>): void
+        + showEmptyList(): void
+        + handleUserInput(): void
+    }
+}
+
+' Associations
+MainController --> CoordinateGroupDAO
+CoordinateGroupDAO --> DatabaseConnection
+DatabaseConnection --> CoordinateGroupDAO
+CoordinateGroupDAO --> MainController
+MainController --> CoordinateGroupGUI
+CoordinateGroup --> PolarCoordinate
+CoordinateGroup --> CartesianCoordinate
+CoordinateConverter --> PolarCoordinate
+CoordinateConverter --> CartesianCoordinate
+@enduml

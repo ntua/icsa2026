@@ -1,0 +1,49 @@
+@startuml
+package model {
+  abstract class Entity {
+    + ID
+    + Timestamp
+  }
+
+  class CoordinateGroup extends Entity {
+    - Label
+    - PolarCoordinates
+    - CartesianCoordinates
+  }
+}
+
+package controller {
+  class DatabaseConnection {
+    - dbConnection
+    + connect()
+    + disconnect()
+  }
+  
+  class CoordinatorController {
+    - databaseConnection
+    + deleteCoordinateGroup(CoordinateGroup group)
+    + viewAllCoordinateGroups()
+    + viewCoordinateGroupsByLabel(Label label)
+  }
+}
+
+package view {
+  abstract class GUIComponent {}
+  
+  class Button extends GUIComponent {
+    + onClick()
+  }
+  
+  class ListView extends GUIComponent {
+    - items
+    + addItem(Item item)
+  }
+}
+
+model -> controller: uses
+controller -> model: interacts with
+
+view -> controller: uses
+controller -> view: displays result of interactions
+
+@enduml

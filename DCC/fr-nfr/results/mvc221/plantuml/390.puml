@@ -1,0 +1,115 @@
+@startuml
+package CoordinateGroup {
+    
+    class CartesianCoordinates {
+        +double x, y;
+        +void setX(double newX);
+        +double getX();
+        +void setY(double newY);
+        +double getY();
+    }
+    
+    class PolarCoordinates {
+        +double r, theta;
+        +void setR(double newR);
+        +double getR();
+        +void setTheta(double newTheta);
+        +double getTheta();
+    }
+    
+    class CoordinateGroup {
+        +int id;
+        +String label;
+        +CartesianCoordinates cartesian;
+        +PolarCoordinates polar;
+        
+        +void setLabel(String newLabel);
+        +String getLabel();
+        +void addCartesian(double x, double y);
+        +CartesianCoordinates getCartesian();
+        +void addPolar(double r, double theta);
+        +PolarCoordinates getPolar();
+    }
+}
+package "Database" {
+    class DatabaseConnection {
+        +String host;
+        +int port;
+        
+        +void connect();
+        +boolean isConnected();
+    }
+    
+    class CoordinateGroupRecord {
+        +int id;
+        +String label;
+        +CartesianCoordinates cartesian;
+        +PolarCoordinates polar;
+        +DateTime timestamp;
+        
+        +void setLabel(String newLabel);
+        +String getLabel();
+        +void addCartesian(double x, double y);
+        +CartesianCoordinates getCartesian();
+        +void addPolar(double r, double theta);
+        +PolarCoordinates getPolar();
+    }
+    
+    class Database {
+        -DatabaseConnection dbConnection;
+        
+        +void connectToDb(String host, int port);
+        +List<CoordinateGroupRecord> retrieveAllRecords();
+        +boolean saveRecord(CoordinateGroupRecord record);
+        +boolean updateRecord(int id, CoordinateGroupRecord updatedRecord);
+        +void deleteRecord(int id);
+    }
+}
+package "Converter" {
+    
+    class CoordinateConversionLogic {
+        +double cartesianToPolar(CartesianCoordinates c);
+        +void polarToCartesian(PolarCoordinates p, CartesianCoordinates resultX, double resultY);
+    }
+}
+
+package "UserInteraction" {
+
+    class UserInputComponent {
+        +String label;
+        
+        +void setLabel(String newLabel);
+        +String getLabel();
+    }
+    
+    class CoordinateGroupControlPanel {
+        -UserInputComponent inputComponent;
+        +int currentId = 0;
+        +CoordinateConversionLogic conversionLogic;
+        
+        +void setCurrentId(int newId);
+        +int getCurrentId();
+    }
+}
+
+package "Controller" {
+    class DCCApplicationController {
+        -CoordinateGroup currentCoordGroup = null;
+        
+        +void addCartesian(double x, double y);
+        +PolarCoordinates getPolarForCartesian();
+        +void updateRecord();
+        +void deleteRecord();
+    }
+}
+
+package "Frontend" {
+
+    class CoordinateGroupMainWindow extends JFrame {
+        -DCCApplicationController controller;
+        
+        +CoordinateGroupControlPanel controlPanel = null;
+        +void setController(DCCApplicationController newController);
+    }
+}
+@enduml

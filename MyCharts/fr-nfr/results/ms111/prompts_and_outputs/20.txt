@@ -1,0 +1,257 @@
+Response:
+Below is an example **PlantUML** class diagram capturing a possible microservices-oriented design that meets the stated requirements and architecture guidelines. It defines four microservices—**AuthService**, **UserService**, **ChartService**, and **PaymentService**—and highlights the key classes, methods (with classifications), attributes, and inter-service associations.
+
+Following the diagram, you will find a **JSON** object reporting the requested architecture characteristics.
+
+```plantuml
+@startuml
+
+skinparam packageStyle rect
+skinparam classAttributeIconSize 0
+
+title Microservices Architecture Class Diagram
+
+' =========================
+' Auth Service
+' =========================
+package "Auth Service" {
+  class AuthService <<microservice>> {
+    +loginWithGoogle()  ' // Functional requirement-business logic operation
+    +validateToken()     ' // Flow control operation (invoked to coordinate with Google or internal checks)
+  }
+
+  ' (No dedicated data entity here since AuthService is stateless and relies on Google + UserService)
+}
+
+' =========================
+' User Service
+' =========================
+package "User Service" {
+  class UserService <<microservice>> {
+    -usersDB : Map<String, User>        ' Example representation of a dedicated data store
+    +createOrUpdateUser()              ' // Data management operation
+    +getUserProfile()                   ' // Functional requirement-business logic operation
+    +updateQuota()                      ' // Data consistency operation (called by ChartService/PaymentService)
+  }
+
+  class User {
+    -userId : String
+    -name : String
+    -email : String
+    -profilePicture : String
+    -remainingQuota : int
+    -createdAt : Date
+    -lastLogin : Date
+  }
+}
+
+' =========================
+' Chart Service
+' =========================
+package "Chart Service" {
+  class ChartService <<microservice>> {
+    -chartsDB : Map<String, Chart>         ' Example dedicated data store
+    +downloadCSVTemplate()                 ' // Functional requirement-business logic operation
+    +uploadCSVFile()                       ' // Functional requirement-business logic operation
+    +validateCSV()                         ' // Functional requirement-business logic operation
+    +generateChart()                       ' // Functional requirement-business logic operation
+    +saveChart()                           ' // Data management operation
+    +getChartHistory()                     ' // Functional requirement-business logic operation
+    +downloadChart()                       ' // Functional requirement-business logic operation
+    +deleteChart()                         ' // Functional requirement-business logic operation
+    +checkAndDecrementQuota()              ' // Flow control operation (calls UserService to update quota)
+  }
+
+  class Chart {
+    -chartId : String
+    -userId : String
+    -chartType : String
+    -creationDate : Date
+    -filePaths : List<String>
+  }
+}
+
+' =========================
+' Payment Service
+' =========================
+package "Payment Service" {
+  class PaymentService <<microservice>> {
+    -transactionsDB : Map<String, PaymentTransaction>  ' Example dedicated data store
+    +processPayment()                                  ' // Functional requirement-business logic operation
+    +completeTransaction()                             ' // Data consistency operation (updates UserService with new quota)
+  }
+
+  class PaymentTransaction {
+    -transactionId : String
+    -userId : String
+    -amount : double
+    -transactionDate : Date
+    -status : String
+  }
+}
+
+' =========================
+' Inter-Service Associations
+' =========================
+
+' AuthService calls UserService to create or update user records upon successful Google login
+AuthService --> UserService : createOrUpdateUser()
+
+' ChartService calls UserService to check/update quota usage
+ChartService --> UserService : updateQuota()
+
+' PaymentService calls UserService to update quotas upon successful payment
+PaymentService --> UserService : updateQuota()
+
+@enduml
+```
+
+---
+
+## Architecture Characteristics
+
+Below is a JSON object with the requested metrics. Explanations for each metric:
+
+1. **SI (Statelessness Index)**  
+   \(\text{SI} = \frac{\#\{\text{stateless services}\}}{\#\{\text{total services}\}}\)
+
+2. **DOC (Data Ownership Count)**  
+   \(\text{DOC} = \frac{\#\{\text{services that manage a dedicated data store}\}}{\#\{\text{total services}\}}\)
+
+3. **SST (Service Support for Transactions)**  
+   \(\text{SST} = \frac{\#\{\text{services with at least one data consistency operation}\}}{\#\{\text{total services}\}}\)
+
+4. **SIC (Service Interface Count)**  
+   The number of interfaces (endpoints) a given service exposes (for simplicity, each service is modeled as having a single main interface).
+
+5. **AIS(in)**  
+   Number of distinct **microservice** consumers of service \(S\).
+
+6. **ADS(out)**  
+   Number of distinct **microservices** that service \(S\) calls.
+
+7. **SC (Services Contributing)**  
+   For each use case, the set of microservices that must collaborate to complete it.
+
+```json
+{
+  "SI": [0.25, 1],
+  "DOC": [0.75, 0.75],
+  "SST": [0.5, 0.5],
+  "services": [
+    {
+      "service_name": "AuthService",
+      "SIC": [1, 2],
+      "AIS(in)": [0, 0],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "UserService",
+      "SIC": [1, 3],
+      "AIS(in)": [3, 3],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "ChartService",
+      "SIC": [1, 9],
+      "AIS(in)": [0, 0],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "PaymentService",
+      "SIC": [1, 2],
+      "AIS(in)": [0, 0],
+      "ADS(out)": [1, 1]
+    }
+  ],
+  "use_cases": [
+    {
+      "use_case_name": "Authenticate users via Google accounts",
+      "SC": [["AuthService", "UserService"], ["AuthService", "UserService"]]
+    },
+    {
+      "use_case_name": "Allow download of CSV templates",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Upload CSV file",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Validate uploaded CSV file",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Generate charts (Highcharts)",
+      "SC": [["ChartService", "UserService"], ["ChartService", "UserService"]]
+    },
+    {
+      "use_case_name": "Save charts in PDF, PNG, SVG, HTML",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Display dashboard (chart history)",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Download selected chart",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Charge quotas for chart creation",
+      "SC": [["ChartService", "UserService"], ["ChartService", "UserService"]]
+    },
+    {
+      "use_case_name": "Delete or download charts",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Sell quotas and receive payment",
+      "SC": [["PaymentService", "UserService"], ["PaymentService", "UserService"]]
+    },
+    {
+      "use_case_name": "Maintain user profiles (CRUD)",
+      "SC": [["UserService"], ["UserService"]]
+    },
+    {
+      "use_case_name": "Display user profile info (inc. quotas)",
+      "SC": [["UserService"], ["UserService"]]
+    }
+  ]
+}
+```
+
+### Explanation of Key Points
+
+1. **Number of Services (4 total)**
+   - **AuthService** (stateless, responsible for Google-based login and token validation)
+   - **UserService** (manages user data, profile info, and quota)
+   - **ChartService** (handles CSV templates, CSV validation, chart generation, and chart storage)
+   - **PaymentService** (manages payment transactions and coordinates quota updates with UserService)
+
+2. **Stateless Services (\(\text{SI}\))**  
+   - Only **AuthService** is fully stateless (it does not own a dedicated database nor persist data across requests).  
+   \(\text{SI} = 1/4 = 0.25\)
+
+3. **Data Ownership Count (\(\text{DOC}\))**  
+   - **UserService**, **ChartService**, **PaymentService** each manages its own dedicated data store.  
+   \(\text{DOC} = 3/4 = 0.75\)
+
+4. **Service Support for Transactions (\(\text{SST}\))**  
+   - **UserService** (has `updateQuota()` to keep user data consistent based on events from ChartService / PaymentService).  
+   - **PaymentService** (coordinates payment completion and calls `UserService.updateQuota()`).  
+   Thus, two services have data consistency operations.  
+   \(\text{SST} = 2/4 = 0.5\)
+
+5. **Service Interface Count (\(\text{SIC}\))**  
+   - Each microservice exposes one main interface/endpoint in this simplified design. Thus, **SIC = 1** for each service.
+
+6. **AIS(in) & ADS(out)**  
+   - **UserService** is called by three other services (**AuthService**, **ChartService**, **PaymentService**) → AIS(in) = 3.  
+   - **AuthService**, **ChartService**, **PaymentService** each call **UserService**, so their ADS(out) is 1.  
+   - **UserService** does not call other services → ADS(out) = 0.
+
+7. **Use Cases (SC)**  
+   Each use case references the set of microservices required to fulfill it. For example, “Generate charts” involves both **ChartService** and **UserService** (to check/decrement quotas), while “Sell quotas and receive payment” requires **PaymentService** and **UserService**.
+
+This overall design meets the microservices architecture guidelines: **independent data stores, high cohesion around specific functional contexts, low coupling through well-defined service interfaces, and clear data consistency flows** (e.g., PaymentService informing UserService of quota purchases).

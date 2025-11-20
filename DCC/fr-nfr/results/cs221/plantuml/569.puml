@@ -1,0 +1,70 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package definitions
+package "Client" {
+    ' Classes handling user interaction, business logic, and client-side operations
+    class DCCClient {
+        - String label
+        - CoordinateGroup currentCoordinateGroup
+        - List<CoordinateGroup> coordinateGroups
+        + void initialize()
+        + void handleUserInputCartesian(double x, double y)
+        + void handleUserInputPolar(double r, double theta)
+        + void performCreateOperation()
+        + void performReadOperation()
+        + void performUpdateOperation(int id)
+        + void performDeleteOperation(int id)
+        + void refreshDisplay()
+        + void applyFilter(String label)
+        + void clearFilter()
+    }
+
+    class CoordinateConverter {
+        + CartesianCoordinate convertPolarToCartesian(PolarCoordinate polar)
+        + PolarCoordinate convertCartesianToPolar(CartesianCoordinate cartesian)
+    }
+}
+
+package "Server" {
+    ' Classes handling database operations and persistence
+    class DatabaseManager {
+        - Connection dbConnection
+        + void connect()
+        + void disconnect()
+        + int createCoordinateGroup(String label, CoordinateGroup group)
+        + List<CoordinateGroup> readCoordinateGroups(String filter = null)
+        + bool updateCoordinateGroup(int id, String label, CoordinateGroup group)
+        + bool deleteCoordinateGroup(int id)
+    }
+}
+
+package "Common" {
+    ' Data classes shared between client and server
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoordinate cartesian
+        - PolarCoordinate polar
+        - DateTime timestamp
+    }
+
+    class CartesianCoordinate {
+        + double x
+        + double y
+    }
+
+    class PolarCoordinate {
+        + double r
+        + double theta
+    }
+}
+
+' Associations and relationships
+DCCClient --* CoordinateConverter : Uses
+DCCClient --* DatabaseManager : Communicates with
+CoordinateGroup *-- CartesianCoordinate : Contains
+CoordinateGroup *-- PolarCoordinate : Contains
+
+DatabaseManager --* CoordinateGroup : Manages
+DCCClient --* CoordinateGroup : Handles
+@enduml

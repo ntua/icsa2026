@@ -1,0 +1,65 @@
+@startuml
+package "UI" {
+  class UserInteraction {
+  +createCoordinateGroup(cartesian: String, polar: String)
+  +saveCoordinateGroup(label: String, cart: String, pol: String)
+  +updateCoordinateGroup(id: Int, label: String, cart: String, pol: String)
+  +deleteCoordinateGroup(id: Int)
+}
+  class CoordinateGroupViewer
+}
+
+package "BusinessLogic" {
+  class CoordinateConverter {
+  +convertCartesianToPolar(cartesian: String): String
+  +convertPolarToCartesian(polar: String): String
+}
+
+class CoordinateGroupManager {
+  -coordinateGroups: ArrayList<CoordinateGroup>
+  +addCoordinateGroup(group: CoordinateGroup)
+  +updateCoordinateGroup(id: Int, group: CoordinateGroup)
+  +deleteCoordinateGroup(id: Int)
+  +getAllCoordinateGroups(): ArrayList<CoordinateGroup>
+}
+
+class MySQLDatabase {
+  +saveData(data: String): String
+  +fetchData(query: String): String
+}
+
+class TCPConnectionHandler {
+  +establishTCPConnection()
+  -tcpSocket: Socket
+}
+}
+
+package "DataStorage" {
+  class CoordinateGroup {
+  -cartesianCoordinates: String
+  -polarCoordinates: String
+  -label: String
+  -timestamp: Date
+}
+
+class MySQLTable {
+  +saveData(data: String): String
+  +fetchData(query: String): String
+}
+}
+
+
+
+
+
+
+CoordinateConverter --|> CoordinateGroupManager
+UserInteraction --|> CoordinateGroupManager
+
+MySQLDatabase --|> CoordinateGroupManager
+TCPConnectionHandler --|> CoordinateGroupManager
+
+CoordinateGroupManager --o MySQLTable
+CoordinateGroupManager --o TCPConnectionHandler
+
+@enduml

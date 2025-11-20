@@ -1,0 +1,70 @@
+@startuml
+package "Client" {
+  class SwingInterface {
+    + displayCoordinateGroups() : void
+    + getCoordinateInput() : CoordinateGroup
+    + displayErrorMessage(message: String) : void
+  }
+}
+
+package "Logic" {
+  class CoordinateConverter {
+    + cartesianToPolar(cartesian: CartesianCoordinates) : PolarCoordinates
+    + polarToCartesian(polar: PolarCoordinates) : CartesianCoordinates
+  }
+
+  class CoordinateGroupManager {
+    - coordinateGroups : List<CoordinateGroup>
+    + createCoordinateGroup(label: String, coordinates: CoordinateGroup) : int
+    + readAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, newCoordinates: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+
+  class CoordinateGroup {
+    - id : int
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    + getLabel() : String
+    + setLabel(label: String) : void
+    + getCartesianCoordinates() : CartesianCoordinates
+    + setCartesianCoordinates(coordinates: CartesianCoordinates) : void
+    + getPolarCoordinates() : PolarCoordinates
+    + setPolarCoordinates(coordinates: PolarCoordinates) : void
+  }
+
+  class CartesianCoordinates {
+    - x : double
+    - y : double
+    + getX() : double
+    + getY() : double
+    + setX(x: double) : void
+    + setY(y: double) : void
+  }
+
+  class PolarCoordinates {
+    - r : double
+    - theta : double
+    + getR() : double
+    + getTheta() : double
+    + setR(r: double) : void
+    + setTheta(theta: double) : void
+  }
+
+}
+
+package "Database" {
+  class DatabaseConnector {
+    + connectToDatabase() : void
+    + executeQuery(query: String) : ResultSet
+  }
+}
+
+
+SwingInterface --> CoordinateGroupManager
+CoordinateGroupManager --> CoordinateConverter
+CoordinateGroupManager --> CoordinateGroup
+CoordinateGroupManager --> DatabaseConnector
+
+@enduml

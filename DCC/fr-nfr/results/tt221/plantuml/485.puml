@@ -1,0 +1,88 @@
+@startuml
+
+package "Presentation Tier" {
+    class DCCGUI {
+        - CoordinateService coordinateService
+        + DCCGUI()
+        + initUI()
+        + displayRecords(List<CoordinateRecord> records)
+        + handleAdd()
+        + handleUpdate()
+        + handleDelete()
+        + handleFilter(String filter)
+        + handleClearFilter()
+    }
+}
+
+package "Business Logic Tier" {
+    class CoordinateService {
+        - CoordinateDAO coordinateDao
+        + createCoordinateGroup(label: String, cartesian: Cartesian)
+        + createCoordinateGroup(label: String, polar: Polar)
+        + getAllCoordinateGroups(): List<CoordinateRecord>
+        + updateCoordinateGroup(id: int, label: String, coordinates: Object)
+        + deleteCoordinateGroup(id: int)
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(c: Cartesian): Polar
+        + polarToCartesian(p: Polar): Cartesian
+    }
+}
+
+package "Data Access Tier" {
+    class CoordinateDAO {
+        + insert(record: CoordinateRecord)
+        + selectAll(): List<CoordinateRecord>
+        + update(record: CoordinateRecord)
+        + delete(id: int)
+    }
+}
+
+package "Model" {
+    class Cartesian {
+        - x: double
+        - y: double
+        + Cartesian(x: double, y: double)
+        + getters/setters
+    }
+
+    class Polar {
+        - r: double
+        - theta: double
+        + Polar(r: double, theta: double)
+        + getters/setters
+    }
+
+    class CoordinateGroup {
+        - label: String
+        - cartesian: Cartesian
+        - polar: Polar
+        + CoordinateGroup(label: String, cartesian: Cartesian, polar: Polar)
+        + getters/setters
+    }
+
+    class CoordinateRecord {
+        - id: int
+        - label: String
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        - timestamp: DateTime
+        + CoordinateRecord(id: int, label: String, x: double, y: double, r: double, theta: double, timestamp: DateTime)
+        + getters
+    }
+}
+
+' Associations
+DCCGUI --> CoordinateService : depends on
+CoordinateService --> CoordinateDAO : depends on
+CoordinateService --> CoordinateConverter : uses
+CoordinateService --> CoordinateGroup : manages
+CoordinateService --> CoordinateRecord : transfers
+CoordinateDAO --> CoordinateRecord : manages
+CoordinateGroup *-- Cartesian : contains
+CoordinateGroup *-- Polar : contains
+
+@enduml

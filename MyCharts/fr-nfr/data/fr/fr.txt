@@ -1,0 +1,15 @@
+Functional Requirements  
+
+1. Authenticate users via Google accounts.  
+2. Allow download of CSV templates for 3 supported chart types (Basic line, Line with annotations, Basic column).  
+3. Upload CSV file with the user data for chart generation.
+4. Validate uploaded CSV files against the template structure, data types, and mandatory data existence.  
+5. Generate charts with data from the CSV file uploaded by the user, using Highcharts.  
+6. Save charts to the server in PDF, PNG, SVG, and HTML formats.  
+7. Display a dashboard with the history of user-generated charts, including chart previews.  
+8. Download selected chart type.
+9. Charge quotas for chart creation.  
+10. Allow users to delete or download charts. 
+11. Sell quotas and receive payment by a payment gateway
+12. Maintain user profiles containing the following data: Name (from Google account), profile picture (from Google account), email (from Google account), remaining quota, account creation timestamp, last login timestamp.  
+13. Display user's profile info, including remaining quotas.

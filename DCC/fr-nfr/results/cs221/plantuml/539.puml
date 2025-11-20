@@ -1,0 +1,90 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Client" {
+    package "GUI" {
+        class DCCApp {
+            - Label label
+            - CoordinateGroup currentCoordinateGroup
+            - List<CoordinateGroup> coordinateGroups
+            
+            + void initialize()
+            + void addCoordinateGroup()
+            + void updateCoordinateGroup()
+            + void deleteCoordinateGroup()
+            + void refreshDisplay()
+            + void filterByLabel(String label)
+            + void clearFilter()
+        }
+        
+        class CoordinateGroupGUIController {
+            - DCCApp app
+            - CartesianCoordinates cartesianInput
+            - PolarCoordinates polarInput
+            
+            + void handleAddButtonClicked()
+            + void handleUpdateButtonClicked()
+            + void handleDeleteButtonClicked()
+            + void handleInputChanged(CartesianCoordinates newCartesian)
+            + void handleInputChanged(PolarCoordinates newPolar)
+        }
+    }
+
+    package "Logic" {
+        class CartesianCoordinates {
+            - double x
+            - double y
+            
+            + CartesianCoordinates(double x, double y)
+            + PolarCoordinates convertToPolar()
+        }
+        
+        class PolarCoordinates {
+            - double r
+            - double theta
+            
+            + PolarCoordinates(double r, double theta)
+            + CartesianCoordinates convertToCartesian()
+        }
+
+        class CoordinateGroup {
+            - int id
+            - String label
+            - CartesianCoordinates cartesian
+            - PolarCoordinates polar
+            - DateTime timestamp
+            
+            + CoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+            + void add()
+            + void update()
+            + void delete()
+            + static List<CoordinateGroup> readAll()
+        }
+    }
+}
+
+package "Server" {
+    class DatabaseAccess {
+        - Connection dbConnection
+        
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        
+        + DatabaseAccess()
+        + ~DatabaseAccess()
+    }
+}
+
+' Associations
+DCCApp --> CoordinateGroup : uses
+DCCApp --> DatabaseAccess : interacts with
+CoordinateGroupGUIController --> DCCApp : part of
+CoordinateGroup --* CartesianCoordinates : composition
+CoordinateGroup --* PolarCoordinates : composition
+CartesianCoordinates --> PolarCoordinates : converts to
+PolarCoordinates --> CartesianCoordinates : converts to
+DatabaseAccess --> CoordinateGroup : manages
+
+@enduml

@@ -1,0 +1,56 @@
+@startuml
+
+package "Client" {
+  class DCCApp {
+    + run()
+    - createCoordinateGroup(type: String, values: List<Double>) : CoordinateGroup
+    - storeCoordinateGroup(group: CoordinateGroup)
+    - retrieveCoordinateGroups(method: String, label: String) : List<CoordinateGroup>
+    - modifyCoordinateGroup(group: CoordinateGroup, newValues: List<Double>, newLabel: String)
+    - deleteCoordinateGroup(groupId: int)
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double): (double, double)
+    + polarToCartesian(r: double, theta: double): (double, double)
+  }
+
+}
+
+package "Server" {
+  class DatabaseConnection {
+    + connectToDatabase()
+    - executeQuery(query: String): List<Object>
+  }
+
+  class CoordinateGroupDAO {
+    - dbConnection: DatabaseConnection
+    + saveCoordinateGroup(group: CoordinateGroup)
+    + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(groupId: int)
+
+  }
+
+}
+
+package "Data" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: (double, double)
+    - polarCoordinates: (double, double)
+    + getCoordinatesByType(type: String): (double, double)
+
+  }
+}
+
+
+DCCApp --> CoordinateConverter
+DCCApp --> CoordinateGroupDAO
+
+CoordinateGroupDAO --> DatabaseConnection
+
+@enduml

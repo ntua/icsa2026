@@ -1,0 +1,141 @@
+@startuml
+
+'
+' ===========================
+'      PACKAGE: CLIENT
+' ===========================
+package "client" {
+  class "DCCGUI" {
+    - addButton : JButton
+    - updateButton : JButton
+    - viewAllButton : JButton
+    - viewByLabelButton : JButton
+    - deleteButton : JButton
+
+    + showAllGroups(List<CoordinateGroup>) : void
+    + showGroupsByLabel(List<CoordinateGroup>) : void
+    + showErrorMessage(String) : void
+  }
+
+  class "DCCClient" {
+    + createCoordinateGroup(type: String, xOrR: double, yOrTheta: double, label: String) : void
+    + modifyCoordinateGroup(id: int, type: String, xOrR: double, yOrTheta: double, label: String) : void
+    + deleteCoordinateGroup(id: int) : void
+    + viewAllCoordinateGroups() : List<CoordinateGroup>
+    + viewCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+  }
+}
+
+'
+' ===========================
+'      PACKAGE: SERVER
+' ===========================
+package "server" {
+  class "DCCServer" {
+    + createCoordinateGroup(...)
+    + modifyCoordinateGroup(...)
+    + deleteCoordinateGroup(...)
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+  }
+
+  class "CoordinateGroupController" {
+    + createGroup(type: String, xOrR: double, yOrTheta: double, label: String) : CoordinateGroup
+    + modifyGroup(id: int, type: String, xOrR: double, yOrTheta: double, label: String) : CoordinateGroup
+    + deleteGroup(id: int) : void
+    + getAllGroups() : List<CoordinateGroup>
+    + getGroupsByLabel(label: String) : List<CoordinateGroup>
+  }
+}
+
+'
+' ===========================
+'  PACKAGE: DOMAIN / MODEL
+' ===========================
+package "domain" {
+  class "CoordinateGroup" {
+    - id : int
+    - label : String
+    - timestamp : Date
+    - cartesian : CartesianCoordinate
+    - polar : PolarCoordinate
+
+    + getId() : int
+    + getLabel() : String
+    + getTimestamp() : Date
+    + getCartesian() : CartesianCoordinate
+    + getPolar() : PolarCoordinate
+    + setCartesian(CartesianCoordinate) : void
+    + setPolar(PolarCoordinate) : void
+  }
+
+  class "CartesianCoordinate" {
+    - x : double
+    - y : double
+    + getX() : double
+    + getY() : double
+  }
+
+  class "PolarCoordinate" {
+    - r : double
+    - theta : double
+    + getR() : double
+    + getTheta() : double
+  }
+
+  class "CoordinateConverter" {
+    + cartesianToPolar(x: double, y: double) : PolarCoordinate
+    + polarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+}
+
+'
+' ===========================
+'   PACKAGE: DATA ACCESS
+' ===========================
+package "data" {
+  class "CoordinateGroupDAO" {
+    + create(CoordinateGroup) : void
+    + update(CoordinateGroup) : void
+    + findAll() : List<CoordinateGroup>
+    + findByLabel(label: String) : List<CoordinateGroup>
+    + delete(int) : void
+  }
+
+  class "DatabaseConnection" {
+    - connectionUrl : String
+    - username : String
+    - password : String
+
+    + connect() : void
+    + disconnect() : void
+    + getConnection() : Connection
+  }
+}
+
+
+'
+' ===========================
+'   RELATIONSHIPS / LINKS
+' ===========================
+'DCCGUI uses DCCClient for all requests
+DCCGUI --> DCCClient : calls
+
+'The Client uses the Server (DCCServer), typically via network calls
+DCCClient --> DCCServer : remote calls
+
+'The DCCServer delegates to CoordinateGroupController
+DCCServer --> CoordinateGroupController : uses
+
+'Controller uses DAO for persistence and Converter for coordinate transformations
+CoordinateGroupController --> CoordinateGroupDAO : CRUD operations
+CoordinateGroupController --> CoordinateConverter : convert
+
+'DAO needs DatabaseConnection
+CoordinateGroupDAO --> DatabaseConnection : uses
+
+'CoordinateGroup has a composition with Cartesian and Polar coordinates
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+@enduml

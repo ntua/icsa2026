@@ -1,0 +1,14 @@
+Non-Functional Requirements
+
+Performance  
+- Chart generation completes within **3 seconds**.  
+Usability  
+- Intuitive UI with guided workflows (e.g., tooltips, validation hints) to assist non-technical users.  
+Security  
+- SSL encryption: Data transmitted ove the internet is encrypted using SSL.  
+Availability    
+- The service should be available 90% of the time on a daily basis.
+- The system should prioritize **Availability over Consistency** during network partitioning.  
+- While in network partitioning, although temporary data inconsistencies may occur, as many as possible services should remain fully operational. 
+Scalability  
+- Support 1,000 concurrent users.  

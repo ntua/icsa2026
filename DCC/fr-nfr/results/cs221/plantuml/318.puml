@@ -1,0 +1,76 @@
+@startuml
+package "Client" {
+    class CoordinateGroupManager {
+        - coordinateGroupDatabase: CoordinateGroupDatabase
+        - userInterface: UserInterface
+        
+        + run()
+        
+        - createCoordinateGroup(label: String, x: Double, y: Double)
+        - readCoordinateGroups(filterLabel: String)
+        - updateCoordinateGroup(id: Int, newLabel: String, newX: Double, newY: Double)
+        - deleteCoordinateGroup(id: Int)
+    }
+    
+    class CoordinateConverter {
+        - coordinateDatabase: CoordinateDatabase
+        
+        + cartesianToPolar(x: Double, y: Double): PolarCoordinates
+        + polarToCartesian(r: Double, theta: Double): CartesianCoordinates
+    }
+}
+
+package "Server" {
+    class CoordinateGroupDatabase {
+        + saveCoordinateGroup(id: Int, label: String, x: Double, y: Double)
+        + getCoordinateGroups(): List<CoordinateGroup>
+        
+        - id: Int
+        - label: String
+        - x: Double
+        - y: Double
+        
+        + readCoordinateGroups()
+    }
+    
+    class CoordinateDatabase {
+        + saveCoordinates(id: Int, x: Double, y: Double)
+        + getCoordinates(): List<Coordinates>
+        
+        - id: Int
+        - x: Double
+        - y: Double
+        
+        + readCoordinates()
+    }
+}
+
+package "Shared" {
+    class UserInterface {
+        - userInputs: Map<String, String>
+        
+        + updateLabel(newLabel: String)
+        + updateXNewX(newValueX: Double)
+        + updateYNewY(newValueY: Double)
+        + updateAddButton()
+        + filterCoordinateGroups(filterLabel: String)
+    }
+    
+    class Coordinate {
+        - x: Double
+        - y: Double
+        
+        + getCartesianCoordinates(): CartesianCoordinates
+        + getPolarCoordinates(): PolarCoordinates
+    }
+}
+
+package "Client" {
+    CoordinateConverter --|> CoordinateGroupManager
+    
+    UserInterface --|> CoordinateGroupManager
+    
+    CoordinateGroupDatabase --|> CoordinateGroupManager
+}
+
+@enduml

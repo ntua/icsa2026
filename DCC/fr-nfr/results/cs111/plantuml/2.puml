@@ -1,0 +1,57 @@
+@startuml
+package frontend {
+    package gui {
+        class CoordinateGroupGUI {
+            + createCoordinateGroup(Cartesian|Polar)
+            + storeCoordinateGroup(CoordinateGroup)
+            + retrieveCoordinateGroups(Label|All)
+            + modifyCoordinateGroup(CoordinateGroup)
+            + deleteCoordinateGroup(CoordinateGroup)
+        }
+        
+        class CoordinateGroupPanel {
+            + drawCartesianCoordinate(Cartesian)
+            + drawPolarCoordinate(Polar)
+            - displayCoordinateGroup(CoordinateGroup)
+        }
+    }
+}
+
+package database {
+    class MySQLDatabaseConnection {
+        + connect()
+        - disconnect()
+        - storeCoordinateGroup(CoordinateGroup)
+        - retrieveCoordinateGroups(Label|All)
+        - modifyCoordinateGroup(CoordinateGroup)
+        - deleteCoordinateGroup(CoordinateGroup)
+    }
+    
+    class CoordinateGroupTable {
+        - addCoordinateGroup(CoordinateGroup)
+        - removeCoordinateGroup(CoordinateGroup)
+        + getCoordinateGroups()
+    }
+}
+
+package model {
+    abstract class CoordinateGroup {
+        + id(Integer)
+        + label(String)
+        + timestamp(Timestamp)
+        
+        + createCartesianCoordinate(x, y)
+        + createPolarCoordinate(r, theta)
+    }
+    
+    class CartesianCoordinate extends CoordinateGroup {
+        - x(Double)
+        - y(Double)
+    }
+    
+    class PolarCoordinate extends CoordinateGroup {
+        - r(Double)
+        - theta(Double)
+    }
+}
+@enduml

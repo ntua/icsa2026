@@ -1,0 +1,60 @@
+@startuml
+
+package "Client" {
+  class DccApplication {
+    - coordinateGroupManager: CoordinateGroupManager
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: List<CartesianCoordinate>
+    - polarCoordinates: List<PolarCoordinate>
+  }
+  
+  class CartesianCoordinate {
+    - x: float
+    - y: float
+  }
+  
+  class PolarCoordinate {
+    - r: float
+    - theta: float
+  }
+  
+  DccApplication --> CoordinateGroupManager
+  CoordinateGroupManager "1" -- "*" CoordinateGroup
+}
+
+package "Server" {
+  interface MySQLDatabase {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+  
+  class CoordinateGroupDao {
+    - database: MySQLDatabase
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+  
+  MySQLDatabase <|-- CoordinateGroupDao
+}
+
+package "Network" {
+  class TcpIpConnection {
+    - serverAddress: String
+    - serverPort: int
+    + connect()
+    + sendData(data: String)
+    + receiveData(): String
+  }
+  
+  DccApplication --> TcpIpConnection
+}
+
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+
+package Database {
+  class MySQLDatabase {
+    - connection: Connection
+  }
+  
+  class CoordinateGroupTable {
+    - coordinateGroups: List<CoordinateGroup>
+    
+    + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+  
+  class CoordinateGroup {
+    - id: Int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: String
+    - cartesianCoordinates: String
+    
+    + getPolarCoordinates(): String
+    + getCartesianCoordinates(): String
+  }
+}
+
+package UserInterface {
+  class MainWindow {
+    - coordinateGroupTable: CoordinateGroupTable
+    - database: MySQLDatabase
+    
+    + initialize()
+    + typeLabel(label: String)
+    + findByLabel()
+    + viewCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + selectCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup()
+  }
+}
+
+Database "1" -- "0..*" UserInterface
+UserInterface "1" -- "*" Database
+@enduml

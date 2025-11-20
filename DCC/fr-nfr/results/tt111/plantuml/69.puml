@@ -1,0 +1,89 @@
+@startuml
+package "Coordinate Group" {
+    abstract class AbstractCoordinateGroup {
+        + String label;
+        + timestamp dateCreated;
+        
+        +String getLabel();
+        +Date getTimestamp();
+        + void setLabel(String newLabel);
+        +void updateTimestamp();
+        + boolean isValid(); // validation logic
+    }
+    
+class CartesianCoordinateGroup extends AbstractCoordinateGroup {
+        private int x;
+        private int y;
+        
+        +int getX();
+        +int getY();
+        + void setX(int newValue);
+        +void setY(int newValue);
+    }
+    
+class PolarCoordinateGroup extends AbstractCoordinateGroup {
+        private double r;
+        private double theta;
+        
+        +double getR();
+        +double getTheta();
+        + void setR(double newValue);
+        +void setTheta(double newValue);
+    }
+}
+  
+package "Coordinate Conversion" {
+    
+interface CoordinateConverter{
+        abstract double[] convertToCartesian(PolarCoordinateGroup polarCoordinates);
+        abstract PolarCoordinateGroup convertToPolar(double[] cartesianCoordinates);
+    }
+    
+class CartesianToPolar implements CoordinateConverter {
+        +double[] convertToPolar(double[] cartesianCoordinates)
+    }
+  
+class PolarToCartesian implements CoordinateConverter {
+        +double[] convertToCartesian(PolarCoordinateGroup polarCoordinates)
+    }
+}
+ 
+package "DCC Application" {
+    
+abstract class AbstractCoordinationConversionApplication{
+        
+    abstract void createMenuBar(); // add menus based on specific application needs
+        abstract Object getCoordinateGroup(String label); // retrieving coordinate group from the database by label
+        abstract boolean isUserAuthorizedForModification(int userId, int coordGroupId); // authorization logic
+        
+    + void initializeComponents() { /* implementation here */ }
+}
+  
+class DCCApplication extends AbstractCoordinationConversionApplication {
+    
+    private CoordinateConverter converter;
+    private DatabaseManager dbManager;
+    
+    +DCCApplication(CoordinateConverter c, DatabaseManager)
+    +void createMenuBar() { /* implementation here */ }
+    +Object getCoordinateGroup(String label) { /* implementation here */ }
+    +boolean isUserAuthorizedForModification(int userId, int coordGroupId) {/* implementation here */}
+        
+    + void run()
+}
+  
+class DatabaseManager {
+    private Connection conn;
+    
+    +DatabaseManager(Connection connection)
+  
++Connection getConnection() 
++void executeQuery(String query)
++Object retrieveResultSet(int rowIdx, String columnName, int colNum);
+  
++ void initializeComponents()
+    +void run()
+}
+  
+class Connection
+@enduml

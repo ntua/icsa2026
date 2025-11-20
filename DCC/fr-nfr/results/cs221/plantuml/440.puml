@@ -1,0 +1,75 @@
+@startuml
+
+package Frontend {
+    class CoordinateGroupApp {
+        - Swing UI components
+        
+        + main(args: Array<String>): void
+        + initialize(): void
+        + processUserInput(): void
+        + refreshCoordinateGroupList(): void
+        + filterCoordinateGroupsByLabel(label: String): void
+        + clearActiveFilter(): void
+    }
+
+    class CoordinateGroupEditor {
+        - JFrame for editing coordinate groups
+        
+        + createAndShowGUI(): void
+        + updateValues(): void
+        + convertCartesianToPolar(): void
+        + convertPolarToCartesian(): void
+    }
+
+    class CoordinateGroupTableModel {
+        - TableModel for storing and displaying coordinate groups data
+        
+        + CoordinateGroupTableModel(): void
+        + addCoordinateGroup(cg: CoordinateGroup): void
+        + updateCoordinateGroup(index: int, cg: CoordinateGroup): void
+        + removeCoordinateGroup(index: int): void
+        + getCoordinateGroups(): List<CoordinateGroup>
+    }
+}
+
+package Logic {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesianCoordinates: CartesianCoordinates
+        - polarCoordinates: PolarCoordinates
+        - timestamp: Date
+        
+        + CoordinateGroup(id: int, label: String, cc: CartesianCoordinates, pc: PolarCoordinates, timestamp: Date): void
+        + toRecord(): Map<String, Object>
+    }
+
+    class CartesianCoordinates {
+        - x: double
+        - y: double
+        
+        + CartesianCoordinates(x: double, y: double): void
+    }
+
+    class PolarCoordinates {
+        - r: double
+        - theta: double
+        
+        + PolarCoordinates(r: double, theta: double): void
+    }
+}
+
+package Database {
+    class CoordinateGroupDAO {
+        # Database connection instance
+        
+        + createOp(cg: CoordinateGroup): int
+        + readOp(): List<CoordinateGroup>
+        + updateOp(cg: CoordinateGroup): void
+        + deleteOp(id: int): void
+    }
+}
+
+Frontend .. Logic
+Logic .. Database
+@enduml

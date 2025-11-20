@@ -1,0 +1,105 @@
+@startuml
+package ChartService {
+    class ChartGenerator {
+        - generateChart(): void // Functional requirement-business logic operation
+        - saveChart(): void // Data management operation
+
+        + getChartTypes(): List<String>
+    }
+
+    class ChartRepository {
+        - charts: Map<String, Chart>
+
+        + saveChart(Chart chart): void // Data management operation
+        + getChart(String id): Chart
+        + deleteChart(String id): void // Data management operation
+    }
+}
+
+package UserService {
+    class UserProfile {
+        - name: String
+        - email: String
+        - profilePicture: String
+        - remainingQuota: int
+
+        + updateProfile(): void // Functional requirement-business logic operation
+        + getRemainingQuota(): int
+    }
+
+    class UserRepository {
+        - users: Map<String, UserProfile>
+
+        + saveUser(UserProfile user): void // Data management operation
+        + getUser(String id): UserProfile
+    }
+}
+
+package PaymentService {
+    class PaymentGateway {
+        - processPayment(Payment payment): void // Functional requirement-business logic operation
+
+        + getPaymentMethods(): List<PaymentMethod>
+    }
+
+    class PaymentRepository {
+        - payments: Map<String, Payment>
+
+        + savePayment(Payment payment): void // Data management operation
+        + getPayment(String id): Payment
+    }
+}
+
+package QuotaService {
+    class QuotaManager {
+        - updateQuota(int quota): void // Functional requirement-business logic operation
+
+        + getQuota(): int
+    }
+
+    class QuotaRepository {
+        - quotas: Map<String, Quota>
+
+        + saveQuota(Quota quota): void // Data management operation
+        + getQuota(String id): Quota
+    }
+}
+
+package DashboardService {
+    class Dashboard {
+        - charts: List<Chart>
+
+        + displayCharts(): void // Functional requirement-business logic operation
+        + downloadChart(Chart chart): void // Functional requirement-business logic operation
+    }
+
+    class ChartServiceClient {
+        - chartService: ChartGenerator
+
+        + getChartTypes(): List<String> // Flow control operation
+        + generateChart(String type): void // Flow control operation
+    }
+}
+
+package APIGateway {
+    class APIGateway {
+        - services: Map<String, Service>
+
+        + routeRequest(Request request): Response // Flow control operation
+    }
+
+    class Service {
+        - name: String
+
+        + invoke(): void // Functional requirement-business logic operation
+    }
+}
+
+ChartGenerator --* ChartRepository : uses
+UserProfile --* UserRepository : uses
+PaymentGateway --* PaymentRepository : uses
+QuotaManager --* QuotaRepository : uses
+Dashboard --* ChartServiceClient : uses
+APIGateway --* Service : routes to
+
+@enduml

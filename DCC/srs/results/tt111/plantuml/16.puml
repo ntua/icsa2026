@@ -1,0 +1,50 @@
+@startuml
+' Define classes and their relationships within packages
+
+' Presentation Layer Package
+package "Presentation Layer" <<pLayer>> as pLayer {
+  class UserInterface {
+    + userInput(): void
+    + displayResults(): void
+  }
+}
+
+' Data Storage Layer Package
+package "Data Storage Layer" <<dStorageLayer>> as dStorageLayer {
+  interface DatabaseConnection {
+    + connect(): void
+    + disconnect(): void
+  }
+
+  class MySQLDatabase {
+    + connect(): void
+    + disconnect(): void
+    + storeData(data: Data): void
+    + retrieveData(query: string): Data
+  }
+
+  ' Indicate that MySQLDatabase implements DatabaseConnection
+  DatabaseConnection <|.. MySQLDatabase
+}
+
+' Business Logic Layer Package
+package "Business Logic Layer" <<bLogicLayer>> as bLogicLayer {
+  class CoordinatesGroup {
+    - ID: int <<PK>>
+    - Timestamp: datetime
+    - Label: string <<unique>>
+    - PolarCoordinates: tuple
+    - CartesianCoordinates: tuple
+  }
+}
+
+' Define Associations between Classes
+UserInterface ..> MySQLDatabase : uses
+MySQLDatabase --> CoordinatesGroup : stores, retrieves data to/from
+
+' Define Package Relationships
+pLayer .. dStorageLayer : uses
+pLayer .. bLogicLayer : interacts with
+dStorageLayer .. bLogicLayer : interacts with
+
+@enduml

@@ -1,0 +1,78 @@
+@startuml 
+
+skinparam shadowing false
+
+package frontend {
+  class DCCApplication {
+    - swingComponents: SwingComponent[]
+    + showCoordinateGroupsList()
+    + updateCoordinateGroupList(coordGroupId)
+    + filterCoordinateGroups(label) 
+    + clearFilter()
+  }
+
+  class SwingComponent {
+  - coordinateLabel: String
+  - cartesianInput: CartesianCoord[]
+  - polarInput: PolarCoord[] 
+  # operations: List[Operation] 
+
+  + showCoordinateGroupsList()
+  + updateCoordinateGroupList(coordGroupId)
+  + filterCoordinateGroups(label) 
+  + clearFilter()
+} 
+
+} 
+
+package logic  {
+  class CoordinateConverter {
+    # cartesian: CartesianCoord[]
+    # polar: PolarCoord[]
+
+    + convertCartesianToPolar(cartesian) : PolarCoord
+    + convertPolarToCartesian(polar) : CartesianCoord
+  }
+
+} 
+
+package data {
+  class CoordinateGroupDAO {
+    # coordinateGroups: List[CoordinateGroup]
+
+    + create(label, x, y): Integer
+    + read(): List[CoordinateGroup]
+    + update(id, label, x, y)
+    + delete(id) 
+  }
+
+class Operation {
+  - opType: String 
+  - params: String[] 
+} 
+
+  class CartesianCoord {
+    # x: double
+    # y: double 
+
+    + __init__(x, y) : void
+  }
+
+class PolarCoord {
+  # r: double 
+  # theta: double 
+
+  + __init__(r, theta): void 
+} 
+
+class CoordinateGroup {
+  - id: Integer 
+  - label: String
+  - timestamp: Datetime 
+  # cartesian: CartesianCoord[] 
+  # polar: PolarCoord[] 
+  
+  + __init__(label, x, y): void
+} 
+}
+@enduml

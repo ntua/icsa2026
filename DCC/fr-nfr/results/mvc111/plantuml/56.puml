@@ -1,0 +1,65 @@
+@startuml
+
+package "Frontend (Java Swing)" {
+  class Controller {
+    - View view
+    - Model model
+    + updateView()
+    + processUserInput()
+  }
+  
+  class View {
+    + createCoordinateGroupForm()
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + updateCoordinateGroupForm(coordinateGroup: CoordinateGroup)
+  }
+}
+
+package "Model" {
+  class Model {
+    - Controller controller
+    - CoordinateGroupDAO coordGroupDao
+    + createCoordinateGroup(cg: CoordinateGroup) : CoordinateGroup
+    + getCoordinateGroupByLabel(label: String) : CoordinateGroup
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(cg: CoordinateGroup) : CoordinateGroup
+    + deleteCoordinateGroup(cg: CoordinateGroup)
+  }
+  
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - List<CartesianCoordinate> cartesianCoords
+    - List<PolarCoordinate> polarCoords
+    + convertCartToPol() : List<PolarCoordinate>
+    + convertPolToCart() : List<CartesianCoordinate>
+  }
+  
+  class CartesianCoordinate {
+    - double x
+    - double y
+  }
+  
+  class PolarCoordinate {
+    - double r
+    - double theta
+  }
+}
+
+package "Database (MySQL)" {
+  class CoordinateGroupDAO {
+    - DataSource dataSource
+    + save(coordinateGroup: CoordinateGroup) : int
+    + findByLabel(label: String) : CoordinateGroup
+    + findAll() : List<CoordinateGroup>
+    + update(coordinateGroup: CoordinateGroup) : int
+    + delete(coordinateGroup: CoordinateGroup) : int
+  }
+}
+
+View --> Controller : "interacts with"
+Model --> Controller 
+Model --> CoordinateGroupDAO
+
+@enduml

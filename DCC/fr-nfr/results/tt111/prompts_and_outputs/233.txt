@@ -1,0 +1,49 @@
+@startuml
+package Presentation {
+    class CoordinateGroupGUI {
+        + displayCoordinateGroups()
+        + createCoordinateGroup()
+        + modifyCoordinateGroup()
+        + deleteCoordinateGroup()
+    }
+}
+
+package BusinessLogic {
+    class CoordinateGroup {
+        - cartesianX: double
+        - cartesianY: double
+        - polarRadius: double
+        - polarAngle: double
+        + convertToCartesian()
+        + convertToPolar()
+    }
+
+    class CoordinateGroupService {
+        + createCoordinateGroup(CoordinateGroup)
+        + retrieveCoordinateGroupById(int)
+        + retrieveCoordinateGroupsByLabel(String)
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroupById(int)
+    }
+
+    class CoordinateConverter {
+        + convertToCartesian(double, double)
+        + convertToPolar(double, double)
+    }
+}
+
+package DataAccess {
+    class CoordinateGroupDAO {
+        + saveCoordinateGroup(CoordinateGroup)
+        + loadCoordinateGroupById(int)
+        + loadCoordinateGroupsByLabel(String)
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroupById(int)
+    }
+}
+
+CoordinateGroupGUI -- CoordinateGroupService
+CoordinateGroupService -- CoordinateGroup
+CoordinateGroupService -- CoordinateGroupDAO
+CoordinateGroup -- CoordinateConverter
+@enduml

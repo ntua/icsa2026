@@ -1,0 +1,66 @@
+@startuml
+package Authentication {
+  class GoogleAuthenticator {
+    - token: String
+    + authenticateUserViaGoogle(token: String) : User // Functional requirement-business logic operation
+  }
+}
+
+package UserService {
+  class UserProfileService {
+    - userProfileRepository: UserRepository
+    + getUserProfile(userId: String) : UserProfile // Data management operation
+    + updateRemainingQuota(userId: String, quota: Int) : Void // Data consistency operation
+    + saveUserProfile(userProfile: UserProfile) : Void // Data management operation
+  }
+}
+
+package ChartService {
+  class ChartGenerator {
+    - chartRepository: ChartRepository
+    + generateChart(csvFile: File, chartType: String) : Chart // Functional requirement-business logic operation
+    + saveChart(chart: Chart) : Void // Data management operation
+  }
+}
+
+package TemplateService {
+  class TemplateManager {
+    - templateRepository: TemplateRepository
+    + getTemplate(chartType: String) : Template // Data management operation
+    + downloadTemplate(template: Template, fileType: String) : File // Functional requirement-business logic operation
+  }
+}
+
+package PaymentGateway {
+  class PaymentProcessor {
+    - paymentGateway: PaymentGatewayInterface
+    + processPayment(paymentRequest: PaymentRequest) : PaymentResponse // Functional requirement-business logic operation
+  }
+}
+
+package QuotaService {
+  class QuotaManager {
+    - quotaRepository: QuotaRepository
+    + getRemainingQuota(userId: String) : Int // Data management operation
+    + updateQuota(userId: String, quota: Int) : Void // Data consistency operation
+  }
+}
+
+package DashboardService {
+  class DashboardManager {
+    - dashboardRepository: DashboardRepository
+    + getDashboard(userId: String) : Dashboard // Data management operation
+    + saveDashboard(dashboard: Dashboard) : Void // Data management operation
+  }
+}
+
+GoogleAuthenticator --* UserProfileService : authenticates user and retrieves profile
+UserProfileService --* ChartGenerator : gets user's remaining quota for chart generation
+ChartGenerator --* TemplateManager : uses template for chart generation
+TemplateManager --* PaymentGateway : purchases template or quota
+PaymentGateway --* QuotaService : updates quota after payment
+QuotaService --* UserProfileService : updates user's remaining quota
+UserProfileService --* DashboardService : saves and retrieves dashboard data
+DashboardService --* ChartGenerator : displays generated charts on dashboard
+
+@enduml

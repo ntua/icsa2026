@@ -1,0 +1,130 @@
+@startuml
+skinparam classStyle strictuml
+skinparam packageStyle rectangle
+
+title DCC Application - Client-Server Architecture
+
+' === CLIENT SIDE ===
+package "client" {
+  package "gui" {
+    ' GUI class responsible for displaying and collecting user data
+    class DCCGUI {
+      + displayMainMenu(): void
+      + showAllCoordinateGroups(groups: List<CoordinateGroup>): void
+      + showCoordinateGroupsByLabel(groups: List<CoordinateGroup>): void
+      + showErrorMessage(message: String): void
+      + initGUI(): void
+    }
+  }
+
+  package "controller" {
+    ' Controller that intermediates between GUI and the server side
+    class DCCController {
+      - service: ICoordinateService
+      + DCCController(service: ICoordinateService)
+      + createCoordinateGroup(coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + updateCoordinateGroup(id: int, coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + deleteCoordinateGroup(id: int): void
+      + listAllCoordinateGroups(): List<CoordinateGroup>
+      + getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+  }
+}
+
+' === SERVER SIDE ===
+package "server" {
+
+  ' ---- MODEL LAYER ----
+  package "model" {
+    class CoordinateGroup {
+      - id: int
+      - label: String
+      - timestamp: java.time.LocalDateTime
+      - x: double
+      - y: double
+      - r: double
+      - theta: double
+
+      + getId(): int
+      + getLabel(): String
+      + setLabel(label: String): void
+      + getTimestamp(): java.time.LocalDateTime
+      + getX(): double
+      + setX(x: double): void
+      + getY(): double
+      + setY(y: double): void
+      + getR(): double
+      + setR(r: double): void
+      + getTheta(): double
+      + setTheta(theta: double): void
+    }
+  }
+
+  ' ---- SERVICE LAYER ----
+  package "service" {
+    interface ICoordinateService {
+      + createCoordinateGroup(coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + updateCoordinateGroup(id: int, coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + deleteCoordinateGroup(id: int): void
+      + listAll(): List<CoordinateGroup>
+      + getByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateServiceImpl {
+      - repository: ICoordinateRepository
+      - converter: CoordinateConverter
+      
+      + CoordinateServiceImpl(repo: ICoordinateRepository, converter: CoordinateConverter)
+      + createCoordinateGroup(coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + updateCoordinateGroup(id: int, coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + deleteCoordinateGroup(id: int): void
+      + listAll(): List<CoordinateGroup>
+      + getByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+      + toPolar(x: double, y: double): double[]
+      + toCartesian(r: double, theta: double): double[]
+    }
+
+    ' Implementation relationship
+    CoordinateServiceImpl -down-|> ICoordinateService
+  }
+
+  ' ---- REPOSITORY LAYER ----
+  package "repository" {
+    interface ICoordinateRepository {
+      + save(cg: CoordinateGroup): void
+      + update(cg: CoordinateGroup): void
+      + delete(id: int): void
+      + findAll(): List<CoordinateGroup>
+      + findByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class MySQLCoordinateRepository {
+      - connection: java.sql.Connection
+
+      + MySQLCoordinateRepository(connection: java.sql.Connection)
+      + save(cg: CoordinateGroup): void
+      + update(cg: CoordinateGroup): void
+      + delete(id: int): void
+      + findAll(): List<CoordinateGroup>
+      + findByLabel(label: String): List<CoordinateGroup>
+    }
+
+    ' Implementation relationship
+    MySQLCoordinateRepository -down-|> ICoordinateRepository
+  }
+}
+
+'
+' === RELATIONSHIPS ACROSS TIERS ===
+'
+
+DCCGUI --> DCCController : user actions
+DCCController --> ICoordinateService : invokes
+CoordinateServiceImpl --> ICoordinateRepository : uses
+CoordinateServiceImpl --> CoordinateConverter : uses
+MySQLCoordinateRepository --> CoordinateGroup : manages
+
+@enduml

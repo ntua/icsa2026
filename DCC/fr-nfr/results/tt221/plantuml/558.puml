@@ -1,0 +1,71 @@
+@startuml
+
+package "presentation" {
+    class DCCApp {
+        + {method} processUserInput()
+        + {method} refreshList()
+        + {method} applyFilter(String)
+        + {method} clearFilter()
+    }
+}
+
+package "logic" {
+    class CoordinateGroupController {
+        - CoordinateGroupDao coordinateGroupDao
+        + createCoordinateGroup(CoordinateGroup, String)
+        + getCoordinateGroups()
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroup(int)
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Date timestamp
+        - CartesianCoordinate cartesian
+        - PolarCoordinate polar
+    }
+
+    class CartesianCoordinate {
+        - double x
+        - double y
+        + getR()
+        + getTheta()
+    }
+
+    class PolarCoordinate {
+        - double r
+        - double theta
+        + getX()
+        + getY()
+    }
+}
+
+package "dataaccess" {
+    class ConnectionManager {
+        + {static method} getConnection(): Connection
+    }
+
+    interface Dao<T> {
+        + create(T): void
+        + readAll(): List<T>
+        + readById(int): T
+        + update(T): void
+        + delete(int): void
+    }
+
+    class CoordinateGroupDao implements Dao<CoordinateGroup> {
+        - ConnectionManager connectionManager
+        + create(CoordinateGroup)
+        + readAll()
+        + readById(int)
+        + update(CoordinateGroup)
+        + delete(int)
+    }
+}
+
+DCCApp --> CoordinateGroupController
+CoordinateGroupController --> Dao
+CoordinateGroupDao --> ConnectionManager
+
+@enduml

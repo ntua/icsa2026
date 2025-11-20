@@ -1,0 +1,77 @@
+@startuml
+package "Authentication Service" {
+    class AuthenticationService {
+        + authenticateUser(googleToken): User // Functional requirement
+    }
+    class User {
+        - name: String
+        - profilePicture: String
+        - email: String
+        - remainingQuota: int
+        - accountCreationTimestamp: Timestamp
+        - lastLoginTimestamp: Timestamp
+    }
+    AuthenticationService ..> User
+}
+
+package "Template Service" {
+    class TemplateService {
+        + downloadTemplate(chartType: String): CSV // Functional requirement
+    }
+    class CSV {
+        - data: String
+    }
+    TemplateService ..> CSV
+}
+
+package "Chart Generation Service" {
+    class ChartGenerationService {
+        + validateCSV(csv: CSV, chartType: String): boolean // Functional requirement
+        + generateChart(csv: CSV, chartType: String): Chart // Functional requirement
+        + saveChart(chart: Chart, formats: List<String>): void // Functional requirement
+    }
+    class Chart {
+        - data: byte[]
+    }
+    ChartGenerationService ..> CSV
+    ChartGenerationService ..> Chart
+}
+
+package "Dashboard Service" {
+    class DashboardService {
+        + getChartHistory(userId: String): List<Chart> // Functional requirement
+        + downloadChart(chartId: String, format: String): Chart // Functional requirement
+        + deleteChart(chartId: String): void // Functional requirement
+    }
+    DashboardService ..> Chart
+}
+
+package "Quota Service" {
+    class QuotaService {
+        + chargeQuota(userId: String, chartType: String): boolean // Functional requirement
+        + getUserQuota(userId: String): int // Functional requirement
+        + updateUserQuota(userId: String, quotaChange: int): void // Data management operation
+    }
+    QuotaService ..> User
+}
+
+package "Payment Service" {
+    class PaymentService {
+        + processPayment(userId: String, amount: double): boolean // Functional requirement
+    }
+}
+
+package "Profile Service" {
+    class ProfileService {
+        + getUserProfile(userId: String): User // Functional requirement
+        + updateUserProfile(user: User): void // Data management operation
+    }
+    ProfileService ..> User
+}
+
+AuthenticationService --> QuotaService : uses
+ChartGenerationService --> QuotaService : uses
+DashboardService --> ChartGenerationService : uses
+QuotaService --> ProfileService : uses
+PaymentService --> QuotaService : uses
+@enduml

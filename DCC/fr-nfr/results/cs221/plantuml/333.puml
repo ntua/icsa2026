@@ -1,0 +1,60 @@
+@startuml
+
+package "frontend" {
+  class MainWindow {
+    + handleInput()
+    + updateDisplay(CoordinateGroupList)
+  }
+}
+
+package "logic" {
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): (double, double)
+    + polarToCartesian(double r, double theta): (double, double)
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianCoordinates: (double, double)
+    - polarCoordinates: (double, double)
+    - timestamp: Date
+
+    + getCartesianCoordinates(): (double, double)
+    + getPolarCoordinates(): (double, double)
+    + setCartesianCoordinates(double x, double y)
+    + setPolarCoordinates(double r, double theta)
+  }
+  
+  class CoordinateGroupManager {
+    - coordinateConverter: CoordinateConverter
+
+    + createCoordinateGroup(label: String, cartesianX: double, cartesianY: double): CoordinateGroup
+    + updateCoordinateGroup(coordinateGroupId: int, label: String, cartesianX: double, cartesianY: double)
+    + deleteCoordinateGroup(coordinateGroupId: int)
+    + getAllCoordinateGroups(): CoordinateGroupList
+  }
+
+}
+
+package "database" {
+  interface DatabaseConnection {
+    + connect()
+    + disconnect()
+    + executeQuery(String query): ResultSet
+  }
+
+  class MySQLDatabaseConnection implements DatabaseConnection {
+    + connect()
+    + disconnect()
+    + executeQuery(String query): ResultSet
+  }
+}
+
+
+MainWindow --> CoordinateGroupManager : uses
+CoordinateGroupManager --|> CoordinateConverter: uses
+CoordinateGroupManager --> DatabaseConnection: depends on
+CoordinateConverter <-- CoordinateGroup
+
+@enduml

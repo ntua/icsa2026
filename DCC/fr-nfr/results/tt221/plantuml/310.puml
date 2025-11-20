@@ -1,0 +1,44 @@
+@startuml
+class CartesianCoordinate {
+   high-precision x
+   high-precision y
+  }
+
+class PolarCoordinate {
+   high-precision r
+   high-precision theta
+  }
+
+class CoordinateGroupRecord {
+    id: int
+    label: String
+    
+ +CartesianCoordinates: List<CartesianCoordinate>
+    +PolarCoordinates: List<PolarCoordinate>
+    datetimeAddedOrModified: DateTime
+}
+
+class OrderHistoryRepository {
+   method addOrder(order: CoordinateGroupRecord) : void
+   method retrieveOrderHistory(customerId: int): List<CoordinateGroupRecord>
+}
+
+
+OrderProcessor --> Logic: Used by OrderProcessor for conversion operations.
+Database --> Logic : Accessed by Logic for database operations.
+Logic <|.. CoordinateGroupRecord: Defines the structure of a coordinate group record stored in the database.
+Database --> CoordinateGroupRecord : Responsible for CRUD operations on coordinate groups.
+Logic <|-- OrderHistoryRepository : Accessed by Logic for retrieving order history records.
+OrderProcessor --> OrderHistoryRepository: Used to retrieve and display a customer's order history.
+
+Client --> OrderProcessor : Uses
+OrderProcessor --> PaymentProcessor : Uses
+OrderProcessor --> InventoryManager : Uses
+OrderProcessor --> Database : Accesses
+InventoryManager --> Database : Accesses
+PaymentProcessor --> Database : Accesses
+Database <|-- CartesianCoordinate: Aggregation
+Database <|-- PolarCoordinate: Aggregation
+database <|-- CoordinateGroupRecord: Composition
+database <|-- OrderHistoryRepository: Aggregation
+@enduml

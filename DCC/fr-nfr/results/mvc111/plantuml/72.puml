@@ -1,0 +1,37 @@
+@startuml
+
+package "Dummy Coordination Conversion" {
+
+class model {
+  +CoordinateGroupController
+  +ViewModel
+}
+
+class controller {
++ConverterService
+}
+
+class view {
++UserInterface
+}
+
+
+class UserInterface {
++displayGroups()
++searchByLabel(label: String)
++editGroup(Cartesian coordinates: Cartesian)
++saveEditedValues(groupId: int, updatedPolarCoordinates: Polar)
++deleteGroupFromDB(groupId: int)
+}
+
+class ConverterService {
++convertToPolar(Cartesian coordinates: Cartesian): Polar
+}
+
+model <|-- controller : uses >
+view <-- model : displays >
+controller -- view: sends user commands
+
+}
+
+@enduml

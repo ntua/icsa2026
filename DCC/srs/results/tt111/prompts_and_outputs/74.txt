@@ -1,0 +1,133 @@
+Response:
+Below is an example of a PlantUML class diagram that illustrates a simple Three-Tier architecture (Presentation, Business/Logic, and Data/Storage tiers) based on the requirements described in the SRS. It shows the primary classes, their attributes and operations, and how they are associated.
+
+```plantuml
+@startuml
+
+' ===== PACKAGES (3-TIER ARCHITECTURE) =====
+package "presentation" <<Folder>> {
+    class DCCGUI {
+        - coordinateService : CoordinateService
+        
+        + createCoordinateGroup(type: String, x: double, y: double, label: String) : void
+        + modifyCoordinateGroup(id: int, type: String, x: double, y: double, label: String) : void
+        + deleteCoordinateGroup(id: int) : void
+        + viewAllCoordinateGroups() : void
+        + viewCoordinateGroupByLabel(label: String) : void
+    }
+}
+
+package "business" <<Folder>> {
+    class CoordinateService {
+        - dao : CoordinateGroupDAO
+        - converter : CoordinateConverter
+        
+        + createCoordinateGroup(type: String, x: double, y: double, label: String) : void
+        + modifyCoordinateGroup(id: int, type: String, x: double, y: double, label: String) : void
+        + deleteCoordinateGroup(id: int) : void
+        + getAllCoordinateGroups() : List<CoordinateGroup>
+        + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    }
+    
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double) : (double, double)
+        + polarToCartesian(r: double, theta: double) : (double, double)
+    }
+    
+    class CoordinateGroup {
+        - id : int
+        - timestamp : Date
+        - label : String
+        - x : double
+        - y : double
+        - r : double
+        - theta : double
+
+        + getId() : int
+        + getTimestamp() : Date
+        + getLabel() : String
+        + getX() : double
+        + getY() : double
+        + getR() : double
+        + getTheta() : double
+        + setLabel(label: String) : void
+        + setX(x: double) : void
+        + setY(y: double) : void
+        + setR(r: double) : void
+        + setTheta(theta: double) : void
+    }
+}
+
+package "data" <<Folder>> {
+    class CoordinateGroupDAO {
+        - dbConnection : DBConnection
+        
+        + create(group: CoordinateGroup) : void
+        + update(group: CoordinateGroup) : void
+        + delete(id: int) : void
+        + findAll() : List<CoordinateGroup>
+        + findByLabel(label: String) : List<CoordinateGroup>
+    }
+    
+    class DBConnection {
+        + getConnection() : Connection
+        + close() : void
+    }
+}
+
+' ===== RELATIONSHIPS =====
+
+' Presentation layer uses services from the Business layer
+presentation.DCCGUI --> business.CoordinateService : uses
+
+' The Service calls upon the DAO for persistence
+business.CoordinateService --> data.CoordinateGroupDAO : calls
+
+' The Service also uses the Converter to transform coordinates
+business.CoordinateService --> business.CoordinateConverter : uses
+
+' The DAO needs a DBConnection to reach the MySQL database
+data.CoordinateGroupDAO --> data.DBConnection : uses
+
+' The DAO manages (CRUD) CoordinateGroup entities
+data.CoordinateGroupDAO --> business.CoordinateGroup : manages
+
+@enduml
+```
+
+### Explanation of the Diagram
+
+1. **Presentation Layer** (`presentation` package)
+   - **DCCGUI**  
+     - Handles user interactions for all five use cases:
+       1. Create coordinate group  
+       2. Modify coordinate group  
+       3. Delete coordinate group  
+       4. View all coordinate groups  
+       5. View coordinate groups by label  
+     - Relies on `CoordinateService` (Business Layer) to perform the actual logic.
+
+2. **Business (Logic) Layer** (`business` package)
+   - **CoordinateService**  
+     - Implements the main application logic for creating, reading, updating, and deleting coordinate groups.
+     - Uses `CoordinateConverter` to transform between Polar and Cartesian coordinates.
+     - Delegates persistence operations to `CoordinateGroupDAO`.
+   - **CoordinateConverter**  
+     - Provides methods to convert Cartesian coordinates \((x, y)\) to Polar \((r, \theta)\) and vice versa.
+   - **CoordinateGroup**  
+     - A domain model (entity) for storing coordinate data:
+       - `id` (auto-generated primary key)
+       - `timestamp` (creation time)
+       - `label` (unique identifier given by the user)
+       - `x, y` (Cartesian coordinates)
+       - `r, theta` (Polar coordinates)
+
+3. **Data (Storage) Layer** (`data` package)
+   - **CoordinateGroupDAO**  
+     - Data Access Object responsible for interacting with the database (CRUD operations on `CoordinateGroup`):
+       - `create`, `update`, `delete`, `findAll`, `findByLabel`
+     - Manages the persistence of `CoordinateGroup` entities using `DBConnection`.
+   - **DBConnection**  
+     - Encapsulates database connection details (e.g., managing a MySQL JDBC connection).
+
+This diagram satisfies the requirement of illustrating a clear separation of concerns across the three tiers, defining the critical classes (with relevant attributes and methods), and showing associations that reflect the flow of data and control in the application.

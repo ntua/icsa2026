@@ -1,0 +1,64 @@
+@startuml
+package "DCC Application" {
+    
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Timestamp timestamp
+        - double x
+        - double y
+        - double r
+        - double theta
+        + createGroup(double x, double y)
+        + createGroup(double r, double theta)
+        + getId()
+        + getLabel()
+        + getTimestamp()
+        + getCartesianCoordinates()
+        + getPolarCoordinates()
+        + setCartesianCoordinates(double x, double y)
+        + setPolarCoordinates(double r, double theta)
+    }
+
+    class CoordinateGroupService {
+        + createCoordinateGroup(double x, double y)
+        + createCoordinateGroup(double r, double theta)
+        + storeCoordinateGroup(CoordinateGroup group)
+        + retrieveCoordinateGroupByLabel(String label)
+        + retrieveAllCoordinateGroups()
+        + modifyCoordinateGroup(int id, double x, double y)
+        + modifyCoordinateGroup(int id, double r, double theta)
+        + deleteCoordinateGroup(int id)
+    }
+
+    class MySQLDatabase {
+        + connect()
+        + disconnect()
+        + saveCoordinateGroup(CoordinateGroup group)
+        + getCoordinateGroupByLabel(String label)
+        + getAllCoordinateGroups()
+        + updateCoordinateGroup(CoordinateGroup group)
+        + deleteCoordinateGroup(int id)
+    }
+    
+    class CoordinateGroupController {
+        + handleCreateRequest()
+        + handleRetrieveRequest()
+        + handleModifyRequest()
+        + handleDeleteRequest()
+    }
+
+    class TCPIPConnection {
+        + connect()
+        + disconnect()
+        + sendRequest()
+        + receiveResponse()
+    }
+
+    CoordinateGroupService --> CoordinateGroup
+    CoordinateGroupService --> MySQLDatabase
+    CoordinateGroupService --> TCPIPConnection
+    CoordinateGroupController --> CoordinateGroupService
+}
+
+@enduml

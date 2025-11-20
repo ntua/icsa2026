@@ -1,0 +1,81 @@
+@startuml DCC_Application_Class_Diagram
+
+' Presentation Layer (GUI)
+package "Presentation" {
+    class CoordinateGroupView {
+        - List<CoordinateGroup> displayedGroups
+        + void showCoordinateGroups(List<CoordinateGroup> groups)
+        + void addCoordinateGroup(CartesianCoordinates cartesian, PolarCoordinates polar, String label)
+        + void updateCoordinateGroup(int id, CartesianCoordinates cartesian, PolarCoordinates polar, String label)
+        + void deleteCoordinateGroup(int id)
+        + void filterGroups(String labelFilter)
+        + void clearFilter()
+    }
+}
+
+' Logic Layer (Business Logic and Domain Model)
+package "Logic" {
+    abstract class Coordinate {
+        + double[] getValues()
+    }
+
+    class CartesianCoordinates extends Coordinate {
+        - double x
+        - double y
+        + CartesianCoordinates(double x, double y)
+        + PolarCoordinates convertToPolar()
+        + String toString()
+    }
+
+    class PolarCoordinates extends Coordinate {
+        - double r
+        - double theta
+        + PolarCoordinates(double r, double theta)
+        + CartesianCoordinates convertToCartesian()
+        + String toString()
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - DateTime timestamp
+        - CartesianCoordinates cartesian
+        - PolarCoordinates polar
+        
+        + CoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+        + void update(CartesianCoordinates newCartesian, PolarCoordinates newPolar, String newLabel)
+    }
+
+    class CoordinateConverter {
+        + static PolarCoordinates convertCartesianToPolar(CartesianCoordinates cartesian)
+        + static CartesianCoordinates convertPolarToCartesian(PolarCoordinates polar)
+    }
+}
+
+' Data Layer (Data Access and Persistence)
+package "Data" {
+    class CoordinateGroupDAO {
+        - Connection dbConnection
+        
+        + void create(CoordinateGroup group)
+        + List<CoordinateGroup> read()
+        + void update(CoordinateGroup group)
+        + void delete(int groupId)
+        
+        + void connect()
+        + void disconnect()
+    }
+}
+
+' Relationships
+CoordinateGroupView --> CoordinateConverter : Uses
+CoordinateGroup "1" *-- "many" CoordinateGroupDAO : Accesses
+
+CartesianCoordinates --> PolarCoordinates : Convertible to
+PolarCoordinates --> CartesianCoordinates : Convertible to
+
+CoordinateGroup "1" --> "2" Coordinate : Composed of
+CoordinateGroup "0..*" --> CoordinateGroupView : Managed by
+CoordinateGroupDAO "1" --> "many" CoordinateGroup : Manages
+
+@enduml

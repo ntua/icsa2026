@@ -1,0 +1,67 @@
+@startuml DCC_Application
+
+' Package definitions
+package "Model" {
+    class CoordinateGroup {
+        +String label
+        +int id
+        +Date timestamp
+        +float x
+        +float y
+        +float r
+        +float theta
+        
+        +void convertToCartesian()
+        +void convertToPolar()
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        -DatabaseManager dbManager
+        -CoordinateGroup currentGroup
+        
+        +void createCoordinateGroup(String label, float x, float y)
+        +void createCoordinateGroup(String label, float r, float theta)
+        +void convertCoordinates(CoordinateGroup group)
+        +List<CoordinateGroup> retrieveAllGroups()
+        +CoordinateGroup retrieveGroupById(int id)
+        +void updateGroup(CoordinateGroup updatedGroup)
+        +void deleteGroup(int id)
+    }
+}
+
+package "View" {
+    class DCCView {
+        -JFrame mainFrame
+        -JPanel inputPanel
+        -JTable groupsTable
+        -JButton createBtn
+        -JButton convertBtn
+        
+        +void displayGroups(List<CoordinateGroup> groups)
+        +String getLabelInput()
+        +float[] getCartesianInput()
+        +float[] getPolarInput()
+        +void showSuccessMessage(String message)
+    }
+}
+
+package "Database" {
+    class DatabaseManager {
+        -Connection dbConnection
+        
+        +void saveCoordinateGroup(CoordinateGroup group)
+        +List<CoordinateGroup> retrieveAllGroups()
+        +CoordinateGroup retrieveGroupById(int id)
+        +void updateGroup(CoordinateGroup updatedGroup)
+        +void deleteGroup(int id)
+    }
+}
+
+' Associations
+DCCController --> DatabaseManager : Composition
+DCCController --> CoordinateGroup : Usage
+DCCView --> DCCController : Collaboration
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - cartCoordinates: List<CartesianCoordinate>
+    - polCoordinates: List<PolarCoordinate>
+    + createCartesian(cartX: Float, cartY: Float)
+    + createPolar(polR: Float, polTheta: Float)
+  }
+
+  class CartesianCoordinate {
+    - x: Float
+    - y: Float
+  }
+
+  class PolarCoordinate {
+    - r: Float
+    - theta: Float
+  }
+}
+
+package "View" {
+  class CoordinateGroupViewer {
+    + displayCoordGroup(coordGroup: CoordinateGroup)
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - model: Model
+    - view: View
+    + createCoordGroup(label: String, cartX: Float, cartY: Float, polR: Float, polTheta: Float)
+    + saveCoordGroup(coordGroup: CoordinateGroup)
+    + retrieveCoordGroups()
+    + modifyCoordGroup(coordGroup: CoordinateGroup)
+    + deleteCoordGroup(coordGroup: CoordinateGroup)
+  }
+}
+
+package "Database" {
+  class MySQLDB {
+    + storeData(data: String)
+    + fetchData(query: String): List<CoordinateGroup>
+  }
+}
+
+Model -- DCCController : Uses, Data Storage
+View -- DCCController : Request/Response, Display Data
+Model <|-- MySQLDB : Connection,  Data Storage
+
+@enduml

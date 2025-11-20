@@ -1,0 +1,99 @@
+@startuml
+package "Authentication Service" {
+    class AuthenticationService {
+        + authenticateUser(token: str): UserInfo {functional}
+        + refreshToken(refreshToken: str): AccessToken {functional}
+    }
+}
+
+package "User Profile Service" {
+    class UserProfileService {
+        + getUserProfile(userId: str): UserProfile {data management}
+        + updateLastLogin(userId: str): void {data management}
+    }
+    
+    UserProfileService --> UserProfileDB
+    class UserProfileDB {
+        + userId: str
+        + name: str
+        + email: str
+        + profilePicture: str
+        + accountCreation: DateTime
+        + lastLogin: DateTime
+    }
+}
+
+package "Chart Template Service" {
+    class ChartTemplateService {
+        + getCSVTemplate(chartType: str): CSVFile {functional}
+    }
+}
+
+package "Chart Generation Service" {
+    class ChartGenerationService {
+        + validateCSV(file: CSVFile, chartType: str): ValidationResult {functional}
+        + generateChart(data: CSVData): ChartPreview {functional}
+        + saveChart(formats: list): ChartMetadata {data management}
+    }
+}
+
+package "Quota Management Service" {
+    class QuotaService {
+        + getRemainingQuota(userId: str): int {data management}
+        + decrementQuota(userId: str): void {data consistency}
+        + incrementQuota(userId: str, amount: int): void {data consistency}
+    }
+    
+    QuotaService --> QuotaDB
+    class QuotaDB {
+        + userId: str
+        + remainingQuota: int
+    }
+}
+
+package "Payment Service" {
+    class PaymentService {
+        + initiatePayment(userId: str, amount: int): PaymentSession {functional}
+        + handlePaymentCallback(sessionId: str): bool {flow control}
+    }
+    
+    PaymentService --> TransactionDB
+    class TransactionDB {
+        + transactionId: str
+        + userId: str
+        + amount: int
+        + status: str
+    }
+}
+
+package "Chart Storage Service" {
+    class ChartStorageService {
+        + saveChart(chartData: ChartData): ChartMetadata {data management}
+        + getChart(chartId: str, format: str): ChartFile {data management}
+        + deleteChart(chartId: str): void {data management}
+    }
+    
+    ChartStorageService --> ChartStorageDB
+    class ChartStorageDB {
+        + chartId: str
+        + userId: str
+        + formats: list
+        + created: DateTime
+    }
+}
+
+package "Notification Service" {
+    class NotificationService {
+        + sendEmail(userId: str, template: str): void {flow control}
+    }
+}
+
+' Associations
+AuthenticationService --> UserProfileService : fetches\nuser profile
+ChartGenerationService --> ChartTemplateService : validates\nCSV structure
+ChartGenerationService --> QuotaService : checks &\nupdates quota
+ChartGenerationService --> ChartStorageService : saves\ngenerated charts
+PaymentService --> QuotaService : updates quota\non success
+PaymentService --> NotificationService : sends\nconfirmation
+UserProfileService --> AuthenticationService : gets\nuser info
+@enduml

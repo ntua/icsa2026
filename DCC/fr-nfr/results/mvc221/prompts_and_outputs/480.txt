@@ -1,0 +1,101 @@
+@startuml
+    ' Packages are represented by namespaces'
+    package model {
+        class CoordinateGroup {
+            -int id
+            -String label
+            -LocalDateTime timestamp
+            -CartesianCoordinate cartesian
+            -PolarCoordinate polar
+            +CoordinateGroup(label: String)
+            +getId(): int
+            +getLabel(): String
+            +getTimestamp(): LocalDateTime
+            +setLabel(label: String)
+            +getCartesianCoordinate(): CartesianCoordinate
+            +getPolarCoordinate(): PolarCoordinate
+            +setCartesianCoordinate(x: double, y: double)
+            +setPolarCoordinate(r: double, theta: double)
+        }
+
+        class CartesianCoordinate {
+            -double x
+            -double y
+            +CartesianCoordinate(x: double, y: double)
+            +getX(): double
+            +getY(): double
+            +setX(x: double)
+            +setY(y: double)
+        }
+
+        class PolarCoordinate {
+            -double r
+            -double theta
+            +PolarCoordinate(r: double, theta: double)
+            +getR(): double
+            +getTheta(): double
+            +setR(r: double)
+            +setTheta(theta: double)
+        }
+
+        class CoordinateConverter {
+            +toPolar(cartesian: CartesianCoordinate): PolarCoordinate
+            +toCartesian(polar: PolarCoordinate): CartesianCoordinate
+        }
+    }
+
+    package dao {
+        class CoordinateGroupDAO {
+            -Connection connection
+            +CoordinateGroupDAO()
+            +create(group: CoordinateGroup): int
+            +read(): List~CoordinateGroup~
+            +update(group: CoordinateGroup): boolean
+            +delete(id: int): boolean
+            +findByLabel(label: String): List~CoordinateGroup~
+            -getConnection(): Connection
+        }
+    }
+
+    package controller {
+        class CoordinateController {
+            -CoordinateGroupDAO dao
+            -CoordinateConverter converter
+            +CoordinateController()
+            +createCoordinateGroup(label: String, x: double, y: double): boolean
+            +createCoordinateGroupPolar(label: String, r: double, theta: double): boolean
+            +getAllCoordinateGroups(): List~CoordinateGroup~
+            +updateCoordinateGroup(group: CoordinateGroup): boolean
+            +deleteCoordinateGroup(id: int): boolean
+            +filterByLabel(label: String): List~CoordinateGroup~
+        }
+    }
+
+    package view {
+        class MainView {
+            -CoordinateController controller
+            -JFrame frame
+            -JTextField labelField
+            -JTextField xField
+            -JTextField yField
+            -JTextField rField
+            -JTextField thetaField
+            -JTable coordTable
+            +MainView()
+            -initComponents()
+            -setupListeners()
+            -refreshTable()
+            -clearFields()
+            -validateInputs(): boolean
+        }
+    }
+
+    'Relationships'
+    CoordinateGroup "1" *-- "1" CartesianCoordinate
+    CoordinateGroup "1" *-- "1" PolarCoordinate
+    CoordinateController "1" --> "1" CoordinateGroupDAO
+    CoordinateController "1" --> "1" CoordinateConverter
+    MainView "1" --> "1" CoordinateController
+    CoordinateGroupDAO ..> CoordinateGroup
+    
+@enduml

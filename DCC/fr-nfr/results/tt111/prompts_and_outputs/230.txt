@@ -1,0 +1,76 @@
+@startuml
+package "Presentation Layer" {
+    class MainUI {
+        +createCoordinateGroup()
+        +viewCoordinateGroups()
+        +modifyCoordinateGroup()
+        +deleteCoordinateGroup()
+    }
+
+    class CoordinateForm {
+        +displayForm()
+        +getUserInput()
+    }
+
+    MainUI --> CoordinateForm : "opens"
+}
+
+package "Business Logic Layer" {
+    class CoordinateGroup {
+        +int id
+        +String label
+        +Date timestamp
+        +Cartesian cartesian
+        +Polar polar
+        +setLabel(String)
+        +getLabel()
+    }
+
+    class Cartesian {
+        +double x
+        +double y
+    }
+
+    class Polar {
+        +double r
+        +double theta
+    }
+
+    class Converter {
+        +toCartesian(Polar): Cartesian
+        +toPolar(Cartesian): Polar
+    }
+
+    class CoordinateManager {
+        +createGroup(Cartesian, Polar)
+        +getGroupByLabel(String)
+        +getAllGroups()
+        +modifyGroup(int id)
+        +deleteGroup(int id)
+    }
+
+    CoordinateGroup *-- Cartesian : "contains"
+    CoordinateGroup *-- Polar : "contains"
+    CoordinateManager --> Converter : "uses"
+    MainUI --> CoordinateManager : "interacts with"
+}
+
+package "Data Access Layer" {
+    class DatabaseConnection {
+        +connect()
+        +disconnect()
+    }
+
+    class CoordinateRepository {
+        +save(CoordinateGroup)
+        +findByLabel(String)
+        +findAll()
+        +update(CoordinateGroup)
+        +delete(int id)
+    }
+
+    CoordinateRepository --> DatabaseConnection : "connects via TCP/IP"
+    CoordinateManager --> CoordinateRepository : "uses"
+}
+
+@enduml

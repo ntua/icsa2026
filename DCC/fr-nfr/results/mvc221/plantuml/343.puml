@@ -1,0 +1,44 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getCartesianCoordinates(): Pair<double, double>
+    + getPolarCoordinates(): Pair<double, double>
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesianX: double, cartesianY: double): Pair<double, double>
+    + convertPolarToCartesian(polarR: double, polarTheta: double): Pair<double, double>
+  }
+
+}
+
+package "View" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + displayCoordinateGroupDetails(coordinateGroup: CoordinateGroup)
+    + getCoordinatesInput(): Pair<Double, Double> 
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - model: Model
+    - view: View
+    + handleCreateOp()
+    + handleReadOp()
+    + handleUpdateOp()
+    + handleDeleteOp()
+    + filterCoordinateGroups(labelFilter: String)
+  }
+
+}
+"Model" --> "View": "Displays Data"
+"View" --> "Controller": "User Actions"
+"Controller" --> "Model": "Data Operations"
+@enduml

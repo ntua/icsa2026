@@ -1,0 +1,64 @@
+@startuml
+package "Client" {
+    class CoordinateConverter {
+        - cartesians: Cartesian[]
+        - polars: Polar[]
+        + convertToCartesian(polar: Polar)
+        + convertToPolar(cartesian: Cartesian)
+    }
+
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - timestamp: Date
+        - cartesian: Cartesian
+        - polar: Polar
+        + getId(): Int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + setCartesian(cartesian: Cartesian)
+        + setPolar(polar: Polar)
+    }
+
+    class GUI {
+        - coordinateConverter: CoordinateConverter
+        - coordinateGroupManager: CoordinateGroupManager
+        + run()
+    }
+}
+
+package "Server" {
+    class Database {
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + fetchCoordinateGroups(): [CoordinateGroup]
+        + deleteCoordinateGroup(id: Int)
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    }
+
+    class Cartesian {
+        - x: Double
+        - y: Double
+        + getX(): Double
+        + getY(): Double
+    }
+
+    class Polar {
+        - r: Double
+        - theta: Double
+        + getR(): Double
+        + getTheta(): Double
+    }
+}
+
+CoordinateConverter --> CoordinateGroup
+CoordinateGroupManager --> CoordinateGroup
+
+GUI --> CoordinateConverter
+GUI --> CoordinateGroupManager
+
+Cartesian --|> CoordinateGroup
+Polar --|> CoordinateGroup
+
+Database <|-- Cartesian
+Database <|-- Polar
+@enduml

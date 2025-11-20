@@ -1,0 +1,57 @@
+@startuml
+
+package "Presentation Layer" {
+  class GUI {
+    - coordinateGroupList : List<CoordinateGroup>
+    + viewCoordinateGroups() : void
+    + addNewCoordinateGroup(label: String, x: HighPrecisionNumber, y: HighPrecisionNumber) : void
+    + updateCoordinateGroup(id: Integer, label: String, x: HighPrecisionNumber, y: HighPrecisionNumber) : void
+    + deleteCoordinateGroup(id: Integer) : void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateConverter {
+    - coordinateGroups : List<CoordinateGroup>
+    + convertCartesianToPolar(x: HighPrecisionNumber, y: HighPrecisionNumber) : PolarCoordinates
+    + convertPolarToCartesian(r: HighPrecisionNumber, theta: HighPrecisionNumber) : CartesianCoordinates
+  }
+  
+  class CoordinateGroup {
+    - id : Integer
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    + create(id: Integer, label: String, x: HighPrecisionNumber, y: HighPrecisionNumber) : void
+    + read() : List<CoordinateGroup>
+    + update(id: Integer, newLabel: String, newX: HighPrecisionNumber, newY: HighPrecisionNumber) : void
+    + delete(id: Integer) : void
+  }
+  
+  class Operation {
+    - coordinateGroups : List<CoordinateGroup>
+    + executeCreateOp(label: String, x: HighPrecisionNumber, y: HighPrecisionNumber) : void
+    + executeReadOp() : List<CoordinateGroup>
+    + executeUpdateOp(id: Integer, newLabel: String, newX: HighPrecisionNumber, newY: HighPrecisionNumber) : void
+    + executeDeleteOp(id: Integer) : void
+  }
+}
+
+package "Data Layer" {
+  class Database {
+    - coordinateGroups : List<CoordinateGroup>
+    + createRecord(label: String, x: HighPrecisionNumber, y: HighPrecisionNumber) : Integer
+    + readRecords() : List<CoordinateGroup>
+    + updateRecord(id: Integer, newLabel: String, newX: HighPrecisionNumber, newY: HighPrecisionNumber) : void
+    + deleteRecord(id: Integer) : void
+  }
+}
+
+GUI --> CoordinateConverter : uses for coordinate conversions
+CoordinateConverter -> CoordinateGroup : uses to create, read, update and delete coordinate groups
+CoordinateGroup -d-> Database : stores data in the database
+Database -d-> Operation : executes operations on the stored data
+Operation -> GUI : notifies the GUI of changes
+GUI -d-> CoordinateGroup : displays information about the coordinate group
+
+@enduml

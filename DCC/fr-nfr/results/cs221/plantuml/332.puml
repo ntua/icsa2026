@@ -1,0 +1,31 @@
+@startuml
+!include <C4/C4_Component>
+
+title Dummy Coordination Conversion Application
+
+SHOW_LEGEND()
+
+Person(client, "User")
+
+System_Boundary(c1, "DCC Application") {
+    System(database, "MySQL Database", "Stores coordinate group records")
+}
+
+Rel(client, database, "Uses TCP/IP", "reads and writes data")
+
+ContainerDb(frontend, "Frontend", "Java Swing GUI for user interaction")
+Container(logic, "Logic", "Coordinate conversion and manipulation logic") 
+
+Rel(frontend, c1, "Uses", "")
+Rel(c1, frontend, "Provides data to", "")
+
+Rel(logic, database, "Accesses", "")
+
+Component(logic_coordGroup, "CoordinateGroup", "Stores cartesian (x,y) and polar (r,theta) coordinates")
+Component(logic_converter, "Converter", "Converts between cartesian and polar coordinates")
+
+Rel(logic_converter, logic_coordGroup, "Uses", "")
+
+
+}
+@enduml

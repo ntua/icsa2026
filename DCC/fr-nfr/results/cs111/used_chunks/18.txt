@@ -1,0 +1,151 @@
+Data Storage : Store and retrieve all book, user, and transaction data in a centralized server 
+database. Class diagram in plantUML of the application with client -server architecture pattern:  
+@startuml  
+package "Client" {  
+    class LibraryApp {  
+      - bookManager: BookManager  
+      - userManager: UserManager  
+      - transactionManager: TransactionManager  
+      + run()   (Score: 223.7333700524639)
+
+---
+
+• Data Layer:  Stores product information, customer data, order history, and financial 
+transactions in a database. Class Diagram in PlantUML  for above problem with Three -tier architecture : 
+@startuml  
+class Storefront {  
+- ProductCatalog : List<Product>  
+- ShoppingCart : ShoppingCart  
+- CheckoutInterface : Checkout  
++ viewProducts() : void  
++ addToCart(product: Product) : void  
++ proceedToCheckout() : void  
+} 
+package "Logic Layer" {  
+class OrderProcessor {  
+- paymentProcessor : PaymentProcessor  
+- inventoryManager : InventoryManager  
++ processOrder(order: Order) : void  
++ applyDiscount(order: Order, discountCode: String) : float  
+} 
+ 
+class InventoryManager {  
++ checkStock(product: Product) : boolean  
++ updateStock(product: Product, quantity: int) : void  
+} 
+  (Score: 235.12730660686634)
+
+---
+
+    } 
+ 
+class BookManager {  
+      + addBook(title: String, author: String, isbn: String)  
+      + updateBook(bookId: Int)  
+      + deleteBook(bookId: Int)  
+    } 
+ 
+    class UserManager {  
+      + addUser(name: String, contactInfo: String)  
+      + updateUser(userId: Int)  
+      + deleteUser(userId: Int)  
+    } 
+ 
+    class TransactionManager {  
+      + borrowBook(userId: Int, bookId: Int)  
+      + returnBook(transactionId: Int)  
+    } 
+     
+    LibraryApp --> BookManager  
+    LibraryApp --> UserManager  
+    LibraryApp --> TransactionManager  
+} 
+ 
+package "Server" {  
+    class Book {  
+      - bookId: Int  
+      - title: String  
+      - author: String  
+      - isbn: String  
+      - availabilityStatus: Boolean  
+    } 
+ 
+    class User {  
+      - userId: Int  
+      - name: String  
+      - contactInfo: String  
+    } 
+ 
+    class Transaction {  
+      - transactionId: Int  
+      - bookId: Int  
+      - userId: Int  
+      - transactionDate: Date  
+    } 
+ 
+    interface Database {  
+      + saveData(data: String)  
+      + fetchData(query: String): String  
+    } 
+  (Score: 277.4606696181767)
+
+---
+
+class PaymentProcessor {  
++ processPayment(paymentInfo: PaymentInfo) : boolean  
++ connectTo3rdParty(paymentInfo: PaymentInfo) : boolean  
+} 
+} 
+ 
+class Database {  
++ storeProductData(product: Product) : void  
++ retrieveProductData(productId: int) : Product  
++ storeCustomerData(customer: Customer) : void  
++ storeOrderHistory(order: Order) : void  
++ retrieveOrderHistory(customerId: int) : List<Order>  
+} 
+ 
+ 
+Storefront --> OrderProcessor : Uses  
+OrderProcessor --> PaymentProcessor : Uses  
+OrderProcessor --> InventoryManager : Uses  
+OrderProcessor --> Database : Accesses  
+InventoryManager --> Database : Accesses  
+PaymentProcessor --> Database : Accesses   
+@enduml  
+ 
+ 
+Client -server architecture  
+• Distributed system model which shows how data and processing is distributed across a 
+range of components, but can also be implemented on a single computer. • Set of stand -alone servers which provide specific services such as printing, data 
+management, etc. (Score: 280.406678401243)
+
+---
+
+Software Architecture Patterns and corresponding UML class diagrams  
+ 
+The big picture  
+Architectural design  is a process for identifying the sub -systems making up a system and the 
+framework for sub -system control and communication. The output of this design process is a 
+description of the software architecture. Architectural design is an early stage of the system design 
+process. It represents the link between specification and design processes and is often carried out in 
+parallel with some specificatio n activities. It involves identifying major system components and their 
+communications. Software architectures can be designed at  two levels of abstraction : 
+• Architecture in the small  is concerned with the architecture of individual programs. At 
+this level, we are concerned with the way that an individual program is decomposed into 
+components. • Architecture in the large  is concerned with the architecture of complex enterprise 
+systems that include other systems, programs, and program components. These 
+enterprise systems are distributed over different computers, which may be owned and 
+managed by different companies. Three  advantages  of explicitly designing and documenting software architecture:  
+• Stakeholder communication : Architecture may be used as a focus of discussion by 
+system stakeholders. • System analysis : Well -documented architecture enables the analysis of whether the 
+system can meet its non -functional requirements. • Large -scale reuse : The architecture may be reusable across a range of systems or entire 
+lines of products. Software architecture is most often represented using simple, informal  block diagrams  showing 
+entities and relationships. Pros : simple, useful for communication with stakeholders, great for 
+project planning. Cons : lack of semantics, types of relationships between entities, visible properties 
+of entities in the architecture. Uses  of architectural models:  
+As a way of facilitating discussion about the system design   
+A high -level architectural view of a system is useful for communication with system 
+stakeholders and project planning because it is not cluttered with detail. Stakeholders can 
+relate to it and understand an abstract view of the system. They can then discus s the system 
+as a whole without being confused by detail. (Score: 292.32041398930926)

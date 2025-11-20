@@ -1,0 +1,47 @@
+@startuml
+package Model {
+  class CoordinateGroup {
+    + int id
+    + String label
+    + double x
+    + double y
+    + double r
+    + double theta
+    + Date timestamp
+    + convertToPolar()
+    + convertToCartesian()
+  }
+
+  class CoordinateRepository {
+    + create(CoordinateGroup group)
+    + readAll(): List<CoordinateGroup>
+    + readByLabel(String label): CoordinateGroup
+    + update(CoordinateGroup group)
+    + delete(int id)
+  }
+}
+
+package View {
+  class CoordinateView {
+    + displayAll(List<CoordinateGroup> groups)
+    + displayGroup(CoordinateGroup group)
+    + showError(String message)
+  }
+}
+
+package Controller {
+  class CoordinateController {
+    - CoordinateRepository repository
+    - CoordinateView view
+    + createCoordinate(String label, double x, double y, boolean isCartesian)
+    + modifyCoordinate(int id, String label, double value1, double value2, boolean isCartesian)
+    + deleteCoordinate(int id)
+    + viewAllCoordinates()
+    + viewCoordinateByLabel(String label)
+  }
+}
+
+CoordinateController --> CoordinateRepository : uses
+CoordinateController --> CoordinateView : uses
+CoordinateRepository --> CoordinateGroup : manages
+@enduml

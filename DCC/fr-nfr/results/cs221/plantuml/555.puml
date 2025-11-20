@@ -1,0 +1,83 @@
+@startuml DCC_Application_Class_Diagram
+
+' Client Side Classes
+package "Client" {
+    class DCCApplicationGUI {
+        - List<CoordinateGroup> displayedGroups
+        - CoordinateGroup currentGroup
+        - String currentFilter
+        
+        + void initialize()
+        + void displayGroups(List<CoordinateGroup>)
+        + void handleAdd()
+        + void handleUpdate()
+        + void handleDelete()
+        + void applyFilter(String)
+        + void clearFilter()
+    }
+
+    class CoordinateConverter {
+        + CartesianCoordinate convertPolarToCartesian(PolarCoordinate)
+        + PolarCoordinate convertCartesianToPolar(CartesianCoordinate)
+    }
+    
+    class ServiceFacade {
+        - DatabaseService databaseService
+        
+        + void createCoordinateGroup(String, CartesianCoordinate, PolarCoordinate)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(Integer)
+        + List<CoordinateGroup> filterByLabel(String)
+    }
+
+    class CoordinateGroup {
+        - Integer id
+        - String label
+        - CartesianCoordinate cartesian
+        - PolarCoordinate polar
+        - DateTime timestamp
+        
+        + Boolean matchesFilter(String)
+    }
+    
+    class CartesianCoordinate {
+        - Double x
+        - Double y
+    }
+    
+    class PolarCoordinate {
+        - Double r
+        - Double theta
+    }
+}
+
+' Server Side Classes
+package "Server" {
+    class DatabaseService {
+        - Database database
+        
+        + void saveCoordinateGroup(CoordinateGroup)
+        + List<CoordinateGroup> fetchAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(Integer)
+    }
+    
+    class Database {
+        + void connect()
+        + void disconnect()
+        + void executeQuery(String)
+        + ResultSet query(String)
+    }
+}
+
+' Relationships
+ServiceFacade --> CoordinateConverter : Uses
+DCCApplicationGUI --> ServiceFacade : Uses
+ServiceFacade --> DatabaseService : Communicates_with
+DatabaseService --> Database : Depends_on
+
+CoordinateGroup *-- CartesianCoordinate : Composition
+CoordinateGroup *-- PolarCoordinate : Composition
+
+@enduml

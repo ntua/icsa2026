@@ -1,0 +1,87 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application - Client-Server Architecture
+
+package "Client Side" {
+    class UserInteraction <<interface>> {
+        + createCoordinateGroup() : int
+        + addCoordinates(label: string, x: double, y: double): void
+        + updateCoordinates(): void
+        + deleteCoordinates(): void
+        + refreshList(): void
+        + filterByLabel(labelValue: string) : boolean
+    }
+
+    class CartesianConverter <<interface>> {
+        + toPolar(x: double, y: double) : PolarCoordinates
+        + fromPolar(r: double, theta: double) : CartesianCoordinates
+    }
+
+    class DCCView {
+        - userInteraction : UserInteraction
+        - cartesianConverter : CartesianConverter
+        - dccController : DCCController
+        + displayCoordinateList()
+        + updateDisplay(newRecord: CoordinateGroup): void
+    }
+}
+
+package "Server Side" {
+    class MySQLDatabase <<interface>> {
+        + saveCoordinates(group: CoordinateGroup) 
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + modifyCoordinates(groupID : int, newValues: CoordinateGroup)
+        + deleteCoordinates(groupID: int): void
+    }
+
+    class DCCLogic {
+        - database : MySQLDatabase
+
+        + createUniqueID() : int
+        + addTimestamp(datetime: string) : void
+        + saveLabelAndValues(label: string, values: List<Double>) 
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinates(groupID : int, newValues: CoordinateGroup)
+        + deleteCoordinatesFromDB(groupID: int): void
+    }
+
+    class DCCController {
+        - userInteraction : UserInteraction
+        - dccLogic : DCCLogic
+        - cartesianConverter : CartesianConverter
+        - dccView : DCCView
+
+        + createCoordinateRecord() : void
+        + updateCoordinateRecord(): void
+        + deleteCoordinateRecord(): void
+        + refreshListAndDisplay(): void
+    }
+}
+
+class CoordinateGroup {
+    id: int 
+    label: string
+    cartesian: List<double>
+    polar: List<double>
+    datetime: string
+}
+
+class CartesianCoordinates {
+    x: double
+    y: double
+}
+
+class PolarCoordinates{
+    r: double
+    theta: double
+}
+
+
+UserInteraction <.. DCCView
+DCCView -- UserInteraction : Request/Response
+
+DCCController ..> DCCLogic
+DCCController ..> MySQLDatabase
+DCCController ..> CartesianConverter
+DCCLogic <.. MySQLDatabase 
+DCCView <.. DCCController
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+package frontend {
+    class DummyCoordinator {
+        + String label
+        - List<Coordinate> cartesianCoordinates
+        - List<Coordinate> polarCoordinates
+        - CoordinateGroup coordinateGroup
+
+        + DummyCoordinator(String label)
+        - void createCartesianGroup()
+        - void createPolarGroup()
+        - void storeInDatabase()
+        - void retrieveFromDatabase()
+    }
+
+    class Coordinate {
+        + double x
+        + double y
+        + double r
+        + double theta
+    }
+}
+
+package backend {
+    class CoordinateGroup {
+        + int id
+        + String label
+        - List<Coordinate> cartesianCoordinates
+        - List<Coordinate> polarCoordinates
+
+        + CoordinateGroup(int id, String label)
+        - void addCartesianCoordinate()
+        - void addPolarCoordinate()
+    }
+
+    class MySQLDatabase {
+        + List<CoordinateGroup> coordinateGroups
+        - CoordinateGroup retrieveByLabel()
+        - List<CoordinateGroup> retrieveAll()
+        - void saveCoordinateGroup()
+        - void deleteCoordinateGroup()
+    }
+}
+
+frontend <--> backend: uses, provides data to
+@enduml

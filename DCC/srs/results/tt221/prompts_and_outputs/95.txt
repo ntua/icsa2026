@@ -1,0 +1,151 @@
+Response:
+```plantuml
+@startuml
+
+' Define Model Package
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + getId(): int
+    + setId(int): void
+    + getTimestamp(): Date
+    + setTimestamp(Date): void
+    + getLabel(): String
+    + setLabel(String): void
+    + getCartesian(): CartesianCoordinate
+    + setCartesian(CartesianCoordinate): void
+    + getPolar(): PolarCoordinate
+    + setPolar(PolarCoordinate): void
+  }
+  
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + getX(): double
+    + setX(double): void
+    + getY(): double
+    + setY(double): void
+  }
+  
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + getR(): double
+    + setR(double): void
+    + getTheta(): double
+    + setTheta(double): void
+  }
+  
+  CoordinateGroup --> CartesianCoordinate : contains
+  CoordinateGroup --> PolarCoordinate : contains
+}
+
+' Define Business Package
+package business {
+  class CoordinateConverter {
+    + toPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    + toCartesian(polar: PolarCoordinate): CartesianCoordinate
+  }
+  
+  class CoordinateGroupService {
+    - dao: CoordinateGroupDAO
+    + createGroup(label: String, cartesian: CartesianCoordinate): void
+    + createGroup(label: String, polar: PolarCoordinate): void
+    + updateGroup(group: CoordinateGroup): void
+    + deleteGroup(id: int): void
+    + listGroups(): List<CoordinateGroup>
+    + findGroupsByLabel(label: String): List<CoordinateGroup>
+  }
+  
+  CoordinateGroupService ..> CoordinateConverter : uses
+  CoordinateGroupService --> model.CoordinateGroup : manages
+}
+
+' Define Data Package
+package data {
+  class CoordinateGroupDAO {
+    - connection: Connection
+    + save(group: model.CoordinateGroup): void
+    + update(group: model.CoordinateGroup): void
+    + delete(id: int): void
+    + findAll(): List<model.CoordinateGroup>
+    + findByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  class DatabaseConnectionManager {
+    + getConnection(): Connection
+  }
+  
+  CoordinateGroupDAO --> DatabaseConnectionManager : uses
+  CoordinateGroupDAO --> model.CoordinateGroup : persists
+}
+
+' Define Presentation Package
+package presentation {
+  class DCCMainFrame {
+    - service: business.CoordinateGroupService
+    + initUI(): void
+    + onAddButtonClick(): void
+    + onUpdateButtonClick(): void
+    + onDeleteButtonClick(): void
+    + onViewAllButtonClick(): void
+    + onFindByLabelButtonClick(): void
+  }
+  
+  class CreateCoordinateGroupPanel {
+    + render(): void
+  }
+  
+  class ModifyCoordinateGroupPanel {
+    + render(): void
+  }
+  
+  class CoordinateGroupListView {
+    + renderList(groups: List<model.CoordinateGroup>): void
+  }
+  
+  DCCMainFrame --> CreateCoordinateGroupPanel : uses
+  DCCMainFrame --> ModifyCoordinateGroupPanel : uses
+  DCCMainFrame --> CoordinateGroupListView : uses
+}
+
+' Define Associations Across Packages
+presentation.DCCMainFrame --> business.CoordinateGroupService : uses
+business.CoordinateGroupService --> data.CoordinateGroupDAO : uses
+business.CoordinateGroupService --> model.CoordinateGroup
+data.CoordinateGroupDAO --> model.CoordinateGroup
+business.CoordinateConverter ..> model.CartesianCoordinate : converts
+business.CoordinateConverter ..> model.PolarCoordinate : converts
+
+@enduml
+```
+
+**Explanation:**
+
+- **Model Package:** Contains the core domain classes:  
+  - `CoordinateGroup` represents a group with both Cartesian and Polar coordinates, along with metadata.
+  - `CartesianCoordinate` and `PolarCoordinate` represent specific coordinate types.
+
+- **Business Package:** Implements business logic:  
+  - `CoordinateConverter` provides methods to convert between coordinate systems.
+  - `CoordinateGroupService` handles operations such as create, update, delete, list, and search for coordinate groups. It uses the DAO to persist data and `CoordinateConverter` for conversions.
+
+- **Data Package:** Manages database interactions:  
+  - `CoordinateGroupDAO` handles CRUD operations on `CoordinateGroup` objects.
+  - `DatabaseConnectionManager` provides database connectivity.
+
+- **Presentation Package:** Manages the user interface using Java Swing:  
+  - `DCCMainFrame` is the main UI frame that interacts with the service layer.
+  - Additional panels like `CreateCoordinateGroupPanel`, `ModifyCoordinateGroupPanel`, and `CoordinateGroupListView` support specific UI functions.
+
+- **Associations:**  
+  - The presentation layer depends on the business layer.
+  - The business layer utilizes the data access layer and the coordinate converter.
+  - The data access layer and business layer both work with model classes.
+  - Composition/aggregation relationships are indicated where appropriate (e.g., `CoordinateGroup` contains coordinate objects).
+
+This diagram adheres to the three-tier architecture by separating concerns across Presentation, Business, and Data layers, and by clearly defining the domain model.

@@ -1,0 +1,69 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id : Int
+    - label : String
+    - cartesian : CartesianCoordinates
+    - polar : PolarCoordinates
+    + createCartesian(cartesian: CartesianCoordinates)
+    + createPolar(polar: PolarCoordinates)
+    + modify(id: Int, newLabel: String)
+    + delete(id: Int)
+  }
+
+  class Coordinate {
+    - x : Double
+    - y : Double
+    + convertToPolar(r: Double, theta: Double)
+  }
+
+  class CartesianCoordinates extends Coordinate {
+    - r : Double
+    - theta : Double
+  }
+
+  class PolarCoordinates extends Coordinate {
+    - r : Double
+    - theta : Double
+  }
+}
+
+package "View" {
+  class DCCApplication {
+    - model : Model
+    + displayCoordinateGroups()
+    + displaySelectedGroup(id: Int)
+    + handleCoordinateGroupInput()
+  }
+
+  class CoordinateGroupViewer {
+    - dccApp : DCCApplication
+    + viewCartesianCoordinates(cartesian: CartesianCoordinates)
+    + viewPolarCoordinates(polar: PolarCoordinates)
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupController {
+    - model : Model
+    + handleCreateGroupRequest()
+    + handleRetrieveGroupsRequest()
+    + handleModifyGroupRequest(id: Int, newLabel: String)
+    + handleDeleteGroupRequest(id: Int)
+  }
+
+  class Coordinator {
+    - dccApp : DCCApplication
+    - controller : CoordinateGroupController
+    + connectToDatabase(db: Database)
+    + executeQuery(query: String)
+  }
+}
+
+Database -- Coordinator : Accesses
+
+CoordinateGroup <|-- Coordinate: Conversion
+Coordinate <|-- CartesianCoordinates: Inheritance
+Coordinate <|-- PolarCoordinates: Inheritance
+
+@enduml

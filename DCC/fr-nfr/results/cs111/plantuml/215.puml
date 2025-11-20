@@ -1,0 +1,83 @@
+@startuml
+package "Client" {
+    class CoordGroupController {
+        -coordGroupModel: CoordinateGroupModel
+        +createCoordGroup()
+        +modifyCoordGroup(id: int)
+        +deleteCoordGroup(id: int)
+    }
+    
+    class CoordinateGroupView {
+        +displayLabelField() : void
+        +displayAllCoordGroups() : List<Coordinate>
+        -coordGroupController: CoordGroupController
+    }
+}
+
+package "Server" {
+    package Database {
+        class DatabaseManager {
+            +storeCoordGroup(label: String, cartesianX: float, cartesianY: float) : void
+            +retrieveCoordGroup(id: int) : CoordinateGroup
+            +searchLabel(label: String): List<CoordinateGroup>
+        }
+    }
+    
+    class CoordinateConverter {
+        +convertToCartesian(r: float, theta: float) : (float, float)
+        +convertToPolar(x: float, y: float) : (float, float)
+    }
+
+    class CoordinateGroupModel {
+        -id: int
+        -label: String
+        -cartesianX: float
+        -cartesianY: float
+        -polarR: float
+        -polarTheta: float
+        +createCoordGroup(label: string, cartesianX: float, polarR: float) : void
+        +modifyValues(id: int, cartesianX: float, cartesianY: float, polarR: float, theta: float) : void
+        +deleteGroup(id: int): boolean
+    }
+    
+    class CoordinateGroup {
+        -uniqueId: int
+        -label: String
+        -timestamp: Timestamp
+        +cartesianX(): Float
+        +polarR(): Float
+        +theta(): float
+    }
+}
+
+package "Server" {
+    package Database {
+        class MySQLDatabaseManager extends DatabaseManager {
+            // Define necessary attributes and methods for this database manager
+        }
+        
+        class TCPConnectionManager {
+            -clientPort: int
+            -serverIPAddress: String
+            +connect() : void
+            +disconnect(): void
+        }
+    }
+    
+    interface CoordinateGroupControllerListener {
+        +onCoordGroupCreated(coordGroup: CoordinateGroup) : void
+        +onModificationComplete(id: int) : void
+        +onDeletionComplete(id: int) : void
+    }
+    
+    class DummyCoordConversionApplication {
+        -databaseConnection: TCPConnectionManager
+        -coordGroupControllerListener: CoordinateGroupControllerListener
+        +connectDatabase() : void
+    }
+}
+
+Client.CoordGroupController --> Client.CoordinateGroupModel : "1"
+Client.CoordinateGroupView --> Client.CoordGroupController : uses
+Server.Database.TCPConnectionManager --> Server.DummyCoordConversionApplication : 1..*
+@enduml

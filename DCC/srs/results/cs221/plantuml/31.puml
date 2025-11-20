@@ -1,0 +1,52 @@
+@startuml
+package db {
+  class DatabaseConnection
+}
+
+package gui {
+  class CoordinateGroupGUI
+  class DeleteButton
+  class CoordinateList
+}
+
+class CoordinateGroup {
+  + label : String
+  + r : double
+  + theta : double
+  + x : double
+  + y : double
+
+  - delete() : void
+}
+
+class DatabaseConnection {
+  + dbUsername : String
+  + dbPassword : String
+  + connect() : void
+  + disconnect() : void
+
+  - getCoordinateGroups() : void
+  - saveCoordinateGroup(cg : CoordinateGroup) : void
+}
+
+class CoordinateGroupGUI {
+  + display() : void
+  + selectCoordinateGroup() : void
+  - deleteButton : JButton
+
+  - updateUI() : void
+}
+
+class DeleteButton {
+  + jButton : JButton
+  + clicked() : void
+}
+
+class CoordinateList {
+  + jList : JList
+  + populateJList() : void
+
+  - getItemAt(index : int) : void
+}
+
+@enduml

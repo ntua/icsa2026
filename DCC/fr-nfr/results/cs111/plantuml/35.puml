@@ -1,0 +1,73 @@
+@startuml
+
+skinparam classAttributeIconSize 0
+skinparam linetype polyline
+skinparam componentStereotypePosition top,right
+hide empty description
+
+package "Frontend" {
+  class DCCApplication[R] {
+    - swingInterface: SwingFramework
+    + createCoordinateGroup(cartesianOrPolarCoordinates) : void
+    + retrieveCoordinateGroupsByLabel(label) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroupDetails(coordinateGroupId, newDetails) : void
+    + deleteCoordinateGroup(coordinateGroupId) : void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateConversionLogic[R] {
+    - dbConnection: TCP/IPConnection
+    + convertToCartesian(polarCoordinates) : CartesianCoordinates
+    + convertToPolar(cartesianCoordinates) : PolarCoordinates
+  }
+
+  class TCP/IPConnection[R] {
+    + establishConnection() : void
+    + sendData(data) : void
+    + receiveData() : data
+  }
+}
+
+package "Database" {
+  class MySQL[R] {
+    - coordinateGroupsTable: CoordinateGroups
+    + storeCoordinateGroup(coordinateGroup) : void
+    + retrieveCoordinateGroupByLabel(label) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroupDetails(coordinateGroupId, newDetails) : void
+    + deleteCoordinateGroup(coordinateGroupId) : void
+  }
+
+  class CoordinateGroups[R] {
+    - coordinateGroupId: int
+    - label: String
+    - timestamp: Timestamp
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    + store() : void
+    + retrieveByLabel(label) : List<CoordinateGroup>
+    + retrieveAll() : List<CoordinateGroup>
+    + modifyDetails(newDetails) : void
+    + delete() : void
+  }
+
+  class CartesianCoordinates[R] {
+    - x: double
+    - y: double
+
+    + convertToPolar() : PolarCoordinates
+  }
+
+  class PolarCoordinates[R] {
+    - r: double
+    - theta: double
+    
+    + convertToCartesian() : CartesianCoordinates
+  }
+}
+
+
+@enduml

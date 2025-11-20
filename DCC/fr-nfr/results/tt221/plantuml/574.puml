@@ -1,0 +1,85 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package Definitions
+package "Presentation" {
+    class CoordinateConverterGUI {
+        + void initialize()
+        + void addCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+        + void filterByLabel(String label)
+        + void clearFilter()
+        + void refreshDisplay()
+        
+        + -cartesianCoordinates: CartesianCoordinates
+        + -polarCoordinates: PolarCoordinates
+    }
+}
+
+package "Logic" {
+    class CoordinateConverter {
+        + static CartesianCoordinates convertPolarToCartesian(PolarCoordinates polar)
+        + static PolarCoordinates convertCartesianToPolar(CartesianCoordinates cartesian)
+        
+        + private Double calculateR(Double x, Double y)
+        + private Double calculateTheta(Double x, Double y)
+        + private Double calculateX(Double r, Double theta)
+        + private Double calculateY(Double r, Double theta)
+    }
+
+    class CoordinateGroupManager {
+        + void createCoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(Integer id)
+        
+        + -databaseGateway: DatabaseGateway
+    }
+}
+
+package "Data" {
+    class DatabaseGateway {
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> readAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(Integer id)
+        
+        + -connection: MySqlConnection
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        + Integer id
+        + String label
+        + CartesianCoordinates cartesianCoordinates
+        + PolarCoordinates polarCoordinates
+        + DateTime createdAt
+        + DateTime updatedAt
+        
+        + CoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+    }
+
+    class CartesianCoordinates {
+        + Double x
+        + Double y
+    }
+
+    class PolarCoordinates {
+        + Double r
+        + Double theta
+    }
+}
+
+' Associations and Relationships
+CoordinateConverterGUI --* CoordinateGroupManager
+
+CoordinateGroupManager --* DatabaseGateway
+CoordinateGroupManager --> CoordinateConverter
+
+DatabaseGateway --> CoordinateGroup: "persists and retrieves"
+
+CoordinateGroup *-- CartesianCoordinates
+CoordinateGroup *-- PolarCoordinates
+
+@enduml

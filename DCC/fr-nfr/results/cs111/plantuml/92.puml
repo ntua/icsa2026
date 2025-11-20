@@ -1,0 +1,50 @@
+@startuml
+package Client {
+  class DCCApp {
+    + run()
+    - coordinateManager: CoordinateManager
+  }
+
+  class CoordinateInputDialog {
+    + displayDialog(): void
+    + getCoordinateType(): String
+    + getCoordinates(): List<Double>
+  }
+
+  class CoordinateManager {
+    + createCoordinateGroup(coordinates: List<Double>, label: String): void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+  DCCApp --> CoordinateManager
+  DCCApp --> CoordinateInputDialog
+}
+
+package Server {
+ class CoordinateGroup {
+   - id: int
+   - label: String
+   - timestamp: Date
+   - cartesianCoordinates: List<Double>
+   - polarCoordinates: List<Double>
+ }
+
+  class MySQLDatabaseConnector {
+    + connect(): void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroups(label: String): List<CoordinateGroup>
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+
+  }
+}
+
+Client.CoordinateManager --> Server.MySQLDatabaseConnector : uses
+
+
+@enduml

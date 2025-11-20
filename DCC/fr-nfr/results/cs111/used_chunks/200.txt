@@ -1,0 +1,165 @@
+User Management : Register new users, update user information, and manage user records. 3. Transaction Management : Facilitate book borrowing and returning, tracking user and book 
+details for each transaction. 4. Data Storage : Store and retrieve all book, user, and transaction data in a centralized server 
+database. Class diagram in plantUML of the application with client -server architecture pattern:  
+@startuml  
+package "Client" {  
+    class LibraryApp {  
+      - bookManager: BookManager  
+      - userManager: UserManager  
+      - transactionManager: TransactionManager  
+      + run()  
+    } 
+ 
+class BookManager {  
+      + addBook(title: String, author: String, isbn: String)  
+      + updateBook(bookId: Int)  
+      + deleteBook(bookId: Int)  
+    }  (Score: 0.9361444383982815)
+
+---
+
+ 
+MVC (Model -View -Controller) architecture example:  
+Problem Description:  
+A car rental company wants to develop a software system that will enable customers to rent cars online. Customers should be able to browse available cars, select a car to rent, and make a reservation. The 
+system should keep track of the availability of cars, as well as the reservations made by customers. Identify Use Cases  
+• Browse available cars  
+• Select a car to rent  
+• Make a reservation  
+ 
+Class diagram  in plantUML  for above problem with MVC architecture:  
+ @startuml  
+  class CarRentalView {  
+    +displayCar()  
+    +displayReservationDetails()  
+  } 
+ 
+class CarRentalController {  
+    -model: CarRentalModel  
+    -view: CarRentalView  
+    +searchCars()  
+    +reserveCars()  
+  } 
+   
+class CarRentalModel {  
+    -customers: List<>  
+    -cars: List<>  
+    -reservations: List<>  
+    +fetchCars()  
+    +updateReservationDetails()  
+  } 
+CarRentalView -- CarRentalController: Request/Response  
+CarRentalController --> CarRentalModel : Request Data  
+CarRentalModel --> Database : Connection  
+@enduml  
+ 
+ 
+The Model  includes the  Customer , Car, and  Reservation  entities , along with methods for fetching  for cars 
+and making reservations. The View  is represented by the CarRentalView, which defines methods for displaying cars and reservation 
+details. (Score: 0.9480778611947676)
+
+---
+
+Software Architecture Patterns and corresponding UML class diagrams  
+ 
+Software architecture is like the blueprint for building software, showing how different parts fit 
+together and interact. It helps the development team understand how to build the software 
+according to customer requirements. (Score: 1.0640609756083867)
+
+---
+
+ 
+    class UserManager {  
+      + addUser(name: String, contactInfo: String)  
+      + updateUser(userId: Int)  
+      + deleteUser(userId: Int)  
+    } 
+ 
+    class TransactionManager {  
+      + borrowBook(userId: Int, bookId: Int)  
+      + returnBook(transactionId: Int)  
+    } 
+     
+    LibraryApp --> BookManager  
+    LibraryApp --> UserManager  
+    LibraryApp --> TransactionManager  
+} 
+ 
+package "Server" {  
+    class Book {  
+      - bookId: Int  
+      - title: String  
+      - author: String  
+      - isbn: String  
+      - availabilityStatus: Boolean  
+    } 
+ 
+    class User {  
+      - userId: Int  
+      - name: String  
+      - contactInfo: String  
+    } 
+ 
+    class Transaction {  
+      - transactionId: Int  
+      - bookId: Int  
+      - userId: Int  
+      - transactionDate: Date  
+    } 
+ 
+    interface Database {  
+      + saveData(data: String)  
+      + fetchData(query: String): String  
+    } 
+ 
+    Database <| -- Book  
+    Database <| -- User  
+    Database <| -- Transaction  
+} 
+ 
+BookManager --> Server.Database  
+UserManager --> Server.Database  
+TransactionManager --> Server.Database  
+ 
+@enduml   (Score: 1.1145593816243549)
+
+---
+
++ processOrder(order: Order) : void  
++ applyDiscount(order: Order, discountCode: String) : float  
+} 
+ 
+class InventoryManager {  
++ checkStock(product: Product) : boolean  
++ updateStock(product: Product, quantity: int) : void  
+} 
+ 
+class PaymentProcessor {  
++ processPayment(paymentInfo: PaymentInfo) : boolean  
++ connectTo3rdParty(paymentInfo: PaymentInfo) : boolean  
+} 
+} 
+ 
+class Database {  
++ storeProductData(product: Product) : void  
++ retrieveProductData(productId: int) : Product  
++ storeCustomerData(customer: Customer) : void  
++ storeOrderHistory(order: Order) : void  
++ retrieveOrderHistory(customerId: int) : List<Order>  
+} 
+ 
+ 
+Storefront --> OrderProcessor : Uses  
+OrderProcessor --> PaymentProcessor : Uses  
+OrderProcessor --> InventoryManager : Uses  
+OrderProcessor --> Database : Accesses  
+InventoryManager --> Database : Accesses  
+PaymentProcessor --> Database : Accesses   
+@enduml  
+ 
+ 
+ 
+Model – View – Controller (MVC)  Architecture : 
+The MVC framework is a software architecture that separates the user interface (UI), data storage, 
+and business logic into three separate components. This allows developers to work on each 
+component independently without affecting the other two parts of th e application. (Score: 1.1658395652083913)

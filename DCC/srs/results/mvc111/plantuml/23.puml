@@ -1,0 +1,84 @@
+@startuml
+package Model {
+  interface IRepository {
+    +findAllCoordinateGroups() : List<CoordinateGroup>
+    +findCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+    +deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : Boolean
+    +saveCoordinateGroup(coordinateGroup: CoordinateGroup) : CoordinateGroup
+  }
+  
+  class MySQLLevelDBRepository implements IRepository {
+    -database: Database
+    
+    +findAllCoordinateGroups() : List<CoordinateGroup>
+    +findCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+    +deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : Boolean
+    +saveCoordinateGroup(coordinateGroup: CoordinateGroup) : CoordinateGroup
+  }
+  
+  class CoordinateGroup {
+    -id: Int
+    -timestamp: Date
+    -label: String
+    -polarCoordinates: List<PolarCoordinate>
+    -cartesianCoordinates: List<CartesianCoordinate>
+    
+    +CoordinateGroup(id: Int, timestamp: Date, label: String, polarCoordinates: List<PolarCoordinate>, cartesianCoordinates: List<CartesianCoordinate>)
+    
+    +getID() : Int
+    +getTimestamp() : Date
+    +getLabel() : String
+    +getPolarCoordinates() : List<PolarCoordinate>
+    +getCartesianCoordinates() : List<CartesianCoordinate>
+  }
+  
+  class PolarCoordinate {
+    -radius: Double
+    -theta: Double
+    
+    +PolarCoordinate(radius: Double, theta: Double)
+    
+    +getRadius() : Double
+    +getTheta() : Double
+  }
+  
+  class CartesianCoordinate {
+    -x: Double
+    -y: Double
+    
+    +CartesianCoordinate(x: Double, y: Double)
+    
+    +getX() : Double
+    +getY() : Double
+  }
+}
+
+package View {
+  class CoordinateGroupListView {
+    -controller: Controller
+    
+    +display()
+    +update(coordinateGroups: List<CoordinateGroup>)
+    +handleDeleteButtonClicked(coordinateGroup: CoordinateGroup) : Boolean
+  }
+  
+  class FindByLabelView {
+    -controller: Controller
+    
+    +display()
+    +handleFindByLabelButtonClicked(label: String) : List<CoordinateGroup>
+  }
+}
+
+package Controller {
+  class MainController {
+    -model: Model.IRepository
+    -findByLabelView: View.FindByLabelView
+    -coordinateGroupListView: View.CoordinateGroupListView
+    
+    +MainController(model: Model.IRepository, findByLabelView: View.FindByLabelView, coordinateGroupListView: View.CoordinateGroupListView)
+    
+    +run()
+  }
+}
+@enduml

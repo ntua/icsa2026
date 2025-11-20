@@ -1,0 +1,44 @@
+@startuml
+package "Client" {
+  class GUI {
+    + void displayCoordinateGroupList()
+    + void handleUserInput()
+  }
+
+  class CoordinateGroupDTO {
+    - id: Integer
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: (r, θ)
+    - cartesianCoordinates: (x, y)
+  }
+}
+
+package "Server" {
+  class DatabaseManager {
+    + void storeCoordinateGroup(CoordinateGroup entity)
+    + List<CoordinateGroup> retrieveAllCoordinateGroups()
+    + List<CoordinateGroup> retrieveCoordinateGroupsByLabel(String label)
+    + void deleteCoordinateGroup(Integer id)
+  }
+
+  class CoordinateGroup {
+    - id: Integer
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: (r, θ)
+    - cartesianCoordinates: (x, y)
+  }
+}
+
+class ServiceCoordinator {
+  + void fetchAllCoordinateGroups()
+  + void fetchCoordinateGroupsByLabel(String label)
+  + void deleteCoordinateGroup(Integer id)
+}
+
+GUI --> ServiceCoordinator : Uses > 
+ServiceCoordinator --> DatabaseManager : Communicates with
+DatabaseManager --> CoordinateGroup : Manages
+GUI --> CoordinateGroupDTO : Displays
+@enduml

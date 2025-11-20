@@ -1,0 +1,61 @@
+@startuml
+class CoordinateGroup {
+   -string label
+    + CartesianCoordinates cartesians = new CartesianCoordinates()
+    + PolarCoordinates polars = new PolarCoordinates()
+}
+
+class CartesianCoordinates {
+   double x, y
+}
+
+class PolarCoordinates {
+   double r, theta
+}
+
+interface CoordinateOperations {
+  void convertToCartesian(PolarCoordinates polar)
+  void convertToPolar(CartesianCoordinates cartesian)
+}
+
+class ConversionService implements CoordinateOperations {
+     void convertToCartesian(PolarCoordinates polar) {}
+     void convertToPolar(CartesianCoordinates cartesian) {}
+}
+
+interface UserInteraction {
+  void addNewGroup()
+  void updateExistingGroup()
+  void deleteExistingGroup()
+}
+
+class UIService implements UserInteraction {
+   void addNewGroup() {}
+   void updateExistingGroup() {}
+   void deleteExistingGroup() {}
+}
+
+interface DataOperation {
+  int CreateOp(CoordinateGroup coordGroup)
+  List<Record> ReadOp()
+  Record UpdateOp(int id, CoordinateGroup newValues)
+  void DeleteOp(int id)
+}
+
+class DatabaseService implements DataOperation {
+     int CreateOp(CoordinateGroup coordGroup) {}
+     List<Record> ReadOp() {}
+     Record UpdateOp(int id, CoordinateGroup newValues) {}
+     void DeleteOp(int id) {}
+}
+
+interface Application {
+  void executeOperation(UserInteraction ui, DataOperation data)
+}
+
+class MainApplication implements Application {
+     void executeOperation(UserInteraction userI, DataOperation databaseD)
+}
+
+CoordinateGroup --> ConversionService : use
+@enduml

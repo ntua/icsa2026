@@ -1,0 +1,61 @@
+@startuml
+' Dummy Coordination Conversion (DCC) Application Class Diagram using PlantUML
+' The application manages coordinate groups in Cartesian and polar formats, allowing users to convert, store, retrieve, modify, and delete coordinate groups. It follows a three-tier architecture with the following components:
+' - Presentation Layer
+' - Business Logic Layer
+' - Data Access Layer (Database)
+' 
+' Classes definition based on requirements provided in the context above
+' Note: The diagram below does not include all possible implementation details and attributes but provides an overview of necessary classes, their relationships, and associations.
+
+class CartesianCoordinate {
+    +double x: HighPrecisionNumber
+    +double y: HighPrecisionNumber
+}
+ 
+class PolarCoordinate {
+    +double r: HighPrecisionNumber
+    +double theta: AngleInRadians
+}
+
+class Conversion {
+    +convert(x: HighPrecisionNumber, y: HighPrecisionNumber): (r: HighPrecisionNumber, theta: AngleInRadians) = > CartesianToPolar;
+    +convert(r: HighPrecisionNumber, theta: AngleInRadians): (x: HighPrecisionNumber, y: HighPrecisionNumber) => PolarToCartesian;
+}
+  
+class CoordinateGroup {
+    id: Integer
+    String label
+    CartesianCoordinate cartesianCoordinates
+    PolarCoordinate polarCoordinates
+}
+  
+  
+class Record {
+    +Integer id: Integer
+    +String label: String
+    CoordinateGroup coordinateGroup
+    Timestamp timestamp
+}
+ 
+  
+class CoordinateGroupInput {
+    String label
+    CartesianCoordinate cartesianCoordinates
+    PolarCoordinate polarCoordinates
+}
+
+  
+class DatabaseConnection {
+    +String connectionDetails: String
+}
+
+Conversion <|--CartesianToPolar : transformation
+CoordinateGroup <.. CartesianCoordinate : composition
+CoordinateGroup <.. PolarCoordinate : composition
+Database <|-- Record: association
+Record <.. CoordinateGroup : aggregation
+DatabaseConnection <|.. Record : association
+Record --> DatabaseConnection: connection details
+
+@enduml

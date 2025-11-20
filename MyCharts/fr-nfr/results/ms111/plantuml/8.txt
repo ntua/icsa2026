@@ -1,0 +1,32 @@
+@startuml
+
+package "Core Services" {
+  class UserService
+  class AuthService
+  class OrderService
+  class PaymentService
+
+  UserService --|> Service
+  AuthService --|> Service
+  OrderService --|> Service
+  PaymentService --|> Service
+}
+
+package "Database Services" {
+  class UsersDB
+  class OrdersDB
+  class PaymentsDB
+
+  UsersDB --|> Database
+  OrdersDB --|> Database
+  PaymentsDB --|> Database
+}
+
+UserService --> AuthService : Authenticate
+AuthService --> OrderService : AuthorizeOrder
+AuthService --> PaymentService : VerifyPayment
+OrderService --> UsersDB : CreateOrder
+OrderService --> OrdersDB : SaveOrder
+PaymentService --> PaymentsDB : ProcessPayment
+
+@enduml

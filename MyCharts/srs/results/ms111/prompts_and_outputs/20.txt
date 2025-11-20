@@ -1,0 +1,250 @@
+Response:
+Below is a sample microservices-oriented class diagram in PlantUML along with the requested architectural metrics. The diagram is divided into packages (one for each microservice plus a gateway), includes representative classes with attributes and operations, and shows inter-service associations. Each operation is commented with its corresponding classification (business logic, data management, data consistency, or flow control).
+
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+'==========================================================
+'                  Gateway
+'==========================================================
+package "MyChartsGateway" {
+  class MyChartsGateway {
+    + downloadTemplate(userId, chartType) : CSVFile ' [flow control operation]
+    + uploadCSV(userId, chartType, csvFile) : Chart ' [flow control operation]
+    + viewChartHistory(userId) : List<Chart> ' [flow control operation]
+    + purchaseQuotas(userId, packageId) : Receipt ' [flow control operation]
+    + viewProfile(userId) : User ' [flow control operation]
+    + signInWithGoogle() : Token ' [flow control operation]
+  }
+}
+
+'==========================================================
+'                  Auth Service
+'==========================================================
+package "AuthService" {
+  class AuthController {
+    + signInWithGoogleOAuth() : Token ' [flow control operation]
+    + validateToken(token) : boolean ' [flow control operation]
+  }
+}
+
+'==========================================================
+'                  Profile Service
+'==========================================================
+package "ProfileService" {
+  class ProfileController {
+    + getUserProfile(userId) : User ' [data management operation]
+    + updateLastLogin(userId) : void ' [data management operation]
+    + updateQuota(userId, amount) : void ' [data management operation]
+  }
+
+  class User {
+    - userId : String
+    - name : String
+    - email : String
+    - profilePicture : String
+    - remainingQuota : int
+    - accountCreationDate : Date
+    - lastLoginDate : Date
+  }
+}
+
+'==========================================================
+'                  Chart Service
+'==========================================================
+package "ChartService" {
+  class ChartController {
+    + generateChart(csvData) : Chart ' [functional requirement-business logic operation]
+    + saveChart(chart) : void ' [data management operation]
+    + getChart(chartId) : Chart ' [data management operation]
+    + getChartsByUser(userId) : List<Chart> ' [data management operation]
+    + notifyQuotaDecrement(userId) : void ' [data consistency operation]
+  }
+
+  class Chart {
+    - chartId : String
+    - chartType : String
+    - creationDate : Date
+    - highchartsJson : String
+  }
+}
+
+'==========================================================
+'                  Template Service
+'==========================================================
+package "TemplateService" {
+  class TemplateController {
+    + getCSVTemplate(chartType) : CSVFile ' [functional requirement-business logic operation]
+  }
+
+  class CSVFile {
+    - fileName : String
+    - content : String
+  }
+}
+
+'==========================================================
+'                  Payment Service
+'==========================================================
+package "PaymentService" {
+  class PaymentController {
+    + purchaseQuota(userId, packageId) : Receipt ' [functional requirement-business logic operation]
+    + processPayment(paymentData) : PaymentResult ' [flow control operation]
+    + notifyProfileServiceQuotaIncrement(userId, purchasedQuota) : void ' [data consistency operation]
+  }
+
+  class PaymentTransaction {
+    - transactionId : String
+    - userId : String
+    - amount : double
+    - status : String
+    - timestamp : Date
+  }
+
+  class Receipt {
+    - receiptId : String
+    - userId : String
+    - purchasedQuota : int
+    - date : Date
+  }
+
+  class PaymentResult {
+    - success : boolean
+    - message : String
+  }
+}
+
+'==========================================================
+'                  Associations / Dependencies
+'==========================================================
+' Gateway calls various services
+MyChartsGateway --> AuthController : "signInWithGoogleOAuth(), validateToken()"
+MyChartsGateway --> TemplateController : "getCSVTemplate()"
+MyChartsGateway --> ChartController : "generateChart(), getChartsByUser(), getChart()"
+MyChartsGateway --> PaymentController : "purchaseQuota(), processPayment()"
+MyChartsGateway --> ProfileController : "getUserProfile(), updateLastLogin()"
+
+' ChartService calls ProfileService for quota decrement
+ChartController --> ProfileController : "notifyQuotaDecrement()"
+
+' PaymentService calls ProfileService for quota increment
+PaymentController --> ProfileController : "notifyProfileServiceQuotaIncrement()"
+
+@enduml
+```
+
+## Explanation of Microservices and Responsibilities
+
+- **AuthService**  
+  Handles Google OAuth sign-in, token validation. (Stateless service, no dedicated data store in this example.)
+
+- **ProfileService**  
+  Owns **User** data (email, name, quota, timestamps). Receives calls from other services to update quotas, retrieve or update user profiles.
+
+- **ChartService**  
+  Responsible for chart generation, saving charts in multiple formats, storing **Chart** metadata. Calls ProfileService to decrement quota as part of a cross-service consistency operation.
+
+- **TemplateService**  
+  Provides CSV templates for different chart types. Considered stateless if templates are served as static assets (or minimal data store usage).
+
+- **PaymentService**  
+  Facilitates quota purchases, processes payments, stores **PaymentTransaction** and returns receipts. It calls ProfileService to increment user quota (a cross-service consistency operation).
+
+- **MyChartsGateway**  
+  Acts as an API gateway for external clients (browsers, etc.). Dispatches requests to the correct microservice, centralizing the flow control from the user’s perspective.
+
+## Calculated Architecture Characteristics
+
+Below is the JSON object containing the requested metrics:
+
+```json
+{
+  "SI": [0.4, 1],
+  "DOC": [0.6, 0.8],
+  "SST": [0.4, 0.4],
+  "services": [
+    {
+      "service_name": "AuthService",
+      "SIC": [1, 2],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "ProfileService",
+      "SIC": [1, 3],
+      "AIS(in)": [3, 3],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "ChartService",
+      "SIC": [1, 5],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "TemplateService",
+      "SIC": [1, 1],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "PaymentService",
+      "SIC": [1, 3],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [1, 1]
+    }
+  ],
+  "use_cases": [
+    {
+      "use_case_name": "Download CSV Template",
+      "SC": [["TemplateService"], ["TemplateService"]]
+    },
+    {
+      "use_case_name": "Upload CSV and Generate Chart",
+      "SC": [["ChartService", "ProfileService"], ["ChartService", "ProfileService"]]
+    },
+    {
+      "use_case_name": "View/Download Chart from History",
+      "SC": [["ChartService"], ["ChartService"]]
+    },
+    {
+      "use_case_name": "Purchase Additional Quotas",
+      "SC": [["PaymentService", "ProfileService"], ["PaymentService", "ProfileService"]]
+    },
+    {
+      "use_case_name": "View My Profile",
+      "SC": [["ProfileService"], ["ProfileService"]]
+    }
+  ]
+}
+```
+
+### Definitions of Each Metric
+
+- **SI (Statelessness Index)** = (# of stateless services) / (Total # of services) = 2/5 = 0.4  
+  - Stateless Services in this design: AuthService, TemplateService
+
+- **DOC (Data Ownership Count)** = (# of services that manage a dedicated data store) / (Total # of services) = 3/5 = 0.6  
+  - Data-owning Services: ProfileService, ChartService, PaymentService  
+
+- **SST (Service Support for Transactions)** = (# of services that have at least one "data consistency operation") / (Total # of services) = 2/5 = 0.4  
+  - Transaction-aware Services (those performing cross-service consistency updates): ChartService, PaymentService  
+
+- **SIC (Service Interface Count)**: Number of top-level entry points (controllers) in each service. Here, each microservice exposes a single controller, so SIC=1 per service.
+
+- **AIS(in)**: Number of distinct consumers (callers) for each service.  
+- **ADS(out)**: Number of distinct services each service calls.
+
+- **SC (Services involved per Use Case)**: The set of microservices participating in fulfilling each use case.
+
+---
+
+**This design ensures:**  
+1. Each microservice maps to a well-defined bounded context (Auth, Profile, Chart, Template, Payment).  
+2. Services are loosely coupled (dedicated data stores, minimal direct references).  
+3. High cohesion of responsibilities within each microservice.  
+4. Data ownership is clearly separated (User, Chart, Payment).  
+5. Eventual consistency is handled through targeted calls between services (quota decrement/increment).  
+6. Flow control via MyChartsGateway and direct service-to-service calls for cross-service updates.  
+7. Non-functional requirements such as availability, scaling, and security are addressed by typical microservices patterns (API gateway, independent deployment, etc.).

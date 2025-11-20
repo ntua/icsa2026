@@ -1,0 +1,39 @@
+@startuml
+skinparam shadowing false
+
+package "Client" {
+    class UserInterface {
+        + createCoordinateGroup()
+        + retrieveCoordinateGroups() // By label or view all
+        + modifyCoordinateGroup()
+        + deleteCoordinateGroup(groupId)
+        
+        [Label] as string -up: 1- [Coordinate Group] : has many
+        [Timestamp] as datetime -up: 1- [Coordinate Group] : has one
+    }
+}
+
+package "Server" {
+    class TCP_Connection {
+        - connect()
+        - send(data)
+        - receive()
+        
+        <..|o MySQL_Database
+    
+    }
+
+    class CoordinateGroupManager { 
+        + convertCoordinates(coords) : (x, y) or (r, theta)
+        + storeCoordinateGroups(coordGroup)
+        + retrieveCoordinateGroups(label) : list[coordGroup]
+        + modifyCoordinateGroup(groupId, newDetails)
+        + deleteCoordinateGroup(groupId)
+    }
+    
+    class MySQL_Database {
+        [GroupId] as int -up: 1- [CoordGroupTable] : has many
+        [CoordGroup] as json -up: 1- [CoordGroupTable] : has one
+    }
+}
+@enduml

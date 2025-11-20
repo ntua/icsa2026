@@ -1,0 +1,80 @@
+@startuml
+
+title Dummy Coordination Conversion (DCC) Application
+
+skinparam classAttributeBackgroundColor JavaColorRGB
+skinparam classAttributeFontColor black
+skinparam classBackgroundColor CartesianColorRGB, PolarColorRGB, DataOperationsColorRGB, UserInterfaceColorRGB
+
+
+package "Frontend" {
+
+    package "Java Swing Framework" <<Java>> {
+
+        class UserInterface {
+            -label: string
+            -coordinateGroupList: List<CoordinateGroup>
+            +displayCoordinateGroups()
+            +addCoordinateGroup()
+            +updateCoordinateGroup(id)
+            +deleteCoordinateGroup(id)
+            +filterCoordinateGroups(label)
+        }
+
+    }
+}
+
+
+package "Logic" {
+
+    class CartesianCoordinates {
+        -x: high-precision number
+        -y: high-precision number
+        +convertCartesianToPolar(): PolarCoordinates
+    }
+    
+    class PolarCoordinates {
+        -r: high-precision number
+        -theta: high-precision number
+        +convertPolarToCartesian(): CartesianCoordinates
+    }
+
+    class CoordinateGroup {
+        -id: integer # auto-generated, unique identifier
+        -timestamp: datetime
+        -label: string
+        -cartesian: CartesianCoordinates
+        -polar: PolarCoordinates
+        +create(label, cartesian, polar): void
+        +read(): List<CoordinateGroup>
+        +update(id, label, cartesian, polar): void
+        +delete(id): void
+    }
+}
+
+
+package "Data" {
+
+    package "MySQL Server" <<Java>> {
+
+        class Database {
+            -records: Map<integer, CoordinateGroup>
+            +createRecord(CoordinateGroup)
+            +readRecords(): List<CoordinateGroup>
+            +updateRecord(CoordinateGroup)
+            +deleteRecord(id): void
+        }
+    }
+}
+
+
+UserInterface ..> CartesianCoordinates : 1
+UserInterface ..> PolarCoordinates : 1
+
+UserInterface .. CoordinateGroup : M
+
+CartesianCoordinates <.. PolarCoordinates : conversion
+
+CoordinateGroup *-- Database: many to one TCP/IP Connection
+
+@enduml

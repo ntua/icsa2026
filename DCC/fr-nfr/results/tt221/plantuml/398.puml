@@ -1,0 +1,55 @@
+@startuml
+package "Data Layer" {
+class DataStorage {
+  + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+  + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+  + filterCoordinateGroups(labelFilter: String) : List<CoordinateGroup>
+}
+
+package "Logic Layer" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesian: CartesianCoordinates) : PolarCoordinates
+    + convertPolarToCartesian(polar: PolarCoordinates) : CartesianCoordinates
+  }
+
+  class CoordinateValidator {
+    + validateCoordinateGroup(coordinateGroup: CoordinateGroup) : Boolean
+  }
+}
+
+class LogicService {
+  -coordinateGroups: List<CoordinateGroup>
+  
+  + createCoordinateGroup(label: String, cartesian: CartesianCoordinates, polar: PolarCoordinates) : CoordinateGroup
+  + readAllCoordinateGroups() : List<CoordinateGroup>
+  + updateCoordinateGroup(coordinateGroup: CoordinateGroup, newCartesian: CartesianCoordinates, newPolar: PolarCoordinates) : void
+  + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+}
+
+package "Presentation Layer" {
+  class CoordinateGroupInputForm {
+  -labelField: String 
+  -cartesianField: CartesianCoordinates,
+  -polarField: PolarCoordinates)
+  
+  class AddButtonHandler {
+    + handleAddButtonClick(form: CoordinateGroupInputForm) : void
+  }
+  
+  class UpdateButtonHandler {
+    + handleUpdateButtonClick(form: CoordinateGroupInputForm) : void
+  }
+  
+  class DeleteButtonHandler {
+    + handleDeleteButtonClick(coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+class PresentationService {
+  -coordinateGroupsList: List<CoordinateGroup>
+  
+  + refreshCoordinateGroupsList() : void
+  + filterCoordinateGroupsList(labelFilter: String) : void
+  + clearActiveFilter() : void
+}
+@enduml

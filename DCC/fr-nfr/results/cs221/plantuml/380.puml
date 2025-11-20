@@ -1,0 +1,60 @@
+@startuml
+!theme plain
+
+package logic {
+    class CoordinateGroup {
+        +String label: String
+        +List<CartesianCoordinate> cartesianCoordinates: List<CartesianCoordinate>
+        +List<PolarCoordinate> polarCoordinates: List<PolarCoordinate>
+        
+        -Convert to Polar()
+        -Convert to Cartesian()
+    }
+    
+    class CartesianCoordinate {
+        +double x: double
+        +double y: double
+    }
+    
+    class PolarCoordinate {
+        +double r: double
+        +double theta: double
+    }
+}
+
+package database {
+    interface DatabaseOperations {
+        createOp() 
+        readOp()
+        updateOp(id, cartesianValues, polarValues)
+        deleteOp(id)
+    }
+    
+    class MySQLDatabaseConnection implements DatabaseOperations {
+        +createOp()
+        +readOp()
+        +updateOp(id: int, cartesianValues: List<CartesianCoordinate>, polarValues: List<PolarCoordinate>)
+        +deleteOp(id: int)
+    }
+}
+
+package 'application' {
+    class DCCApplication {
+        -frontendFrontEnd: Object
+        -logicConversionLogic: Object
+        -databaseDBConnection: MySQLDatabaseConnection
+        
+        -createCoordinateGroup()
+        -readCoordinateGroups()
+        -updateCoordinateGroup(id, cartesianValues, polarValues)
+        -deleteCoordinateGroup(id)
+    }
+}
+
+
+
+DCCApplication --|> logic : uses/provides
+CoordinateGroup --> CartesianCoordinate : uses/creates
+CoordinateGroup -->  PolarCoordinate: uses/creates
+logic --> database
+@enduml

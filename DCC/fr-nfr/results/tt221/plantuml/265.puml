@@ -1,0 +1,50 @@
+@startuml
+
+package frontend {
+    class DCCGUI {
+        + handleUserInputs()
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + filterCoordinateGroups(String label)
+    }
+}
+
+package logic {
+    class CoordinateConverter {
+        + cartesianToPolar(double x, double y): (double r, double theta)
+        + polarToCartesian(double r, double theta): (double x, double y)
+    }
+
+    class CoordinateGroup {
+       - id: int
+       - label: String
+       - cartesianX: double
+       - cartesianY: double
+       - polarR: double
+       - polarTheta: double
+       + getCartesianCoordinates(): (double, double)
+       + setCartesianCoordinates(double x, double y)
+       + getPolarCoordinates(): (double, double)
+       + setPolarCoordinates(double r, double theta)
+    }
+
+}
+
+package database {
+class DatabaseConnector {
+ - url: String
+ - username: String
+ - password: String
+ + connectToDatabase() : boolean
+ + saveCoordinateGroup(CoordinateGroup group) 
+ + getCoordinateGroups(): List<CoordinateGroup>
+ + updateCoordinateGroup(CoordinateGroup group)
+ + deleteCoordinateGroup(int id)
+
+}
+}
+
+frontend.DCCGUI -- logic.CoordinateConverter : uses
+frontend.DCCGUI -- database.DatabaseConnector : uses
+logic.CoordinateConverter -- logic.CoordinateGroup : manages
+
+@enduml

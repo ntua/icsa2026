@@ -1,0 +1,75 @@
+@startuml
+package "Client" {
+  class DCCGUI {
+    + createCoordinateGroup(coordinates: List<Double>, type: String) : void
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+
+  class CoordinateInputPanel {
+    - typeSelection: JComboBox<String>
+    - coordinateFields: List<JTextField>
+    + getCoordinates() : List<Double>
+    + getType() : String
+  }
+
+  class GroupListPanel {
+    - groupTable: JTable
+    + displayGroups(groups: List<CoordinateGroup>) : void
+  }
+}
+
+package "Server" {
+
+ class DCCServer {
+    - databaseConnection: DatabaseConnection
+    + handleClientRequest(request: String) : String 
+ }
+
+ class DatabaseConnection {
+    - connection: Connection
+    + saveCoordinateGroup(group: CoordinateGroup) : void
+    + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+ }
+
+}
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+  }
+
+  abstract class Coordinate {
+    + getValue(): Double 
+  }
+
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+    + getValue(): Double
+  }
+
+  class PolarCoordinate {
+    - r: Double
+    - theta: Double
+    + getValue(): Double
+  }
+}
+
+DCCGUI -- CoordinateInputPanel : uses 
+DCCGUI -- GroupListPanel : uses
+DCCGUI --> DCCServer : communicates
+
+DCCServer "1" -- "*" DatabaseConnection : utilizes
+
+
+@enduml

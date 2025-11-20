@@ -1,0 +1,83 @@
+@startuml
+package model {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: Cartesian
+        - polar: Polar
+        
+        + getId(): Integer
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesian(): Cartesian
+        + getPolar(): Polar
+    }
+    
+    class Cartesian {
+        - x: Double
+        - y: Double
+        
+        + getX(): Double
+        + getY(): Double
+        + setX(x: Double): void
+        + setY(y: Double): void
+    }
+    
+    class Polar {
+        - r: Double
+        - theta: Double
+        
+        + getR(): Double
+        + getTheta(): Double
+        + setR(r: Double): void
+        + setTheta(theta: Double): void
+    }
+    
+    class CoordinateService {
+        - dbConnection: DatabaseConnection
+        
+        + createCoordinateGroup(group: CoordinateGroup): void
+        + updateCoordinateGroup(id: Integer, group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+        + findCoordinateGroupById(id: Integer): CoordinateGroup
+        + findCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+        + findAllCoordinateGroups(): List<CoordinateGroup>
+    }
+    
+    class DatabaseConnection {
+        + connect(): void
+        + executeQuery(query: String): ResultSet
+        + close(): void
+    }
+}
+
+package view {
+    class MainWindow {
+        - controller: DCCController
+        
+        + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+        + showCreateDialog(): void
+        + showUpdateDialog(): void
+        + handleUserInput(): void
+    }
+}
+
+package controller {
+    class DCCController {
+        - service: CoordinateService
+        
+        + handleCreateCoordinateGroup(x: Double, y: Double, label: String): void
+        + handleUpdateCoordinateGroup(id: Integer, x: Double, y: Double, label: String): void
+        + handleDeleteCoordinateGroup(id: Integer): void
+        + handleSearchByLabel(label: String): void
+        + handleDisplayAllGroups(): void
+    }
+}
+
+MainWindow --* DCCController
+DCCController --* CoordinateService
+CoordinateService --* DatabaseConnection
+CoordinateGroup *-- Cartesian
+CoordinateGroup *-- Polar
+@enduml

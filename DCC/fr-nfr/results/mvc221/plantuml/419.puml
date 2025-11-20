@@ -1,0 +1,59 @@
+@startuml
+!define DARKBLUE #003972
+!include <C4/C4_Context>
+
+title DCC Application - Class Diagram
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + convertCartesianToPolar() : void
+    + convertPolarToCartesian() : void
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double) : (double, double)
+    + polarToCartesian(r: double, theta: double) : (double, double)
+  }
+
+  class DatabaseManager {
+    - connection: Connection
+    + createCoordinateGroup(group: CoordinateGroup) : void
+    + readAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+package "View" {
+  class DCCGUI {
+    - model: Model
+    - controller: Controller
+    + displayCoordinateGroups() : void
+    + getCoordinateInput() : (double, double, String) 
+    + showMessage(message: String) : void
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - model: Model
+    - view: View
+    + handleAddCoordinateGroup() : void
+    + handleUpdateCoordinateGroup() : void
+    + handleDeleteCoordinateGroup() : void
+    + handleFilterCoordinateGroups(label: String) : void
+  }
+}
+
+
+DCCGUI --|> DCCController
+DCCController --|> DatabaseManager
+DCCController --|> CoordinateConverter
+
+@enduml

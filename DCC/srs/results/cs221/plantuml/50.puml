@@ -1,0 +1,48 @@
+@startuml
+
+package Client {
+  class CoordinateGroupForm {
+    - String label
+    - float polarR
+    - float polarTheta
+    - float cartesianX
+    - float cartesianY
+    + createCoordinateGroup()
+    + modifyCoordinateGroup()
+  }
+  
+  class CoordinateGroupDisplayList {
+    - List<CoordinateGroup> coordinateGroups
+    + updateDisplayList()
+  }
+  
+  class MainMenu {
+    + navigateToCreate()
+    + navigateToModify()
+    + navigateToDisplay()
+  }
+}
+
+package Server {
+  class CoordinateGroupRepository {
+    - List<CoordinateGroup> coordinateGroups
+    
+    + create(CoordinateGroup)
+    + modify(CoordinateGroup)
+    + delete(int id)
+    + findAll()
+    + findById(int id)
+  }
+  
+  class DatabaseConnection {
+    - String url
+    - String username
+    - String password
+    + connect()
+    + close()
+  }
+}
+
+Client ---> Server
+DatabaseConnection <-- CoordinateGroupRepository
+@enduml

@@ -1,0 +1,131 @@
+@startuml
+package "DCC Application - Frontend" {
+    class UserInteraction {
+        + inputCoordinateGroup() : CoordinateGroup
+        + displayCoordinateGroups(groups: List<CoordinateGroup>) : void
+        + applyFilter(label: String) : void
+        + clearFilter() : void
+        
+        -- Logic Layer Communication --
+        + sendCreateOp(group: CoordinateGroup, label: String) : void 
+        + sendUpdateOp(id: int, group: CoordinateGroup, label: String) : void 
+        + sendDeleteOp(id: int): void
+    }
+}
+
+
+package "DCC Application - Logic Layer" {
+
+    class CartesianConverter {
+        + toPolarCoordinates(x: double, y: double) : PolarCoordinate
+    }
+
+    class PolarConverter {
+        + toCartesianCoordinates(r: double, theta: double) : CartesianCoordinate
+    }
+
+
+    class DCCProcessor {
+
+        -- Associations with converters -- 
+        * cartesianConverter : CartesianConverter
+        * polarConverter : PolarConverter
+        
+        
+        -- Attributes and methods --
+        - currentGroup : CoordinateGroup
+        - lastOperationId : int 
+        
+        + processCreateOp(group: CoordinateGroup, label: String) : void
+        + processUpdateOp(id: int, group: CoordinateGroup, label: String) : void 
+        + processDeleteOp(id: int): void
+        + refreshCoordinateGroupsList() : List<CoordinateGroup>
+    }
+}
+
+
+
+package "DCC Application - Data Layer" {
+
+    class DatabaseConnection {
+        -- Connection details with database server (e.g., TCP/IP configuration, credentials) -- 
+        * host : String
+        * port : int
+        * username : String
+        * password : String
+        
+        + connect() : void
+        + disconnect() : void
+    }
+
+    class CoordinateGroupRecord {
+
+        -- Attributes to store data in the record -- 
+        - id : int
+        - label: String
+        - cartesianCoordinateValues: CartesianCoordinate
+        - polarCoordinateValues: PolarCoordinate
+        - timestampAddedModified: Datetime
+        
+        
+        + save() : void
+        + update(newLabel: String, newCartesianCoordinateValues: CartesianCoordinate, newPolarCoordinateValues: PolarCoordinate) : void 
+        + delete() : void
+    }
+
+    class DCCDatabase {
+
+        -- Associations with database connection -- 
+        * dbConnection : DatabaseConnection
+        
+        -- Attributes to manage the coordinate groups in the database --
+        - storedGroups : List<CoordinateGroupRecord> 
+        
+        + createNewRecord(group: CoordinateGroup, label: String) : int
+        + retrieveAllRecords() : List<CoordinateGroupRecord>  
+        + updateRecordById(id: int, group: CoordinateGroup, label: String) : void 
+        + deleteRecordById(id: int): void
+    }
+}
+
+
+
+class CartesianCoordinate {
+    -- Attributes for cartesian coordinates -- 
+    - x : double
+    - y : double 
+    
+    -- Methods to interact with the coordinate data -- 
+    + getX() : double
+    + getY() : double
+}
+
+
+class PolarCoordinate {
+    -- Attributes for polar coordinates -- 
+    - r : double
+    - theta : double 
+
+    -- Methods to interact with the coordinate data -- 
+    + getR() : double
+    + getTheta() : double 
+}
+
+
+
+class CoordinateGroup {
+
+    -- Associations with cartesian and polar coordinate classes -- 
+    * cartesianCoordinate : CartesianCoordinate
+    * polarCoordinate : PolarCoordinate
+
+
+    -- Attributes for label, last modification date, id -- 
+    - label: String
+    - timestampLastModification: Datetime
+    - uniqueId: int 
+
+    + getCartesianCoordinate() : CartesianCoordinate
+    + getPolarCoordinate() : PolarCoordinate
+}
+@enduml

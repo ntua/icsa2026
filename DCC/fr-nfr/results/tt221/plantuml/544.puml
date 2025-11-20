@@ -1,0 +1,63 @@
+@startuml DCC_Class_Diagram
+
+' Presentation Layer (GUI)
+package "Presentation" {
+    class CoordinateConverterGUI {
+        + void displayCoordinateGroups()
+        + void convertCoordinates()
+        + void handleUserInput()
+        + void refreshDisplay()
+        + void filterGroups(String label)
+        + void clearFilter()
+    }
+}
+
+' Business Logic Layer
+package "BusinessLogic" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - double x
+        - double y
+        - double r
+        - double theta
+        - DateTime timestamp
+    }
+
+    class Converter {
+        + static (double, double) cartesianToPolar(double x, double y)
+        + static (double, double) polarToCartesian(double r, double theta)
+    }
+
+    class DCCController {
+        + void createCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> readCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        
+        + CoordinateGroup convertCoordinates(CoordinateGroup group)
+    }
+}
+
+' Data Access Layer
+package "DataAccess" {
+    class DatabaseManager {
+        + void connect()
+        + void disconnect()
+        + void saveCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> loadCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+' Associations
+CoordinateConverterGUI --> DCCController
+DCCController --> Converter
+DCCController --> DatabaseManager
+
+DatabaseManager --> CoordinateGroup : uses >
+DCCController --> CoordinateGroup : manages >
+CoordinateConverterGUI --> CoordinateGroup : displays >
+
+@enduml

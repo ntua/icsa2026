@@ -1,0 +1,95 @@
+@startuml  
+package Client {  
+  class UIController {  
+    - modelManager: ModelManager  
+    + run() : void  
+    + processInput(inputType: String, inputValues: List<Double>) : boolean  
+    + refreshUI() : void  
+    + clearFilterLabel() : void  
+    + filterCoordinateGroups(filterValue: String) : void   
+    }
+} 
+ 
+package Logic {  
+  class ModelManager {  
+    - databaseConnector: DatabaseConnector  
+    + addCoordinateGroup() : boolean  
+    + updateCoordinateGroup(id: Integer, inputType: String, newValues: List<Double>) : void  
+    + deleteCoordinateGroup(id: Integer) : boolean   
+    + filterCoordinateGroups(filterValue: String): List<Record>  
+    + addNewLabel() : string  // auto-generated unique identifier (id) for the coordinate group edited, label value and timestamp.  
+    + findCoordinateGroupById(id: Integer): Record  
+    + updateCoordinateGroupValues(values: List<Double>) : void   
+    + deleteRecord(id: Integer) : boolean  
+    + sortRecordsById() : List<Record>   
+  } 
+} 
+
+package Server {  
+  class CoordinateGroupRepository {  
+      - coordinateGroupsMap: Map[String, Record] // key: label, value: record
+    + addCoordinateGroup(record: Record) : void  
+    + deleteRecord(id: Integer) : boolean  
+    + updateRecord(record: Record) : void   
+    + getAllRecords() : List<Record>   
+  } 
+
+} 
+package Database {  
+  class CoordinateGroupRecord {  
+      - id: Integer
+      - labelValue: String
+      - cartesianValues: List<Double> // x, y values as a pair (x, y) of high-precision numbers.
+      - polarValues: List<Double> // r, theta values as a pair (r, theta) of high-precision numbers.
+      - datetimeAddedOrModified: Timestamp  
+    }   
+
+class DatabaseConnector {  
+      - connectionString: String
+      - hostAddress: String
+      + connect() : boolean  
+      + disconnect() : void  
+      + saveRecord(record: Record) : void   
+      + deleteRecordById(id: Integer) : boolean  
+      + updateRecordById(id: Integer, newValues: List<Double>) : void   
+      + getAllRecords(): List<Record>   
+  } 
+
+    class ModelManager extends Server.CoordinateGroupRepository {  
+      - coordinateConverter: CoordinateConverter  
+      #logic and data operations methods (CreateOp, ReadOp, UpdateOp, DeleteOp) go here  
+    } 
+} 
+package "SRP" {  
+    class CoordinateGroupCoordinator {  
+      - modelManager: ModelManager  
+      + processInput(inputType: String, inputValues: List<Double>) : boolean  
+    } 
+}
+package DatabaseConnection {  
+    interface DataTransferInterface {  
+      - connectionParameters: Map[String, Object]
+      + openConnection() : void  
+      + closeConnection() : void  
+      + sendQuery(queryType: String, queryValues: List<Object>) : List<Object>  // returns data read from the database.   
+    } 
+} 
+package "TCP" {  
+    class TCPIPConnection implements DatabaseConnection.DataTransferInterface {  
+      - connectionString: String
+      + openConnection() : void  
+      + closeConnection() : void  
+      + sendQuery(queryType: String, queryValues: List<Object>) : List<Object>   
+  } 
+} 
+package "Client" {  
+    class UIController implements DatabaseConnection.DataTransferInterface {  
+      - modelManager: ModelManager  
+      + run() : void  
+      + processInput(inputType: String, inputValues: List<Double>) : boolean  
+      + refreshUI() : void  
+      + clearFilterLabel() : void  
+      + filterCoordinateGroups(filterValue: String) : void   
+  } 
+} 
+@enduml

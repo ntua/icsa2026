@@ -1,0 +1,100 @@
+@startuml
+' Packages
+package "Client" {
+  package "GUI" {
+    class MainFrame {
+      - CoordinatePanel coordinatePanel
+      - CoordinateListPanel listPanel
+      - ButtonPanel buttonPanel
+      + MainFrame()
+      + updateList()
+    }
+    class CoordinatePanel {
+      - JComboBox<String> typeComboBox
+      - JTextField xOrRField
+      - JTextField yOrThetaField
+      - JLabel labelField
+      + getCoordinateValues(): Map<String, Double>
+      + getLabel(): String
+      + clearFields()
+    }
+    class CoordinateListPanel {
+      - JList<CoordinateGroup> groupList
+      + setGroups(List<CoordinateGroup> groups)
+      + getSelectedGroup(): CoordinateGroup
+    }
+    class ButtonPanel {
+      - JButton addButton
+      - JButton updateButton
+      - JButton deleteButton
+      - JButton viewAllButton
+      + addActionListener(ActionListener listener)
+    }
+  }
+
+  package "Controller" {
+    class CoordinateController {
+      - CoordinateConverter converter
+      - DatabaseHandler dbHandler
+      + CoordinateController()
+      + addCoordinateGroup()
+      + updateCoordinateGroup()
+      + deleteCoordinateGroup()
+      + viewAllGroups()
+    }
+  }
+
+  package "Model" {
+    class CoordinateGroup {
+      - int id
+      - String label
+      - Date timestamp
+      - double cartesianX
+      - double cartesianY
+      - double polarR
+      - double polarTheta
+      + CoordinateGroup()
+      + getters/setters()
+    }
+    class CoordinateConverter {
+      + toPolar(x: double, y: double): Map<String, Double>
+      + toCartesian(r: double, theta: double): Map<String, Double>
+    }
+  }
+
+  package "Database" {
+    class DatabaseHandler {
+      - Connection connection
+      + DatabaseHandler()
+      + connect()
+      + saveCoordinateGroup(CoordinateGroup group)
+      + updateCoordinateGroup(CoordinateGroup group)
+      + deleteCoordinateGroup(int id)
+      + getAllGroups(): List<CoordinateGroup>
+    }
+  }
+}
+
+package "Server" {
+  class MySQLDatabase {
+    + tables: CoordinateGroups
+  }
+}
+
+' Associations
+MainFrame --> CoordinatePanel : contains
+MainFrame --> CoordinateListPanel : contains
+MainFrame --> ButtonPanel : contains
+
+CoordinateController --> CoordinateConverter : uses
+CoordinateController --> DatabaseHandler : uses
+
+DatabaseHandler --> CoordinateGroup : manages
+DatabaseHandler --> MySQLDatabase : connects via JDBC
+
+ButtonPanel --> CoordinateController : triggers actions via <<ActionListener>>
+
+CoordinateListPanel --> CoordinateGroup : displays
+CoordinatePanel --> CoordinateGroup : collects data
+
+@enduml

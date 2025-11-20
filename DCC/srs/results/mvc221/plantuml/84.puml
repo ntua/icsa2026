@@ -1,0 +1,57 @@
+@startuml
+package Model {
+    class CoordinateGroup {
+        + int id
+        + String label
+        + double x
+        + double y
+        + double r
+        + double theta
+        + LocalDateTime timestamp
+        + void convertToPolar()
+        + void convertToCartesian()
+    }
+
+    class DatabaseHandler {
+        + void saveCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> fetchAllCoordinateGroups()
+        + CoordinateGroup fetchByLabel(String label)
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+package View {
+    class MainGUI {
+        + void displayAllGroups(List<CoordinateGroup> groups)
+        + void displayGroupDetails(CoordinateGroup group)
+        + void showError(String message)
+    }
+
+    class InputForm {
+        + void getInput()
+        + void clearFields()
+    }
+
+    class ConfirmationDialog {
+        + boolean confirmAction(String message)
+    }
+}
+
+package Controller {
+    class CoordinateController {
+        + void addCoordinateGroup(String label, double x, double y, double r, double theta)
+        + void updateCoordinateGroup(int id, String label, double x, double y, double r, double theta)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> viewAllGroups()
+        + CoordinateGroup viewGroupByLabel(String label)
+    }
+}
+
+' Associations
+CoordinateController -> DatabaseHandler : uses
+CoordinateController -> MainGUI : manages
+MainGUI -> InputForm : contains
+MainGUI -> ConfirmationDialog : uses
+DatabaseHandler -> CoordinateGroup : manages
+@enduml

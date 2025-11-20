@@ -1,0 +1,105 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages and Classes
+
+package "Client" {
+    class DCCClient {
+        + void createUserInterface()
+        + void handleUserInput()
+        + void sendCoordinateGroup(CoordinateGroup)
+        + void receiveAndDisplayCoordinateGroups(List<CoordinateGroup>)
+    }
+
+    class CoordinateConverter {
+        + CartesianCoord convertToCartesian(PolarCoord)
+        + PolarCoord convertToPolar(CartesianCoord)
+    }
+}
+
+package "Server" {
+    class CoordinateService {
+        + CoordinateGroup createCoordinateGroup(String, CartesianCoord, PolarCoord)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + CoordinateGroup getCoordinateGroupById(Integer)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(Integer)
+    }
+
+    class CoordinateDAO {
+        + void saveCoordinateGroup(CoordinateGroup)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + CoordinateGroup retrieveCoordinateGroupById(Integer)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(Integer)
+    }
+}
+
+package "Model" {
+    abstract class Coordinate {
+        + Double getX()
+        + Double getY()
+        + Double getR()
+        + Double getTheta()
+    }
+
+    class CartesianCoord extends Coordinate {
+        - Double x
+        - Double y
+        + CartesianCoord(Double, Double)
+        + Double getX()
+        + Double getY()
+    }
+
+    class PolarCoord extends Coordinate {
+        - Double r
+        - Double theta
+        + PolarCoord(Double, Double)
+        + Double getR()
+        + Double getTheta()
+    }
+
+    class CoordinateGroup {
+        - Integer id
+        - String label
+        - Date timestamp
+        - CartesianCoord cartesian
+        - PolarCoord polar
+        + CoordinateGroup(Integer, String, Date, CartesianCoord, PolarCoord)
+        + Integer getId()
+        + String getLabel()
+        + Date getTimestamp()
+        + CartesianCoord getCartesian()
+        + PolarCoord getPolar()
+    }
+}
+
+package "Helper" {
+    class ConnectionManager {
+        + void send(Object)
+        + Object receive()
+    }
+
+    class ClientConnectionManager extends ConnectionManager {
+    }
+
+    class ServerConnectionManager extends ConnectionManager {
+    }
+}
+
+' Associations
+
+DCCClient --* CoordinateConverter
+CoordinateService --* CoordinateDAO
+CoordinateService --* CoordinateGroup : Uses >
+CoordinateDAO --* CoordinateGroup : Persists >
+
+CartesianCoord --|> Coordinate
+PolarCoord --|> Coordinate
+
+CoordinateGroup *-- CartesianCoord
+CoordinateGroup *-- PolarCoord
+
+ClientConnectionManager --* DCCClient
+ServerConnectionManager --* CoordinateService
+
+@enduml

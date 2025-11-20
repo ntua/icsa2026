@@ -1,0 +1,98 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+' Define classes and their relationships within packages
+
+' Presentation Layer Package
+package "Presentation Layer" <<pLayer>> as pLayer {
+  class UserInterface {
+    + userInput(): void
+    + displayResults(): void
+  }
+}
+
+' Data Storage Layer Package
+package "Data Storage Layer" <<dStorageLayer>> as dStorageLayer {
+  interface DatabaseConnection {
+    + connect(): void
+    + disconnect(): void
+  }
+
+  class MySQLDatabase {
+    + connect(): void
+    + disconnect(): void
+    + storeData(data: Data): void
+    + retrieveData(query: string): Data
+  }
+
+  ' Indicate that MySQLDatabase implements DatabaseConnection
+  DatabaseConnection <|.. MySQLDatabase
+}
+
+' Business Logic Layer Package
+package "Business Logic Layer" <<bLogicLayer>> as bLogicLayer {
+  class CoordinatesGroup {
+    - ID: int <<PK>>
+    - Timestamp: datetime
+    - Label: string <<unique>>
+    - PolarCoordinates: tuple
+    - CartesianCoordinates: tuple
+  }
+}
+
+' Define Associations between Classes
+UserInterface ..> MySQLDatabase : uses
+MySQLDatabase --> CoordinatesGroup : stores, retrieves data to/from
+
+' Define Package Relationships
+pLayer .. dStorageLayer : uses
+pLayer .. bLogicLayer : interacts with
+dStorageLayer .. bLogicLayer : interacts with
+
+@enduml
+
+```

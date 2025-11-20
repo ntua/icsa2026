@@ -1,0 +1,81 @@
+@startuml
+package presentation {
+  class View {
+  + displayCoordinateGroup()
+}
+
+}
+
+package controller {
+  class CoordinatorController {
+  - view: PresentationView
+  - model: CoordinateGroupModel
+  - databaseAccess: CoordinateGroupDatabaseAccess
+  
+  + createCoordinateGroup()
+  + storeCoordinateGroup()
+  + retrieveCoordinateGroups()
+  + modifyCoordinateGroup()
+  + deleteCoordinateGroup()
+}
+
+}
+
+package model {
+ class CoordinateGroupModel {
+  - id: integer
+  - label: string
+  - timestamp: string
+  - cartesianCoordinates: List<CartesianCoordinate>
+  - polarCoordinates: List<PolarCoordinate>
+  
+  + createCoordinateGroup()
+  + storeCoordinateGroup()
+  + retrieveCoordinateGroups()
+  + modifyCoordinateGroup()
+  + deleteCoordinateGroup()
+}
+
+class CoordinateConverter {
+  + convertToPolar(CartesianCoordinate)
+  + convertToCartesian(PolarCoordinate)
+}
+
+class CoordinateGroupDatabaseAccess {
+  - connection: Connection
+  
+  + createTable()
+  + storeCoordinateGroup()
+  + retrieveCoordinateGroups()
+  + updateCoordinateGroup()
+  + deleteCoordinateGroup()
+}
+}
+
+package domain {
+  class CartesianCoordinate {
+  - x: float
+  - y: float
+  
+  + setX(float)
+  + setY(float)
+}
+
+class PolarCoordinate {
+  - r: float
+  - theta: float
+  
+  + setR(float)
+  + setTheta(float)
+}
+}
+
+
+View -- CoordinatorController: Request/Response
+CoordinatorController --> CoordinateGroupModel : Request Data
+CoordinateGroupModel --> CoordinateConverter : Convert Coordinates
+CoordinateConverter --> CartesianCoordinate : Convert to Cartesian
+CartesianCoordinate --> PolarCoordinate : Convert to Polar
+PolarCoordinate --> CoordinateGroupDatabaseAccess : Save to Database
+CoordinatorController --> CoordinateGroupDatabaseAccess : Request Data
+@enduml

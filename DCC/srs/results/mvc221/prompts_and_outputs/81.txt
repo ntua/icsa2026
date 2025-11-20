@@ -1,0 +1,70 @@
+Response:
+Below is the PlantUML code for a class diagram representing the software architecture based on the specified three-tier design and the requirements from the provided SRS document.
+
+@startuml
+package "Presentation Layer" {
+    class GUI {
+        + displayCoordinateList()
+        + showCoordinateDetails(label: String)
+        + createCoordinateGroup()
+        + updateCoordinateGroup(id: int)
+        + deleteCoordinateGroup(id: int)
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateManager {
+        + createCoordinateGroup(label: String, x: double, y: double, r: double, theta: double): boolean
+        + updateCoordinateGroup(id: int, label: String, x: double, y: double, r: double, theta: double): boolean
+        + deleteCoordinateGroup(id: int): boolean
+        + convertCartesianToPolar(x: double, y: double): PolarCoordinate
+        + convertPolarToCartesian(r: double, theta: double): CartesianCoordinate
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: String
+        - cartesianCoordinate: CartesianCoordinate
+        - polarCoordinate: PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+    }
+
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+    }
+}
+
+package "Data Access Layer" {
+    class DatabaseHandler {
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup): boolean
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup): boolean
+        + deleteCoordinateGroup(id: int): boolean
+        + fetchAllCoordinateGroups(): List<CoordinateGroup>
+        + fetchCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+}
+
+GUI --> CoordinateManager : uses
+CoordinateManager --> DatabaseHandler : interacts
+CoordinateManager --> CoordinateGroup : manages
+CoordinateGroup --> CartesianCoordinate : has
+CoordinateGroup --> PolarCoordinate : has
+
+@enduml
+
+
+The class diagram has been created based on the SRS document requirements and the three-tier architecture. It defines:
+
+1. **Presentation Layer**: The `GUI` class for user interaction.
+2. **Business Logic Layer**: Classes like `CoordinateManager` for application logic, `CoordinateGroup` for representing data, and `CartesianCoordinate` and `PolarCoordinate` for specific coordinate types.
+3. **Data Access Layer**: The `DatabaseHandler` class for managing database interactions.
+
+You can use this PlantUML code to generate the visual diagram. Let me know if you need further adjustments!

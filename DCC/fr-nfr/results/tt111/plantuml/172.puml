@@ -1,0 +1,53 @@
+@startuml
+
+package "Presentation Tier" {
+  class DCCInterface {
+    + createCoordinateGroup(): void
+    + storeCoordinateGroup(group: CoordinateGroup): void
+    + retrieveCoordinateGroups(criteria: String): List<CoordinateGroup>
+    + modifyCoordinateGroup(group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+package "Logic Tier" {
+  class DCCController {
+    - dbConnection : MySQLConnection
+    + createCoordinateGroup(type: String, values: List<Double>): CoordinateGroup
+    + storeCoordinateGroup(group: CoordinateGroup): void
+    + retrieveCoordinateGroups(criteria: String): List<CoordinateGroup>
+    + modifyCoordinateGroup(group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double): (double, double)
+    + polarToCartesian(r: double, theta: double): (double, double)
+  }
+}
+
+package "Data Tier" {
+  class CoordinateGroup {
+    - id : int
+    - label: String
+    - timestamp : DateTime
+    - coordinates : List<Coordinate>
+  }
+
+  class Coordinate {
+    - type : String ("Cartesian" or "Polar")
+    - values : List<Double> 
+  }
+
+  class MySQLConnection {
+    + connect(): void
+    + executeQuery(query: String): ResultSet
+    + close(): void
+  }
+}
+
+DCCInterface -- DCCController
+DCCController --> CoordinateConverter
+DCCController -- MySQLConnection
+CoordinateGroup "1" *-- "*" Coordinate 
+@enduml

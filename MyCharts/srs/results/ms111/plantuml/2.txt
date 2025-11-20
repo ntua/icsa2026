@@ -1,0 +1,67 @@
+@startuml
+package GoogleOAuth {
+  class GoogleOAuthService {
+    - token: String
+    + authenticate(): Boolean # Functional requirement-business logic operation
+    + authorize(): Boolean # Functional requirement-business logic operation
+  }
+}
+
+package UserService {
+  class UserService {
+    - userId: Integer
+    - username: String
+    + getUserProfile(): UserProfile # Data management operation
+    + updateUserProfile(): Void # Data management operation
+  }
+
+  class UserProfile {
+    - id: Integer
+    - username: String
+    - email: String
+  }
+}
+
+package ChartService {
+  class ChartService {
+    - chartId: Integer
+    - chartType: String
+    + generateChart(): Chart # Functional requirement-business logic operation
+    + getChart(): Chart # Data management operation
+  }
+
+  class Chart {
+    - id: Integer
+    - type: String
+    - data: String
+  }
+}
+
+package QuotaService {
+  class QuotaService {
+    - quotaId: Integer
+    - quotaLimit: Integer
+    + getQuota(): Quota # Data management operation
+    + updateQuota(): Void # Data consistency operation
+  }
+
+  class Quota {
+    - id: Integer
+    - limit: Integer
+  }
+}
+
+package PaymentGateway {
+  class PaymentGatewayService {
+    - paymentId: Integer
+    - paymentMethod: String
+    + processPayment(): Boolean # Functional requirement-business logic operation
+  }
+}
+
+GoogleOAuth::GoogleOAuthService --* UserService::UserService : uses
+UserService::UserService --* ChartService::ChartService : uses
+ChartService::ChartService --* QuotaService::QuotaService : uses
+QuotaService::QuotaService --* PaymentGateway::PaymentGatewayService : uses
+
+@enduml

@@ -1,0 +1,68 @@
+@startuml
+package "mvc" {
+
+  class Controller {
+    + createCoordinateGroup(coordinateType: String, values: Double[]) : CoordinateGroup
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroups(searchCriteria: String) : List<CoordinateGroup>
+    + modifyCoordinateGroup(groupId: int, updatedValues: Map<String, Double>)
+    + deleteCoordinateGroup(groupId: int)
+  }
+
+  class Model {
+    - databaseConnection: MySQLConnection
+    + createCoordinateGroupEntry(group: CoordinateGroup) : int
+    + getCoordinateGroupEntries(searchCriteria: String) : List<CoordinateGroupEntry>
+    + updateCoordinateGroupEntry(entryId: int, updatedValues: Map<String, Double>)
+    + deleteCoordinateGroupEntry(entryId: int)
+  }
+
+  class View {
+    - guiWindow: JFrame
+    + displayCoordinateGroups(groups: List<CoordinateGroup>)
+    + getCoordinateInputFromUser() : Map<String, Double>
+    + displayErrorMessage(message: String)
+  }
+
+  Controller "*" -- "1" Model
+  Controller "*" -- "1" View
+}
+
+package "domain" {
+  abstract class Coordinate {
+    # value1: double
+    # value2: double
+    + getValue1(): double
+    + getValue2(): double
+    + setValue1(value: double)
+    + setValue2(value: double)
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + CartesianCoordinate(x: double, y: double)
+  }
+
+  class PolarCoordinate {
+    - radius: double
+    - angle: double
+    + PolarCoordinate(radius: double, angle: double)
+  }
+
+  Coordinate <|.. CartesianCoordinate
+  Coordinate <|.. PolarCoordinate
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+    + addCoordinate(coordinate: Coordinate)
+    + getCoordinates(): List<Coordinate>
+    + getLabel(): String
+    + setLabel(label: String)
+  }
+}
+
+@enduml

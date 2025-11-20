@@ -1,0 +1,81 @@
+@startuml
+
+package DatabaseClient {
+class DatabaseClient {
+    +connect()
+    +disconnect()
+}
+}
+
+package ServerApplication {
+class ServerApplication {
+    -DatabaseClient dbClient = new DatabaseClient();
+    
+    +getCoordinateGroups(String label)
+    +saveCoordinateGroup(CoordinateGroup cg)
+    +modifyCoordinateGroup(CoordinateGroup cg, String actionType)
+    +deleteCoordinateGroup(Integer id)
+}
+}
+package DatabaseClient{
+class DatabaseClient {
+    -ServerApplication serverApp = new ServerApplication();
+    
+    +connect()
+    +disconnect()
+    +storeCoordinateGroup(String label, CoordinateGroup cg)
+    +retrieveCoordinateGroups(String label)
+    +modifyCoordinateGroupDetails(Integer id, String actionType)
+    +deleteCoordinateGroup(Integer id)
+}
+}
+
+package Common/Model {
+class Coordinate {
+  -coordValue: double
+  
++getX() : double
+  +getY() : double
+  +getR() : double
+  +getTheta() : double
+}
+
+class PolarCoordinate {
+  -r: double
+  -theta: double
+  
++convertToCartesian() : Coordinate
+  +convertFromCartesian(Coordinate c) : boolean
+}
+
+class CartesianCoordinate {
+  -x: double
+  -y: double
+  
++convertToPolar() : Coordinate
+  +convertFromPolar(Coordinate c) : boolean
+}
+
+class CoordinateGroup {
+    -id: Integer
+    -label: String
+    -creationTime: Timestamp
+    -coordinates: List<Coordinate>
+    
++addCoordinate(Coordinate coord)
+    +removeCoordinate(Coordinate coord)
+    +getCartesianValue(Integer index) : Coordinate
+    +getPolarValue(Integer index) : Coordinate
+}
+  
+class SwingClient {
+    -ServerApplication serverApp = new ServerApplication();
+    
++connect()
+    +disconnect()
+    +createCoordinateGroupWindow()
+    +retrieveAndDisplayCoordinateGroupsWindow()
+    +modifyAndSaveCoordinateGroupWindow(Integer id, Coordinate cg)
+}
+}
+@enduml

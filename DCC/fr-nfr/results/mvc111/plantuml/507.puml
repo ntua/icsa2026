@@ -1,0 +1,100 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Model" {
+    class CoordinateGroup {
+        +Integer id
+        +String label
+        +Date timestamp
+        +Cartesian cartesian
+        +Polar polar
+        
+        +void setId(Integer id)
+        +void setLabel(String label)
+        +void setTimestamp(Date timestamp)
+        +void setCartesian(Cartesian cartesian)
+        +void setPolar(Polar polar)
+        
+        +Integer getId()
+        +String getLabel()
+        +Date getTimestamp()
+        +Cartesian getCartesian()
+        +Polar getPolar()
+    }
+    
+    class Cartesian {
+        +Double x
+        +Double y
+        
+        +void setX(Double x)
+        +void setY(Double y)
+        
+        +Double getX()
+        +Double getY()
+    }
+    
+    class Polar {
+        +Double r
+        +Double theta
+        
+        +void setR(Double r)
+        +void setTheta(Double theta)
+        
+        +Double getR()
+        +Double getTheta()
+    }
+
+    class Database {
+        +void saveCoordinateGroup(CoordinateGroup group)
+        +List<CoordinateGroup> retrieveAllCoordinateGroups()
+        +CoordinateGroup retrieveCoordinateGroupById(Integer id)
+        +void updateCoordinateGroup(CoordinateGroup group)
+        +void deleteCoordinateGroup(Integer id)
+    }
+}
+
+package "View" {
+    class DCCView {
+        +void displayCoordinateGroup(CoordinateGroup group)
+        +void displayAllCoordinateGroups(List<CoordinateGroup> groups)
+        +void showCreateView()
+        +void showRetrieveView()
+        +void showUpdateView()
+        +void showDeleteView()
+        +void refresh()
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - Database db
+        - DCCView view
+        
+        +void createCoordinateGroup(Cartesian cartesian, String label)
+        +void createCoordinateGroup(Polar polar, String label)
+        +List<CoordinateGroup> retrieveAllCoordinateGroups()
+        +CoordinateGroup retrieveCoordinateGroupById(Integer id)
+        +void updateCoordinateGroup(Integer id, Cartesian cartesian, String label)
+        +void updateCoordinateGroup(Integer id, Polar polar, String label)
+        +void deleteCoordinateGroup(Integer id)
+        
+        +void setView(DCCView view)
+        +void setDatabase(Database db)
+    }
+}
+
+package "Util" {
+    class CoordinateConverter {
+        +static Cartesian convertPolarToCartesian(Polar polar)
+        +static Polar convertCartesianToPolar(Cartesian cartesian)
+    }
+}
+
+' Associations
+CoordinateGroup *-- Cartesian : contains > 
+CoordinateGroup *-- Polar : contains >
+DCCController --> Database : uses > 
+DCCController --> DCCView : controls >
+DCCApp --* DCCController : initializes >
+
+@enduml

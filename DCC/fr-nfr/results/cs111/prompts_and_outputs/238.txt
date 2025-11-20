@@ -1,0 +1,128 @@
+@startuml
+
+    package client {
+        class DccClient {
+            -coordinateController: CoordinateController
+            -view: DccView
+            +main(String[] args)
+            +initialize()
+            +connect()
+            +disconnect()
+        }
+
+        class DccView {
+            -frame: JFrame
+            -coordinatePanel: JPanel
+            -controller: CoordinateController
+            +initializeUI()
+            +showCoordinateGroup(CoordinateGroup group)
+            +showAllCoordinateGroups(List~CoordinateGroup~ groups)
+            +showError(String message)
+            +updateView()
+        }
+
+        class CoordinateController {
+            -view: DccView
+            -networkManager: NetworkManager
+            +createCoordinateGroup(String label, double x, double y)
+            +createCoordinateGroupPolar(String label, double r, double theta)
+            +retrieveCoordinateGroup(String label)
+            +retrieveAllGroups()
+            +updateCoordinateGroup(int id, CoordinateGroup group)
+            +deleteCoordinateGroup(int id)
+        }
+
+        class NetworkManager {
+            -socket: Socket
+            -host: String
+            -port: int
+            +connect()
+            +disconnect()
+            +sendRequest(Request request)
+            +receiveResponse()
+        }
+    }
+
+    package shared {
+        class CoordinateGroup {
+            -id: int
+            -label: String
+            -timestamp: DateTime
+            -cartesian: CartesianCoordinate
+            -polar: PolarCoordinate
+            +getId()
+            +getLabel()
+            +getTimestamp()
+            +getCartesian()
+            +getPolar()
+            +setLabel(String label)
+            +setCartesian(CartesianCoordinate coord)
+            +setPolar(PolarCoordinate coord)
+        }
+
+        class CartesianCoordinate {
+            -x: double
+            -y: double
+            +getX()
+            +getY()
+            +setX(double x)
+            +setY(double y)
+            +toPolar()
+        }
+
+        class PolarCoordinate {
+            -r: double
+            -theta: double
+            +getR()
+            +getTheta()
+            +setR(double r)
+            +setTheta(double theta)
+            +toCartesian()
+        }
+
+        class CoordinateConverter {
+            +static cartesianToPolar(CartesianCoordinate cart)
+            +static polarToCartesian(PolarCoordinate polar)
+        }
+    }
+
+    package server {
+        class DccServer {
+            -port: int
+            -coordinator: ServerCoordinator
+            +main(String[] args)
+            +start()
+            +stop()
+        }
+
+        class ServerCoordinator {
+            -dbManager: DatabaseManager
+            +handleRequest(Request request)
+            +processCoordinateGroup(CoordinateGroup group)
+        }
+
+        class DatabaseManager {
+            -connection: Connection
+            -url: String
+            -username: String
+            -password: String
+            +connect()
+            +disconnect()
+            +saveCoordinateGroup(CoordinateGroup group)
+            +retrieveCoordinateGroup(String label)
+            +retrieveAllGroups()
+            +updateCoordinateGroup(CoordinateGroup group)
+            +deleteCoordinateGroup(int id)
+        }
+    }
+
+    DccClient --> DccView
+    DccClient --> CoordinateController
+    DccView --> CoordinateController
+    CoordinateController --> NetworkManager
+    CoordinateGroup --> CartesianCoordinate
+    CoordinateGroup --> PolarCoordinate
+    DccServer --> ServerCoordinator
+    ServerCoordinator --> DatabaseManager
+
+@enduml

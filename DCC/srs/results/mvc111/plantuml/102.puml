@@ -1,0 +1,77 @@
+@startuml
+package model {
+  class CoordinateGroup {
+    +Integer id
+    +String label
+    +Date timestamp
+    +Float r
+    +Float theta
+    +Float x
+    +Float y
+    
+    +getLabel()
+    +getId()
+    +getTimestamp()
+    +getR()
+    +getTheta()
+    +getX()
+    +getY()
+  }
+  
+  class DatabaseManager {
+    -String connectionString
+    -Boolean isConnected
+    
+    +connect(): Boolean
+    +disconnect(): void
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +getCoordinateGroupById(Integer id): CoordinateGroup
+    +getCoordinateGroupByLabel(String label): List<CoordinateGroup>
+    +saveCoordinateGroup(CoordinateGroup group): Boolean
+    +deleteCoordinateGroup(Integer id): Boolean
+  }
+  
+  class CoordinatesConverter {
+    +convertPolarToCartesian(Float r, Float theta): Tuple<Float, Float>
+    +convertCartesianToPolar(Float x, Float y): Tuple<Float, Float>
+  }
+}
+
+package view {
+  class MainWindow {
+    +Button btnViewAll
+    +Button btnViewByLabel
+    +Button btnDelete
+    +TextField txtLabel
+    +CoordinateGroupList lstGroups
+    
+    +initialize(): void
+    +showMessage(String message): void
+  }
+  
+  class CoordinateGroupList {
+    +ListModel listModel
+    +void addItem(CoordinateGroup group): void
+    +void clearItems(): void
+  }
+}
+
+package controller {
+  class Coordinator {
+    -DatabaseManager dbManager
+    -CoordinatesConverter converter
+    -MainWindow view
+    
+    +initialize(DatabaseManager dbManager, CoordinatesConverter converter, MainWindow view): void
+    +onViewAllClicked(): void
+    +onViewByLabelClicked(String label): void
+    +onDeleteClicked(Integer id): void
+  }
+}
+
+' Associations '
+MainWindow --> Coordinator
+Coordinator --> DatabaseManager
+Coordinator --> CoordinatesConverter
+DatabaseManager --> CoordinateGroup
+@enduml

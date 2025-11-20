@@ -1,0 +1,84 @@
+@startuml
+package "Frontend Layer" {
+    class DCCGUI {
+        +displayCoordinateGroup()
+        +createCoordinateGroup()
+        +modifyCoordinateGroup()
+        +deleteCoordinateGroup()
+        +retrieveCoordinateGroupByLabel()
+        +retrieveAllCoordinateGroups()
+    }
+
+    class CoordinateGroupInputDialog {
+        +getCartesianInput(): CartesianCoordinate
+        +getPolarInput(): PolarCoordinate
+    }
+}
+
+package "Service Layer" {
+    class DCCService {
+        +createCoordinateGroup(cartesian: CartesianCoordinate, polar: PolarCoordinate, label: String)
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+        +retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        +modifyCoordinateGroup(id: int, newCartesian: CartesianCoordinate, newPolar: PolarCoordinate, newLabel: String)
+        +deleteCoordinateGroup(id: int)
+        +convertToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        +convertToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+
+    class CoordinateConverter {
+        +convertToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        +convertToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+}
+
+package "Persistence Layer" {
+    class CoordinateGroupDAO {
+        +saveCoordinateGroup(group: CoordinateGroup)
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+        +retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        +updateCoordinateGroup(group: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+    }
+
+    class MySQLConnection {
+        +openConnection(): Connection
+        +closeConnection()
+    }
+}
+
+package "Domain" {
+    class CoordinateGroup {
+        +id: int
+        +label: String
+        +timestamp: Date
+        +cartesian: CartesianCoordinate
+        +polar: PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        +x: double
+        +y: double
+    }
+
+    class PolarCoordinate {
+        +r: double
+        +theta: double
+    }
+}
+
+DCCGUI -- CoordinateGroupInputDialog
+DCCGUI --> DCCService : uses
+
+DCCService --> CoordinateConverter : uses
+DCCService --> CoordinateGroupDAO : uses
+DCCService --> CartesianCoordinate
+DCCService --> PolarCoordinate
+DCCService --> CoordinateGroup
+
+CoordinateGroupDAO --> MySQLConnection : uses
+CoordinateGroupDAO --> CoordinateGroup
+CoordinateGroup o-- CartesianCoordinate : composition
+CoordinateGroup o-- PolarCoordinate : composition
+
+@enduml

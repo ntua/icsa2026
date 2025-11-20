@@ -1,0 +1,88 @@
+@startuml
+
+package Database {
+  interface IDBConnection {
+    +connect()
+    +disconnect()
+    +query(query: String)
+    +insert(table: String, columns: String, values: String)
+    +delete(table: String, whereClause: String)
+    +update(table: String, setClause: String, whereClause: String)
+  }
+  
+  class MySQLDBConnection implements IDBConnection {
+    #_connection: Object
+    
+    +connect()
+    +disconnect()
+    +query(query: String)
+    +insert(table: String, columns: String, values: String)
+    +delete(table: String, whereClause: String)
+    +update(table: String, setClause: String, whereClause: String)
+  }
+}
+
+package Model {
+  class CoordinateGroup {
+    -id: int
+    -timestamp: DateTime
+    -label: string
+    -polarCoordinates: string
+    -cartesianCoordinates: string
+    
+    +CoordinateGroup(id: int, timestamp: DateTime, label: string, polarCoordinates: string, cartesianCoordinates: string)
+    +getID(): int
+    +getTimestamp(): DateTime
+    +getLabel(): string
+    +getPolarCoordinates(): string
+    +getCartesianCoordinates(): string
+  }
+}
+
+package View {
+  class CoordinateGroupTableView {
+    -database: IDBConnection
+    -coordinateGroups: List<CoordinateGroup>
+    
+    +CoordinateGroupTableView(database: IDBConnection)
+    +display()
+    +updateCoordinateGroups()
+  }
+  
+  class CoordinateGroupFormView {
+    -database: IDBConnection
+    
+    +CoordinateGroupFormView(database: IDBConnection)
+    +displayAddForm()
+    +displayEditForm(coordinateGroup: CoordinateGroup)
+    +processAddForm(label: string, polarCoordinates: string, cartesianCoordinates: string)
+    +processEditForm(id: int, label: string, polarCoordinates: string, cartesianCoordinates: string)
+  }
+  
+  class FindByLabelView {
+    -database: IDBConnection
+    
+    +FindByLabelView(database: IDBConnection)
+    +display()
+    +processFindByLabel(label: string)
+  }
+}
+
+package Controller {
+  class CoordinateGroupController {
+    -view: Object
+    -model: Model.CoordinateGroup
+    -database: IDBConnection
+    
+    +CoordinateGroupController(view: Object, model: Model.CoordinateGroup, database: IDBConnection)
+    +addCoordinateGroup()
+    +editCoordinateGroup()
+    +deleteCoordinateGroup()
+    +findByLabel()
+  }
+}
+
+Database -- Model
+Model -- View
+View -- Controller
+@enduml

@@ -1,0 +1,135 @@
+@startuml
+skinparam nodesep 50
+skinparam ranksep 50
+
+package "GUI" {
+    class MainWindow {
+        - createButton: JButton
+        - modifyButton: JButton
+        - viewAllButton: JButton
+        - viewByLabelButton: JButton
+        - deleteButton: JButton
+        + openCreateDialog()
+        + openModifyDialog()
+        + showAllGroups()
+        + showGroupsByLabel()
+        + confirmDelete()
+    }
+
+    class CreateCoordinateGroupDialog {
+        - typeComboBox: JComboBox
+        - xField: JTextField
+        - yField: JTextField
+        - rField: JTextField
+        - thetaField: JTextField
+        - labelField: JTextField
+        - addButton: JButton
+        + getInputData(): CoordinateInputDTO
+    }
+
+    class ModifyCoordinateGroupDialog {
+        - groupList: JList
+        - typeComboBox: JComboBox
+        - xField: JTextField
+        - yField: JTextField
+        - rField: JTextField
+        - thetaField: JTextField
+        - labelField: JTextField
+        - updateButton: JButton
+        + getSelectedGroup(): CoordinateGroup
+        + getUpdatedData(): CoordinateInputDTO
+    }
+
+    class ViewAllPanel {
+        - groupTable: JTable
+        + refreshData(List<CoordinateGroup>)
+    }
+
+    class ViewByLabelPanel {
+        - searchField: JTextField
+        - searchButton: JButton
+        - resultList: JList
+        + getSearchTerm(): String
+        + displayResults(List<CoordinateGroup>)
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - cartesianX: double
+        - cartesianY: double
+        - polarR: double
+        - polarTheta: double
+        + CoordinateGroup()
+        + getters()
+        + setters()
+    }
+
+    class CoordinateInputDTO {
+        - label: String
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        + getters()
+        + setters()
+    }
+}
+
+package "Controller" {
+    class CoordinateController {
+        - dbManager: DatabaseManager
+        + handleCreate(CoordinateInputDTO)
+        + handleUpdate(CoordinateGroup, CoordinateInputDTO)
+        + handleDelete(int)
+        + handleViewAll(): List<CoordinateGroup>
+        + handleViewByLabel(String): List<CoordinateGroup>
+    }
+}
+
+package "DataAccess" {
+    class DatabaseManager {
+        - connection: Connection
+        + connect()
+        + disconnect()
+        + createCoordinateGroup(CoordinateInputDTO): void
+        + updateCoordinateGroup(CoordinateGroup): void
+        + deleteCoordinateGroup(int): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupByLabel(String): List<CoordinateGroup>
+    }
+}
+
+package "Utility" {
+    class CoordinateConverter {
+        + convertCartesianToPolar(x: double, y: double): PolarResult
+        + convertPolarToCartesian(r: double, theta: double): CartesianResult
+    }
+}
+
+MainWindow --> CoordinateController : uses
+MainWindow --> CreateCoordinateGroupDialog : opens
+MainWindow --> ModifyCoordinateGroupDialog : opens
+MainWindow --> ViewAllPanel : contains
+MainWindow --> ViewByLabelPanel : contains
+
+CreateCoordinateGroupDialog --> CoordinateInputDTO : creates
+ModifyCoordinateGroupDialog --> CoordinateGroup : selects
+ModifyCoordinateGroupDialog --> CoordinateInputDTO : updates
+
+CoordinateController --> DatabaseManager : depends on
+CoordinateController --> CoordinateConverter : uses
+
+DatabaseManager --> CoordinateGroup : manages
+DatabaseManager --> "MySQL Database" : connects to
+
+ViewAllPanel --> CoordinateGroup : displays
+ViewByLabelPanel --> CoordinateGroup : displays
+
+CoordinateConverter ..> CoordinateGroup : converts
+CoordinateInputDTO ..> CoordinateGroup : data transfer
+
+@enduml

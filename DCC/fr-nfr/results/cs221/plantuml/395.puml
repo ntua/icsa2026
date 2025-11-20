@@ -1,0 +1,64 @@
+@startuml
+package "Client" {
+  class DCCApplication {
+    - coordinateManager: CoordinateManager
+    - databaseConnector: DatabaseConnector
+    + run()
+  }
+  
+  class CoordinateManager {
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+  
+  class UserInputHandler {
+    + handleUserInput()
+  }
+}
+
+package "Server" {
+  class DatabaseConnector {
+    - databaseConnection: DatabaseConnection
+    + connectToDatabase()
+    + disconnectFromDatabase()
+  }
+  
+  class CoordinateGroupRepository {
+    - coordinateGroups: List<CoordinateGroup>
+    + createNewCoordinateGroup(label, cartesianValues, polarValues)
+    + readAllCoordinateGroups()
+    + updateExistingCoordinateGroup(id, label, cartesianValues, polarValues)
+    + deleteCoordinateGroup(id)
+  }
+}
+
+package "Common" {
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+  }
+  
+  class CartesianCoordinates {
+    - x: Double
+    - y: Double
+  }
+  
+  class PolarCoordinates {
+    - r: Double
+    - theta: Double
+  }
+}
+
+DCCApplication --|> CoordinateManager
+CoordinateManager --> UserInputHandler
+UserInputHandler --|> DCCApplication
+
+DatabaseConnector --|> CoordinateGroupRepository
+CoordinateGroupRepository --> CoordinateGroup
+CoordinateGroup --> CartesianCoordinates
+CoordinateGroup --> PolarCoordinates
+@enduml

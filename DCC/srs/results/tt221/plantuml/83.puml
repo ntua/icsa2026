@@ -1,0 +1,65 @@
+@startuml
+package "Presentation Layer" {
+    class DCCGUI {
+        - JFrame mainFrame
+        - JTextField cartesianX
+        - JTextField cartesianY
+        - JTextField polarR
+        - JTextField polarTheta
+        - JButton addButton
+        - JButton updateButton
+        - JButton deleteButton
+        - JButton viewAllButton
+        - JButton findByLabelButton
+        - JTable coordinateTable
+
+        + displayCoordinates(groups: List<CoordinateGroup>)
+        + showError(message: String)
+        + getInputCoordinates(): CoordinateGroup
+    }
+}
+
+package "Application Layer" {
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double): double[]
+        + polarToCartesian(r: double, theta: double): double[]
+    }
+
+    class CoordinateService {
+        - dataAccess: CoordinateDAO
+
+        + addCoordinate(group: CoordinateGroup)
+        + updateCoordinate(group: CoordinateGroup)
+        + deleteCoordinate(id: int)
+        + getAllCoordinates(): List<CoordinateGroup>
+        + findCoordinateByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateDAO {
+        - Connection dbConnection
+
+        + insert(group: CoordinateGroup)
+        + update(group: CoordinateGroup)
+        + delete(id: int)
+        + fetchAll(): List<CoordinateGroup>
+        + fetchByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateGroup {
+        + id: int
+        + label: String
+        + cartesianX: double
+        + cartesianY: double
+        + polarR: double
+        + polarTheta: double
+        + timestamp: Date
+    }
+}
+
+DCCGUI --> CoordinateService : "calls"
+CoordinateService --> CoordinateConverter : "uses"
+CoordinateService --> CoordinateDAO : "uses"
+CoordinateDAO --> CoordinateGroup : "manages"
+@enduml

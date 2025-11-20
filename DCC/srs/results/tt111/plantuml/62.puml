@@ -1,0 +1,51 @@
+@startuml
+
+package PresentationLayer {
+    class MainWindow {
+        - currentView: String
+        + showCreateForm(): void
+        + showEditForm(): void
+        + displayGroups(groups: List<CoordinateGroup>): void
+        + displayError(message: String): void
+    }
+}
+
+package BusinessLogicLayer {
+    class CoordinateConverter {
+        + convertToCartesian(r: double, theta: double): (double, double)
+        + convertToPolar(x: double, y: double): (double, double)
+    }
+
+    class CoordinateManager {
+        - coordinateGroups: List<CoordinateGroup>
+        + createGroup(label: String, cartesian: (double, double), polar: (double, double)): void
+        + modifyGroup(id: int, newLabel: String, cartesian: (double, double), polar: (double, double)): void
+        + deleteGroup(id: int): void
+        + getAllGroups(): List<CoordinateGroup>
+        + findGroupByLabel(label: String): CoordinateGroup
+    }
+}
+
+package DataAccessLayer {
+    class DatabaseConnector {
+        - connection: Connection
+        + connect(): void
+        + disconnect(): void
+        + executeQuery(query: String): ResultSet
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: DateTime
+        - cartesianCoordinates: (double, double)
+        - polarCoordinates: (double, double)
+    }
+}
+
+MainWindow --> CoordinateManager : "Uses"
+CoordinateManager --> CoordinateConverter : "Uses"
+CoordinateManager --> DatabaseConnector : "Uses"
+DatabaseConnector --> CoordinateGroup : "Manages"
+
+@enduml

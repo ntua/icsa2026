@@ -1,0 +1,47 @@
+@startuml
+'Defining package for MVC components'
+package "MVC Components" {
+    class CoordinateGroupModel {
+        +List<Coordinate> coordinates;
+        
+        +convertToPolar(Cartesian);
+        +convertToCartesian(Polar);
+    }
+    
+    class CoordinateGroupView {
+        +displayGroups();
+        +editGroupDetails();
+    }
+    
+    class CoordinateController {
+        -model: CoordinateGroupModel;
+        -view: CoordinateGroupView;
+        
+        +createCoordinateGroup(String label);
+        +storeCoordinateGroup(CoordinateGroupModel group);
+        +retrieveCoordinateGroupByIdentifier(int identifier);
+        +displayAllCoordinateGroups();
+        +updateCoordinateGroup(CoordinateGroupModel updatedGroup);
+        +deleteCoordinateGroupByIdentifier(int identifier);
+    }
+}
+'Database Package for MySQL communication (TCP/IP Connection)'
+package "MySQL Database" {
+    class MySqlConnection {
+        -host: String;
+        -username: String;
+        -password: String;
+        
+        +connect();
+        +disconnect();
+    }
+}
+'Defining Class for Coordinates in the system'
+class Coordinate {
+    string label;
+    
+    float x, y; // Cartesian coordinates
+    float r, theta; // Polar coordinates
+}
+
+@enduml

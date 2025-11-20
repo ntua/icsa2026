@@ -1,0 +1,60 @@
+@startuml
+title DCC Application Class Diagram
+
+package "Client" {
+  class UserInterface {
+    - setCoordinates(String label, String coordinates)
+    + getStoredGroups() : List<CoordinateGroup> 
+    + modifyGroup(String label, CoordinateGroup group)
+    + deleteGroup(String label)
+  }
+
+  class CoordinateConverter {
+    # convertToCartesian(PolarCoordinates polar) : CartesianCoordinates
+    # convertToPolar(CartesianCoordinates cartesian) : PolarCoordinates
+    - isValidCoordinates(String coordinates) : boolean
+  }
+}
+
+package "Server" {
+  class DatabaseManager {
+    + saveCoordinateGroup(String label, CoordinateGroup group) 
+    + getCoordinateGroups(String label) : List<CoordinateGroup>
+    + modifyCoordinateGroup(String label, CoordinateGroup group)
+    + deleteCoordinateGroup(String label) 
+  }
+
+  class TCPConnectionHandler {
+    # establishConnection()
+  }
+}
+
+package "Shared" {
+  class CoordinateGroup {
+    - uniqueId: int
+    - label: String
+    - timestamp: Date
+
+    - cartesianCoordinates: CartesianCoordinates[]
+    - polarCoordinates: PolarCoordinates[]
+    
+    + getUniqueId(): int 
+    + getLabel(): String 
+    + getTimestamp(): Date 
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+  }
+}
+
+UserInterface <|.. CoordinateConverter : Uses
+DatabaseManager <|.. TCPConnectionHandler : Depends on
+UserInterface .. DatabaseManager : Communicates with
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+!define REMOVE_OPEN 'remove'
+
+namespace com.dummycoordconversion {
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    +cartesianCoordinates: List<CartesianCoordinate>
+    +polarCoordinates: List<PolarCoordinate>
+    
++add(x: double, y: double): void
+    +updateLabel(newLabel: String): void
+    +delete(): boolean
+  }
+  
+class CartesianCoordinate {
+    -x: double
+    -y: double
+  }
+  
+class PolarCoordinate {
+    -r: double
+    -theta: double
+  }
+  
+class DCCApplication {
+    +connectToDatabase() : boolean
+    +createRecord(coordinateGroup: CoordinateGroup): void
+    
++readRecords(): List<CoordinateGroup>
+    +updateRecord(id: int, coordinateGroup: CoordinateGroup): boolean
+    +deleteRecord(id: int): boolean
+   }
+  
+class DatabaseConnection {
+    +connect() : boolean
+  }
+  
+DCCApplication "1" *-- "0..*"CoordinateGroup
+  
+CoordinateGroup "0..*" --* CartesianCoordinate
+  
+CartesianCoordinate <|-- PolarCoordinate : conversion(x, y) -->
+  
+DatabaseConnection "1" *-- DCCApplication: connection
+}
+@enduml

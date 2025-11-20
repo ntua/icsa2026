@@ -1,0 +1,72 @@
+@startuml DCCApplicationClassDiagram
+
+' Presentation Layer (GUI)
+package "Presentation" {
+    class CoordinateGroupGUI {
+        - JFrame mainFrame
+        - JPanel inputPanel
+        - JPanel resultPanel
+        
+        + void createCoordinateGroup(Cartesian, Polar)
+        + void retrieveCoordinateGroup(String label)
+        + void updateCoordinateGroup(int id, String label)
+        + void deleteCoordinateGroup(int id)
+        + void displayCoordinates(List<Coordinate>)
+    }
+}
+
+' Business Logic Layer
+package "Business" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Timestamp timestamp
+        - List<Cartesian> cartesianCoordinates
+        - List<Polar> polarCoordinates
+    }
+
+    class CoordinateConverter {
+        + static Cartesian convertPolarToCartesian(Polar)
+        + static Polar convertCartesianToPolar(Cartesian)
+    }
+
+    class CoordinateManager {
+        + void createCoordinateGroup(String label, Cartesian or Polar)
+        + void updateCoordinateGroup(int id, String label)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> retrieveAllGroups()
+        + CoordinateGroup retrieveGroupById(int id)
+        + List<CoordinateGroup> searchGroupsByLabel(String label)
+    }
+}
+
+' Data Access Layer
+package "DataAccess" {
+    class CoordinateDAO {
+        - Connection databaseConnection
+        
+        + void saveGroup(CoordinateGroup)
+        + List<CoordinateGroup> retrieveAllGroups()
+        + CoordinateGroup retrieveGroupById(int id)
+        + void updateGroup(CoordinateGroup)
+        + void deleteGroup(int id)
+        + List<CoordinateGroup> searchGroupsByLabel(String label)
+    }
+    
+    class MySQLDatabase {
+        - String url
+        - String username
+        - String password
+        
+        + Connection getConnection()
+    }
+}
+
+' Relationships and Associations
+CoordinateGroupGUI --* CoordinateManager
+CoordinateManager --* CoordinateConverter
+CoordinateManager --* CoordinateDAO
+
+CoordinateDAO --* MySQLDatabase
+
+@enduml

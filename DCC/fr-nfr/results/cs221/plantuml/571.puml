@@ -1,0 +1,79 @@
+@startuml DCC_Application_Class_Diagram
+
+title DCC Application Class Diagram
+
+package "Client" {
+    package "App" {
+        class DCCApp {
+            - List<CoordinateGroup> coordinateGroups
+            - CoordinateGroup currentGroup
+            - boolean isAdding
+
+            + void initialize()
+            + void handleAdd()
+            + void handleUpdate()
+            + void handleDelete()
+            + void refreshDisplay()
+            + void filterGroups(String label)
+            + void clearFilter()
+
+            + DCCApp()
+        }
+
+        class ConversionService {
+            + static PolarCoordinate convertCartesianToPolar(CartesianCoordinate cartesian)
+            + static CartesianCoordinate convertPolarToCartesian(PolarCoordinate polar)
+        }
+    }
+}
+
+package "Server" {
+    package "Database" {
+        class DatabaseManager {
+            - Connection dbConnection
+
+            + void connect()
+            + void disconnect()
+            + List<CoordinateGroup> createCoordinateGroup(CoordinateGroup group)
+            + List<CoordinateGroup> readAllGroups()
+            + List<CoordinateGroup> updateCoordinateGroup(CoordinateGroup group)
+            + List<CoordinateGroup> deleteCoordinateGroup(int id)
+
+            + DatabaseManager()
+        }
+    }
+}
+
+package "Logic" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoordinate cartesianCoordinates
+        - PolarCoordinate polarCoordinates
+        - DateTime timestamp
+
+        + CoordinateGroup(String label, double x, double y)
+        + CoordinateGroup(int id, String label, double x, double y, DateTime timestamp)
+
+        + void update(double x, double y)
+    }
+
+    class CartesianCoordinate {
+        - double x
+        - double y
+
+        + CartesianCoordinate(double x, double y)
+    }
+
+    class PolarCoordinate {
+        - double r
+        - double theta
+
+        + PolarCoordinate(double r, double theta)
+    }
+}
+
+'DCCApp' --* 'ConversionService'
+'DatabaseManager' --* 'CoordinateGroup'
+
+@enduml

@@ -1,0 +1,114 @@
+@startuml
+
+'===========================
+' Package: Model
+'===========================
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    --
+    + CoordinateGroup(label: String, sourceCoordinates: Object)
+    + updateCoordinates(sourceCoordinates: Object): void
+    + convertCoordinates(): void
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    --
+    + CartesianCoordinate(x: double, y: double)
+    + toPolar(): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    --
+    + PolarCoordinate(r: double, theta: double)
+    + toCartesian(): CartesianCoordinate
+  }
+
+  ' Composition: A CoordinateGroup contains both representations.
+  CoordinateGroup *-- CartesianCoordinate : contains
+  CoordinateGroup *-- PolarCoordinate : contains
+}
+
+'===========================
+' Package: Util
+'===========================
+package util {
+  class CoordinateConverter {
+    + cartesianToPolar(cart: model.CartesianCoordinate): model.PolarCoordinate
+    + polarToCartesian(polar: model.PolarCoordinate): model.CartesianCoordinate
+  }
+  
+  ' Note: The CoordinateConverter is used to perform the necessary conversions.
+  CoordinateConverter ..> model.CartesianCoordinate : converts
+  CoordinateConverter ..> model.PolarCoordinate : converts
+}
+
+'===========================
+' Package: DAO (Data Access)
+'===========================
+package dao {
+  class DatabaseConnection {
+    - connection: Connection
+    --
+    + getConnection(): Connection
+  }
+
+  class CoordinateGroupDAO {
+    - dbConnection: DatabaseConnection
+    --
+    + insert(coordinateGroup: model.CoordinateGroup): void
+    + update(coordinateGroup: model.CoordinateGroup): void
+    + delete(coordinateGroup: model.CoordinateGroup): void
+    + findAll(): List<model.CoordinateGroup>
+    + findByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  CoordinateGroupDAO --> DatabaseConnection : uses
+}
+
+'===========================
+' Package: View
+'===========================
+package view {
+  class DCCView {
+    + displayCoordinateGroups(groups: List<model.CoordinateGroup>): void
+    + getUserInput(): Map<String, Object>
+    + showError(message: String): void
+    + setController(controller: controller.CoordinateGroupController): void
+  }
+}
+
+'===========================
+' Package: Controller
+'===========================
+package controller {
+  class CoordinateGroupController {
+    - view: view.DCCView
+    - dao: dao.CoordinateGroupDAO
+    --
+    + createCoordinateGroup(data: Map<String, Object>): void
+    + modifyCoordinateGroup(data: Map<String, Object>): void
+    + deleteCoordinateGroup(group: model.CoordinateGroup): void
+    + viewAllCoordinateGroups(): void
+    + viewCoordinateGroupByLabel(label: String): void
+  }
+  
+  ' Associations between controller and other packages
+  CoordinateGroupController --> view.DCCView : updates
+  CoordinateGroupController --> dao.CoordinateGroupDAO : uses
+}
+
+'===========================
+' Association: View to Controller
+'===========================
+view.DCCView --> controller.CoordinateGroupController : delegates actions
+
+@enduml

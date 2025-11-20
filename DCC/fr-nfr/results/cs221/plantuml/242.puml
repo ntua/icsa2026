@@ -1,0 +1,32 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+package frontend {
+  class CustomerInterface
+}
+
+package logic {
+  class CoordinateGroup
+  class CartesianCoordinate
+  class PolarCoordinate
+  class Converter
+  class DatabaseOperations
+}
+
+package database_server {
+  class MySQLDatabaseServer
+}
+
+frontend --> logic : communicates with
+logic -> frontend : responds to user interactions
+logic -> database_server : interacts with
+
+CoordinateGroup ..> CartesianCoordinate: contains
+CoordinateGroup ..> PolarCoordinate: contains
+CartesianCoordinate ..> PolarCoordinate: converted from
+PolarCoordinate ..> CartesianCoordinate: converted from
+
+CoordinateGroup : has many CoordinateGroups (in filtered list)
+frontend : uses CoordinateGroup (filtered list)
+
+@enduml

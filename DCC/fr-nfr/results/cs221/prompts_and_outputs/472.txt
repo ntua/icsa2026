@@ -1,0 +1,55 @@
+@startuml
+package Database {
+    class Database {
+        - connectionString : String
+        - username : String
+        - password : String
+        + connect()
+        + disconnect()
+        + createCoordinateGroup(CoordinateGroup)
+        + readCoordinateGroups() : List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup)
+        + deleteCoordinateGroup(CoordinateGroup)
+    }
+}
+
+package Logic {
+    class Coordinate {
+        - x : double
+        - y : double
+        - r : double
+        - theta : double
+        + convertToPolar()
+        + convertToCartesian()
+    }
+
+    class CoordinateGroup {
+        - id : int
+        - label : String
+        - coordinates : List<Coordinate>
+        - timestamp : Datetime
+        + addCoordinate(Coordinate)
+        + removeCoordinate(Coordinate)
+        + getCoordinates() : List<Coordinate>
+        + setLabel(String)
+        + getTimestamp() : Datetime
+    }
+}
+
+package UserInterface {
+    class UserInterface {
+        - frame : JFrame
+        - panels : JPanel[]
+        - buttons : JButton[]
+        - textFields : JTextField[]
+        + initialize()
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + handleUserInput()
+        + filterCoordinateGroups(String)
+    }
+}
+
+UserInterface -- Database
+UserInterface -- CoordinateGroup
+CoordinateGroup -- Coordinate
+@enduml

@@ -1,0 +1,85 @@
+Response:
+```plantuml
+@startuml
+
+package Presentation {
+    class DCCGUI {
+        +initializeUI()
+        +addCoordinateGroup()
+        +updateCoordinateGroup()
+        +deleteCoordinateGroup()
+        +viewAllCoordinateGroups()
+        +viewCoordinateGroupByLabel()
+    }
+}
+
+package Application {
+    class CoordinateGroupManager {
+        +createCoordinateGroup(sourceType: String, values: double[], label: String)
+        +modifyCoordinateGroup(id: int, newValues: double[], newLabel: String)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class CoordinateConverter {
+        +convertCartesianToPolar(c: Cartesian): Polar
+        +convertPolarToCartesian(p: Polar): Cartesian
+    }
+
+    class CoordinateGroup {
+        -id: int
+        -timestamp: Date
+        -label: String
+        -cartesian: Cartesian
+        -polar: Polar
+    }
+
+    class Cartesian {
+        -x: double
+        -y: double
+    }
+
+    class Polar {
+        -r: double
+        -theta: double
+    }
+}
+
+package Data {
+    class DatabaseManager {
+        +insertCoordinateGroup(cg: CoordinateGroup)
+        +updateCoordinateGroup(cg: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+}
+
+'--- Associations ---
+DCCGUI --> CoordinateGroupManager : "uses"
+CoordinateGroupManager --> DatabaseManager : "persists data via"
+CoordinateGroupManager --> CoordinateConverter : "uses for conversion"
+CoordinateGroupManager --> CoordinateGroup : "manages"
+CoordinateGroup *-- Cartesian : "contains"
+CoordinateGroup *-- Polar : "contains"
+DatabaseManager --> CoordinateGroup : "stores/retrieves"
+
+@enduml
+```
+
+**Explanation:**  
+This PlantUML class diagram adheres to the **Three-Tier Architecture**:  
+1. **Presentation Tier**: Contains the `DCCGUI` class handling user interactions.  
+2. **Application Tier**:  
+   - `CoordinateGroupManager`: Orchestrates business logic (CRUD operations).  
+   - `CoordinateConverter`: Handles coordinate conversions.  
+   - `CoordinateGroup`, `Cartesian`, and `Polar`: Represent domain data.  
+3. **Data Tier**: `DatabaseManager` handles MySQL database interactions.  
+
+**Key Associations:**  
+- **Composition**: `CoordinateGroup` owns `Cartesian` and `Polar` objects.  
+- **Dependencies**: Presentation tier delegates actions to the Application tier, which interacts with the Data tier.  
+- **Data Flow**: `DatabaseManager` manipulates `CoordinateGroup` objects for persistence.  
+
+The diagram ensures separation of concerns and aligns with the SRS requirements.

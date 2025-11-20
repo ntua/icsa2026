@@ -1,0 +1,31 @@
+@startuml
+' Start Package Definitions
+package application {
+    ' Application - Central Class for Coordinate Management
+    class Application {
+        +createCoordinateGroup(label: String, polarCoords: PolarCoordinates) : GroupID
+        +modifyCoordinateGroup(groupId: GroupID, newLabel: String) : Boolean
+        +deleteCoordinateGroup(groupId: GroupID) : Boolean
+    }
+    
+    ' CoordinateGroups - Manage and Store all coordinate groups.
+    class CoordinateGroups {
+        +addToDatabase(groupDetails: GroupDetails) : void
+        +removeFromDatabase(groupId: GroupID) : void
+    }
+}
+package userinterface {
+    ' UserInterface - Main UI that interacts with the Application and presents options to users.
+    class UserInterface {
+        +initializeApplication() : void
+        +displayMainMenu(): void
+        +showCreateForm() : void
+        +showModifyForm(groupId: GroupID) : void
+        +showDeleteConfirmation(groupId: GroupID) : void
+        +displayGroupDetails(groupId: GroupID): String
+    }
+}
+' End Package Definitions, Begin Classes and Associations
+application.Application "1" *-- application.CoordinateGroups
+userinterface.UserInterface "1" *-- application.Application
+@enduml

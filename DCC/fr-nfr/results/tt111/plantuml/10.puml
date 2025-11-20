@@ -1,0 +1,56 @@
+@startuml
+package "Presentation Layer" {
+    class DummyCoordinationConversionFrontend {
+        - SwingUI: SwingUI
+        - mysqlConnector: MysqlConnector
+        + createCoordinateGroup(cartesianOrPolar: String) : void
+        + storeCoordinateGroup(group: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String, viewAll: boolean) : List<CoordinateGroup>
+        + modifyCoordinateGroup(group: CoordinateGroup) : void
+        + deleteCoordinateGroup(groupId: int) : void
+    }
+}
+
+package "Logic Layer" {
+    class CoordinateGroupConverter {
+        - coordinator: Coordinator
+        - mysqlConnector: MysqlConnector
+        + convertToCartesian(polarCoordinates: PolarCoordinates) : CartesianCoordinates
+        + convertToPolar(cartesianCoordinates: CartesianCoordinates) : PolarCoordinates
+    }
+
+    class Coordinator {
+        - coordinateGroups: List<CoordinateGroup>
+        + createCoordinateGroup(cartesianOrPolar: String) : CoordinateGroup
+        + storeCoordinateGroup(group: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String, viewAll: boolean) : List<CoordinateGroup>
+        + modifyCoordinateGroup(group: CoordinateGroup) : void
+        + deleteCoordinateGroup(groupId: int) : void
+    }
+}
+
+package "Data Layer" {
+    class MysqlConnector {
+        - connection: Connection
+        + storeCoordinateGroup(group: CoordinateGroup) : void
+        + retrieveCoordinateGroups(label: String, viewAll: boolean) : List<CoordinateGroup>
+        + updateCoordinateGroup(groupId: int, group: CoordinateGroup) : void
+        + deleteCoordinateGroup(groupId: int) : void
+    }
+
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Timestamp
+        - cartesianCoordinates: CartesianCoordinates
+        - polarCoordinates: PolarCoordinates
+    }
+}
+
+DummyCoordinationConversionFrontend --> MysqlConnector : Uses
+MysqlConnector --> Coordinator : Accesses
+Coordinator --> CoordinateGroupConverter : Aggregates
+CoordinateGroupConverter --> MysqlConnector : Uses
+
+note right of DummyCoordinationConversionFrontend: TCP/IP Connection for communication with database
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+
+namespace DummyCoordConversionApp {
+
+package ClientLayer {
+    package InterfaceLayer {
+        interface ShoppingCartInterface {
+            + viewProducts() : void
+            + addToCart(product: Product) : void
+            + proceedToCheckout() : void
+        }
+        class CheckoutClass implements ShoppingCartInterface{
+            + viewProducts() : void
+            + addToCart(product: Product) : void
+            + proceedToCheckout() : void
+        }
+    }
+}
+
+package LogicLayer {
+    interface OrderProcessorInterface {
+        + processOrder(order: Order) : void
+        + applyDiscount(order: Order, discountCode: String) : float
+    }
+    
+class InventoryManagerClass implements IInventoryManager{
+        + checkStock(product: Product) : boolean
+        + updateStock(product: Product, quantity: int) : void
+    }
+}
+
+package DataLayer {
+    interface PaymentProcessorInterface {
+        
+    }
+    
+class MySQLDatabaseConnectionClass implements IPaymentProcessor{
+        
+    }
+    
+  
+class CoordinateGroup {
+    Product cartesian
+    Product polar
+    String label
+}
+}
+
+package DummyCoordConversionApp.LogicLayer {
+    class OrderProcessorClass extends  OrderProcessorInterface{
+        + processOrder(order: Order) : void
+        + applyDiscount(order: Order, discountCode: String) : float
+    }
+}
+    
+
+
+
+
+namespace DummyCoordConversionApp.DataLayer {
+    class Order {
+        PaymentProcessorInterface paymentProcessor;
+        InventoryManagerInterface inventoryManager;
+        
+    }  
+}
+@enduml

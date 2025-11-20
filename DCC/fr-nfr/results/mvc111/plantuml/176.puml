@@ -1,0 +1,67 @@
+@startuml
+package "mvc" {
+
+  class Coordinate {
+    +x: double
+    +y: double
+    +r: double
+    +theta: double
+  }
+
+  class CartesianCoordinate {
+    +CartesianCoordinate(double x, double y)
+  }
+  CartesianCoordinate --|> Coordinate
+
+  class PolarCoordinate {
+    +PolarCoordinate(double r, double theta)
+  }
+  PolarCoordinate --|> Coordinate
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Coordinate>
+    +addCoordinate(Coordinate coordinate): void
+    +removeCoordinate(Coordinate coordinate): void
+    +getCoordinates(): List<Coordinate>
+  }
+
+  class DatabaseConnector {
+    +saveCoordinateGroup(CoordinateGroup group): void
+    +retrieveCoordinateGroup(String label): CoordinateGroup
+    +retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    +deleteCoordinateGroup(int id): void
+  }
+
+  class ViewController {
+    - model: CoordinateGroupModel
+    - view: CoordinateGroupView
+    +displayCoordinateGroups(): void
+    +handleCreateCoordinateGroup(): void
+    +handleModifyCoordinateGroup(): void
+    +handleDeleteCoordinateGroup(): void
+  }
+
+  class CoordinateGroupModel {
+    - coordinateGroups: List<CoordinateGroup>
+    +getCoordinateGroup(String label): CoordinateGroup
+    +getAllCoordinateGroups(): List<CoordinateGroup>
+    +saveCoordinateGroup(CoordinateGroup group): void
+    +deleteCoordinateGroup(int id): void
+  }
+
+  class CoordinateGroupView {
+    +displayCoordinateGroups(List<CoordinateGroup>): void
+    +showCreateCoordinateGroupDialog(): void
+    +showModifyCoordinateGroupDialog(CoordinateGroup group): void
+  }
+
+}
+ViewController "1" -- "*" CoordinateGroupModel: uses
+CoordinateGroupModel "1" -- "*" DatabaseConnector: interacts with
+ViewController "1" -- "1" CoordinateGroupView: displays through
+
+
+@enduml

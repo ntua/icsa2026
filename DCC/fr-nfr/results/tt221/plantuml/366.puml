@@ -1,0 +1,63 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + interactWithUser()
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + addCoordinateGroup(cg: CoordinateGroup)
+    + updateCoordinateGroup(id: Int, cg: CoordinateGroup)
+    + deleteCoordinateGroup(id: Int)
+    + filterCoordinateGroups(label: String)
+    + clearFilter()
+  }
+}
+
+package Logic {
+  abstract class HighPrecisionNumber {
+    + num: real
+  }
+  
+  class CartesianCoordinate extends HighPrecisionNumber {
+    + y: real
+  }
+  
+  class PolarCoordinate extends HighPrecisionNumber {
+    + theta: real
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - timestamp: datetime
+    - label: string
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+  
+  class CoordinateConverter {
+    - cc: CoordinateGroup
+    
+    + (cc: CoordinateGroup)
+    + convert(): void
+  }
+}
+
+package Database {
+  interface MySQLDatabase {
+    + connect()
+    + disconnect()
+    + addRecord(cg: CoordinateGroup)
+    + getAllRecords(): List<CoordinateGroup>
+    + updateRecord(id: Int, cg: CoordinateGroup)
+    + deleteRecord(id: Int)
+  }
+}
+
+UserInterface <-- FrontendController
+FrontendController ..> Logic.CoordinateConverter
+FrontendController ..> Logic.CoordinateGroup
+FrontendController ..> Database.MySQLDatabase
+
+@enduml

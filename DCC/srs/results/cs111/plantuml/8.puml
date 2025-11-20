@@ -1,0 +1,48 @@
+@startuml
+
+package gui {
+  class CoordinateGroupGUI {
+    - coordinateGroups: List<CoordinateGroup>
+    + displayAllCoordinateGroups()
+    + displayCoordinateGroupsByLabel(String label)
+    + deleteCoordinateGroup(CoordinateGroup group)
+  }
+}
+
+package database {
+  class CoordinateGroupDAO {
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupsByLabel(String label): List<CoordinateGroup>
+    + deleteCoordinateGroup(int id): void
+  }
+}
+
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: PolarCoordinates
+    - cartesianCoordinates: CartesianCoordinates
+    + getLabel(): String
+    + getId(): int
+  }
+  
+  class PolarCoordinates {
+    - radius: double
+    - angle: double 
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double 
+  }
+}
+
+CoordinateGroupGUI "1" -- "*" CoordinateGroup : displays
+
+CoordinateGroupGUI --> CoordinateGroupDAO : communicates with
+
+CoordinateGroupDAO "1" -- "*" CoordinateGroup : manages
+
+@enduml

@@ -1,0 +1,196 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+
+' ---------------------------
+' Database Package
+' ---------------------------
+class Database {
+    +ConnectionString: String
+}
+
+class DBConnector {
+    +connect(): void
+    +disconnect(): void
+}
+
+' Correcting the relationship: DBConnector uses Database
+DBConnector ..> Database : uses
+
+' ---------------------------
+' com.coordinatesystem Package
+' ---------------------------
+package com.coordinatesystem {
+
+    enum CoordinateFormat { 
+        POLAR
+        CARTESIAN 
+    }
+
+    interface ICoordinateGroup { 
+       +add(newCoords: List<Double>): void
+       +remove(): void
+    }
+
+    class Cartesian implements ICoordinateGroup {
+        +xCoord: Double
+        +yCoord: Double
+        +add(newCoords: List<Double>): void
+        +remove(): void
+
+        -setXCoord(coord: Double): void
+    }
+
+    class Polar extends Cartesian {
+        +rCoord: Double
+        +thetaCoord: Double
+        +add(newCoords: List<Double>): void
+        +remove(): void
+
+        -setRCoord(coord: Double): void
+    }
+
+    class CoordinateGroupController implements ICoordinateGroup {
+        +label: String
+        +formatType: CoordinateFormat
+        +dbConnector: DBConnector
+
+        +add(newCoords: List<Double>): void
+        +remove(): void
+    }
+
+    ' Correcting the relationship: CoordinateGroupController uses Database
+    CoordinateGroupController ..> Database : uses
+}
+
+' ---------------------------
+' com.coordinatesystem.model Package
+' ---------------------------
+package com.coordinatesystem.model {
+
+    class LabelHolder {
+        +label: String 
+    }
+
+    class Coordinates {
+        +x: Double
+        +y: Double
+    }
+
+    class GroupModel implements ICoordinateGroup {
+        +groups: List<LabelHolder>
+        +add(newCoords: List<Double>): void
+        +remove(): void
+    }
+}
+
+' ---------------------------
+' com.coordinatesystem.view Package
+' ---------------------------
+package com.coordinatesystem.view {
+
+    interface INotificationService { 
+        +notify(message: String): void
+    }
+
+    interface UserInterface { 
+       +showNotification(message: String): void
+       +clearNotifications(): void
+    }
+
+    class NotificationService implements INotificationService {
+        +displayMessage(message: String): void
+        +cancelAllMessages(): void
+    }
+
+    abstract class AbstractUserInterface implements UserInterface { 
+        +showNotification(message: String): void
+        +clearNotifications(): void
+    }
+
+    interface CoordinateGroupView { 
+       +selectCoordinateGroup(id: Integer): void
+       +deleteSelectedGroup(): void
+    }
+
+    class ConcreteUserInterface extends AbstractUserInterface implements CoordinateGroupView {
+        +getGroups(): List<LabelHolder>
+        -showListOfCoordinates(): void
+        -clearSelection(): void
+
+        +selectGroup(id: Integer): void
+        +displayMessageForDeletion(): boolean
+    }
+
+    class LabelPanel extends AbstractUserInterface { 
+       -setLabel(label: String): void
+       +getText(): String
+    }
+
+    abstract class CoordinateInputView<T> extends ConcreteUserInterface { 
+        +inputData(data: T): void
+    }
+
+    interface CartesianCoordinates { 
+       +getX(): Double
+       +getY(): Double
+       +setX(x: Double): void
+       +setY(y: Double): void
+    }
+
+    class PolarInputView extends CoordinateInputView<CartesianCoordinates> { 
+        +setR(r: Double): void
+        +setTheta(theta: Double): void
+        -getR(): Double
+        -getTheta(): Double
+        +updateLabelPanel(): void
+    }
+}
+
+@enduml
+
+```

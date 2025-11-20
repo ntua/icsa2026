@@ -1,0 +1,54 @@
+@startuml
+
+!define JavaColorR RGB(230,164,79)
+!define JavaColorG RGB(185,222,178)
+
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+package "Frontend - Java Swing" <<JavaColorG>> {
+    class UserInterface {
+        + createCoordinateGroup()
+        + storeCoordinateGroup()
+        + retrieveCoordinateGroupByLabel()
+        + retrieveAllCoordinateGroups()
+        + modifyCoordinateGroup()
+        + deleteCoordinateGroup()
+    }
+
+    class CoordinateGroup {
+        * coordinateType : String
+        * x : Double
+        * y : Double
+        * r : Double
+        * theta : Double
+
+        + convertToPolarCoordinates()
+        + convertToCartesianCoordinates()
+    }
+}
+
+
+package "Server - MySQL Database" <<JavaColorR>> {
+    class CoordinateGroupRecord {
+        - id: Integer
+        - label: String
+        - timestamp: Date/Time
+
+        + getLabel():String
+    }
+
+    class MySQLDatabase {
+        + storeCoordinateGroups(coordinateGroups: [CoordinateGroup])
+        + retrieveCoordinateGroupByLabel(label: String):[CoordinateGroup]
+        + retrieveAllCoordinateGroups() : [CoordinateGroup]
+        + modifyCoordinateGroup(updatedGroup: CoordinateGroupRecord) 
+        + deleteCoordinateGroupById(id:Integer) 
+    }
+}
+
+
+UserInterface ..> CoordinateGroup : "Creates"
+UserInterface ..> MySQLDatabase  : Uses
+CoordinateGroup <.. MySQLDatabase : Stores, Retrieves, Modifies, Deletes
+
+@enduml

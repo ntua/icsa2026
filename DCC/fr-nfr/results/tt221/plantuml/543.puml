@@ -1,0 +1,54 @@
+@startuml DCCApplicationClassDiagram
+
+' Packages
+package "ui" {
+  class DCCUI {
+    + List<CoordinateGroup> coordinateGroups
+    + String currentFilter
+    + CoordinateGroup selectedGroup
+    
+    + void initialize()
+    + void showList()
+    + void addNewGroup(String label, CartesianCoordinates cartesian)
+    + void updateSelectedGroup(CoordinateGroup group)
+    + void deleteSelectedGroup()
+    + void filterByLabel(String label)
+    + void clearFilter()
+  }
+}
+
+package "logic" {
+  class CoordinateGroup <<ValueObject>> {
+    - int id
+    - String label
+    - CartesianCoordinates cartesian
+    - PolarCoordinates polar
+    - DateTime timestamp
+    
+    + CoordinateGroup(int id, String label, CartesianCoordinates cartesian, PolarCoordinates polar, DateTime timestamp)
+    + void convertToPolar()
+    + void convertToCartesian()
+  }
+  
+  class CoordinateConverter <<Utility>> {
+    + PolarCoordinates convertCartesianToPolar(CartesianCoordinates cartesian)
+    + CartesianCoordinates convertPolarToCartesian(PolarCoordinates polar)
+  }
+}
+
+package "dao" {
+  class CoordinateGroupDAO {
+    + void create(CoordinateGroup group)
+    + List<CoordinateGroup> readAll()
+    + List<CoordinateGroup> readByLabel(String label)
+    + void update(CoordinateGroup group)
+    + void delete(int id)
+  }
+}
+
+' Associations
+DCCUI --> "1..*" CoordinateGroup : Uses
+CoordinateGroup *-- "1" CoordinateConverter : Composes
+CoordinateGroup *-- "1" CoordinateGroupDAO : Associates
+
+@enduml

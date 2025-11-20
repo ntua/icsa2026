@@ -1,0 +1,64 @@
+@startuml
+
+package "Frontend - View" {
+  class UserInterface {
+    + displayCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + displayErrorMessage(message: String) : void
+    + getUserInput() : Map<String, List<Double>>
+  }
+}
+
+package "Frontend - Controller" {
+  class CoordinateController {
+    - userInterface: UserInterface
+    - coordinateModel: CoordinateModel
+
+    + createCoordinateGroup() : void
+    + storeCoordinateGroup() : void
+    + retrieveCoordinateGroup(label: String) : CoordinateGroup
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+package "Model - Business Logic" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: List<Double>
+    - polarCoordinates: List<Double>
+
+    + convertPolarToCartesian() : void
+    + convertCartesianToPolar() : void
+  }
+}
+
+package "Model - Database Access" {
+  class CoordinateModel {
+    - databaseConnection: DatabaseConnection
+
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup) : int
+    + getCoordinateGroupByLabel(label: String) : CoordinateGroup
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+package "Database" {
+  class DatabaseConnection {
+    - connection: MySQLConnection
+
+    + connect() : void
+    + disconnect() : void
+    + executeQuery(query: String) : ResultSet
+    + executeUpdate(query: String) : int
+  }
+}
+
+UserInterface -- CoordinateController
+CoordinateController -- CoordinateModel
+CoordinateModel -- DatabaseConnection
+
+@enduml

@@ -1,0 +1,93 @@
+@startuml
+
+package Frontend {
+  interface UserInputListener {
+    +handleUserInput()
+  }
+  
+  class SwingUI implements UserInputListener {
+    -coordinateGroups: List<CoordinateGroup>
+    
+    +displayCoordinateGroups()
+    +filterCoordinateGroups(String label)
+    +clearFilter()
+    +handleUserInput()
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    -x: HighPrecisionNumber
+    -y: HighPrecisionNumber
+    
+    +getX()
+    +setX(value: HighPrecisionNumber)
+    +getY()
+    +setY(value: HighPrecisionNumber)
+  }
+  
+  class CartesianCoordinate extends Coordinate {
+    +toPolar(): PolarCoordinate
+  }
+  
+  class PolarCoordinate extends Coordinate {
+    -r: HighPrecisionNumber
+    -theta: HighPrecisionNumber
+    
+    +toCartesian(): CartesianCoordinate
+  }
+  
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -cartesianCoordinates: List<CartesianCoordinate>
+    -polarCoordinates: List<PolarCoordinate>
+    -timestamp: DateTime
+    
+    +getLabel()
+    +setLabel(value: String)
+    +addCartesianCoordinate(coordinate: CartesianCoordinate)
+    +addPolarCoordinate(coordinate: PolarCoordinate)
+    +toDataable()
+  }
+  
+  interface DataManager {
+    +create(coordinateGroup: CoordinateGroup)
+    +read(): List<CoordinateGroup>
+    +update(id: int, coordinateGroup: CoordinateGroup)
+    +delete(id: int)
+  }
+  
+  class LogicFacade implements DataManager {
+    -dataManager: Database
+    
+    +create(coordinateGroup: CoordinateGroup)
+    +read(): List<CoordinateGroup>
+    +update(id: int, coordinateGroup: CoordinateGroup)
+    +delete(id: int)
+  }
+}
+
+package Database {
+  interface DatabaseConnection {
+    +connect()
+    +disconnect()
+  }
+  
+  class MySQLDatabase implements DatabaseConnection {
+    +connect()
+    +disconnect()
+  }
+  
+  class DatabaseFacade {
+    -database: MySQLDatabase
+    
+    +save(dataable: Dataable)
+    +load(id: int): Dataable
+  }
+}
+
+SwingUI -- Logic.CoordinateGroup
+Database.DatabaseFacade --^ Logic.DataManager
+
+@enduml

@@ -1,0 +1,46 @@
+@startuml
+package frontend {
+  class CoordinateGroupGUI {
+    +displayCoordinateGroups()
+    +handleAddOperation()
+    +handleUpdateOperation()
+    +handleDeleteOperation()
+    +filterCoordinateGroups()
+    +clearFilter()
+  }
+}
+
+package logic {
+  class CoordinateConverter {
+    +cartesianToPolar(x: double, y: double): (double, double)
+    +polarToCartesian(r: double, theta: double): (double, double)
+  }
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -cartesianX: double
+    -cartesianY: double
+    -polarR: double
+    -polarTheta: double
+    +getCartesianCoordinates(): (double, double)
+    +setCartesianCoordinates(x: double, y: double)
+    +getPolarCoordinates(): (double, double)
+    +setPolarCoordinates(r: double, theta: double)
+  }
+}
+
+package data {
+  class CoordinateGroupDAO {
+    -databaseConnection: Connection
+    +createCoordinateGroup(group: CoordinateGroup): void
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(group: CoordinateGroup): void
+    +deleteCoordinateGroup(id: int): void
+  }
+}
+
+frontend --> logic
+logic --> data
+
+
+@enduml

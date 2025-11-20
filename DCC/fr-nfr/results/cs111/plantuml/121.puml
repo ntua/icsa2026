@@ -1,0 +1,76 @@
+@startuml
+
+package Frontend {
+  class CoordinateGroupCreationForm {
+    - String cartesianX
+    - String cartesianY
+    - String polarR
+    - String polarTheta
+    + createCoordinateGroup()
+  }
+  
+  class CoordinateGroupModificationForm {
+    - int id
+    + modifyDetails()
+  }
+  
+  class MainFrame {
+    + createGroupButtonClicked()
+    + modifyGroupButtonClicked()
+    + deleteGroupButtonClicked()
+    + retrieveGroupByLabel()
+    + retrieveAllGroups()
+    + connectToDatabase()
+  }
+}
+
+package Database {
+  interface DatabaseConnection {
+    + createConnection()
+    + closeConnection()
+  }
+  
+  class MySQLConnector implements DatabaseConnection {
+    + createConnection()
+    + closeConnection()
+  }
+  
+  class CoordinateGroupTable {
+    - List<CoordinateGroup> groups
+    + save(coordinateGroup: CoordinateGroup)
+    + findByLabel(label: String): CoordinateGroup
+    + findAll(): List<CoordinateGroup>
+    + update(coordinateGroup: CoordinateGroup)
+    + deleteById(id: int)
+  }
+  
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - List<CartesianCoordinate> cartesians
+    - List<PolarCoordinate> polars
+  }
+}
+
+package Model {
+  class CartesianCoordinate {
+    - double x
+    - double y
+    + toPolar()
+  }
+  
+  class PolarCoordinate {
+    - double r
+    - double theta
+    + toCartesian()
+  }
+}
+
+DatabaseConnection o-- CoordinateGroupTable
+CoordinateGroupTable -- CoordinateGroup
+Frontend ..> Database: TCP/IP Connection
+MainFrame -- CoordinateGroupCreationForm
+MainFrame -- CoordinateGroupModificationForm
+Model ..> Frontend: Java Swing Framework
+@enduml

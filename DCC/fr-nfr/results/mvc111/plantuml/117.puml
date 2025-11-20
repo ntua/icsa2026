@@ -1,0 +1,91 @@
+@startuml
+title Dummy Coordination Conversion Application - Class Diagram (MVC Architecture)
+
+skinparam componentStereotypePosition top
+skinparam sequenceMessageAlignment left
+
+package "Dummy Coordination App" <<rectangle>> {
+
+  class UserInterface <<interface>> {
+    + createCoordinateGroup(cartesian, polar) : void
+    + getCoordinateGroupLabel(groupID) : string
+    + getAllCoordinates() : list<Cartesian, Polar>
+    + updateCoordinateGroupDetails(groupID, newDetails) : void
+    + deleteCoordinateGroup(groupID) : void
+  }
+
+  class DCCController {
+    - userInterface: UserInterface
+    - model: DCCModel
+
+    + createGroup()
+    + getLabelByGroupID()
+    + getAllGroups()
+    + updateDetails()
+    + deleteGroup()
+  }
+}
+
+
+package "DCC Model" <<rectangle>> {
+  class Cartesian {
+    * x : double
+    * y : double
+    - convertToPolar(r, theta)
+  }
+
+  class Polar {
+    * r : double
+    * theta : double
+    - convertToCartesian(x, y)
+  }
+
+  class CoordinateGroup {
+    * groupID : integer
+    + label : string
+    + cartesianCoords : list<Cartesian>
+    + polarCoords : list<Polar>
+
+    + createGroup() : void
+    + updateDetails(newLabel, newCartesians, newPolars) : void
+    + deleteGroup() : void
+  }
+
+  class DCCModel {
+    - groups: list<CoordinateGroup>
+    + fetchAllGroups() : list<CoordinateGroup>
+    + getGroupByID(groupID) : CoordinateGroup
+    + addGroup(group) : void
+    + updateGroupDetails(group, newLabel, newCartesians, newPolars) : void
+    + deleteGroup(group) : void
+  }
+}
+
+
+package "Data Storage" <<rectangle>> {
+  class MySQLDatabase <<interface>> {
+    + connect() : boolean
+    + closeConnection() : void
+
+    + insertGroupRecord(groupID, label, timestamp) : boolean
+    + updateLabel(groupID, newLabel) : boolean
+    + deleteGroupRecord(groupID) : boolean
+  }
+}
+
+
+class DCCView <<interface>> {
+  + displayMessage(message) : void
+}
+
+
+
+UserInterface ..> DCCController : Request/Response
+DCCController -- DCCModel : Requests Data
+DCCController -> DCCView : User Interaction
+
+
+DCCController .. MySQLDatabase : TCP/IP Connection
+DCCModel .. MySQLDatabase : Data Access
+
+@enduml

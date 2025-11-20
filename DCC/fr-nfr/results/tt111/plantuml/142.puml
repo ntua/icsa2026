@@ -1,0 +1,53 @@
+@startuml
+
+package "Presentation Layer" {
+  class MainWindow{}
+}
+
+
+package "Application Tier" {
+class CoordinateGroup {
+    +int id : "unique auto-generated identifier"
+    +string label : "user-defined string label for identification"
+    +long timestamp : "automatically assigned timestamp"
+    +void store(CoordinateGroupViewer, CoordinateGroup)
+    +CoordinateGroup[] getGroupsByLabel(CoordinateGroupViewer, string query)
+    +void modify(CoordinateGroupViewer, CoordinateGroup, int x, int y, double r, double theta)
+    +boolean delete(CoordinateGroupViewer, CoordinateGroup)
+}
+
+
+
+class CoordinateGroupViewer {
+    +void displayGroups()
+    +CoordinateGroup[] getAllGroups()
+    +boolean search(string query)
+}
+
+class CoordinateGroupCreationPanel {
+    +CoordinateGroup createCartesianPolar(int x, int y, string label)
+    +CoordinateGroup convertToPolar(double r, double theta, string label)
+}
+}
+
+package "Data Tier" {
+
+class DatabaseConnector {
+    -String connectionString : "TCP/IP Connection details"
+}
+
+class MySQLDatabaseAdapter {
+    #methods for storing and retrieving coordinate groups from MySQL database
+}
+}
+
+CoordinateGroupViewer -> CoordinateGroupManager : one - uses
+MainWindow --> CoordinateGroupCreationPanel
+CoordinateGroupManager -> CoordinateConverter : one - uses
+DatabaseConnector --> MySQLDatabaseAdapter : extends
+TCPConnectionHandler --> MySQLDatabaseAdapter : contains
+CoordinateGroup --> MySQLDatabaseAdapter : one - uses
+CoordinateGroupViewer --> CoordinateGroupManager: viewers use managers to access coordinate groups
+
+
+@enduml

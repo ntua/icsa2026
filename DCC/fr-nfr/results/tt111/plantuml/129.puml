@@ -1,0 +1,51 @@
+@startuml
+
+package "Frontend (Java Swing)" {
+  class UserInterface {
+    - coordGroupLabel : String
+    - timestamp : Date
+    + createCoordGroup() : void
+    + storeCoordGroup() : void
+    + retrieveCoordGroup(label: String) : CoordGroup
+    + modifyCoordGroup() : void
+    + deleteCoordGroup() : void
+  }
+}
+
+package "Logic Layer" {
+  class ConversionLogic {
+    - cartesianCoordinates : List<CartesianCoordinate>
+    - polarCoordinates : List<PolarCoordinate>
+    + convertCoordinates() : void
+  }
+  
+  class CoordGroupManager {
+    - coordGroups : List<CoordGroup>
+    + storeCoordGroup(coordGroup: CoordGroup) : void
+    + retrieveCoordGroup(label: String) : CoordGroup
+    + modifyCoordGroup(updatedCoordGroup: CoordGroup) : void
+    + deleteCoordGroup(coordGroup: CoordGroup) : void
+  }
+}
+
+package "Data Access Layer (MySQL)" {
+  class MySQLLibrary {
+    - connection : TCPIPConnection
+    + connect() : void
+    + disconnect() : void
+  }
+  
+  class DatabaseManager {
+    - database : MySQLLibrary
+    + saveCoordGroup(coordGroup: CoordGroup) : void
+    + getCoordGroup(label: String) : CoordGroup
+    + updateCoordGroup(updatedCoordGroup: CoordGroup) : void
+    + deleteCoordGroup(coordGroup: CoordGroup) : void
+  }
+}
+
+UserInterface --> ConversionLogic : Uses
+ConversionLogic --> CoordGroupManager : Uses
+CoordGroupManager --> DatabaseManager : Uses
+
+@enduml

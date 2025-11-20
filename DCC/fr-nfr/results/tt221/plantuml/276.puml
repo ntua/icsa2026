@@ -1,0 +1,61 @@
+@startuml
+' Logic Package
+package "Logic" {
+    class CartesianCoordinate {
+        x : Number
+        y : Number
+        
+        +toPolar() : PolarCoordinate
+    }
+    
+    class PolarCoordinate {
+        r : Number
+        theta : Number
+        
+        +toCartesian() : CartesianCoordinate
+    }
+  
+}
+
+
+' Data Operations Package
+package "Data Operations" {
+    class CoordinateGroup {
+        id : Integer
+        timestamp : Datetime
+        label : String
+        cartesianCoord : CartesianCoordinate
+        polarCoord : PolarCoordinate
+        
+        +createRecord() : void
+        +readRecords() : List<CoordinateGroup>
+        +updateRecord(newValues) : void
+        +deleteRecord() : void
+    }
+}
+
+
+' User Interactions Package
+package "User Interactions" {
+    class UIController {
+        +inputNewGroupAndLabel() : CoordinateGroup
+        +calculatePolarCoord(cartesianCoord) : PolarCoordinate
+        +calculateCartesianCoord(polarCoord) : CartesianCoordinate
+        
+        addOperation : CreateOp
+        updateOperation : UpdateOp
+        deleteOperation : DeleteOp
+        
+        refreshDisplay() : void
+        filterList(label) : List<CoordinateGroup>
+    }
+}
+
+
+' Associations and Dependencies
+CartesianCoordinate <|-- PolarCoordinate :' Composition: A polar coordinate can be converted from a cartesian one
+UIController .. CoordinateGroup :' Dependency: User interactions depend on data operations
+UIController .. CartesianCoordinate: ' Dependency: UI interacts with logic classes
+UIController .. PolarCoordinate : ' Dependency: UI interacts with logic classes
+
+@enduml

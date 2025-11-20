@@ -1,0 +1,87 @@
+Response:
+Based on the requirements and architecture provided, I'll generate a class diagram for the Dummy Coordinate Converter (DCC) Application that reflects the three-tier architecture: 
+
+- **Presentation Layer**: Handles GUI operations.
+- **Application/Logic Layer**: Implements business logic.
+- **Data Access Layer**: Manages database interactions.
+
+Here’s the PlantUML code for the class diagram:
+
+```plantuml
+@startuml
+package "Presentation Layer" {
+    class DCCGUI {
+        - JFrame mainFrame
+        - JTextField cartesianX
+        - JTextField cartesianY
+        - JTextField polarR
+        - JTextField polarTheta
+        - JButton addButton
+        - JButton updateButton
+        - JButton deleteButton
+        - JButton viewAllButton
+        - JButton findByLabelButton
+        - JTable coordinateTable
+
+        + displayCoordinates(groups: List<CoordinateGroup>)
+        + showError(message: String)
+        + getInputCoordinates(): CoordinateGroup
+    }
+}
+
+package "Application Layer" {
+    class CoordinateConverter {
+        + cartesianToPolar(x: double, y: double): double[]
+        + polarToCartesian(r: double, theta: double): double[]
+    }
+
+    class CoordinateService {
+        - dataAccess: CoordinateDAO
+
+        + addCoordinate(group: CoordinateGroup)
+        + updateCoordinate(group: CoordinateGroup)
+        + deleteCoordinate(id: int)
+        + getAllCoordinates(): List<CoordinateGroup>
+        + findCoordinateByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateDAO {
+        - Connection dbConnection
+
+        + insert(group: CoordinateGroup)
+        + update(group: CoordinateGroup)
+        + delete(id: int)
+        + fetchAll(): List<CoordinateGroup>
+        + fetchByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateGroup {
+        + id: int
+        + label: String
+        + cartesianX: double
+        + cartesianY: double
+        + polarR: double
+        + polarTheta: double
+        + timestamp: Date
+    }
+}
+
+DCCGUI --> CoordinateService : "calls"
+CoordinateService --> CoordinateConverter : "uses"
+CoordinateService --> CoordinateDAO : "uses"
+CoordinateDAO --> CoordinateGroup : "manages"
+@enduml
+```
+
+### Diagram Explanation:
+1. **Presentation Layer**: `DCCGUI` interacts with the user through the GUI and communicates with `CoordinateService` for operations.
+2. **Application Layer**:
+   - `CoordinateConverter`: Provides utility methods for converting between Cartesian and Polar coordinates.
+   - `CoordinateService`: Contains the business logic, managing requests from the `DCCGUI` and passing data to/from the `CoordinateDAO`.
+3. **Data Access Layer**:
+   - `CoordinateDAO`: Handles all database interactions such as insert, update, delete, and fetch operations.
+   - `CoordinateGroup`: Represents the data model for coordinate groups stored in the database.
+
+Let me know if further refinement or additional details are needed!

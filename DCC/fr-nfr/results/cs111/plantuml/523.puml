@@ -1,0 +1,104 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package declarations
+package "Client" {
+    package "GUI" {
+        class DCCClientGUI {
+            + void createCoordinateGroup()
+            + void retrieveCoordinateGroups()
+            + void updateCoordinateGroup()
+            + void deleteCoordinateGroup()
+            
+            + void displayCoordinateGroups()
+        }
+    }
+
+    package "Model" {
+        class CoordinateGroup {
+            - int id
+            - String label
+            - Date timestamp
+            - CartesianCoordinates cartesian
+            - PolarCoordinates polar
+            
+            + void convertToCartesian()
+            + void convertToPolar()
+        }
+
+        class CartesianCoordinates {
+            - float x
+            - float y
+        }
+
+        class PolarCoordinates {
+            - float r
+            - float theta
+        }
+    }
+
+    package "Service" {
+        class DCCServiceClient {
+            + CoordinateGroup createCoordinateGroup(CartesianCoordinates)
+            + CoordinateGroup createCoordinateGroup(PolarCoordinates)
+            + List<CoordinateGroup> retrieveCoordinateGroups()
+            + void updateCoordinateGroup(int, String, CartesianCoordinates|PolarCoordinates)
+            + void deleteCoordinateGroup(int)
+        }
+    }
+}
+
+package "Server" {
+    package "Service" {
+        class DCCService {
+            + CoordinateGroup createCoordinateGroup(CartesianCoordinates)
+            + CoordinateGroup createCoordinateGroup(PolarCoordinates)
+            + List<CoordinateGroup> retrieveCoordinateGroups()
+            + void updateCoordinateGroup(int, String, CartesianCoordinates|PolarCoordinates)
+            + void deleteCoordinateGroup(int)
+        }
+    }
+
+    package "DAO" {
+        class CoordinateGroupDAO {
+            + CoordinateGroup saveCoordinateGroup(CartesianCoordinates)
+            + CoordinateGroup saveCoordinateGroup(PolarCoordinates)
+            + List<CoordinateGroup> findAll()
+            + CoordinateGroup findByLabel(String)
+            + void updateCoordinateGroup(CoordinateGroup)
+            + void deleteCoordinateGroup(int)
+        }
+    }
+
+    package "Model" {
+        class CoordinateGroup {
+            - int id
+            - String label
+            - Date timestamp
+            - CartesianCoordinates cartesian
+            - PolarCoordinates polar
+        }
+
+        class CartesianCoordinates {
+            - float x
+            - float y
+        }
+
+        class PolarCoordinates {
+            - float r
+            - float theta
+        }
+    }
+}
+
+' Associations
+
+DCCClientGUI --* DCCServiceClient
+DCCServiceClient --* DCCService
+
+CoordinateGroup --* CartesianCoordinates
+CoordinateGroup --* PolarCoordinates
+
+DCCService --* CoordinateGroupDAO
+CoordinateGroupDAO --* CoordinateGroup
+
+@enduml

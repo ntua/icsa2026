@@ -1,0 +1,84 @@
+@startuml ChartGenerationSystem
+
+' Packages
+package "Api Gateway" {
+    class ApiGateway {
+        + String processRequest(Request request)
+        + void routeToService(Service service, Request request)
+        + Boolean authenticateUser(Request request) {flow control}
+        + Boolean authorizeUser(Request request) {flow control}
+        + String getQuotas() {data management}
+    }
+}
+
+package "Authentication" {
+    class Authentication {
+        + Boolean login(String username, String password) {functional logic}
+        + Boolean register(User user) {functional logic}
+        + User authenticateGoogleOAuth() {functional logic}
+        + void logout() {functional logic}
+    }
+}
+
+package "Chart Generation" {
+    class ChartGenerator {
+        - String csvPath
+        - String chartType
+        + Chart generateChart(CSVData data, String type) {functional logic}
+        + void saveChart(Chart chart, String format) {data management}
+        + Chart previewChart() {functional logic}
+    }
+}
+
+package "File Management" {
+    class FileProcessor {
+        + CSVData processCSV(File file) {functional logic}
+        + void uploadFile(File file) {data management}
+        + File downloadFile(String fileId) {data management}
+    }
+}
+
+package "Payment Gateway" {
+    class PaymentGateway {
+        + Boolean chargeUser(User user, Double amount) {functional logic}
+        + Boolean processPayment(Payment payment) {data consistency operation}
+        + String getPaymentStatus() {data management}
+    }
+}
+
+package "Chart Repository" {
+    class ChartRepository {
+        - Map<String, Chart> charts
+        + void saveChart(Chart chart) {data management}
+        + Chart getChart(String id) {data management}
+        + void deleteChart(String id) {data management}
+        + List<Chart> listCharts() {data management}
+        + Boolean updateQuotas(User user) {data consistency operation}
+    }
+}
+
+package "User Profile" {
+    class UserProfile {
+        - String name
+        - String email
+        - String pictureUrl
+        - Double quota
+        - Date createdAt
+        - Date lastLogin
+        + void updateUserProfile() {functional logic}
+        + void updateQuotas() {data consistency operation}
+        + UserProfile getUserProfile() {data management}
+    }
+}
+
+' Relationships
+ApiGateway --> Authentication : "Uses for authentication"
+ApiGateway --> ChartGenerator : "Routes requests to chart generation"
+ApiGateway --> FileProcessor : "Routes file processing requests"
+Authentication --> UserProfile : "Manages user profiles"
+ChartGenerator --> ChartRepository : "Saves and retrieves charts"
+FileProcessor --> ChartGenerator : "Provides CSV data to chart generator"
+PaymentGateway --> ChartRepository : "Updates quotas based on payments"
+UserProfile --> ChartRepository : "Associates charts with users"
+
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+
+package Model {
+    class CoordinateGroup {
+        -id: int
+        -cartesian: CartesianCoordinate
+        -polar: PolarCoordinate
+        -label: string
+        -timestamp: datetime
+        
+        +create()
+        +storeInDatabase()
+        +convertCartesianToPolar()
+        +convertPolarToCartesian()
+    }
+    
+    class CartesianCoordinate {
+        -x: float
+        -y: float
+        
+        +__init__(x, y)
+    }
+    
+    class PolarCoordinate {
+        -r: float
+        -theta: float
+        
+        +__init__(r, theta)
+    }
+}
+
+package View {
+    class CoordinateGroupView {
+        +displayCoordinateGroup(coordinateGroup)
+        +displayCartesianCoordinate(cartesianCoordinate)
+        +displayPolarCoordinate(polarCoordinate)
+        +getUserInput()
+    }
+}
+
+package Controller {
+    class CoordinateGroupController {
+        -model: CoordinateGroupModel
+        -view: CoordinateGroupView
+        
+        +processUserInput()
+        +createCoordinateGroup()
+        +storeCoordinateGroup()
+        +retrieveCoordinateGroupByLabel()
+        +retrieveAllCoordinateGroups()
+        +modifyCoordinateGroup()
+        +deleteCoordinateGroup()
+    }
+}
+
+package Database {
+    class MySQLDatabase {
+        -connection: TCPIPConnection
+        
+        +connect()
+        +query()
+        +storeData()
+    }
+}
+
+Model -- View
+Model -- Controller
+Controller -- Database
+
+@enduml

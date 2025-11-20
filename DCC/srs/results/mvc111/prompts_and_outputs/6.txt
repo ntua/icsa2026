@@ -1,0 +1,156 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+
+' Define the DB package with relevant classes
+package db {
+  class CoordinateGroup {
+    - id: integer
+    - timestamp: string
+    - label: string
+    - polarCoordinates: PolarCoordinates
+    - cartesianCoordinates: CartesianCoordinates
+  }
+}
+
+' Define the DatabaseConnection class
+class DatabaseConnection {
+  + connect(): void
+  + disconnect(): void
+}
+
+' Define the CoordinateGroupManager class
+class CoordinateGroupManager {
+  + getCoordinateGroups(): List<CoordinateGroup>
+  + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+}
+
+' Define Controllers
+class ViewAllController {
+  + viewAll(): void
+}
+
+class ViewByLabelController {
+  + viewByLabel(label: string): void
+}
+
+class DeleteController {
+  + delete(coordinateGroup: CoordinateGroup): void
+}
+
+' Define the MVCModel class
+class MVCModel {
+  - coordinateGroups: List<CoordinateGroup>
+}
+
+' Define the GUI package with relevant classes
+package gui {
+  class ViewAllView {
+    + display(): void
+  }
+
+  class ViewByLabelView {
+    + display(label: string): void
+  }
+
+  class DeleteView {
+    + display(coordinateGroup: CoordinateGroup): void
+  }
+}
+
+' Define PolarCoordinates and CartesianCoordinates classes (assuming they exist)
+class PolarCoordinates {
+  - r: double
+  - theta: double
+
+  + getR(): double
+  + setR(r: double): void
+  + getTheta(): double
+  + setTheta(theta: double): void
+}
+
+class CartesianCoordinates {
+  - x: double
+  - y: double
+
+  + getX(): double
+  + setX(x: double): void
+  + getY(): double
+  + setY(y: double): void
+}
+
+' Define Relationships
+DatabaseConnection --> db.CoordinateGroup : Manages
+CoordinateGroupManager --> db.CoordinateGroup : Manages
+CoordinateGroupManager --> DatabaseConnection : Uses
+ViewAllController --> CoordinateGroupManager : Uses
+ViewByLabelController --> CoordinateGroupManager : Uses
+DeleteController --> CoordinateGroupManager : Uses
+MVCModel --> db.CoordinateGroup : Contains
+gui.ViewAllView --> ViewAllController : Interacts with
+gui.ViewByLabelView --> ViewByLabelController : Interacts with
+gui.DeleteView --> DeleteController : Interacts with
+PolarCoordinates --> db.CoordinateGroup : Part of
+CartesianCoordinates --> db.CoordinateGroup : Part of
+
+@enduml
+
+```
+
+Note that I've divided the classes into two packages: `db` and `gui`. The `db` package includes classes related to database operations, while the `gui` package includes classes related to user interface interactions.
+
+Here's a brief explanation of each class:
+
+*   **CoordinateGroup**: Represents a single coordinate group with its attributes (id, timestamp, label, polar coordinates, and cartesian coordinates).
+*   **DatabaseConnection**: Responsible for establishing and closing connections to the database.
+*   **CoordinateGroupManager**: Provides methods for managing coordinate groups in the database, such as getting all groups, deleting a specific group, or saving a new group.
+*   **ViewAllController**, **ViewByLabelController**, and **DeleteController**: These controllers handle user interactions related to viewing all groups, searching by label, and deleting a group, respectively. They use the **CoordinateGroupManager** to interact with the database.
+*   **MVCModel**: Acts as the model in the MVC architecture, storing the list of coordinate groups.
+*   **ViewAllView**, **ViewByLabelView**, and **DeleteView**: These views are responsible for displaying the user interface related to viewing all groups, searching by label, and deleting a group.
+
+This design follows the separation of concerns principle, where business logic (coordinate management) is separated from presentation logic (user interface interactions).

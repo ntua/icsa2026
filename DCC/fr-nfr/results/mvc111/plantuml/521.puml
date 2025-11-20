@@ -1,0 +1,91 @@
+@startuml DCCApplicationClassDiagram
+
+' Packages
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - x: Double
+        - y: Double
+        - r: Double
+        - theta: Double
+        - timestamp: Date
+    }
+
+    class CoordinateConverter {
+        + convertCartesianToPolar(x: Double, y: Double): (r: Double, theta: Double)
+        + convertPolarToCartesian(r: Double, theta: Double): (x: Double, y: Double)
+    }
+}
+
+package "Model" {
+    class DCCModel {
+        - coordinateGroups: List<CoordinateGroup>
+        - converter: CoordinateConverter
+        - dao: CoordinateGroupDao
+
+        + createCoordinateGroup(label: String, x: Double, y: Double): void
+        + createCoordinateGroup(label: String, r: Double, theta: Double): void
+        + getCoordinateGroup(id: Integer): CoordinateGroup
+        + updateCoordinateGroup(id: Integer, label: String, x: Double, y: Double): void
+        + updateCoordinateGroup(id: Integer, label: String, r: Double, theta: Double): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package "View" {
+    class DCCView {
+        - model: DCCModel
+        - controller: DCCController
+
+        + displayCoordinateGroups(): void
+        + createCoordinateGroupUI(): void
+        + updateCoordinateGroupUI(): void
+        + deleteCoordinateGroupUI(): void
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - model: DCCModel
+        - view: DCCView
+
+        + handleCreateCoordinateGroup(label: String, x: Double, y: Double): void
+        + handleCreateCoordinateGroup(label: String, r: Double, theta: Double): void
+        + handleGetCoordinateGroups(): List<CoordinateGroup>
+        + handleUpdateCoordinateGroup(id: Integer, label: String, x: Double, y: Double): void
+        + handleUpdateCoordinateGroup(id: Integer, label: String, r: Double, theta: Double): void
+        + handleDeleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package "Database" {
+    class MySQLDatabase {
+        + connect(): Boolean
+        + disconnect(): void
+    }
+
+    class CoordinateGroupDao {
+        - db: MySQLDatabase
+
+        + createCoordinateGroup(group: CoordinateGroup): Boolean
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroup(id: Integer): CoordinateGroup
+        + updateCoordinateGroup(group: CoordinateGroup): Boolean
+        + deleteCoordinateGroup(id: Integer): Boolean
+    }
+}
+
+' Associations
+DCCModel *-- CoordinateGroup : Composes
+DCCModel *-- CoordinateConverter : Uses
+DCCModel *-- CoordinateGroupDao : Uses
+
+DCCController *-- DCCModel : Manages
+DCCController *-- DCCView : Controls
+
+CoordinateGroupDao *-- MySQLDatabase : Communicates_With
+
+DCCView -- DCCController : Collaborates
+
+@enduml

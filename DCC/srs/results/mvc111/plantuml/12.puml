@@ -1,0 +1,60 @@
+@startuml
+!define DARKBLUE #0072b2
+
+package "Controller" {
+  class CoordinateGroupController {
+    - coordinateGroupModel: CoordinateGroupModel
+    - coordinateGroupView: CoordinateGroupView
+    + viewAllCoordinateGroups()
+    + viewCoordinateGroupByLabel(label: String)
+    + deleteCoordinateGroup(id: Integer)
+  }
+}
+
+package "Model" {
+  class CoordinateGroupModel {
+    - databaseConnection: DatabaseConnection
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    + deleteCoordinateGroup(id: Integer)
+  }
+
+  class CoordinateGroup {
+    - id: Integer
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: List<PolarCoordinate>
+    - cartesianCoordinates: List<CartesianCoordinate>
+  }
+
+  class PolarCoordinate {
+    - radius: Double
+    - angle: Double
+  }
+
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+  }
+
+  class DatabaseConnection {
+    + connectToDatabase()
+    + executeQuery(query: String) : ResultSet
+  }
+}
+
+package "View" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + displayMessage(message: String)
+    + getLabelInput(): String
+    + getSelectedCoordinateGroupId(): Integer
+  }
+}
+
+CoordinateGroupController --> CoordinateGroupModel : uses
+CoordinateGroupController --> CoordinateGroupView : uses
+
+CoordinateGroupModel --> DatabaseConnection : utilizes
+
+@enduml

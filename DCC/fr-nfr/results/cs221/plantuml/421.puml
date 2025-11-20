@@ -1,0 +1,84 @@
+@startuml
+
+package "Client" {
+    
+    class UserInput{
+        - cartesianCoordinates: Cartesian #
+        - polarCoordinates: Polar #
+        + getCartesianCoordinates() : Cartesian 
+        + getPolarCoordinates() : Polar
+    }
+
+    class GUI {
+       - coordinateGroupList: List<CoordinateGroup>
+
+        + showCoordinateGroups(coordinateGroupList)
+        + createCoordinateGroup(label, cartesianCoordinates, polarCoordinates)
+        + updateCoordinateGroup(id, label, cartesianCoordinates, polarCoordinates)
+        + deleteCoordinateGroup(id) 
+        + filterCoordinateGroups(label)
+
+    } 
+    
+    class Cartesian{
+
+        - x: double
+        - y: double
+
+
+        + convertToPolar() : Polar
+    }
+
+    class Polar {
+
+       - r: double
+       - theta: double
+
+
+       + convertToCartesian() : Cartesian 
+    }
+
+    class CoordinateGroup{
+
+        + label: String
+        + id: int
+        + cartesianCoordinates: Cartesian #
+        + polarCoordinates: Polar #
+        + datetime: Date
+
+        + getLabel() : String 
+        + getId(): int
+    } 
+}
+
+
+package "Server" {
+   class Server{
+
+     - databaseConnection: DatabaseConnection #
+
+
+     + createCoordinateGroup(label, cartesianCoordinates, polarCoordinates) 
+     + readCoordinateGroups() : List<CoordinateGroup>
+     + updateCoordinateGroup(id, label, cartesianCoordinates, polarCoordinates)  
+     + deleteCoordinateGroup(id)
+   }
+}
+
+
+package "Database" {
+  class Database{
+
+    - coordinateGroups: List<CoordinateGroup>
+
+    + addCoordinateGroup(coordinateGroup: CoordinateGroup) 
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroupById(id, label, cartesianCoordinates, polarCoordinates)
+    + deleteCoordinateGroupById(id)
+  }
+
+  class DatabaseConnection{
+     + connect() : boolean 
+  }
+}
+@enduml

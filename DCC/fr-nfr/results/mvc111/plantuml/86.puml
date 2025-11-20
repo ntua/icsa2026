@@ -1,0 +1,64 @@
+@startuml
+package model {
+  class CoordinateGroup {
+    + id : Integer
+    + label : String
+    + timestamp : Date
+    + cartesians : List<Cartesian>
+    + polars : List<Polar>
+
+    - method getCartesians() : List<Cartesian>
+    - method getPolars() : List<Polar>
+  }
+  
+   class Cartesian {
+    + x : Double
+    + y : Double
+
+    - method convertToPolar() : Polar
+  }
+
+  class Polar {
+    + r : Double
+    + theta : Double
+
+    - method convertToCartesian() : Cartesian
+  }
+}
+
+package controller {
+  class Controller {
+    + method createCoordinateGroup(Cartesian cartesians, Polar polars) : CoordinateGroup
+    + method storeCoordinateGroup(CoordinateGroup coordinateGroup) : Boolean
+    + method retrieveCoordinateGroups(String label) : List<CoordinateGroup>
+    + method modifyCoordinateGroup(CoordinateGroup coordinateGroup) : Boolean
+    + method deleteCoordinateGroup(CoordinateGroup coordinateGroup) : Boolean
+
+    - method connectToDatabase() : Connection
+  }
+}
+
+package view {
+  class SwingView {
+    + method displayCoordinateGroups(List<CoordinateGroup> coordinateGroups)
+    + method createCoordinateGroupGUI()
+    + method storeCoordinateGroupGUI(CoordinateGroup coordinateGroup)
+    + method retrieveCoordinateGroupGUI(String label)
+    + method modifyCoordinateGroupGUI(CoordinateGroup coordinateGroup)
+    + method deleteCoordinateGroupGUI(CoordinateGroup coordinateGroup)
+
+    - method connectToController(Controller controller) : void
+  }
+}
+
+view -> controller
+controller -> model
+
+model -> CoordinateGroup
+CoordinateGroup <-- Cartesian
+CoordinateGroup <-- Polar
+
+Cartesian <-up-> Cartesian
+Polar <-up-> Polar
+
+@enduml

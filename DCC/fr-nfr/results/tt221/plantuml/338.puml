@@ -1,0 +1,53 @@
+@startuml
+package "Presentation Tier" {
+  class MainGUI {
+    +displayCoordinateGroups(List<CoordinateGroup>)
+    +handleUserInput()
+    +refreshDisplay()
+  }
+}
+
+package "Application Tier"{
+  class CoordinateConversionLogic {
+    +convertCartesianToPolar(double x, double y)
+    +convertPolarToCartesian(double r, double theta)
+  }
+  class CoordinateGroupManager {
+    -DatabaseConnection dbConn
+    +createCoordinateGroup(String label, double x, double y)
+    +readCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(int id, String label, double x, double y)
+    +deleteCoordinateGroup(int id)
+  }
+
+  class CoordinateGroup {
+    -id: int 
+    -label: String
+    -x: double
+    -y: double
+    -r: double
+    -theta: double
+    +CoordinateGroup(String label, double x, double y)
+    +getCartesianCoordinates(): Pair<Double, Double>
+    +getPolarCoordinates(): Pair<Double, Double>
+  }
+
+}
+
+package "Data Tier"{
+  class DatabaseConnection {
+    -url: String
+    -user: String
+    -password: String
+    +connect()
+    +executeSQL(String sql)
+  }
+
+}
+
+CoordinateGroupManager *-- CoordinateConversionLogic: uses
+CoordinateGroupManager *-- CoordinateGroup : creates & manages
+MainGUI *-- CoordinateGroupManager : interacts with
+
+
+@enduml

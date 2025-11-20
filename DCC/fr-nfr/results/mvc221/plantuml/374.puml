@@ -1,0 +1,65 @@
+@startuml
+package Frontend {
+  class SwingView {
+    +displayCoordinateGroups()
+    +displayConvertedCoordinates()
+    +displayErrorMessages()
+    +getUserInputs()
+    +refreshView()
+    +filterCoordinateGroupsByLabel()
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - x
+    - y
+    - r
+    - theta
+    
+    +calculatePolarFromCartesian()
+    +calculateCartesianFromPolar()
+  }
+  
+  class CartesianCoordinate extends Coordinate {
+    +CartesianCoordinate(double x, double y)
+  }
+  
+  class PolarCoordinate extends Coordinate {
+    +PolarCoordinate(double r, double theta)
+  }
+  
+  class CoordinateGroup {
+    -id
+    -label
+    -cartesianCoordinatesList
+    -polarCoordinatesList
+    -timestamp
+    
+    +createCoordinateGroup()
+    +readCoordinateGroup()
+    +updateCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+  
+  class ConversionLogic {
+    +convertCartesianToPolar(CartesianCoordinate cc)
+    +convertPolarToCartesian(PolarCoordinate pc)
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    +connect()
+    +saveRecord(CoordinateGroup cg)
+    +readRecords()
+    +updateRecord(CoordinateGroup cg)
+    +deleteRecord(int id)
+  }
+}
+
+SwingView -right-> Logic.ConversionLogic
+Logic.CoordinateGroup -left-> Logic.ConversionLogic
+Logic.ConversionLogic --> Logic.Coordinate
+Logic.ConversionLogic --> MySQLDatabase
+@enduml

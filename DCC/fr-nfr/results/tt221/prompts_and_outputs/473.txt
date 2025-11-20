@@ -1,0 +1,58 @@
+@startuml
+package Database {
+    class Database {
+        - connectionString
+        - username
+        - password
+        
+        + connect()
+        + disconnect()
+        + createCoordinateGroup()
+        + readCoordinateGroups()
+        + updateCoordinateGroup()
+        + deleteCoordinateGroup()
+    }
+}
+
+package Logic {
+    class Coordinate {
+        - x
+        - y
+        - r
+        - theta
+        
+        + convertToPolar()
+        + convertToCartesian()
+    }
+
+    class CoordinateGroup {
+        - id
+        - label
+        - creationDate
+        - modificationDate
+        - coordinates : List<Coordinate>
+        
+        + addCoordinate()
+        + removeCoordinate()
+        + getCoordinates()
+    }
+}
+
+package UserInterface {
+    class UserInterface {
+        - frame
+        - panels
+        - buttons
+        - textFields
+        
+        + initialize()
+        + displayCoordinateGroups()
+        + handleInput()
+        + handleButtonActions()
+    }
+}
+
+UserInterface -- Database
+UserInterface -- CoordinateGroup
+CoordinateGroup -- Coordinate
+@enduml

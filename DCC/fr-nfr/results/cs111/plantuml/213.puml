@@ -1,0 +1,47 @@
+@startuml
+package "Client" {
+    class CartesianCoordinate {
+        - x: Float
+        - y: Float
+    }
+    
+    class PolarCoordinate {
+        - r: Float
+        - theta: Float
+    }
+    
+    interface Database {
+      + saveData(data: String) : void
+      + fetchData(query: String): List<String>
+    }
+    
+}
+  
+package "Server" {
+    class CoordinateGroup {
+        - uniqueId: Int
+        - label: String
+        - timestamp: Date
+        - cartesianCoordinates: CartesianCoordinate[]
+        - polarCoordinates: PolarCoordinate[]
+        
+        + addCartesian(x: Float, y: Float): void
+        + addPolar(r: Float, theta: Float): void
+        + delete(): void
+        + modifyLabel(label: String): void
+    }
+    
+    class ConversionManager {
+        - inputType: Enum('Cartesian', 'Polar')
+        
+        + createCoordinateGroup(): CoordinateGroup
+        + convertToOtherFormat(): CoordinateGroup
+    }
+    
+}
+  
+Client.CartesianCoordinate --> Client.CoordinateGroup : has cartesianCoordinates
+Client.PolarCoordinate      ..+ Client.CoordinateGroup : has polarCoordinates
+Database <|-- Client.UserManager
+Database <|-- Server.CoordinateGroup
+@enduml

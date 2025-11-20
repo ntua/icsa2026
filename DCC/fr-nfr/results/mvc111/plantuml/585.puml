@@ -1,0 +1,115 @@
+@startuml
+
+' ===== Model Package =====
+package "model" {
+    ' Represents a coordinate group with both coordinate types and persistence attributes.
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        --
+        + getId(): int
+        + getLabel(): String
+        + getTimestamp(): Date
+        + setCartesianCoordinate(c: CartesianCoordinate): void
+        + setPolarCoordinate(p: PolarCoordinate): void
+    }
+
+    ' Represents the Cartesian coordinate (x, y).
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        --
+        + getX(): double
+        + getY(): double
+        + toPolar(): PolarCoordinate
+    }
+
+    ' Represents the polar coordinate (r, θ).
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        --
+        + getR(): double
+        + getTheta(): double
+        + toCartesian(): CartesianCoordinate
+    }
+
+    ' Utility class for converting between coordinate types.
+    class CoordinateConverter {
+        + convertToPolar(c: CartesianCoordinate): PolarCoordinate
+        + convertToCartesian(p: PolarCoordinate): CartesianCoordinate
+    }
+
+    ' Handles TCP/IP connection details to the MySQL database.
+    class DatabaseConnection {
+        - host: String
+        - port: int
+        - username: String
+        - password: String
+        --
+        + connect(): Connection
+        + disconnect(): void
+    }
+
+    ' Data Access Object for performing CRUD operations on CoordinateGroup objects.
+    class CoordinateGroupDAO {
+        - dbConnection: DatabaseConnection
+        --
+        + createCoordinateGroup(cg: CoordinateGroup): void
+        + getCoordinateGroupByLabel(label: String): CoordinateGroup
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(cg: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+    }
+    
+    ' Relationships among model classes:
+    CoordinateGroup *-- CartesianCoordinate : has
+    CoordinateGroup *-- PolarCoordinate : has
+    CoordinateGroupDAO --> DatabaseConnection : uses
+}
+
+' ===== Controller Package =====
+package "controller" {
+    ' Coordinates user requests, performs conversion, and communicates with the DAO.
+    class CoordinateGroupController {
+        - dao: CoordinateGroupDAO
+        --
+        + createCoordinateGroup(input: CoordinateGroupInput): CoordinateGroup
+        + retrieveCoordinateGroup(label: String): CoordinateGroup
+        + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(cg: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + convertCoordinate(input: Object): Object
+    }
+    
+    ' Dependency to the coordinate conversion utility.
+    CoordinateGroupController ..> CoordinateConverter : uses
+    CoordinateGroupController ..> CoordinateGroupDAO : uses
+}
+
+' ===== View Package =====
+package "view" {
+    ' Main Swing window for the application.
+    class MainView {
+        - controller: CoordinateGroupController
+        --
+        + display(): void
+    }
+
+    ' Swing panel/dialog for creating, modifying, and viewing coordinate groups.
+    class CoordinateGroupView {
+        - controller: CoordinateGroupController
+        --
+        + showCoordinateGroupDetails(cg: CoordinateGroup): void
+        + getUserInput(): CoordinateGroupInput
+    }
+    
+    ' Associations: The views communicate with the controller.
+    MainView --> CoordinateGroupController : communicates
+    CoordinateGroupView --> CoordinateGroupController : communicates
+}
+
+@enduml

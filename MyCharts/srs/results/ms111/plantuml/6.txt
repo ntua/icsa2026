@@ -1,0 +1,71 @@
+@startuml DashboardSystem
+
+package "User Management" {
+    class UserService {
+        - String userId
+        - String username
+        - String email
+        - Date lastLogin
+        - Date creationDate
+        
+        + getUserDetails(userId: String): User
+        + updateUserProfile(userId: String, profileData: Map<String, String>): Boolean
+        + authenticateUser(username: String, password: String): Boolean
+    }
+}
+
+package "Chart Management" {
+    class ChartService {
+        - String chartId
+        - String chartType
+        - String dataFileId
+        - Date creationDate
+        
+        + generateChart(chartData: Map<String, Object>): Chart
+        + getChartPreview(chartId: String): InputStream
+        + deleteChart(chartId: String): Boolean
+    }
+}
+
+package "Storage Management" {
+    class StorageService {
+        - String fileId
+        - String fileName
+        - String fileType
+        
+        + storeFile(fileData: InputStream, fileName: String): File
+        + retrieveFile(fileId: String): InputStream
+        + deleteFile(fileId: String): Boolean
+    }
+}
+
+package "Quota Management" {
+    class QuotaService {
+        - String userId
+        - Integer quotaRemaining
+        - Date lastUpdate
+        
+        + getQuotaStatus(userId: String): Quota
+        + updateQuota(userId: String, newQuota: Integer): Boolean
+        + deductQuota(userId: String, amount: Integer): Boolean
+    }
+}
+
+package "Authentication" {
+    class AuthenticationService {
+        - String authProvider
+        - String token
+        
+        + authenticateWithGoogle(token: String): User
+        + invalidateToken(token: String): Boolean
+    }
+}
+
+' Associations
+
+UserService --> AuthenticationService : uses for authentication (Flow Control)
+ChartService --> StorageService : uses for file operations (Data Management)
+QuotaService --> UserService : updates quota based on user actions (Data Consistency)
+AuthenticationService --> UserService : provides authenticated user data (Functional Requirement)
+
+@enduml

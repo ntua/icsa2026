@@ -1,0 +1,88 @@
+@startuml DCC_Application_Class_Diagram
+
+' Package Definitions
+package "Presentation Layer" {
+    class DCCGUI {
+        + String label
+        + JFrame frame
+        + JPanel panel
+        
+        + void createCoordinateGroup()
+        + void retrieveCoordinateGroup()
+        + void modifyCoordinateGroup()
+        + void deleteCoordinateGroup()
+        + void displayCoordinateGroups()
+    }
+}
+
+package "Application Layer" {
+    class DCCController {
+        + void createCoordinateGroup(String label, Coordinate coordinate)
+        + void retrieveCoordinateGroup(int id)
+        + void retrieveCoordinateGroup(String label)
+        + void modifyCoordinateGroup(int id, String newLabel, Coordinate newCoordinate)
+        + void deleteCoordinateGroup(int id)
+        + Coordinate convertCoordinate(Coordinate inputCoordinate)
+    }
+
+    abstract class Coordinate {
+        + double x
+        + double y
+        
+        + abstract void convertToCartesian()
+        + abstract void convertToPolar()
+    }
+
+    class Cartesian extends Coordinate {
+        + double x
+        + double y
+        
+        + void convertToPolar()
+    }
+
+    class Polar extends Coordinate {
+        + double r
+        + double theta
+        
+        + void convertToCartesian()
+    }
+
+    class Converter {
+        + void convertCartesianToPolar(Cartesian cartesian)
+        + void convertPolarToCartesian(Polar polar)
+    }
+}
+
+package "Data Layer" {
+    class DatabaseManager {
+        + Connection mysqlConnection
+        + void connectToMySQL()
+        + void disconnectFromMySQL()
+        + void storeCoordinateGroup(CoordinateGroup group)
+        + CoordinateGroup retrieveCoordinateGroup(int id)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup updatedGroup)
+        + void deleteCoordinateGroup(int id)
+    }
+
+    class CoordinateGroup {
+        + int id
+        + String label
+        + Timestamp timestamp
+        + Coordinate coordinates
+        
+        + Cartesian getCartesianCoordinates()
+        + Polar getPolarCoordinates()
+    }
+}
+
+' Associations
+DCCGUI --> DCCController : Uses > (Application Logic)
+DCCController --> Converter : Uses > (Conversion Logic)
+DCCController --> DatabaseManager : Uses > (Database Operations)
+CoordinateGroup *-- Coordinate : Aggregation > (Contains either Cartesian or Polar coordinates)
+Cartesian --|> Coordinate : Inheritance
+Polar --|> Coordinate : Inheritance
+DatabaseManager --> MySQL : Accesses > (MySQL Database)
+
+@enduml

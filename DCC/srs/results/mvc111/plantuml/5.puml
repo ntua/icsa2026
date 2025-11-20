@@ -1,0 +1,40 @@
+@startuml
+package models {
+  class CoordinateGroup {
+    - id : Integer
+    + getID(): Integer
+    + setID(id: Integer): void
+    - timestamp : Date
+    + getTimestamp(): Date
+    + setTimestamp(timestamp: Date): void
+    - label : String
+    + getLabel(): String
+    + setLabel(label: String): void
+    - polarCoordinates : PolarCoordinate[]
+    + getPolarCoordinates(): PolarCoordinate[]
+    + setPolarCoordinates(polarCoordinates: PolarCoordinate[]): void
+    - cartesianCoordinates : CartesianCoordinate[]
+    + getCartesianCoordinates(): CartesianCoordinate[]
+    + setCartesianCoordinates(cartesianCoordinates: CartesianCoordinate[]): void
+  }
+}
+
+package services {
+  class CoordinateGroupService {
+    + createGroup(group: models.CoordinateGroup): models.CoordinateGroup
+    + deleteGroup(id: Integer): boolean
+    + updateGroup(group: models.CoordinateGroup): models.CoordinateGroup
+    + findGroupsByLabel(label: String): ArrayList<models.CoordinateGroup>
+  }
+}
+
+package views {
+  class CoordinateGridView {
+    + display(groups: ArrayList<models.CoordinateGroup>): void
+  }
+
+  class CoordinateGroupEditView {
+    + editGroup(group: models.CoordinateGroup): void
+  }
+}
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+
+package "Dummy Coordination Conversion Application" {
+  package "Database" {
+    class MySQLDatabase {
+      - purpose: "Stores coordinate group data"
+      - connectionType: "TCP/IP"
+    }
+  }
+
+  package "Conversion Components" {
+    class CoordinateConverter {
+      - description: "Cartesian <-> Polar Converter"
+    }
+
+    class CoordinateGroupManager {
+      - description: "Coordinate Group Operations (CreateOp, ReadOp, UpdateOp, DeleteOp)"
+    }
+
+    class DataAccessor {
+      - description: "Database Interaction"
+    }
+  }
+
+  CoordinateConverter --> CoordinateGroupManager : "Provides conversion logic for"
+  DataAccessor --> MySQLDatabase : "Performs database CRUD operations"
+  CoordinateGroupManager --> MySQLDatabase : "Manages coordinates data in"
+}
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getCartesianCoordinates(): (double, double)
+    + getPolarCoordinates(): (double, double)
+  }
+}
+
+@enduml

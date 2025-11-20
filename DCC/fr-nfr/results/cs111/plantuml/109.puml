@@ -1,0 +1,67 @@
+@startuml
+package "Client" {
+    class DCCApp {
+        - coordinateManager: CoordinateManager
+        + run()
+    }
+    
+    class CoordinateManager {
+        + createCoordinateGroup(cartesianX: Double, cartesianY: Double, polarR: Double, polarTheta: Double)
+        + storeCoordinates(groupLabel: String) : Integer
+        + retrieveCoordinates(groupLabel: String) : CoordinateGroup
+        + modifyCoordinates(groupId: Integer, newCartesian: Cartesian, newPolar: Polar)
+        + deleteCoordinates(groupId: Integer)
+    }
+    
+    class Cartesian {
+        - x: Double
+        - y: Double
+    }
+
+    class Polar {
+        - r: Double
+        - theta: Double
+    }
+
+    class CoordinateGroup {
+        - groupId: Integer
+        - groupLabel: String
+        - cartesian: Cartesian
+        - polar: Polar
+        
+        + getCartesian() : Cartesian
+        + setCartesian(newCartesian: Cartesian)
+        + getPolar() : Polar
+        + setPolar(newPolar: Polar)
+    }
+    
+    DCCApp --> CoordinateManager
+    CoordinateManager "1" *-- "N" CoordinateGroup
+    
+}
+package "Server" {
+
+    class MySQLDatabase {
+        + connectToDB()
+        + storeData(data: String, table: String) : Integer
+        + fetchDataByLabel(label: String, table: String) : CoordinateGroup
+        + fetchAllData(table: String) : List<CoordinateGroup>
+        + modifyData(groupId: Integer, newCartesian: Cartesian, newPolar: Polar, table: String) 
+        + deleteData(groupId: Integer, table: String)
+    }
+    
+    class CoordinateGroupDB {
+        - groupId: Integer
+        - groupLabel: String
+        - cartesianX: Double
+        - cartesianY: Double
+        - polarR: Double
+        - polarTheta: Double
+    }
+
+    MySQLDatabase "1" *-- "N" CoordinateGroupDB
+    
+}
+
+CoordinateManager --> Server.MySQLDatabase : storeCoordinates, fetchDataByLabel, fetchAllData, modifyData, deleteData
+@enduml

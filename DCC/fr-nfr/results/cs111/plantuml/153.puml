@@ -1,0 +1,49 @@
+@startuml
+package "Client" {
+    class CoordinateConverter {
+        +createCoordinateGroup(cartesian: Cartesian, polar: Polar)
+        +saveCoordinateGroup(label: String, group: CoordinateGroup)
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+        +modifyCoordinateGroup(group: CoordinateGroup, changes: Map<String, Object>)
+        +deleteCoordinateGroup(id: Int)
+    }
+    
+    class Cartesian {
+        -x: Float
+        -y: Float
+    }
+    
+    class Polar {
+        -r: Float
+        -theta: Float
+    }
+    
+    class CoordinateGroup {
+        -id: Integer (auto-generated)
+        -label: String
+        -cartesian: Cartesian
+        -polar: Polar
+    }
+}
+
+package "Server" {
+    class DatabaseManager {
+        +connectToDatabase()
+        +disconnectFromDatabase()
+        +saveCoordinateGroup(group: CoordinateGroup)
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+        +modifyCoordinateGroup(id: Int, changes: Map<String, Object>)
+        +deleteCoordinateGroup(id: Int)
+    }
+    
+    class MySQLDatabase {
+        -connection: Connection (TCP/IP connection)
+        +query(query: String): ResultSet
+        +closeConnection()
+    }
+}
+
+CoordinateConverter --> DatabaseManager : Uses
+DatabaseManager --> MySQLDatabase : Accesses
+
+@enduml

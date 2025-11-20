@@ -1,0 +1,103 @@
+@startuml
+
+left to right direction
+skinparam classAttributeIconSize 0
+skinparam linetype ortho
+
+
+package "Frontend" <<JavaColorRVB>> {
+    class CartesianConverterController {
+        +convertCartesianToPolar(x: Double, y: Double): PolarCoord
+        +convertPolarToCartesian(r: Double, theta: Double): CartesianCoord
+
+        -onAddButtonClick(): void
+        -onUpdateButtonClick(): void
+        -onDeleteButtonClick(): void
+        -onRefreshListButtonClick(): void
+        -onFilterButtonClick(): void
+    }
+
+    class UserInterface {
+        +displayCoordinateGroupList(list: List<CoordinateGroup>): void
+        +displayFilteredCoordinateGroups(filteredList: List<CoordinateGroup>): void
+
+        -showErrorMessage(message: String): void
+    }
+}
+
+
+package "Logic" <<JavaColorRVB>> {
+    class CartesianCoord {
+        x: Double
+        y: Double
+        
+        -calculateDistance(): Double
+        -equals(other: CartesianCoord): Boolean
+    }
+    
+    class PolarCoord {
+        r: Double
+        theta: Double
+
+        -toRadians(): Double
+        -equals(other: PolarCoord): Boolean
+    }
+
+    class CoordinateGroup {
+        id: int
+        label: String
+        cartesianCoord: CartesianCoord
+        polarCoord: PolarCoord
+
+        -calculateDistance(): Double
+        +getCartesianCoordinates(): List<Double>
+        +getPolarCoordinates(): List<Double>
+        -equals(other: CoordinateGroup): Boolean
+    }
+    
+    class ConversionService {
+        +convertCartesianToPolar(cartesian: CartesianCoord): PolarCoord
+        +convertPolarToCartesian(polar: PolarCoord): CartesianCoord
+    }
+
+    class ValidationService {
+        +validateLabel(label: String): Boolean
+        +validateCoordinates(coord: CartesianCoord | PolarCoord): Boolean
+    }
+}
+
+
+package "Data operations" <<JavaColorRVB>> {
+    class DatabaseManager {
+        -connectToDatabase(): void
+
+        -saveCoordinateGroup(group: CoordinateGroup): void
+        -readAllCoordinateGroups(): List<CoordinateGroup>
+        -updateCoordinateGroup(group: CoordinateGroup): void
+        -deleteCoordinateGroup(groupId: int): void
+    }
+
+    class Record {
+        id: int
+        label: String
+        cartesianCoordValues: CartesianCoord
+        polarCoordValues: PolarCoord
+        timestamp: LocalDateTime
+
+        +equals(other: Record): Boolean
+    }
+}
+
+
+' Associations and dependencies
+CartesianConverterController -down- UserInterface
+UserInterface <.. CartesianConverterController
+
+CartesianConverterController .. ConversionService : uses conversion logic
+CartesianConverterController .. ValidationService : uses validation rules
+ConversionService .. CartesianCoord : converts to/from polar
+ConversionService .. PolarCoord : converts to/from cartesian
+ValidationService .. CoordinateGroup 
+DatabaseManager -right- Record 
+
+@enduml

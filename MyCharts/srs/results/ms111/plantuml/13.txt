@@ -1,0 +1,36 @@
+@startuml
+package AuthenticationService {
+    class GoogleOAuthService {
+        + authenticateUser() : User
+        # verifyCredentials() : boolean  // Data management operation
+        -- checkQuota() : void           // Flow control operation
+    }
+}
+
+package ChartGenerationService {
+    class CsvUploader {
+        + uploadCsv(file: File) : UploadResult
+        - parseFile(file: File) : ParsedData // Data management operation
+    }
+
+    class ChartGenerator {
+        + generateChart(data: ParsedData, customization: Customization) : Chart
+        # saveToDatabase() : void         // Data consistency operation
+    }
+}
+
+package UserInterfaceService {
+    class UiController {
+        + handleUserInput() : void
+        - callAuthentication() : void     // Flow control operation
+        - callChartGeneration() : void    // Flow control operation
+    }
+}
+
+AuthenticationService --|> GoogleOAuthService
+ChartGenerationService --|> CsvUploader
+ChartGenerationService --|> ChartGenerator
+UserInterfaceService --> UiController
+UiController ..> AuthenticationService: Calls
+UiController ..> ChartGenerationService: Calls
+@enduml

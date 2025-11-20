@@ -1,0 +1,68 @@
+@startuml
+package "Presentation Layer" {
+  class DummyCoordinationConversionUI {
+    - labelField : JTextField
+    - cartesianXField : JTextField
+    - cartesianYField : JTextField
+    - polarRField : JTextField
+    - polarThetaField : JTextField
+
+    + viewCartesian() : void
+    + viewPolar() : void
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateGroupManager {
+    - coordinateGroups : List<CoordinateGroup>
+
+    + createCartesian(groupLabel, x, y) : CoordinateGroup
+    + createPolar(groupLabel, r, theta) : CoordinateGroup
+
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveByLabel(label: String) : CoordinateGroup
+    + viewAll() : List<CoordinateGroup>
+
+    + modifyCartesian(group: CoordinateGroup, x, y) : void
+    + delete(group: CoordinateGroup) : void
+  }
+
+  class DatabaseConnector {
+    - dbConnection : MySQLConnection
+
+    + connect() : void
+    + disconnect() : void
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveByLabel(label: String) : CoordinateGroup
+  }
+}
+
+package "Data Layer" {
+  class CoordinateGroup {
+    - id : Integer
+    - label : String
+    - cartesianX : Double
+    - cartesianY : Double
+    - polarR : Double
+    - polarTheta : Double
+
+    + getId() : Integer
+    + setId(id: Integer) : void
+  }
+}
+
+package "Data Layer" {
+  class MySQLConnection {
+    - connection : Connection
+
+    + getConnection() : Connection
+    + disconnect() : void
+  }
+}
+
+DummyCoordinationConversionUI -> CoordinateGroupManager
+CoordinateGroupManager -> DatabaseConnector
+CoordinateGroupManager -> CoordinateGroup
+DatabaseConnector -> CoordinateGroup
+
+@enduml

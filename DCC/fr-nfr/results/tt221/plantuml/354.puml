@@ -1,0 +1,123 @@
+@startuml
+title Class Diagram for DCC Application
+
+!define package_style rect #0099ff -
+
+package "Frontend" {
+    class UserInteraction {
+        <<abstract>>
+        + getInput() : string 
+        + showList(list) : void 
+    }
+
+    class CartesianCoordinates {
+        + x: double
+        + y: double
+
+        + setX(x: double): void
+        + setY(y: double): void
+        - cartesianToPolar(): PolarCoordinates
+    }
+
+    class PolarCoordinates {
+        + r: double
+        + theta: double
+
+        + setR(r: double): void
+        + setTheta(theta: double): void
+        - polarToCartesian(): CartesianCoordinates
+    }
+    
+    class CoordinateGroup {
+        + label: string
+        + cartesian: CartesianCoordinates
+        + polar: PolarCoordinates
+        
+        + setLabel(label: string): void
+        + setCartesian(cartesian: CartesianCoordinates): void
+        + setPolar(polar: PolarCoordinates): void
+
+        - convertToCartesian(): CartesianCoordinates
+        - convertToPolar(): PolarCoordinates
+    }
+
+    class GUI {
+        <<extends>> UserInteraction
+        + labelInputField: TextField 
+        + cartesianCoordInputFields: [TextField] x 2
+        + polarCoordInputFields: [TextField] x 2
+        + addButton: Button
+        + updateButton: Button
+        + deleteButton: Button
+        + filterLabelInputField: TextField
+        + clearFilterButton: Button
+
+        - initUI() : void
+    }
+
+    class Console {
+        <<extends>> UserInteraction
+        ... (no additional attributes)
+        
+        + processCommandInput(command: string): void 
+    }
+}
+
+
+package "Logic" {
+    class DCCAppLogic { 
+        + getCoordinates(): CoordinateGroup[]
+        - convertToCartesian(polarCoord: PolarCoordinates): CartesianCoordinates
+        - convertToPolar(cartesianCoord: CartesianCoordinates): PolarCoordinates
+        
+        + addCoordinateGroup(label: string, cartesianX: double, cartesianY: double, polarR: double, polarTheta: double) : int
+        + updateCoordinateGroup(id: int, label: string, cartesianX: double, cartesianY: double, polarR: double, polarTheta: double): void
+        + deleteCoordinateGroup(id: int): boolean
+    }
+}
+
+
+package "Data Operations" {
+    class DataAccessObject { 
+        <<abstract>> 
+        + createRecord(coordinateGroup: CoordinateGroup) : string
+        + readRecords() : List<CoordinateGroup>
+        + updateRecord(id: int, coordinateGroup: CoordinateGroup) : void
+        + deleteRecord(id: int): boolean
+        
+        - getDBConnection(): DatabaseConnection
+    }
+
+    class MySQLDAO extends DataAccessObject { 
+        ... (no additional attributes or methods)
+    }
+}
+
+
+package "Database" { 
+    class DatabaseConnection { 
+        ... (attributes and methods related to database connection)
+    }
+
+    class TableDesign {
+        + table_coordinate_groups: string
+
+        - createTable(table_name, schema): void
+    }
+
+    class MySQLDB extends DatabaseConnection {
+        ... (no additional attributes or methods)
+    }
+}
+
+
+GUI ..> DCCAppLogic : uses
+Console ..> DCCAppLogic : uses
+DCCAppLogic o-- CoordinateGroup 
+CartesianCoordinates o-- PolarCoordinates 
+
+DCCAppLogic <|.. MySQLDAO : Uses
+MySQLDAO -up-|> TableDesign : Uses
+TableDesign .down. DatabaseConnection : Uses
+DatabaseConnection o-- MySQLDB
+@enduml

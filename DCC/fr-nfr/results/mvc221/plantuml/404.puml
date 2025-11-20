@@ -1,0 +1,60 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id : int
+    - label : String
+    - cartesianCoordinates : CartesianCoordinates
+    - polarCoordinates : PolarCoordinates
+    
+    + convertToPolar() : PolarCoordinates
+    + convertToCartesian() : CartesianCoordinates
+  }
+  
+  class CartesianCoordinates {
+    - x : high-precision number
+    - y : high-precision number
+  }
+  
+  class PolarCoordinates {
+    - r : high-precision number
+    - theta : high-precision number
+  }
+}
+
+package "View" {
+  class SwingUI {
+    + showList() : void
+    + filterList(label: String) : void
+    + clearFilter() : void
+  }
+  
+  class CoordinateGroupList {
+    - coordinateGroups : List<CoordinateGroup>
+    
+    + add(coordinateGroup: CoordinateGroup) : void
+    + update(coordinateGroup: CoordinateGroup) : void
+    + delete(id: int) : void
+  }
+}
+
+package "Controller" {
+  class DCCApplicationController {
+    - coordinateGroupModel : CoordinateGroup
+    
+    + createOp() : void
+    + readOp() : List<CoordinateGroup>
+    + updateOp(coordinateGroup: CoordinateGroup) : void
+    + deleteOp(id: int) : void
+  }
+  
+  class CoordinateGroupConverter {
+    + convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates) : PolarCoordinates
+    + convertPolarToCartesian(polarCoordinates: PolarCoordinates) : CartesianCoordinates
+  }
+}
+
+CoordinateGroup --> CoordinateGroupList
+CoordinateGroup --> DCCApplicationController
+CoordinateGroupConverter --|> DCCApplicationController
+
+@enduml

@@ -1,0 +1,62 @@
+@startuml
+package model {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - double x
+        - double y
+        - double r
+        - double theta
+        - Timestamp timestamp
+        + void convertToPolar()
+        + void convertToCartesian()
+    }
+}
+
+package view {
+    class MainView {
+        + void displayCoordinateGroup(CoordinateGroup group)
+        + void displayAllCoordinateGroups(List<CoordinateGroup> groups)
+        + void showForm()
+    }
+}
+
+package controller {
+    class CoordinateController {
+        - CoordinateGroupDao dao
+        + void createCoordinateGroup(String label, double x, double y)
+        + CoordinateGroup retrieveCoordinateGroupByLabel(String label)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + void modifyCoordinateGroup(int id, String label, double x, double y)
+        + void deleteCoordinateGroup(int id)
+    }
+}
+
+package dao {
+    class CoordinateGroupDao {
+        - Connection dbConnection
+        + void save(CoordinateGroup group)
+        + CoordinateGroup findByLabel(String label)
+        + List<CoordinateGroup> findAll()
+        + void update(CoordinateGroup group)
+        + void delete(int id)
+    }
+}
+
+package utils {
+    class CoordinateConverter {
+        + Polar toPolar(double x, double y)
+        + Cartesian toCartesian(double r, double theta)
+    }
+    
+    class DatabaseConnection {
+        + Connection connect()
+        + void disconnect()
+    }
+}
+
+CoordinateController --> CoordinateGroupDao : uses
+CoordinateController --> MainView : manages
+CoordinateGroupDao --> DatabaseConnection : uses
+CoordinateGroup --> CoordinateConverter : uses
+@enduml

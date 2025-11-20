@@ -1,0 +1,61 @@
+@startuml
+package "frontend" {
+
+class DCCView {
+  +displayCoordinateGroups(List<CoordinateGroup>)
+  +getCoordinateInput() : Coordinate
+  +getLabelInput() : String
+  +selectCoordinateGroup() : int
+}
+}
+
+package "backend"{
+
+class DCCController {
+  - model: DCCModel
+  - view: DCCView
+  +onCreate()
+  +onUpdate(int id)
+  +onDelete(int id)
+  +onFilter(String label)
+  +onClearFilter()
+}
+
+class DCCModel {
+   - databaseConnector : DatabaseConnector
+  +createCoordinateGroup(Coordinate, String): int
+  +getCoordinateGroups(): List<CoordinateGroup>
+  +updateCoordinateGroup(int id, Coordinate, String)
+  +deleteCoordinateGroup(int id)
+  +filterCoordinateGroups(String label): List<CoordinateGroup>
+
+}
+class DatabaseConnector {
+  - connection: MySQLConnection
+  +saveCoordinateGroup(CoordinateGroup)
+  +getCoordinateGroups(): List<CoordinateGroup>
+  +updateCoordinateGroup(CoordinateGroup)
+  +deleteCoordinateGroup(int id)
+}
+
+class CoordinateGroup {
+  - id : int
+  - label: String
+  - cartesianCoordinate: Coordinate
+  - polarCoordinate: Coordinate
+  +CoordinateGroup(Coordinate, Coordinate, String, Timestamp)
+}
+
+class Coordinate {
+    - x: double
+    - y: double
+    + Coordinate(double x, double y)
+}
+}
+
+DCCView -- DCCController : Request/Response
+DCCController --> DCCModel : Request Data
+DCCModel --> DatabaseConnector : Connection
+
+
+@enduml

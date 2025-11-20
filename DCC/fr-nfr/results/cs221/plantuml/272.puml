@@ -1,0 +1,64 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+!define FrontEndColor #add8e6
+!define BackEndColor #90ee90
+!define DatabaseColor #ffc0cb
+
+package "Front-end" <<FrontEndColor>> {
+  class UserInterface {
+    + displayList() 
+    + createOp(Cartesian, Polar)
+    + readOp() 
+    + updateOp(id) 
+    + deleteOp(id) 
+  }
+
+  class Logic {
+    + convertCartesianToPolar(x, y) : Polar
+    + convertPolarToCartesian(r, theta) : Cartesian
+  }
+}
+
+package "Back-end" <<BackEndColor>> {
+  class DatabaseManager {
+    - connection: Connection
+    
+    + connect() 
+    + disconnect() 
+    + executeCreateOp(id, label, x, y, r, theta, timestamp) 
+    + executeReadOp(): List<CoordinateGroup>
+    + executeUpdateOp(id, newLabel, newX, newY, newR, newTheta, timestamp) 
+    + executeDeleteOp(id) 
+  }
+}
+
+package "Database" <<DatabaseColor>> {
+  class CoordinateGroup {
+    
+    - id: int
+    - label: String
+    - x: double
+    - y: double
+    - r: double
+    - theta: double
+    - datetimeAddedModified: Timestamp
+
+    + getId(): int
+    + getLabel(): String
+    + setLabel(newLabel: String) 
+    + getX(): double
+    + getY(): double
+    + getR(): double
+    + getTheta(): double
+    + getDatetimeAddedModified(): Timestamp
+    
+    # Constructor()
+    # Constructor(id, label, x, y, r, theta)
+  }
+}
+
+UserInterface <|.. Logic
+DatabaseManager .. CoordinateGroup
+
+@enduml

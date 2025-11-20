@@ -1,0 +1,52 @@
+@startuml
+package model {
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - polarCoordinates: List<Double>
+        - cartesianCoordinates: List<Double>
+
+        + getLabel(): String
+        + setLabel(String): void
+        + addPolarCoordinate(double): void
+        + addCartesianCoordinate(double): void
+    }
+
+    class CoordinateGroupRepository {
+        - dataSource: DatabaseConnection
+
+        + createCoordinateGroup(CoordinateGroup): void
+        + deleteCoordinateGroup(int id): void
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(int id): CoordinateGroup
+    }
+}
+
+package view {
+  class CoordinateGroupView {
+    + displayCoordinateGroups(List<CoordinateGroup>): void
+    + showInputForm(): void
+    + displayErrorMessage(String): void
+  }
+}
+
+package controller {
+  class CoordinateGroupController {
+    - model: CoordinateGroupRepository
+    - view: CoordinateGroupView
+
+    + createCoordinateGroup(): void
+    + deleteCoordinateGroup(int id): void
+    + updateCoordinateGroup(): void
+    + handleViewEvent(ActionEvent): void
+  }
+}
+
+
+
+model.CoordinateGroup "1" -- "*" model.CoordinateGroupRepository : uses
+view.CoordinateGroupView "*" -- "1" controller.CoordinateGroupController : interacts with
+controller.CoordinateGroupController "1" -- "1" model.CoordinateGroupRepository : manages
+
+@enduml

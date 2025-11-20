@@ -1,0 +1,82 @@
+@startuml
+package frontend {
+  class UserInteraction {
+    - x: float
+    - y: float
+    - r: float
+    - theta: float
+    + calculatePolarCoordinates()
+    + calculateCartesianCoordinates()
+  }
+}
+
+package logic {
+  class CoordinateGroup {
+    + id: int
+    - label: String
+    - cartesianCoordinates: CartesianCoordinate
+    - polarCoordinates: PolarCoordinate
+    + createCartesianCoordinate(x: float, y: float)
+    + createPolarCoordinate(r: float, theta: float)
+    + convertToPolar()
+    + convertToCartesian()
+  }
+
+  class CartisianCoordinate {
+    - x: float
+    - y: float
+  }
+
+  class PolarCoordinate {
+    - r: float
+    - theta: float
+  }
+}
+
+package data {
+  class DatabaseRecord {
+    - id: int
+    - label: String
+    - timestamp: DateTime
+  }
+
+  class CoordinateGroupRecord extends DatabaseRecord {
+    - cartesianCoordinate: CartesianCoordinate
+    - polarCoordinate: PolarCoordinate
+    + save()
+    + update()
+    + delete()
+  }
+}
+
+package data {
+  class MySQLDatabase {
+    + connect()
+    + disconnect()
+    + executeQuery(query: String)
+  }
+}
+
+package logic {
+  class DCCApplication {
+    - userInteraction: UserInteraction
+    - coordinateGroup: CoordinateGroup
+
+    + createCoordinateGroup(label: String, x: float, y: float, r: float, theta: float)
+    + updateCoordinateGroup(id: int, label: String, x: float, y: float, r: float, theta: float)
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+package frontend {
+  class SwingUI {
+    - dccApplication: DCCApplication
+
+    + displayMenu()
+    + executeCreateOp(label: String, x: float, y: float)
+    + executeUpdateOp(id: int, label: String, x: float, y: float)
+    + executeDeleteOp(id: int)
+  }
+}
+
+@enduml

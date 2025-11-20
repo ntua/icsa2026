@@ -1,0 +1,59 @@
+@startuml
+
+package com.dummycoordconv.models {
+class CoordinateGroup {
+    +private int id;
+    +private String label;
+    -List<CartesianCoord> cartesianCoords;
+    -List<PolarCoord> polarCoords;
+    +Date timestamp;
+    
++int getId()
+    +String getLabel()
+    +void setLabel(String label)
+    +void createGroup()
+    +void deleteGroup()
+    +boolean modifyGroup(CartesianCoord cartesian, PolarCoord polar)
+}
+class CartesianCoord {
+    -double x;
+    -double y;
+    
++void setX(double x)
+    +void setY(double y)
+}
+class PolarCoord {
+    -double r;
+    -double theta;
+    
++void setR(double r)
+    +void setTheta(double theta)
+}
+}
+
+package com.dummycoordconv.backend {
+    class DatabaseConnector {
+        +Connect to MySQL database using TCP/IP connection
+        +Query the database for specific data based on input parameters
+        +Update database with new or modified coordinate group details
+        +Delete a coordinate group from the database 
+    }
+}
+
+package com.dummycoordconv.frontend {
+    class UserInterfaceController {
+        +Create CoordinateGroup UI
+        +RetrieveCoordinateGroupsUI
+        +ModifyCoordinateGroupUI
+        +DeleteCoordinateGroupUI
+        
++UserInput parseInput()
+}
+}
+
+com.dummycoordconv.backend.DatabaseConnector --> com.dummycoordconv.frontend.UserInterfaceController : 1..*
+com.dummycoordconv.frontend.UserInterfaceController --> com.dummycoordconv.models.CoordinateGroup: *-*> - User can create, retrieve, modify and delete coordinate groups
+CoordinateGroup -- CartesianCoord : 0..*
+CoordinateGroup -- PolarCoord : 0..*
+}
+@enduml

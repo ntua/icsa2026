@@ -1,0 +1,89 @@
+@startuml
+left to right direction
+
+package "User Management Service" {
+    class UserService {
+        + authenticateUser(googleToken): User // Functional requirement
+        + getUserProfile(userId): UserProfile // Functional requirement
+        + updateUserProfile(userProfile): void // Data management operation
+        + syncUserProfile(userProfile): void // Data consistency operation
+    }
+
+    class UserProfile {
+        - userId: string
+        - name: string
+        - profilePicture: string
+        - email: string
+        - remainingQuota: int
+        - accountCreationTimestamp: timestamp
+        - lastLoginTimestamp: timestamp
+    }
+}
+
+package "Chart Generation Service" {
+    class ChartService {
+        + downloadTemplate(chartType): CSVTemplate // Functional requirement
+        + generateChart(userId, csvData, chartType): Chart // Functional requirement
+        + saveChart(chart): void // Data management operation
+        + validateCSV(csvData, chartType): boolean // Functional requirement
+        + decrementQuota(userId): void // Data management operation
+        + syncChartData(chart): void // Data consistency operation
+    }
+
+    class Chart {
+        - chartId: string
+        - userId: string
+        - chartType: string
+        - creationDate: timestamp
+        - highchartsJson: string
+        - formats: list<string>
+    }
+
+    class CSVTemplate {
+        - templateData: string
+    }
+}
+
+package "Chart History Service" {
+    class ChartHistoryService {
+        + getChartHistory(userId): list<Chart> // Functional requirement
+        + getChart(chartId): Chart // Functional requirement
+        + deleteChart(chartId): void // Data management operation
+    }
+}
+
+package "Quota Management Service" {
+    class QuotaService {
+        + purchaseQuota(userId, amount): boolean // Functional requirement
+        + validatePayment(paymentDetails): boolean // Functional requirement
+        + updateQuota(userId, amount): void // Data management operation
+        + syncQuota(userId): void // Data consistency operation
+    }
+}
+
+package "API Gateway" {
+    class APIGateway {
+        + routeRequest(request): response // Flow control operation
+    }
+}
+
+package "Payment Gateway" {
+    class PaymentGateway {
+        + processPayment(paymentDetails): boolean // Functional requirement
+    }
+}
+
+UserService "1" -- "1..*" ChartService : generates
+UserService "1" -- "1..*" ChartHistoryService : accesses
+UserService "1" -- "1..*" QuotaService : manages
+ChartService "1" -- "1..*" Chart : creates
+QuotaService "1" -- "1" PaymentGateway : uses
+APIGateway "1" -- "1..*" UserService : routes
+APIGateway "1" -- "1..*" ChartService : routes
+APIGateway "1" -- "1..*" ChartHistoryService : routes
+APIGateway "1" -- "1..*" QuotaService : routes
+UserService "1" -- "1" UserProfile : manages
+ChartService "1" -- "1" CSVTemplate : provides
+ChartHistoryService "1" -- "1" Chart : manages
+
+@enduml

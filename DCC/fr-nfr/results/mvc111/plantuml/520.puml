@@ -1,0 +1,87 @@
+@startuml DCCApplicationClassDiagram
+
+' Package definitions
+package "model" {
+    class CoordinateGroup {
+        +Integer id
+        +String label
+        +Date timestamp
+        +Double x
+        +Double y
+        +Double r
+        +Double theta
+        
+        +CoordinateGroup()
+        +void setCartesian(Double x, Double y)
+        +void setPolar(Double r, Double theta)
+        +void convertCoordinates()
+    }
+}
+
+package "dao" {
+    class CoordinateGroupDAO {
+        -JDBCConnection connection
+        
+        +CoordinateGroup create(CoordinateGroup group)
+        +List<CoordinateGroup> readAll()
+        +CoordinateGroup readById(Integer id)
+        +CoordinateGroup update(CoordinateGroup group)
+        +Boolean delete(Integer id)
+        
+        +void connect()
+        +void disconnect()
+    }
+}
+
+package "service" {
+    class CoordinateGroupService {
+        -CoordinateGroupDAO dao
+        
+        +CoordinateGroup createGroup(CoordinateGroup group)
+        +List<CoordinateGroup> getAllGroups()
+        +CoordinateGroup getGroupById(Integer id)
+        +CoordinateGroup updateGroup(CoordinateGroup group)
+        +Boolean deleteGroup(Integer id)
+    }
+}
+
+package "controller" {
+    class DCCController {
+        -DCCView view
+        -CoordinateGroupService service
+        
+        +void initialize()
+        +void createCoordinateGroup(String label, Double x, Double y)
+        +void createCoordinateGroup(String label, Double r, Double theta)
+        +void retrieveAllGroups()
+        +void retrieveGroupById(Integer id)
+        +void updateGroup(Integer id, String label, Double x, Double y)
+        +void updateGroup(Integer id, String label, Double r, Double theta)
+        +void deleteGroup(Integer id)
+    }
+}
+
+package "view" {
+    class DCCView {
+        -DCCController controller
+        
+        +void showCreateGroupForm()
+        +void showSearchResults(List<CoordinateGroup> groups)
+        +void showMessage(String message)
+        +void showMainInterface()
+        
+        +String getLabelInput()
+        +Double getXInput()
+        +Double getYInput()
+        +Double getRInput()
+        +Double getThetaInput()
+    }
+}
+
+' Associations
+DCCController --> DCCView : Controls
+DCCController --> CoordinateGroupService : Uses
+CoordinateGroupService --> CoordinateGroupDAO : Depends on
+CoordinateGroupDAO --> CoordinateGroup : Persists
+
+@enduml

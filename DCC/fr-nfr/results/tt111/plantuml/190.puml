@@ -1,0 +1,53 @@
+@startuml
+
+package "Frontend" {
+    class CartesianView {
+        + createCoordinateGroup()
+        + retrieveCoordinateGroups(label: String)
+        + viewAllCoordinateGroups()
+        + modifyCoordinateGroup(groupID: int, newLabel: String, cartesianCoords: [x, y], polarCoords: [r, theta])
+        + deleteCoordinateGroup(groupID: int)
+    }
+}
+
+package "Application Logic" {
+    class CoordinateConverter {
+        - cartesianToPolar(x: double, y: double): [r, theta]
+        - polarToCartesian(r: double, theta: rad): [x, y]
+
+        + convertCoordinateGroup(groupID: int) -> void
+    }
+
+    class GroupManager {
+        - coordinateGroups: List<CoordGroup>
+        + createNewGroup(label: String, cartesianCoords: [x, y], polarCoords: [r, theta]) -> CoordGroup
+        + retrieveGroup(groupID: int) -> CoordGroup
+        + getAllGroups() -> List<CoordGroup>
+        + modifyGroup(groupID: int, newLabel: String, newCartesianCoords: [x, y], newPolarCoords: [r, theta]) -> void
+        + deleteGroup(groupID: int) -> void
+    }
+}
+
+package "Database" {
+    class CoordGroupDB {
+        - dbConnection: TCP_Socket
+
+        + storeCoordinateGroups(groups: List<CoordGroup>) -> void
+        + retrieveAllGroups() -> List<CoordGroup>
+        + searchGroupsByLabel(label: String) -> List<CoordGroup>
+        + deleteGroupFromDatabase(groupID: int) -> void
+    }
+
+    class TCP_Socket {
+        + connectToDBServer(dbIP: String, dbPort: int) -> void
+        + sendData(data: String) -> void
+        + receiveData() -> String
+    }
+}
+
+
+CartesianView .. CoordinateConverter : Uses
+CoordinateConverter .. GroupManager : Accesses
+GroupManager .. CoordGroupDB : Uses
+
+@enduml

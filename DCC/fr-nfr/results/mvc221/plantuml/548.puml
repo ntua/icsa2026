@@ -1,0 +1,81 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Model" {
+    ' Coordinate-related classes
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesianCoordinates: CartesianCoordinates
+        - polarCoordinates: PolarCoordinates
+        - datetimeAdded: DateTime
+        - datetimeModified: DateTime
+        
+        + add()
+        + update()
+        + delete()
+    }
+
+    class CartesianCoordinates {
+        - x: Double
+        - y: Double
+        
+        + calculatePolar(): PolarCoordinates
+    }
+    
+    class PolarCoordinates {
+        - r: Double
+        - theta: Double
+        
+        + calculateCartesian(): CartesianCoordinates
+    }
+
+    ' Database operations
+    class DatabaseOp {
+        + createCoordinateGroup(label: String, cartesian: CartesianCoordinates): Boolean
+        + readAllCoordinateGroups(filter: String = ""): List<CoordinateGroup>
+        + updateCoordinateGroup(id: Integer, label: String, cartesian: CartesianCoordinates): Boolean
+        + deleteCoordinateGroup(id: Integer): Boolean
+    }
+}
+
+package "View" {
+    class MainView {
+        - JFrame frame
+        - inputFields: Map<String, JTextField>
+        - resultArea: JTextArea
+        
+        + show()
+        + refreshList()
+        + clearFilter()
+    }
+}
+
+package "Controller" {
+    class CoordinatorController {
+        - model: DatabaseOp
+        - view: MainView
+        - activeFilter: String
+        
+        + initialize()
+        + handleAddCoordinateGroup(label: String, x: Double, y: Double)
+        + handleUpdateCoordinateGroup(id: Integer, label: String, x: Double, y: Double)
+        + handleDeleteCoordinateGroup(id: Integer)
+        + applyFilter(filter: String)
+    }
+}
+
+' Associations
+CoordinatorController --> DatabaseOp : Uses (Composition)
+CoordinatorController --> CoordinateGroup : Manages
+CoordinatorController --> MainView : Controls
+
+DatabaseOp --> CoordinateGroup : Persists
+CoordinateGroup --> CartesianCoordinates : Contains
+CoordinateGroup --> PolarCoordinates : Contains
+CartesianCoordinates --> PolarCoordinates : Converts to
+PolarCoordinates --> CartesianCoordinates : Converts to
+
+MainView --> CoordinatorController : Delegates to
+
+@enduml

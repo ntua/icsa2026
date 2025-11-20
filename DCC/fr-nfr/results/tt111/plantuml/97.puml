@@ -1,0 +1,75 @@
+@startuml
+
+package "Presentation Tier" {
+  class DCCGUI {
+    + displayCoordinateGroups()
+    + getCoordinateInput() : CoordinateGroup
+    + updateCoordinateGroup() : void
+    + deleteCoordinateGroup() : void
+  }
+}
+
+package "Application Tier" {
+  class DCCService {
+    - databaseConnector: DatabaseConnector
+
+    + convertCoordinates(coordinates: Coordinate) : Coordinate
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroup(label: String) : CoordinateGroup
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinate
+    - polarCoordinates: PolarCoordinate
+
+    + getCartesianCoordinates() : CartesianCoordinate
+    + setCartesianCoordinates(coordinates: CartesianCoordinate) : void
+    + getPolarCoordinates() : PolarCoordinate
+    + setPolarCoordinates(coordinates: PolarCoordinate) : void
+  }
+
+  class Coordinate {
+    {abstract} + getValues(): String 
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + getValues(): String
+
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + getValues(): String
+  }
+
+
+  class DatabaseConnector {
+    - connection: Connection
+
+    + connectToDatabase() : void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroup(label: String) : CoordinateGroup
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + deleteCoordinateGroup(id: int) : void
+
+  }
+}
+
+package "Data Tier" {
+  class MySQLDatabase
+}
+
+DCCGUI -|> DCCService
+
+DCCService -- DatabaseConnector
+DatabaseConnector --> MySQLDatabase
+
+
+@enduml

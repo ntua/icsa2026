@@ -1,0 +1,52 @@
+@startuml
+
+package "Presentation Layer" {
+  class DCCGUI {
+    + createCoordinateGroup() : void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+package "Logic Layer" {
+  class DCCController {
+    - dbConnection: DBConnection
+    + handleCoordinateGroupCreation(coordinates: List<Double>, type: String, label: String): CoordinateGroup
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroups(searchCriteria: String) : List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+
+class CoordinateConverter {
+  + convertCartesianToPolar(x: double, y: double): (double, double) 
+  + convertPolarToCartesian(r: double, theta: double): (double, double) 
+}
+}
+
+package "Data Layer" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Double>
+    + getCoordinates(): List<Double>
+    + setCoordinates(coordinates: List<Double>): void
+  }
+
+ class DBConnection {
+    + connectToDatabase() : void
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+    + retrieveCoordinateGroups(searchCriteria: String): List<CoordinateGroup>
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+
+DCCGUI -- DCCController : uses
+DCCController --> CoordinateConverter : uses
+DCCController -- DBConnection : uses
+
+@enduml

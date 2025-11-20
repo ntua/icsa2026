@@ -1,0 +1,69 @@
+@startuml
+package "Client" {
+  class DCCApplication {
+    + run()
+  }
+
+  class CoordinateGroupManager {
+    - coordinateGroups: List<CoordinateGroup>
+    + createCoordinateGroup(cartesianCoordinates: CartesianCoordinates)
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String)
+    + modifyCoordinateGroup(coordinateGroupId: Int, cartesianCoordinates: CartesianCoordinates)
+    + deleteCoordinateGroup(coordinateGroupId: Int)
+  }
+
+  class Converter {
+    + convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates): PolarCoordinates
+    + convertPolarToCartesian(polarCoordinates: PolarCoordinates): CartesianCoordinates
+  }
+}
+
+package "Server" {
+  class MySQLDatabase {
+    - coordinateGroupsTable: String
+    - idColumn: String
+    - labelColumn: String
+    - timestampColumn: String
+    - connection: TCPConnection
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+  }
+
+  class TCPConnection {
+    + connect()
+    + disconnect()
+  }
+}
+
+package "Domain" {
+  class CartesianCoordinates {
+    - x: Float
+    - y: Float
+  }
+
+  class PolarCoordinates {
+    - r: Float
+    - theta: Float
+  }
+
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+  }
+}
+
+DCCApplication --> Converter : Uses
+Converter --> CoordinateGroupManager : Uses
+
+CoordinateGroupManager --> MySQLDatabase : Uses
+MySQLDatabase --> TCPConnection : Uses
+
+CoordinateGroupManager --> CoordinateGroup : Composes
+
+CoordinateGroup --> CartesianCoordinates : Aggregates
+CoordinateGroup --> PolarCoordinates : Aggregates
+@enduml

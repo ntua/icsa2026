@@ -1,0 +1,160 @@
+Response:
+Here is the PlantUML class diagram based on the SRS and Three-Tier architecture:
+
+```plantuml
+@startuml
+' Packages and Classes
+package "Presentation" {
+    class MainWindow {
+        -createForm: CreateCoordinateGroupForm
+        -editForm: EditCoordinateGroupForm
+        -listView: CoordinateGroupListView
+        -searchView: SearchByLabelView
+        +initializeUI()
+        +navigateToCreate()
+        +navigateToEdit()
+    }
+
+    class CreateCoordinateGroupForm {
+        -sourceTypeDropdown
+        -xField
+        -yField
+        -rField
+        -thetaField
+        -labelField
+        -addButton
+        +getInputValues(): Map<String, String>
+        +showError(message: String)
+    }
+
+    class EditCoordinateGroupForm {
+        -selectedId: int
+        -sourceTypeDropdown
+        -xField
+        -yField
+        -rField
+        -thetaField
+        -labelField
+        -updateButton
+        +loadData(coordinateGroup: CoordinateGroup)
+    }
+
+    class CoordinateGroupListView {
+        -table: JTable
+        +displayGroups(groups: List<CoordinateGroup>)
+    }
+
+    class SearchByLabelView {
+        -labelField
+        -searchButton
+        +getSearchTerm(): String
+        +displayResults(groups: List<CoordinateGroup>)
+    }
+}
+
+package "Business" {
+    class CoordinateGroupManager {
+        -dao: CoordinateGroupDAO
+        -validator: InputValidator
+        +createGroup(sourceType: String, values: Map<String, Double>, label: String): boolean
+        +updateGroup(id: int, newValues: Map<String, Double>, label: String): boolean
+        +deleteGroup(id: int): boolean
+        +getAllGroups(): List<CoordinateGroup>
+        +searchByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+        +static toPolar(x: double, y: double): PolarCoord
+        +static toCartesian(r: double, theta: double): CartesianCoord
+    }
+
+    class InputValidator {
+        +validateCartesian(x: String, y: String): boolean
+        +validatePolar(r: String, theta: String): boolean
+        +validateLabel(label: String): boolean
+    }
+}
+
+package "Data" {
+    class CoordinateGroupDAO {
+        -dbConnection: DatabaseConnection
+        +save(group: CoordinateGroup): boolean
+        +update(group: CoordinateGroup): boolean
+        +delete(id: int): boolean
+        +findAll(): List<CoordinateGroup>
+        +findByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class DatabaseConnection {
+        -connection: Connection
+        +getInstance(): DatabaseConnection
+        +getConnection(): Connection
+        +close()
+    }
+}
+
+package "Entity" {
+    class CoordinateGroup {
+        -id: int
+        -label: String
+        -timestamp: Timestamp
+        -cartesian: CartesianCoord
+        -polar: PolarCoord
+        +getters/setters()
+    }
+
+    class CartesianCoord {
+        -x: double
+        -y: double
+        +getters/setters()
+    }
+
+    class PolarCoord {
+        -r: double
+        -theta: double
+        +getters/setters()
+    }
+}
+
+' Associations and Dependencies
+MainWindow *-- CreateCoordinateGroupForm
+MainWindow *-- EditCoordinateGroupForm
+MainWindow *-- CoordinateGroupListView
+MainWindow *-- SearchByLabelView
+
+CreateCoordinateGroupForm ..> CoordinateGroupManager : uses
+EditCoordinateGroupForm ..> CoordinateGroupManager : uses
+CoordinateGroupListView ..> CoordinateGroupManager : uses
+SearchByLabelView ..> CoordinateGroupManager : uses
+
+CoordinateGroupManager --> CoordinateGroupDAO : depends
+CoordinateGroupManager --> InputValidator : depends
+CoordinateGroupManager --> CoordinateConverter : depends
+
+CoordinateGroupDAO --> DatabaseConnection : depends
+CoordinateGroupDAO --> CoordinateGroup : manages
+
+CoordinateGroup *-- CartesianCoord : composition
+CoordinateGroup *-- PolarCoord : composition
+@enduml
+```
+
+**Key Features:**
+1. **Three-Tier Separation:**
+   - **Presentation:** GUI classes handle user interactions.
+   - **Business:** Core logic for conversions, validation, and data orchestration.
+   - **Data:** Database connectivity and persistence operations.
+   - **Entity:** Data model classes.
+
+2. **Class Details:**
+   - Presentation classes include forms and views with UI-specific methods.
+   - Business layer includes validation, conversion logic, and data flow management.
+   - Data layer uses DAO pattern for database operations.
+   - Entities define the structure of coordinate data.
+
+3. **Associations:**
+   - Composition for nested objects (`CoordinateGroup` ➔ `CartesianCoord`/`PolarCoord`).
+   - Dependencies between layers (e.g., GUI ➔ Business ➔ Data).
+   - Singleton pattern for `DatabaseConnection` (implied via `getInstance()`).
+
+This diagram ensures separation of concerns while capturing all functional requirements from the SRS.

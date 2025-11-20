@@ -1,0 +1,41 @@
+@startuml
+package "Database Layer" {
+    class DatabaseManager {
+        -connectionString : String
+        +connect() : void
+        +disconnect() : void
+        +executeQuery(query: String) : String
+        +insertRecord(record: Record) : int
+        +updateRecord(id: int, newRecord: Record) : int
+        +deleteRecord(id: int) : boolean
+    }
+}
+
+package "Logic Layer" {
+    class CoordinateGroupManager {
+        -databaseConnection : DatabaseManager
+        
+        +createCoordinateGroup() : int
+        +readAllCoordinateGroups() : List<Record>
+        +updateCoordinateGroup(id: int, newValues: Record) : boolean
+        +deleteCoordinateGroup(id: int) : boolean
+    }
+    
+    class CoordinateConverter {
+        -cartesianToPolarConversion(x: Double, y: Double): PolarCoordinates
+        -polarToCartesianConversion(r: Double, theta: Double): CartesianCoordinates
+    }
+}
+
+package "Presentation Layer" {
+    class CoordinateGroupWindow {
+        -databaseConnection : DatabaseManager
+        +displayAllCoordinateGroups() : void
+        +filterByLabelValue(label: String) : void
+        +refreshDisplayedList() : void
+    }
+}
+
+"Database Layer" <-- "Logic Layer"
+"Logic Layer" <--> "Presentation Layer"
+@enduml

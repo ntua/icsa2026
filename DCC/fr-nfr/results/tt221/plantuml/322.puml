@@ -1,0 +1,53 @@
+@startuml
+package PresentationTier {
+  class CoordinateConverterUI {
+    + convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates): PolarCoordinates
+    + convertPolarToCartesian(polarCoordinates: PolarCoordinates): CartesianCoordinates
+  }
+}
+
+package LogicTier {
+  class CoordinateConverterLogic {
+    - coordinateConverter: CoordinateConverter
+    - databaseAccessLayer: DatabaseAccessLayer
+    
+    + convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates): PolarCoordinates
+    + convertPolarToCartesian(polarCoordinates: PolarCoordinates): CartesianCoordinates
+    
+    + createCoordinateGroup(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates): CoordinateGroup
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): CoordinateGroup
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates): PolarCoordinates
+    + convertPolarToCartesian(polarCoordinates: PolarCoordinates): CartesianCoordinates
+  }
+}
+
+package DataTier {
+  class DatabaseAccessLayer {
+    - databaseConnection: MySQLDatabaseConnection
+    
+    + createCoordinateGroup(label: String, cartesianCoordinates: CartesianCoordinates, polarCoordinates: PolarCoordinates): CoordinateGroup
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): CoordinateGroup
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+}
+
+package PresentationTier {
+  class CoordinateGroupDisplayUI {
+    - coordinateConverterLogic: CoordinateConverterLogic
+    
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+    + filterCoordinateGroups(label: String): List<CoordinateGroup>
+    + clearFilter(): void
+  }
+}
+
+CoordinateConverterLogic --|> CoordinateConverter
+DatabaseAccessLayer --|> CoordinateConverter
+
+@enduml

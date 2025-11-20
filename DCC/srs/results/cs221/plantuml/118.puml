@@ -1,0 +1,147 @@
+@startuml
+' ===========================
+' Package: Model
+' ===========================
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + setLabel(label: String)
+    + updateCoordinates(cart: CartesianCoordinate, polar: PolarCoordinate)
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    + getX(): double
+    + getY(): double
+    + setX(x: double)
+    + setY(y: double)
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    + getR(): double
+    + getTheta(): double
+    + setR(r: double)
+    + setTheta(theta: double)
+  }
+
+  ' Composition: A coordinate group contains both coordinate representations.
+  CoordinateGroup *-- CartesianCoordinate : contains
+  CoordinateGroup *-- PolarCoordinate : contains
+}
+
+' ===========================
+' Package: DAO (Data Access)
+' ===========================
+package dao {
+  class DatabaseManager {
+    - connection: Connection
+    - url: String
+    - username: String
+    - password: String
+    + getConnection(): Connection
+    + closeConnection(): void
+  }
+
+  class CoordinateGroupDAO {
+    - dbManager: DatabaseManager
+    + addCoordinateGroup(cg: model.CoordinateGroup): void
+    + updateCoordinateGroup(cg: model.CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + listCoordinateGroups(): List<model.CoordinateGroup>
+    + findCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+  }
+
+  CoordinateGroupDAO ..> DatabaseManager : uses
+}
+
+' ===========================
+' Package: Service (Business Logic)
+' ===========================
+package service {
+  class CoordinateConverter {
+    + cartesianToPolar(cart: model.CartesianCoordinate): model.PolarCoordinate
+    + polarToCartesian(polar: model.PolarCoordinate): model.CartesianCoordinate
+  }
+
+  class CoordinateService {
+    - coordinateGroupDAO: dao.CoordinateGroupDAO
+    - converter: CoordinateConverter
+    + createCoordinateGroup(label: String, 
+        cart: model.CartesianCoordinate, polar: model.PolarCoordinate): void
+    + updateCoordinateGroup(cg: model.CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + getAllCoordinateGroups(): List<model.CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+    + convertCoordinates(sourceType: String, value1: double, value2: double): Object
+  }
+
+  CoordinateService ..> CoordinateConverter : uses
+  CoordinateService ..> dao.CoordinateGroupDAO : uses
+}
+
+' ===========================
+' Package: Controller
+' ===========================
+package controller {
+  class CoordinateGroupController {
+    - service: service.CoordinateService
+    + createCoordinateGroup(label: String, sourceType: String, value1: double, value2: double): void
+    + updateCoordinateGroup(id: int, label: String, sourceType: String, value1: double, value2: double): void
+    + deleteCoordinateGroup(id: int): void
+    + viewAllCoordinateGroups(): List<model.CoordinateGroup>
+    + viewCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+  }
+
+  CoordinateGroupController ..> service.CoordinateService : uses
+}
+
+' ===========================
+' Package: GUI (Presentation)
+' ===========================
+package gui {
+  class MainFrame {
+    - controller: controller.CoordinateGroupController
+    + initComponents(): void
+    + display(): void
+  }
+
+  class CoordinateGroupForm {
+    - controller: controller.CoordinateGroupController
+    + getInputData(): Map
+    + displayError(message: String): void
+  }
+
+  class CoordinateGroupListPanel {
+    - controller: controller.CoordinateGroupController
+    + displayCoordinateGroups(groups: List<model.CoordinateGroup>): void
+  }
+
+  MainFrame --> CoordinateGroupForm : contains
+  MainFrame --> CoordinateGroupListPanel : contains
+  CoordinateGroupForm ..> controller.CoordinateGroupController : uses
+  CoordinateGroupListPanel ..> controller.CoordinateGroupController : uses
+}
+
+' ===========================
+' Notes on the Architecture:
+' --------------------------
+' - The "gui" package represents the thick client interface built with Java Swing.
+' - The "controller" package receives GUI events and translates them into service calls.
+' - The "service" package contains the business logic, including coordinate conversions.
+' - The "dao" package manages all persistence interactions with the MySQL database.
+' - The "model" package holds the domain entities.
+' ===========================
+
+@enduml

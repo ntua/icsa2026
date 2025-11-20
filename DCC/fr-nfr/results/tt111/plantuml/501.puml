@@ -1,0 +1,81 @@
+@startuml DCC_Application_Class_Diagram
+
+package "Presentation Layer" {
+    class CoordinateConverterGUI {
+        + void createGroup()
+        + void retrieveGroup()
+        + void modifyGroup()
+        + void deleteGroup()
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateService {
+        - void createCoordinateGroup(CartesianCoordinate, PolarCoordinate, String)
+        - void retrieveCoordinateGroup(String)
+        - void updateCoordinateGroup(String, CartesianCoordinate, PolarCoordinate, String)
+        - void deleteCoordinateGroup(String)
+        
+        + void convertCoordinates()
+    }
+    
+    class ConversionUtility {
+        - static PolarCoordinate convertCartesianToPolar(CartesianCoordinate)
+        - static CartesianCoordinate convertPolarToCartesian(PolarCoordinate)
+    }
+    
+    class CoordinateGroup {
+        - Integer id
+        - String label
+        - Date timestamp
+        - CartesianCoordinate cartesianCoordinates
+        - PolarCoordinate polarCoordinates
+        
+        + void setLabel(String)
+        + void updateCoordinates(CartesianCoordinate, PolarCoordinate)
+    }
+    
+    class CartesianCoordinate {
+        - Double x
+        - Double y
+        
+        + void setX(Double)
+        + void setY(Double)
+    }
+    
+    class PolarCoordinate {
+        - Double r
+        - Double theta
+        
+        + void setR(Double)
+        + void setTheta(Double)
+    }
+}
+
+package "Data Access Layer" {
+    interface DatabaseAccessor {
+        + void storeCoordinateGroup(CoordinateGroup)
+        + CoordinateGroup retrieveCoordinateGroup(String)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(String)
+    }
+    
+    class MySQLDatabaseAccess implements DatabaseAccessor {
+        - Connection jdbcConnection
+        
+        + MySQLDatabaseAccess()
+        + void storeCoordinateGroup(CoordinateGroup)
+        + CoordinateGroup retrieveCoordinateGroup(String)
+        + void updateCoordinateGroup(CoordinateGroup)
+        + void deleteCoordinateGroup(String)
+    }
+}
+
+' Associations
+CoordinateConverterGUI --> CoordinateService : Uses > 
+CoordinateService --* ConversionUtility : Uses > 
+CoordinateService --* CoordinateGroup : Manages >
+CoordinateService --> DatabaseAccessor : Depends on >
+MySQLDatabaseAccess -|> DatabaseAccessor : Implements >
+
+@enduml

@@ -1,0 +1,57 @@
+@startuml
+package com.dccapp.logic {
+    class CartesianCoordinate {
+        Double x
+        Double y
+    }
+
+    class PolarCoordinate {
+        Double r
+        Double theta
+    }
+
+    class CoordinateGroup {
+        Integer id
+        String label
+        Date timestamp
+        CartesianCoordinate cartesian
+        PolarCoordinate polar
+    }
+
+    class CoordinateConverter {
+        +PolarCoordinate cartesianToPolar(CartesianCoordinate cartesian)
+        +CartesianCoordinate polarToCartesian(PolarCoordinate polar)
+    }
+}
+
+package com.dccapp.data {
+    class DataManager {
+        +void createCoordinateGroup(CoordinateGroup group)
+        +List<CoordinateGroup> readCoordinateGroups()
+        +void updateCoordinateGroup(CoordinateGroup group)
+        +void deleteCoordinateGroup(Integer id)
+    }
+}
+
+package com.dccapp.ui {
+    class UIController {
+        DataManager dataManager
+        CoordinateConverter coordinateConverter
+        +void inputCoordinateGroup()
+        +void addCoordinateGroup()
+        +void updateCoordinateGroup()
+        +void deleteCoordinateGroup()
+        +void filterCoordinateGroups(String label)
+        +void clearFilter()
+        +void displayCoordinateGroups()
+    }
+}
+
+UIController --> DataManager
+UIController --> CoordinateConverter
+CoordinateGroup o-- CartesianCoordinate
+CoordinateGroup o-- PolarCoordinate
+CoordinateConverter --> CartesianCoordinate
+CoordinateConverter --> PolarCoordinate
+DataManager --> CoordinateGroup
+@enduml

@@ -1,0 +1,121 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application Class Diagram
+
+!define Single Responsibility Principle as SRP
+
+package "Frontend" {
+  class MainFrame {
+    <<SRP>>
+  }
+
+  class UserInterface {
+    <<SRP>>
+
+    - displayList()
+    - updateList(label: String, coordinates: CoordinatesGroup)
+    + addFilter(filterLabel: String) 
+    + clearFilters() 
+  }
+
+  class MenuBar {
+    <<SRP>>
+    
+    - handleAdd(): void
+    - handleUpdate(): void
+    - handleDelete(): void
+  }
+}
+
+package "Data Operations" {
+  class CreateOp {
+    <<SRP>>
+
+    + create(group: CoordinatesGroup): int
+  }
+
+  class ReadOp {
+    <<SRP>>
+
+    + readAll(): List<CoordinatesGroup>
+  }
+
+  class UpdateOp {
+    <<SRP>>
+    
+    + update(id: int, group: CoordinatesGroup) 
+  }
+
+  class DeleteOp {
+    <<SRP>>
+
+    + delete(id: int)
+  }
+}
+
+package "Logic" {
+  class CoordinatesConverter {
+    <<SRP>>
+
+    + cartesianToPolar(x: double, y: double): PolarCoordinates 
+    + polarToCartesian(r: double, theta: double): CartesianCoordinates 
+  }
+
+  class CoordinatesGroup {
+    - id: int 
+    - label: String 
+    + coordinates: CartesianCoordinates | PolarCoordinates
+  }
+
+  class CartesianCoordinates {
+    x: double
+    y: double
+
+    <<SRP>>
+  }
+  
+  class PolarCoordinates {
+    r: double
+    theta: double
+    
+    <<SRP>> 
+  }
+}
+
+
+package "Server" {
+  class Database {
+    <<SRP>>
+
+    + saveData(data: String) 
+    + fetchData(query: String): List<String>
+  }
+
+  class TCP_IP {
+    <<SRP>>
+  
+    + establishConnection()
+    + sendRequest(request: String)
+    + receiveResponse(): String 
+  }
+}
+
+UserInterface -down- MenuBar
+MainFrame <|-- UserInterface
+MainFrame <|-- MenuBar
+MenuBar -d-> CreateOp : onAdd()
+MenuBar -d-> UpdateOp : onUpdate() 
+MenuBar -d-> DeleteOp : onDelete() 
+
+CreateOp ..> Database : save record to db(data: String)
+ReadOp ..> Database : fetch data from db(query: String): List<String>
+UpdateOp ..> Database : update record in db(id: int, data: String) 
+DeleteOp -> Database : delete record from db(id: int)
+Database <.. TCP_IP : send request to database server, receive response 
+
+ReadOp .down. CoordinatesGroup
+CoordinatesGroup *-- CartesianCoordinates
+CoordinatesGroup *-- PolarCoordinates
+
+CartesianCoordinates --> PolarCoordinates : cartesianToPolar() 
+PolarCoordinates --> CartesianCoordinates : polarToCartesian()
+@enduml

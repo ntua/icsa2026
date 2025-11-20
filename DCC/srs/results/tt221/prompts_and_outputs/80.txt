@@ -1,0 +1,92 @@
+Response:
+Based on the SRS and the Three-Tier Architecture specified, I will generate a PlantUML class diagram. The system will include the following layers:
+
+1. **Presentation Layer** (GUI):
+   - `MainFrame` (handles the GUI elements).
+   - `CoordinateForm` (for user input and modification).
+   - `CoordinateListView` (for displaying data).
+
+2. **Business Logic Layer** (Service Layer):
+   - `CoordinateService` (handles coordinate conversion and business logic).
+
+3. **Data Access Layer**:
+   - `CoordinateRepository` (handles database operations).
+
+4. **Data Model**:
+   - `CoordinateGroup` (entity representing a coordinate group).
+
+Here is the PlantUML code: 
+
+```plantuml
+@startuml
+package "Presentation Layer" {
+    class MainFrame {
+        + open()
+        + close()
+    }
+    class CoordinateForm {
+        + displayForm()
+        + getCoordinateInput(): CoordinateGroup
+    }
+    class CoordinateListView {
+        + displayList(groups: List<CoordinateGroup>)
+    }
+}
+
+package "Business Logic Layer" {
+    class CoordinateService {
+        + createGroup(group: CoordinateGroup)
+        + updateGroup(group: CoordinateGroup)
+        + deleteGroup(id: int)
+        + getAllGroups(): List<CoordinateGroup>
+        + getGroupByLabel(label: String): CoordinateGroup
+        + convertToPolar(x: double, y: double): (double r, double theta)
+        + convertToCartesian(r: double, theta: double): (double x, double y)
+    }
+}
+
+package "Data Access Layer" {
+    class CoordinateRepository {
+        + save(group: CoordinateGroup)
+        + update(group: CoordinateGroup)
+        + delete(id: int)
+        + findById(id: int): CoordinateGroup
+        + findByLabel(label: String): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+    }
+}
+
+package "Data Model" {
+    class CoordinateGroup {
+        + id: int
+        + label: String
+        + timestamp: Date
+        + x: double
+        + y: double
+        + r: double
+        + theta: double
+    }
+}
+
+MainFrame --> CoordinateForm
+MainFrame --> CoordinateListView
+CoordinateForm --> CoordinateService : calls
+CoordinateListView --> CoordinateService : calls
+CoordinateService --> CoordinateRepository : interacts
+CoordinateRepository --> CoordinateGroup : CRUD
+@enduml
+```
+
+### Explanation:
+1. **Packages**: Each layer is organized in a separate package for better clarity and to reflect the separation of concerns in the Three-Tier Architecture.
+2. **Classes**:
+   - `CoordinateGroup`: The core data model representing the coordinate data.
+   - `CoordinateService`: Contains business logic for managing and converting coordinates.
+   - `CoordinateRepository`: Handles persistence of `CoordinateGroup` objects.
+   - GUI classes (`MainFrame`, `CoordinateForm`, `CoordinateListView`) allow interaction with users.
+3. **Relationships**:
+   - Dependencies between layers are represented with arrows.
+   - `CoordinateService` depends on `CoordinateRepository` for data access.
+   - Presentation layer classes depend on the `CoordinateService`.
+
+Let me know if you need a rendered image of this diagram or any additional details!

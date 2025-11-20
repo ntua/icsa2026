@@ -1,0 +1,77 @@
+@startuml
+
+package "Model" {
+    class CoordinateGroup {
+        + label: String
+        + timestamp: Date
+        + cartesian: CartesianCoordinates
+        + polar: PolarCoordinates
+        
+        # create()
+        # modify(label, coordinates)
+        # delete()
+    }
+    
+    class CartesianCoordinates {
+        - x: double
+        - y: double
+        
+        # convertToPolar(): PolarCoordinates
+    }
+    
+    class PolarCoordinates {
+        - r: double
+        - theta: double
+        
+        # convertToCartesian(): CartesianCoordinates
+    }
+}
+
+
+package "View" {
+
+    class GUI {
+        + displayCoordinateGroups()
+        + createGroup(label, coordinates)
+        + modifyGroup(groupID, label, coordinates)
+        + deleteGroup(groupID)
+        
+        # showAllGroups()
+        
+    }
+    
+    class ConsoleOutput {
+        + printCoordinateGroups()
+        + inputCoordinates()
+    }
+}
+
+
+package "Controller" {
+
+    class Controller {
+        - model: CoordinateManager
+        - view: GUI|ConsoleOutput
+
+        # processInput()
+        # handleCreateGroup(label, coordinates)
+        # handleModifyGroup(groupID, label, coordinates)
+        # handleDeleteGroup(groupID)
+    }
+    
+    class CoordinateManager {
+        + storeGroup(coordinateGroup: CoordinateGroup): int
+        + retrieveGroup(label: String): CoordinateGroup
+        + retrieveAllGroups(): ArrayList<CoordinateGroup>
+        
+        # deleteGroup(groupID: int)
+        
+    }
+    
+}
+
+
+Controller --> Model : creates, retrieves, modifies and deletes coordinate groups 
+Controller <.. View : handles input/output of information
+Model .. CoordinateManager : manages the database operations
+@enduml

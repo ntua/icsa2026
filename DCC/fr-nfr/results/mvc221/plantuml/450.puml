@@ -1,0 +1,95 @@
+@startuml
+scale 0.7
+package Frontend {
+  interface View {
+    + updateCoordinateGroupList(coordinateGroups: List<CoordinateGroup>)
+    + showErrorMessage(message: String)
+    + setLabelFilter(filter: String)
+  }
+
+  class MainWindow implements View {
+    - controller: Controller
+    - coordinateGroupList: List<CoordinateGroup>
+
+    - method updateCoordinateGroupList(coordinateGroups: List<CoordinateGroup>)
+    - method showErrorMessage(message: String)
+    - method setLabelFilter(filter: String)
+  }
+
+  class SwingViewFactory {
+    + createMainWindow(): MainWindow
+  }
+}
+
+package Logic {
+  interface CoordinateConverter {
+    + toPolarCoordinates(x: Double, y: Double): PolarCoordinate
+    + toCartesianCoordinates(r: Double, theta: Double): CartesianCoordinate
+  }
+
+  class DefaultCoordinateConverter implements CoordinateConverter {
+    - method toPolarCoordinates(x: Double, y: Double): PolarCoordinate
+    - method toCartesianCoordinates(r: Double, theta: Double): CartesianCoordinate
+  }
+
+  interface CoordinateGroupManager {
+    + createCoordinateGroup(label: String, cartesianCoordinates: List<CartesianCoordinate>, polarCoordinates: List<PolarCoordinate>): CoordinateGroup
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: Int)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+  }
+
+  class DefaultCoordinateGroupManager implements CoordinateGroupManager {
+    - repository: CoordinateGroupRepository
+
+    - method createCoordinateGroup(label: String, cartesianCoordinates: List<CartesianCoordinate>, polarCoordinates: List<PolarCoordinate>): CoordinateGroup
+    - method updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    - method deleteCoordinateGroup(id: Int)
+    - method getAllCoordinateGroups(): List<CoordinateGroup>
+  }
+}
+
+package Database {
+  interface DatabaseConnection {
+    + saveData(data: String)
+    + fetchData(query: String): String
+  }
+
+  class MySQLDatabaseConnection implements DatabaseConnection {
+    - connection: MySQLConnection
+
+    - method saveData(data: String)
+    - method fetchData(query: String): String
+  }
+
+  interface CoordinateGroupRepository {
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): Int
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: Int)
+  }
+
+  class DefaultCoordinateGroupRepository implements CoordinateGroupRepository {
+    - databaseConnection: DatabaseConnection
+
+    - method saveCoordinateGroup(coordinateGroup: CoordinateGroup): Int
+    - method getAllCoordinateGroups(): List<CoordinateGroup>
+    - method updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    - method deleteCoordinateGroup(id: Int)
+  }
+}
+
+class Controller {
+  - view: View
+  - coordinateConverter: CoordinateConverter
+  - coordinateGroupManager: CoordinateGroupManager
+
+  - constructor(view: View, coordinateConverter: CoordinateConverter, coordinateGroupManager: CoordinateGroupManager)
+  - method onAddCoordinateGroup()
+  - method onUpdateCoordinateGroup()
+  - method onDeleteCoordinateGroup()
+  - method refreshCoordinateGroupList()
+  - method filterCoordinateGroupsByLabel(filter: String)
+}
+
+@enduml

@@ -1,0 +1,63 @@
+@startuml
+package AuthService {
+  class GoogleAuthController {
+    + authenticateUser() // Functional requirement - business logic operation
+  }
+}
+
+package CSVTemplateService {
+  class CsvTemplateManager {
+    + getBasicLineTemplate() // Data management operation
+    + getLineWithAnnotationsTemplate() // Data management operation
+    + getBasicColumnTemplate() // Data management operation
+  }
+}
+
+package ChartGenerationService {
+  class CsvValidator {
+    + validateCsvFile(file) // Functional requirement - business logic operation
+  }
+
+  class ChartGenerator {
+    + generateChart(data) // Functional requirement - business logic operation
+  }
+
+  class FileConverter {
+    + convertToPdf() // Data management operation
+    + convertToSvg() // Data management operation
+    + convertToHtml() // Data management operation
+  }
+}
+
+package UserProfileService {
+  class ProfileManager {
+    + getUserProfile(userId) // Functional requirement - business logic operation
+    + updateQuota(userId, quota) // Data consistency operation
+  }
+}
+
+package QuotaManagementService {
+  class QuotaCharger {
+    + chargeForChartCreation() // Functional requirement - business logic operation
+  }
+
+  class PaymentGatewayIntegrator {
+    + processPayment() // Flow control operation
+  }
+}
+
+package DashboardService {
+  class ChartHistoryManager {
+    + getUserCharts(userId) // Functional requirement - business logic operation
+    + deleteChart(chartId) // Data management operation
+  }
+}
+
+AuthService.GoogleAuthController --> CSVTemplateService.CsvTemplateManager : authenticates user
+CSVTemplateService.CsvTemplateManager --> ChartGenerationService.CsvValidator : provides template for validation
+ChartGenerationService.CsvValidator --> ChartGenerationService.ChartGenerator : validates and generates chart
+ChartGenerationService.ChartGenerator --> ChartGenerationService.FileConverter : generates file formats
+UserProfileService.ProfileManager <-- ChartGenerationService.QuotaCharger : manages user quota
+QuotaManagementService.PaymentGatewayIntegrator <-- QuotaManagementService.QuotaCharger : processes payment for quotas
+DashboardService.ChartHistoryManager --> UserProfileService.ProfileManager : provides chart history to dashboard
+@enduml

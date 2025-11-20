@@ -1,0 +1,67 @@
+@startuml
+
+!include <C4/C4_Context>
+
+SHOW_LEGEND()
+
+System_Boundary(c1, "Dummy Coordination Conversion Application") {
+  package "Model" {
+    class CoordinateGroup {
+      - id: int
+      - label: String
+      - timestamp: Date
+      - cartesianCoordinates: CartesianCoordinate 
+      - polarCoordinates: PolarCoordinate
+      + convertCartesianToPolar()
+      + convertPolarToCartesian()
+    }
+
+    class CartesianCoordinate {
+      - x: double
+      - y: double
+    }
+
+    class PolarCoordinate {
+      - r: double
+      - theta: double
+    }
+
+  }
+
+ package "View" {
+    class CoordinateGroupView {
+      + displayCoordinateGroups()
+      + displayCoordinateGroupDetails(CoordinateGroup)
+      + getInputFromUser(): String 
+    }
+  }
+
+  package "Controller" {
+    class DCCController {
+      - coordinateGroupModel: CoordinateGroup
+      - coordinateGroupView: CoordinateGroupView
+      + createCoordinateGroup()
+      + storeCoordinateGroup(CoordinateGroup)
+      + retrieveCoordinateGroups(String label)
+      + modifyCoordinateGroup(CoordinateGroup)
+      + deleteCoordinateGroup(int id)
+    }
+
+  package "Database" {
+    class MySQLDatabaseAdapter {
+      + connectToDatabase(): void
+      + storeCoordinateGroup(CoordinateGroup): void
+      + retrieveCoordinateGroups(String label): List<CoordinateGroup>
+      + updateCoordinateGroup(CoordinateGroup): void
+      + deleteCoordinateGroup(int id): void
+    }
+
+  }
+
+  DCCController --> CoordinateGroupView : uses
+  DCCController --> MySQLDatabaseAdapter: uses
+  DCCController --> CoordinateGroup : creates, manages 
+  MySQLDatabaseAdapter --> CoordinateGroup : stores/retrieves
+}
+
+@enduml

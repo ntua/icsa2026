@@ -1,0 +1,50 @@
+@startuml
+class UserInterface {
+    - createCoordinateGroup(x: Double, y: Double, r: Double, theta: Double): void
+    - retrieveCoordinateGroups(): List<CoordinateGroup>
+    - modifyCoordinateGroup(id: int, x: Double, y: Double, r: Double, theta: Double): void
+    - deleteCoordinateGroup(id: int): void
+}
+
+package "LogicLayer" {
+    class CoordinateConversionManager {
+        + convertCartesianToPolar(x: Double, y: Double): PolarCoordinates
+        + convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates
+
+        # processCoordinateGroups(): List<CoordinateGroup>
+    }
+
+    class DatabaseManager {
+        + saveCoordinateGroup(group: CoordinateGroup): void
+        + getCoordinateGroupById(id: int): CoordinateGroup
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroupById(id: int): void
+    }
+}
+
+
+class PolarCoordinates {
+    - r : Double
+    - theta : Double 
+}
+class CartesianCoordinates { 
+    - x : Double
+    - y : Double 
+}
+class CoordinateGroup { 
+    - id : Int (Auto-Generated)
+    - label : String 
+    - timestamp : Date () 
+    + cartesianCoords: List<CartesianCoordinates>
+    + polarCoords :List <PolarCoordinates> 
+}
+
+
+UserInterface "1" *--u  LogicLayer  : uses
+
+LogicLayer .. DatabaseManager  : uses
+DatabaseManager --> MySQL 
+
+
+@enduml

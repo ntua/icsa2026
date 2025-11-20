@@ -1,0 +1,29 @@
+@startuml
+class CoordinateManager {
+  +createCoordinateGroup()
+  +deleteCoordinateGroup(int groupId)
+  +updateCoordinateGroup(int groupId, String label, double[] polarCoordinates, double[] cartesianCoordinates)
+  ...
+}
+
+class Database {
+  <<interface>>
+  +addCoordinateGroup(String label, double[] polarCoordinates, double[] cartesianCoordinates)
+  +deleteCoordinateGroup(int groupId)
+  +updateCoordinateGroup(int groupId, String newLabel, double[] newPolarCoordinates, double[] newCartesianCoordinates)
+  ...
+}
+
+class CoordinateGroup {
+  int id
+  String label
+  double[] polarCoordinates
+  double[] cartesianCoordinates
+  
+  CoordinateManager coordinateManager - down
+  
+}
+
+CoordinateManager .. Database : uses
+Database *-- CoordinateGroup 
+@enduml

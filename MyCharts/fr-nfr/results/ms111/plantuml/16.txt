@@ -1,0 +1,217 @@
+@startuml
+
+' Package definitions
+package "API Gateway" {
+    class APIGateway {
+        + routeRequest(request: Request): Response // Flow control operation
+        + validateToken(token: String): Boolean // Flow control operation
+    }
+}
+
+package "Authentication Service" {
+    class AuthenticationService {
+        - userRepository: UserRepository
+        + authenticateUser(googleToken: String): AuthToken // Functional requirement-business logic operation
+        + validateToken(token: String): Boolean // Functional requirement-business logic operation
+        + getUserProfile(userId: String): UserProfile // Data management operation
+        + updateLastLogin(userId: String): void // Data management operation
+    }
+    
+    class UserRepository {
+        + findUserById(userId: String): User // Data management operation
+        + createUser(user: User): User // Data management operation
+        + updateUser(user: User): User // Data management operation
+    }
+    
+    class User {
+        - id: String
+        - name: String
+        - email: String
+        - profilePicture: String
+        - remainingQuota: Integer
+        - creationTimestamp: DateTime
+        - lastLoginTimestamp: DateTime
+    }
+    
+    class UserProfile {
+        - id: String
+        - name: String
+        - email: String
+        - profilePicture: String
+        - remainingQuota: Integer
+        - creationTimestamp: DateTime
+        - lastLoginTimestamp: DateTime
+    }
+}
+
+package "Chart Service" {
+    class ChartService {
+        - chartRepository: ChartRepository
+        - templateRepository: TemplateRepository
+        + getTemplates(): List<Template> // Functional requirement-business logic operation
+        + downloadTemplate(templateId: String): CSVTemplate // Functional requirement-business logic operation
+        + validateCSV(csvData: String, templateId: String): ValidationResult // Functional requirement-business logic operation
+        + generateChart(csvData: String, chartType: String, userId: String): Chart // Functional requirement-business logic operation
+        + saveChart(chart: Chart): String // Data management operation
+        + getUserCharts(userId: String): List<Chart> // Data management operation
+        + deleteChart(chartId: String, userId: String): Boolean // Data management operation
+        + downloadChart(chartId: String, format: String): File // Functional requirement-business logic operation
+    }
+    
+    class ChartRepository {
+        + findByUserId(userId: String): List<Chart> // Data management operation
+        + findById(chartId: String): Chart // Data management operation
+        + save(chart: Chart): Chart // Data management operation
+        + delete(chartId: String): Boolean // Data management operation
+    }
+    
+    class TemplateRepository {
+        + findById(templateId: String): Template // Data management operation
+        + findAll(): List<Template> // Data management operation
+    }
+    
+    class Chart {
+        - id: String
+        - userId: String
+        - chartType: String
+        - creationTimestamp: DateTime
+        - data: String
+        - pdfUrl: String
+        - pngUrl: String
+        - svgUrl: String
+        - htmlUrl: String
+    }
+    
+    class Template {
+        - id: String
+        - name: String
+        - type: String
+        - structure: String
+    }
+    
+    class ValidationResult {
+        - valid: Boolean
+        - errors: List<String>
+    }
+}
+
+package "Quota Service" {
+    class QuotaService {
+        - quotaRepository: QuotaRepository
+        + checkQuota(userId: String): Boolean // Functional requirement-business logic operation
+        + deductQuota(userId: String, amount: Integer): Boolean // Functional requirement-business logic operation
+        + addQuota(userId: String, amount: Integer): Boolean // Functional requirement-business logic operation
+        + notifyQuotaDepletion(userId: String): void // Flow control operation
+        + syncQuotaWithUser(userId: String, quota: Integer): void // Data consistency operation
+    }
+    
+    class QuotaRepository {
+        + findByUserId(userId: String): Quota // Data management operation
+        + save(quota: Quota): Quota // Data management operation
+    }
+    
+    class Quota {
+        - userId: String
+        - remaining: Integer
+        - lastUpdated: DateTime
+    }
+}
+
+package "Payment Service" {
+    class PaymentService {
+        - paymentRepository: PaymentRepository
+        + createPaymentIntent(userId: String, quotaAmount: Integer): PaymentIntent // Functional requirement-business logic operation
+        + processPayment(paymentId: String): PaymentResult // Functional requirement-business logic operation
+        + getPaymentHistory(userId: String): List<Payment> // Data management operation
+        + notifyPaymentComplete(paymentId: String): void // Flow control operation
+        + syncPaymentWithQuota(userId: String, amount: Integer): void // Data consistency operation
+    }
+    
+    class PaymentRepository {
+        + findByUserId(userId: String): List<Payment> // Data management operation
+        + findById(paymentId: String): Payment // Data management operation
+        + save(payment: Payment): Payment // Data management operation
+    }
+    
+    class Payment {
+        - id: String
+        - userId: String
+        - amount: Float
+        - quotaAmount: Integer
+        - status: String
+        - timestamp: DateTime
+    }
+    
+    class PaymentIntent {
+        - id: String
+        - userId: String
+        - amount: Float
+        - quotaAmount: Integer
+        - clientSecret: String
+    }
+    
+    class PaymentResult {
+        - success: Boolean
+        - paymentId: String
+        - message: String
+    }
+    
+    class PaymentGateway {
+        + createPaymentIntent(amount: Float): PaymentIntent // Functional requirement-business logic operation
+        + confirmPayment(paymentId: String): Boolean // Functional requirement-business logic operation
+    }
+}
+
+package "Notification Service" {
+    class NotificationService {
+        + sendQuotaDepletion(userId: String): void // Flow control operation
+        + sendPaymentConfirmation(userId: String, paymentId: String): void // Flow control operation
+        + sendChartGenerated(userId: String, chartId: String): void // Flow control operation
+    }
+}
+
+package "Message Broker" {
+    class MessageBroker {
+        + publishMessage(topic: String, message: Message): void // Flow control operation
+        + subscribe(topic: String, callback: Function): void // Flow control operation
+    }
+    
+    class Message {
+        - id: String
+        - topic: String
+        - payload: String
+        - timestamp: DateTime
+    }
+}
+
+' Relationships
+APIGateway --> AuthenticationService
+APIGateway --> ChartService
+APIGateway --> QuotaService
+APIGateway --> PaymentService
+
+AuthenticationService --> UserRepository
+UserRepository --> User
+
+ChartService --> ChartRepository
+ChartService --> TemplateRepository
+ChartRepository --> Chart
+TemplateRepository --> Template
+ChartService --> QuotaService
+ChartService --> MessageBroker
+
+QuotaService --> QuotaRepository
+QuotaRepository --> Quota
+QuotaService --> MessageBroker
+QuotaService --> AuthenticationService
+
+PaymentService --> PaymentRepository
+PaymentRepository --> Payment
+PaymentService --> PaymentGateway
+PaymentService --> QuotaService
+PaymentService --> MessageBroker
+
+NotificationService --> MessageBroker
+MessageBroker --> Message
+
+@enduml

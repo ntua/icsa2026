@@ -1,0 +1,70 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+package "Controller" {
+    class DCCController {
+        - swingUI : SwingFrontend
+        
+        + createCoordinateGroup(type: String, x: Double, y: Double, r: Double, theta: Double) : void
+        + storeCoordinateGroup() : void
+        + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+        + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+        + modifyCoordinateGroup(id: int, label: String, x: Double, y: Double, r: Double, theta: Double) : void
+        + deleteCoordinateGroup(id: int) : void
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        - id : Integer
+        - label : String
+        - timestamp : Timestamp
+        
+        - cartesianCoordinates : CartesianCoordinates
+        - polarCoordinates : PolarCoordinates
+
+        + getCartesianCoordinates() : CartesianCoordinates
+        + setCartesianCoordinates(x: Double, y: Double) : void
+
+        + getPolarCoordinates() : PolarCoordinates
+        + setPolarCoordinates(r: Double, theta: Double) : void
+    }
+
+    class CartesianCoordinates {
+        - x : Double
+        - y : Double
+        
+        + convertToPolar() : PolarCoordinates
+    }
+
+    class PolarCoordinates {
+        - r : Double
+        - theta : Double
+        
+        + convertToCartesian() : CartesianCoordinates
+    }
+}
+
+
+package "View" {
+    class SwingFrontend {
+        + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>) : void
+        + displaySuccessMessage(message: String) : void
+        + displayErrorMessage(message: String) : void
+
+        - dccController : DCCController
+        
+        + showCreateDialog() : void
+        + showModifyDialog(id: int, label: String, x: Double, y: Double, r: Double, theta: Double) : void
+        + showDeleteConfirmation(label: String) : boolean
+    }
+}
+
+
+DCCController .. SwingFrontend : Uses
+
+SwingFrontend .. CoordinateGroup : Displays
+
+Note left of DCCController: TCP/IP Connection to MySQL Database
+Note right of SwingFrontend: Java Frontend with Swing Framework
+@enduml

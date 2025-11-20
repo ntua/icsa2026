@@ -1,0 +1,76 @@
+@startuml
+package client {
+    class ClientGUI {
+        - List<CoordinateGroupDTO> coordinateGroups
+        + void initialize()
+        + void showCreateForm()
+        + void showModifyForm()
+        + void refreshList()
+    }
+
+    class CoordinateGroupForm {
+        - CoordinateGroupDTO currentGroup
+        + void submitForm()
+        + void clearForm()
+    }
+
+    class CoordinateGroupList {
+        - List<CoordinateGroupDTO> displayedGroups
+        + void updateDisplay()
+    }
+}
+
+package server {
+    class CoordinateGroupService {
+        - DatabaseAccess dbAccess
+        + void createCoordinateGroup(CoordinateGroupDTO group)
+        + void modifyCoordinateGroup(CoordinateGroupDTO group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroupDTO> getAllCoordinateGroups()
+    }
+
+    class DatabaseAccess {
+        + void connect()
+        + void disconnect()
+        + void executeCreateQuery(CoordinateGroupDTO group)
+        + void executeModifyQuery(CoordinateGroupDTO group)
+        + void executeDeleteQuery(int id)
+        + List<CoordinateGroupDTO> executeReadQuery()
+    }
+}
+
+package shared {
+    class CoordinateGroupDTO {
+        - int uniqueId
+        - String timestamp
+        - String label
+        - float r
+        - float theta
+        - float x
+        - float y
+    }
+
+    class ServiceLocator {
+        + CoordinateGroupService getCoordinateGroupService()
+    }
+}
+
+package client {
+    class ServiceStubGenerator {
+        + void generateServiceStubs()
+    }
+}
+
+ClientGUI --> CoordinateGroupForm
+ClientGUI --> CoordinateGroupList
+
+CoordinateGroupService --* DatabaseAccess
+
+client.ServiceLocator --> server.CoordinateGroupService
+
+server.CoordinateGroupService --* shared.CoordinateGroupDTO
+client.ClientGUI --* shared.CoordinateGroupDTO
+
+ServiceStubGenerator --> ServiceLocator
+
+@enduml

@@ -1,0 +1,33 @@
+@startuml
+
+class User {
+  -username: String
+  -password: String
+}
+
+class CoordinateGroup {
+  -id: Integer # auto-generated unique primary key
+  -timestamp: Date # automatically assigned date and time of group creation
+  -label: String # user-defined label for identification
+  -polarCoordinates: PolarCoordinates
+  -cartesianCoordinates: CartesianCoordinates
+}
+
+class PolarCoordinates {
+  -r: Float
+  -theta: Float
+}
+
+class CartesianCoordinates {
+  -x: Float
+  -y: Float
+}
+
+class CoordinateGroupService {
+  +deleteCoordinateGroup(id: Integer): Boolean
+}
+
+class CoordinateGroupRepository {
+  +deleteCoordinateGroup(id: Integer): Boolean
+}
+@enduml

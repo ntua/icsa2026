@@ -1,0 +1,89 @@
+@startuml
+package "Presentation Layer" {
+    class DCCUserInterface {
+        - List<CoordinateGroup> coordinateGroups
+        - CoordinateGroup currentGroup
+        
+        + void displayCoordinateGroups()
+        + void handleUserInput()
+        + void handleAddButton()
+        + void handleUpdateButton()
+        + void handleDeleteButton()
+        + void filterCoordinateGroups(String label)
+        + void clearFilter()
+    }
+}
+
+package "Application Logic Layer" {
+    class CartesianCoordinates {
+        - double x
+        - double y
+        
+        + CartesianCoordinates(double x, double y)
+        + PolarCoordinates toPolar()
+    }
+
+    class PolarCoordinates {
+        - double r
+        - double theta
+        
+        + PolarCoordinates(double r, double theta)
+        + CartesianCoordinates toCartesian()
+    }
+
+    class CoordinateGroup {
+        - int id
+        - String label
+        - CartesianCoordinates cartesian
+        - PolarCoordinates polar
+        - DateTime timestamp
+        
+        + CoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+        + void convertToPolar()
+        + void convertToCartesian()
+    }
+
+    class DCCController {
+        - DCCDao dao
+        - List<CoordinateGroup> coordinateGroups
+        - CoordinateGroup currentGroup
+        
+        + void createCoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+        + void readAllCoordinateGroups()
+        + void updateCoordinateGroup(int id, String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+        + void deleteCoordinateGroup(int id)
+        + void filterCoordinateGroups(String label)
+        + void clearFilter()
+    }
+}
+
+package "Data Access Layer" {
+    class DCCDao {
+        - Connection dbConnection
+        
+        + void save(CoordinateGroup group)
+        + List<CoordinateGroup> findAll()
+        + void update(CoordinateGroup group)
+        + void delete(int id)
+    }
+
+    class DatabaseConnection {
+        - String host
+        - int port
+        - String database
+        - String username
+        - String password
+        
+        + Connection connect()
+        + void disconnect()
+    }
+}
+
+'DCCUserInterface' --* 'DCCController'
+'DCCController' --> 'CoordinateGroup'
+'DCCController' --> 'CartesianCoordinates'
+'DCCController' --> 'PolarCoordinates'
+'DCCController' --* 'DCCDao'
+
+'DCCDao' --> 'DatabaseConnection'
+@enduml

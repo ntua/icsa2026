@@ -1,0 +1,107 @@
+@startuml
+
+skinparam shadowing false
+skinparam class {
+  BackgroundColor White
+  BorderColor Black
+  ArrowColor Gray
+}
+
+!define CARET ^
+!define ARROW ->
+!define INHERITANCE <|..
+
+package "Application Logic" <<SRP>> {
+
+  class CartesianConverter {
+    +convertCartesianToPolar(x: Double, y: Double): PolarCoordinates
+    +convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates
+  }
+  
+  class PolarConverter {
+    +convertPolarToCartesian(r: Double, theta: Double): CartesianCoordinates
+    +convertCartesianToPolar(x: Double, y: Double): PolarCoordinates
+  }
+  
+} 
+
+package "Data Layer" <<SRP>> {
+
+  class CoordinateGroupRepository {
+    -databaseConnection: DatabaseConnection
+    +saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +readAllCoordinateGroups(): List<CoordinateGroup>
+    +updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +deleteCoordinateGroup(id: Int)
+  }
+  
+  class DatabaseConnection {
+    -connection: TCP/IP Connection 
+    +connect()
+    +disconnect()
+  }
+} 
+
+package "User Interface" <<SRP>> {
+
+  class UIController {
+    -converter: CartesianConverter, PolarConverter
+    -repository: CoordinateGroupRepository
+    
+    +createNewCoordinateGroup(label: String)
+    +readAllCoordinateGroups(): List<CoordinateGroup> 
+    +updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    +deleteCoordinateGroup(id: Int)
+    +filterCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    +clearFilter()
+  }
+  
+  class UI {
+    -controller: UIController
+    
+    +displayCoordinateGroups()
+    +displayFilteredCoordinateGroups(filteredList: List<CoordinateGroup>)
+    +updateUI()
+    +getUserInput(): CoordinateGroup, String
+    +getLabelFromUser(): String
+  }
+  
+} 
+
+package "Domain Model" <<SRP>> {
+
+  class CartesianCoordinates {
+    x: Double
+    y: Double
+    
+    +getCartesianValues(): Pair<Double>
+    +setCartesianValues(x: Double, y: Double)
+  }
+  
+  class PolarCoordinates {
+    r: Double
+    theta: Double
+    
+    +getPolarValues(): Pair<Double>
+    +setPolarValues(r: Double, theta: Double)
+  }
+  
+  class CoordinateGroup {
+    id: Int
+    label: String
+    cartesian: CartesianCoordinates
+    polar: PolarCoordinates
+    timestamp: DateTime
+    
+    +CoordinateGroup(id: Int, label: String, cartesian: CartesianCoordinates, polar: PolarCoordinates, timestamp: DateTime)
+    +getCoordinateValues(): Pair<CartesianCoordinates>, Pair<PolarCoordinates>
+  }
+} 
+
+UI --|> UIController : uses
+UIController --> CoordinateGroupRepository 
+UIController -down- CartesianConverter : Uses
+UIController -down- PolarConverter : Uses
+
+
+@enduml

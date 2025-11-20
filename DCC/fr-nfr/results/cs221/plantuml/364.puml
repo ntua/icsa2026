@@ -1,0 +1,66 @@
+@startuml
+
+skinparam monochrome true
+
+package Frontend {
+    class SwingUI {
+        - coordGroups: List<CoordinateGroup>
+        
+        + initialize()
+        + inputCoordinates()
+        + selectOperation()
+        + refreshDisplay()
+        + filterDisplay(label: String)
+        + clearFilter()
+    }
+}
+
+package Logic {
+    class CoordinateConvertor {
+        - x: HighPrecisionNumber
+        - y: HighPrecisionNumber
+        - r: HighPrecisionNumber
+        - theta: HighPrecisionNumber
+        
+        + convertCartesianToPolar()
+        + convertPolarToCartesian()
+    }
+    
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - cartesianCoordinates: List<HighPrecisionNumber>
+        - polarCoordinates: List<HighPrecisionNumber>
+        - timestamp: Date
+        
+        + updateValues(newCartesian, newPolar)
+    }
+    
+    class CoordinateGroupManager {
+        - database: Server.Database
+        
+        + create(coordinateGroup: CoordinateGroup)
+        + read(): List<CoordinateGroup>
+        + update(id: Int, coordinateGroup: CoordinateGroup)
+        + delete(id: Int)
+    }
+}
+
+package Database {
+    abstract class Database {
+        + saveData(data: String)
+        + fetchData(query: String): String
+    }
+    
+    class MySQLDatabase extends Database {
+        - connection: TCPIPConnection
+        
+        + connect()
+        + disconnect()
+    }
+}
+
+Frontend ..> Logic
+Logic ..> Database
+
+@enduml

@@ -1,0 +1,148 @@
+Response:
+Below is an example of a PlantUML class diagram organized into three main packages (`model`, `controller`, and `view`) that reflects the requested MVC architecture, data requirements, and overall functionality described in the SRS. You can adjust names, visibility (public, private, etc.), and methods to match your own conventions and level of detail.
+
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam packageTitleFontColor #ffffff
+skinparam packageTitleBackgroundColor #2e86c1
+
+title Dummy Coordinate Converter (MVC) - Class Diagram
+
+' ----------------------------------
+' PACKAGES
+' ----------------------------------
+package "com.dcc.model" {
+  
+  class CoordinateGroup {
+    - id : int
+    - timestamp : java.time.LocalDateTime
+    - label : String
+    - x : double
+    - y : double
+    - r : double
+    - theta : double
+    
+    + CoordinateGroup(label : String, x : double, y : double, r : double, theta : double)
+    + getId() : int
+    + getTimestamp() : java.time.LocalDateTime
+    + getLabel() : String
+    + setLabel(label : String) : void
+    + getX() : double
+    + setX(x : double) : void
+    + getY() : double
+    + setY(y : double) : void
+    + getR() : double
+    + setR(r : double) : void
+    + getTheta() : double
+    + setTheta(theta : double) : void
+  }
+  
+  class CoordinateConverter {
+    + toPolar(x : double, y : double) : double[] 
+    + toCartesian(r : double, theta : double) : double[]
+  }
+  
+  interface ICoordinateGroupDAO {
+    + create(group : CoordinateGroup) : void
+    + update(group : CoordinateGroup) : void
+    + delete(id : int) : void
+    + findByLabel(label : String) : java.util.List<CoordinateGroup>
+    + findAll() : java.util.List<CoordinateGroup>
+  }
+  
+  class CoordinateGroupDAOImpl {
+    - dbConnection : DatabaseConnection
+    
+    + CoordinateGroupDAOImpl(dbConnection : DatabaseConnection)
+    + create(group : CoordinateGroup) : void
+    + update(group : CoordinateGroup) : void
+    + delete(id : int) : void
+    + findByLabel(label : String) : java.util.List<CoordinateGroup>
+    + findAll() : java.util.List<CoordinateGroup>
+  }
+  
+  class DatabaseConnection {
+    - connection : java.sql.Connection
+    
+    + getConnection() : java.sql.Connection
+    + closeConnection() : void
+  }
+}
+
+package "com.dcc.controller" {
+  
+  class MainController {
+    - view : MainView
+    - dao : ICoordinateGroupDAO
+    - converter : CoordinateConverter
+    
+    + MainController(view : MainView, dao : ICoordinateGroupDAO, converter : CoordinateConverter)
+    + createCoordinateGroup(type : String, x : double, y : double, r : double, theta : double, label : String) : void
+    + updateCoordinateGroup(groupId : int, type : String, x : double, y : double, r : double, theta : double, label : String) : void
+    + deleteCoordinateGroup(groupId : int) : void
+    + viewAllCoordinateGroups() : void
+    + viewCoordinateGroupByLabel(label : String) : void
+  }
+}
+
+package "com.dcc.view" {
+  
+  class MainView {
+    - controller : MainController
+    
+    + MainView()
+    + setController(controller : MainController) : void
+    + showAllGroups(groups : java.util.List<CoordinateGroup>) : void
+    + showGroupsByLabel(groups : java.util.List<CoordinateGroup>) : void
+    + showCreateGroupForm() : void
+    + showUpdateGroupForm(group : CoordinateGroup) : void
+    + showError(message : String) : void
+  }
+}
+
+' ----------------------------------
+' RELATIONSHIPS
+' ----------------------------------
+
+' DAO Implementation
+ICoordinateGroupDAO <|.. CoordinateGroupDAOImpl
+
+' DAO uses DB connection
+CoordinateGroupDAOImpl --> DatabaseConnection : uses
+
+' Controller depends on DAO + uses converter
+MainController --> ICoordinateGroupDAO : "dao"
+MainController --> CoordinateConverter : "converter"
+
+' Controller <--> View
+MainController --> MainView : "view"
+MainView --> MainController : "controller"
+
+@enduml
+```
+
+## Explanation
+
+1. **Model Package (com.dcc.model)**  
+   - **CoordinateGroup**: Represents the main domain entity storing both Cartesian (`x`, `y`) and Polar (`r`, `θ`) values, as well as the `id`, `timestamp`, and `label`.  
+   - **CoordinateConverter**: Contains the logic to convert from Cartesian to Polar and vice versa.  
+   - **ICoordinateGroupDAO** (Interface): Declares CRUD and query methods (create, update, delete, findByLabel, findAll) for `CoordinateGroup`.  
+   - **CoordinateGroupDAOImpl** (Concrete DAO): Implements `ICoordinateGroupDAO`, relying on a `DatabaseConnection` for executing SQL statements.  
+   - **DatabaseConnection**: Encapsulates all necessary logic to establish and close connections to a MySQL database.
+
+2. **Controller Package (com.dcc.controller)**  
+   - **MainController**: The application’s controller, orchestrating user requests from the view. It interacts with the DAO to perform data operations and uses the `CoordinateConverter` to convert coordinate values, as required by the user’s actions (Create, Update, Delete, etc.).
+
+3. **View Package (com.dcc.view)**  
+   - **MainView**: A Swing-based GUI (noted in SRS). It provides forms and buttons for the user to interact with the system, then delegates actions (e.g., create, view, delete) to the `MainController`.  
+
+4. **Relationships**:  
+   - The `MainView` holds a reference to `MainController` to send user interactions.  
+   - The `MainController` holds references to both the `ICoordinateGroupDAO` (for persistence) and the `CoordinateConverter` (to transform data).  
+   - `CoordinateGroupDAOImpl` implements the `ICoordinateGroupDAO` interface and uses `DatabaseConnection` to communicate with the MySQL database.  
+
+This design follows the **MVC** separation of concerns:
+- **Model** handles data representation and persistence logic.  
+- **View** handles all GUI-related interaction with the user.  
+- **Controller** manages the flow between the view and the model components (DAO, conversion, etc.).

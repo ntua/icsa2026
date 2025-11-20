@@ -1,0 +1,78 @@
+@startuml
+package "Model" {
+    class Coordinate {
+        - x: double
+        - y: double
+        - r: double
+        - theta: double 
+
+        + Coordinate(x: double, y: double, r: double, theta: double)
+        + getX(): double
+        + getY(): double
+        + getR(): double
+        + getTheta(): double
+        + setX(x: double): void
+        + setY(y: double): void
+        + setR(r: double): void
+        + setTheta(theta: double): void
+        + toCartesian(): void
+        + toPolar(): void
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - coordinates: Coordinate 
+
+        + CoordinateGroup(label: String, coordinates: Coordinate)
+        + getId(): int
+        + getTimestamp(): Date
+        + getLabel(): String
+        + getCoordinates(): Coordinate
+        + setLabel(label: String): void
+        + setCoordinates(coordinates: Coordinate): void
+    }
+
+    class CoordinateDAO {
+        + createCoordinateGroup(group: CoordinateGroup): void
+        + updateCoordinateGroup(group: CoordinateGroup): void
+        + deleteCoordinateGroup(id: int): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: int): CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "View" {
+    class CoordinateGroupView {
+        - frame: JFrame
+        + showAllCoordinateGroups(): void
+        + showCoordinateGroupById(id: int): void
+        + showCoordinateGroupByLabel(label: String): void
+        + showCreateCoordinateGroupForm(): void
+        + showModifyCoordinateGroupForm(group: CoordinateGroup): void
+    }
+}
+
+package "Controller" {
+    class CoordinateGroupController {
+        - coordinateGroupView: CoordinateGroupView
+        - coordinateDAO: CoordinateDAO
+
+        + createCoordinateGroup(label: String, x: double, y: double, r: double, theta: double): void
+        + modifyCoordinateGroup(id: int, label: String, x: double, y: double, r: double, theta: double): void
+        + deleteCoordinateGroup(id: int): void
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroupById(id: int): CoordinateGroup
+        + getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+CoordinateGroupView --> CoordinateGroupController
+CoordinateGroupController --> CoordinateDAO
+CoordinateGroupController --> CoordinateGroupView
+CoordinateGroup <-- Coordinate
+CoordinateDAO --> CoordinateGroup
+
+@enduml

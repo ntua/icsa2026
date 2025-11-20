@@ -1,0 +1,64 @@
+@startuml
+
+package "Client" {
+    class DCCApp {
+        - coordinateManager: CoordinateManager
+        + run()
+    }
+
+    class Coordinate {
+        - x: highPrecisionNumber
+        - y: highPrecisionNumber
+        - r: highPrecisionNumber
+        - theta: highPrecisionNumber
+
+        + toPolar(): PolarCoordinate
+        + toCartesian(): CartesianCoordinate
+    }
+
+    class CartesianCoordinate {
+        - x: highPrecisionNumber
+        - y: highPrecisionNumber
+    }
+
+    class PolarCoordinate {
+        - r: highPrecisionNumber
+        - theta: highPrecisionNumber
+    }
+}
+
+package "Data" {
+    class DatabaseConnection {
+        - connection: MySQLDatabaseConnection
+    }
+
+    class CoordinateGroupRecord {
+        - id: uniqueIntegerIdentifier
+        - label: string
+        - cartesianCoordinateValues: CartesianCoordinate
+        - polarCoordinateValues: PolarCoordinate
+        - datetimeAddedOrModified: DateTime
+    }
+
+    class MySQLDatabaseConnection {
+    }
+}
+
+package "Logic" {
+    class CoordinateGroupManager {
+        - coordinateGroupRecords: list<CoordinateGroupRecord>
+        - databaseConnection: DatabaseConnection
+
+        + createOp(label: string, cartesianValues: CartesianCoordinate, polarValues: PolarCoordinate): uniqueIntegerIdentifier
+        + readOp(): list<CoordinateGroupRecord>
+        + updateOp(id: uniqueIntegerIdentifier, label: string, cartesianValues: CartesianCoordinate, polarValues: PolarCoordinate)
+        + deleteOp(id: uniqueIntegerIdentifier)
+    }
+}
+
+Client -> DCCApp
+DCCApp --> CoordinateGroupManager
+Logic.CoordinateGroupManager --> Data.DatabaseConnection
+Data.DatabaseConnection --> MySQLDatabaseConnection
+
+@enduml

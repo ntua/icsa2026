@@ -1,0 +1,71 @@
+@startuml
+
+package AuthenticationService {
+    class GoogleAuth {
+        + authenticateUser(token: String): UserProfile // Functional requirement
+    }
+}
+
+package UserService {
+    class UserProfile {
+        + name: String
+        + email: String
+        + profilePicture: String
+        + remainingQuota: int
+        + createdAt: Date
+        + lastLogin: Date
+    }
+    class UserManager {
+        + getUserProfile(email: String): UserProfile // Data management operation
+        + updateQuota(email: String, change: int): void // Data consistency operation
+    }
+}
+
+package ChartService {
+    class Chart {
+        + id: String
+        + type: String
+        + data: CSVFile
+        + generatedAt: Date
+    }
+    class ChartGenerator {
+        + validateCSV(csv: CSVFile, type: String): boolean // Functional requirement
+        + generateChart(csv: CSVFile, type: String): Chart // Functional requirement
+        + saveChart(chart: Chart, formats: List<String>): void // Data management operation
+    }
+}
+
+package StorageService {
+    class StorageManager {
+        + saveChart(chart: Chart, format: String): void // Data management operation
+        + getChart(chartId: String): Chart // Data management operation
+        + deleteChart(chartId: String): void // Functional requirement
+    }
+}
+
+package DashboardService {
+    class Dashboard {
+        + displayUserCharts(userId: String): List<Chart> // Functional requirement
+    }
+}
+
+package PaymentService {
+    class PaymentGateway {
+        + processPayment(userId: String, amount: float): boolean // Functional requirement
+    }
+    class QuotaManager {
+        + purchaseQuota(userId: String, amount: int): void // Functional requirement
+    }
+}
+
+UserManager "1" -- "*" UserProfile
+Chart "1" -- "1" ChartGenerator
+ChartGenerator "1" -- "1" StorageManager
+Chart "1" -- "*" StorageManager
+StorageManager "1" -- "1" Dashboard
+UserManager "1" -- "*" Dashboard
+UserManager "1" -- "1" PaymentGateway
+PaymentGateway "1" -- "1" QuotaManager
+QuotaManager "1" -- "1" UserManager
+
+@enduml

@@ -1,0 +1,49 @@
+@startuml
+package "Model" as m {
+
+class CoordinateGroup {
+    - id: int
+    - cartesian: List<(x: float, y: float)>
+    - polar: List<(r: float, theta: float)>
+    - label: string
+    - timestamp: datetime
+}
+
+class MySQLDatabase {
+    + connect()
+    + disconnect()
+    + saveCoordinateGroup(cg: CoordinateGroup)
+    + getCoordinateGroup(id: int)
+    + updateCoordinateGroup(cg: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+}
+
+m.CoordinateGroup -- m.MySQLDatabase : aggregation
+}
+package "View" as v {
+
+class SwingView {
+    + displayCoordinateGroups(cgs: List<CoordinateGroup>)
+    + createCoordinateGroupDialog()
+    + modifyCoordinateGroupDialog(cg: CoordinateGroup)
+    + deleteCoordinateGroupDialog(cg: CoordinateGroup)
+}
+
+v.SwingView -- v.SwingCoordinateGroupDialog : composition
+}
+package "Controller" as c { 
+
+class SwingController {
+    - model: MySQLDatabase
+    - view: SwingView
+    + createCoordinateGroup()
+    + modifyCoordinateGroup(cg: CoordinateGroup)
+    + deleteCoordinateGroup(cg: CoordinateGroup)
+    + retrieveCoordinateGroupsByLabel(label: string)
+    + retrieveAllCoordinateGroups()
+}
+}
+c.SwingController --> m.MySQLDatabase : request data
+c.SwingController --> v.SwingView : update view
+v.SwingView --> c.SwingController : user events
+@enduml

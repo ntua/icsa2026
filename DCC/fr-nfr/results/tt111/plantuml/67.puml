@@ -1,0 +1,58 @@
+@startuml
+!define Package "User Interface" as UI
+
+' Classes for User Interface Layer
+class CoordinateGroupUI {
+  +String label;
+  +List<Coordinate> coordinates;
+  
++createLabel(label: String): void
+  +addCoordinate(coordinate: Coordinate): void
+}
+class MainFrameUI extends Frame {
+  +CoordinateGroupUI ui;
+}
+!define Package "Database" as DB
+' Classes for Database Layer
+class UserAuthDB {
+  -String username;
+  -String password;
+  
++authenticateUser(username: String, password: String): boolean
+}
+class CoordinateGroupsDB extends DbObject {
+  +int id;
+  +String label;
+  +DateTime timestamp;
+  
++createCoordinateGroup(): void
+  +getCoordinateGroups(): List<CoordinateGroup>
+}
+!define Package "Network" as NW
+' Classes for Network Layer
+class CoordinateConversionNW {
+  -void processRequest(request: String): String
+}
+class TCPConnectionNW extends Connection {
+  
++sendRequest(): void
+  +receiveResponse(): String
+}
+!define Package "Coordinate" as C
+' Classes for Business Logic Layer
+class CoordinateGroupBizLay{
+  -List<Coordinate> coordinates;
+  
+-createLabel(label: String): void
+  -addCoordinate(coordinate: Coordinate): void
+}
+!define Package "Common" as CMN
+' Classes for Shared Functionality Layer
+class Logic {
+  +String logInfo(message: String): String
+  +String logError(errorMessage: String): String
+}
+class Utility {
+  -void validateInput(): void
+}
+@enduml

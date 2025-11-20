@@ -1,0 +1,43 @@
+@startuml
+
+package "Client" {
+  class DccApp {
+    - database: Database
+    + createCoordinateGroup()
+    + storeCoordinateGroup()
+    + retrieveCoordinateGroup()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    - label: String
+    - timestamp: Date
+  }
+  
+  class SwingUI {
+    + createUI()
+    + updateUI()
+  }
+}
+
+package "Server" {
+  class Database {
+    + connect()
+    + disconnect()
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+Client -> Server : TCP/IP Connection
+CoordinateGroup --* CartesianCoordinates
+CoordinateGroup --* PolarCoordinates
+
+@enduml

@@ -1,0 +1,52 @@
+@startuml
+package models {
+  class CartesianCoordinate {
+  +x: int
+  +y: int
+}
+ class PolarCoordinate {
+  +r: double
+  +theta: double
+}
+class CoordinateGroup {
+  +id: integer (unique)
+  +label: string
+  +cartesian: CartesianCoordinate[]
+  +polar: PolarCoordinate[]
+}
+}
+
+package controllers {
+  class CoordinateGroupController {
+  -model: models::CoordinateGroup
+  -view: views::CoordinateGroupView
+  +createCartesianCoordinate(): CartesianCoordinate
+  +createPolarCoordinate(): PolarCoordinate
+  +saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  +updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  +deleteCoordinateGroup(id: integer): void
+}
+}
+
+package views {
+  class CoordinateGroupView {
+  +displayCartesianCoordinates(cartesian: CartesianCoordinate[]): void
+  +displayPolarCoordinates(polar: PolarCoordinate[]): void
+  +displayCoordinateGroupDetails(coordinateGroup: CoordinateGroup): void
+}
+}
+
+package database {
+  class MySQLDatabase
+}
+
+models.CartesianCoordinate -- models.CoordinateGroup
+models.PolarCoordinate -- models.CoordinateGroup
+
+controllers.CoordinateGroupController -- models.CoordinateGroup
+views.CoordinateGroupView -- controllers.CoordinateGroupController
+
+database.MySQLDatabase -- models.CoordinateGroup
+
+
+@enduml

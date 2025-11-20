@@ -1,0 +1,99 @@
+@startuml DCC_Application_Class_Diagram
+
+' Client Package
+package "Client" {
+    class DCCApp {
+        + DCCFrame frame
+        + CoordinateManager coordMgr
+    }
+
+    class DCCFrame {
+        + void createCoordinateGroupFrame()
+        + void displayCoordinateGroups()
+    }
+
+    class CoordinateManager {
+        + void createCoordinateGroup(x: Double, y: Double)
+        + void createCoordinateGroup(r: Double, theta: Double)
+        + void updateCoordinateGroup(id: Integer, x: Double, y: Double)
+        + void updateCoordinateGroup(id: Integer, r: Double, theta: Double)
+        + CoordinateGroup getCoordinateGroup(id: Integer)
+        + List<CoordinateGroup> searchCoordinateGroups(label: String)
+        + void deleteCoordinateGroup(id: Integer)
+    }
+
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoord
+        - polar: PolarCoord
+
+        + void addCartesian(x: Double, y: Double)
+        + void addPolar(r: Double, theta: Double)
+        + CartesianCoord getCartesian()
+        + PolarCoord getPolar()
+    }
+
+    class CartesianCoord {
+        - x: Double
+        - y: Double
+
+        + Double getX()
+        + Double getY()
+        + PolarCoord toPolar()
+    }
+
+    class PolarCoord {
+        - r: Double
+        - theta: Double
+
+        + Double getR()
+        + Double getTheta()
+        + CartesianCoord toCartesian()
+    }
+
+    class ClientConnectionManager {
+        + void sendRequest(request: String)
+        + String receiveResponse()
+    }
+}
+
+' Server Package
+package "Server" {
+    interface Database {
+        + void saveCoordinateGroup(coordGroup: CoordinateGroup)
+        + CoordinateGroup getCoordinateGroupById(id: Integer)
+        + List<CoordinateGroup> searchCoordinateGroups(label: String)
+        + void updateCoordinateGroup(coordGroup: CoordinateGroup)
+        + void deleteCoordinateGroup(id: Integer)
+    }
+
+    class ServerConnectionManager {
+        + void handleRequest(request: String): String
+        + void connect()
+        + void disconnect()
+    }
+
+    class DCCServer {
+        + Database db
+        + ServerConnectionManager connMgr
+
+        + void start()
+        + void stop()
+    }
+}
+
+' Relationships
+DCCApp --> DCCFrame
+DCCApp --> CoordinateManager
+CoordinateManager --> ClientConnectionManager
+CoordinateGroup --> CartesianCoord
+CoordinateGroup --> PolarCoord
+CartesianCoord --> PolarCoord
+PolarCoord --> CartesianCoord
+
+Database <|.. Server
+ServerConnectionManager <-- DCCServer
+
+@enduml

@@ -1,0 +1,51 @@
+@startuml
+
+package "Frontend" {
+    class CartesianCoordinates {
+        x: double
+        y: double
+
+        +convertCartesianToPolar(): PolarCoordinates
+        +setX(x: double): void
+        +setY(y: double): void
+    }
+
+    class PolarCoordinates {
+        r: double
+        theta: double
+
+        +convertPolarToCartesian(): CartesianCoordinates
+        +setR(r: double): void
+        +setTheta(theta: double): void
+    }
+}
+
+package "Database" {
+    class DatabaseManager {
+        -dbConnection: TCP/IP Connection
+        -coordinateGroups: Map<int, CoordinateGroup>
+
+        +saveCoordinateGroup(group: CoordinateGroup): void
+        +getCoordinateGroup(id: int): CoordinateGroup
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +updateCoordinateGroup(group: CoordinateGroup): void
+        +deleteCoordinateGroup(id: int): void
+    }
+
+    class CoordinateGroup {
+        id: int
+        label: string
+        timestamp: DateTime
+
+        -cartesianCoordinates: CartesianCoordinates
+        -polarCoordinates: PolarCoordinates
+
+        +setCartesianCoordinates(coords: CartesianCoordinates): void
+        +getPolarCoordinates(): PolarCoordinates
+        +getLabel(): string
+        +setLabel(label: string): void
+    }
+}
+
+
+@enduml

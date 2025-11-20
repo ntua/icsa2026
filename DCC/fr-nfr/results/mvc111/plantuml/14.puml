@@ -1,0 +1,74 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id: Integer # unique auto-generated identifier
+    - label: String # user-defined string label for identification
+    - creationTime: Date # automatically assigned timestamp
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + setCartesian(cartesian: CartesianCoordinate)
+    + setPolar(polar: PolarCoordinate)
+  }
+
+  class CoordinateGroupRepository {
+    + save(coordinateGroup: CoordinateGroup)
+    + find(label: String): CoordinateGroup
+    + findAll(): List<CoordinateGroup>
+    + update(coordinateGroup: CoordinateGroup)
+    + delete(id: Integer)
+  }
+}
+
+package "View" {
+  class SwingUserInterface {
+    + showCreateDialog()
+    + showRetrieveAllDialog()
+    + showModifyDialog(group: CoordinateGroup)
+    + showDeleteDialog(id: Integer)
+  }
+
+  class CoordinateGroupListView {
+    + display(groups: List<CoordinateGroup>)
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupController {
+    - repository: CoordinateGroupRepository
+    + create(group: CoordinateGroup)
+    + retrieveAll()
+    + retrieve(label: String): CoordinateGroup
+    + modify(group: CoordinateGroup)
+    + delete(id: Integer)
+  }
+
+  class TCPConnectionManager {
+    + connectToDatabase()
+    + disconnectFromDatabase()
+    + executeQuery(query: String): ResultSet
+  }
+}
+
+package "Model.Database" {
+  class MySQLDatabase {
+    + save(coordinateGroup: CoordinateGroup)
+    + find(label: String): CoordinateGroup
+    + findAll(): List<CoordinateGroup>
+    + update(coordinateGroup: CoordinateGroup)
+    + delete(id: Integer)
+  }
+
+  class MySQLConnector {
+    + connect()
+    + disconnect()
+    + executeQuery(query: String): ResultSet
+  }
+}
+
+CoordinateGroupController --> CoordinateGroupRepository
+SwingUserInterface --|> SwingDialog
+CoordinateGroupListView --|> SwingComponent
+TCPConnectionManager --> MySQLConnector
+MySQLDatabase --> MySQLConnector
+
+@enduml

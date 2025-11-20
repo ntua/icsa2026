@@ -1,0 +1,46 @@
+@startuml
+package "frontend" {
+    class DCCGUI {
+        +createCoordinateGroup(type: String, values: double[]) : void
+        +storeCoordinateGroup(label: String) : void
+        +retrieveCoordinateGroups(byLabel: boolean) : List<CoordinateGroup>
+        +modifyCoordinateGroup(id: int, label: String, values: double[], type: String) : void
+        +deleteCoordinateGroup(id: int) : void
+
+    }
+}
+
+package "backend" {
+class CoordinateConverter {
+    +convertCartesianToPolar(x: double, y: double) : double[]
+    +convertPolarToCartesian(r: double, theta: double) : double[]
+}
+
+class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    + getCoordinates(): double[]
+    + setCoordinates(coordinates: double[]): void
+    + getType(): String
+
+}
+
+
+class DatabaseManager {
+    - connection: Connection
+    + saveCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveCoordinateGroups(byLabel: boolean, label: String): List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, label: String, coordinates: double[]) : void
+    + deleteCoordinateGroup(id: int) : void
+
+}
+
+DCCGUI -- CoordinateConverter
+DCCGUI -- DatabaseManager
+CoordinateGroup "1" -- "*" CoordinateConverter : Converts Coordinates 
+
+}
+
+
+@enduml

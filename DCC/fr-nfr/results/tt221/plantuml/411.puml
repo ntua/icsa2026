@@ -1,0 +1,58 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Class Diagram
+
+package "Presentation" {
+  class SwingUI {
+    + displayCoordinateGroups()
+    + handleUserInputs()
+    + updateDisplay()
+    + filterCoordinateGroups(String label)
+  }
+}
+
+package "Business Logic" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getCartesianCoordinates(): (double, double)
+    + getPolarCoordinates(): (double, double)
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(double x, double y): (double, double)
+    + convertPolarToCartesian(double r, double theta): (double, double)
+  }
+
+  class DCCController {
+    - databaseConnector: DatabaseConnector
+    + createCoordinateGroup(CoordinateGroup group)
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup group)
+    + deleteCoordinateGroup(int groupId)
+  }
+}
+
+package "Data Access" {
+  class DatabaseConnector {
+    - dbConnection: Connection
+    + connectToDatabase()
+    + saveCoordinateGroup(CoordinateGroup group)
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup group)
+    + deleteCoordinateGroup(int groupId)
+  }
+}
+
+SwingUI -- DCCController: Uses
+DCCController -- CoordinateConverter: Uses
+DCCController -- DatabaseConnector: Uses
+CoordinateGroup "1" *-- "1..*" DCCController: Manages
+
+
+@enduml

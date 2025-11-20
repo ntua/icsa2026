@@ -1,0 +1,53 @@
+@startuml
+
+class CoordinateGroup {
+    +id: int
+    +label: String
+    -cartesianCoords: Pair[HighPrecisionNumber, HighPrecisionNumber]
+    -polarCoords: Pair[HighPrecisionNumber, HighPrecisionNumber]
+    +addDatetime: DateTime
+}
+
+class CartesianConverter {
++convertToPolar(cartesianCoords: Pair[HighPrecisionNumber, HighPrecisionNumber]): Pair[HighPrecisionNumber, HighPrecisionNumber]
++convertToCartesian(polarCoords: Pair[HighPrecisionNumber, HighPrecisionNumber]): Pair[HighPrecisionNumber, HighPrecisionNumber]
+}
+
+class CoordinateGroupController {
+    +cartesianConverter: CartesianConverter
+    +databaseConnection: DatabaseConnection
++handleAdd()
++handleUpdate(id: int)
++handleDelete(id: int)
++refreshList()
++filterList(label: String)
+}
+
+class CoordinateGroupModel {
++createCoordinateGroup()
++readCoordinateGroups(): List[CoordinateGroup]
++updateCoordinateGroup(coordGroup: CoordinateGroup)
++deleteCoordinateGroup(id: int)
+}
+
+class DatabaseConnection {
++connectToDatabase()
++saveRecord(record: Any)
++fetchRecords(): List[Any]
+}
+
+class InterfaceView {
++showList()
++filterResults(label: String)
++clearFilter()
+}
+
+CoordinateGroupModel "1" - CoordinateGroupController : create, read, update, delete
+CoordinateGroupController "1" -- CartesianConverter : cartesianToPolar, polarToCartesian
+CoordinateGroupController --> InterfaceView : showList, filterResults, clearFilter
+InterfaceView <..> Application
+Application --> DatabaseConnection : connection
+DatabaseConnection <.. CoordinateGroupModel
+DatabaseConnection <.. CoordinateGroupController
+
+@enduml

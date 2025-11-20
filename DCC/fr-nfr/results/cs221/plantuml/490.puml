@@ -1,0 +1,149 @@
+@startuml
+title Dummy Coordination Conversion (DCC) Application - Class Diagram
+
+'=== PACKAGE: ui (Swing Frontend) ===
+package "ui" {
+  class MainFrame {
+    - CoordinatesInputPanel inputPanel
+    - CoordinatesListPanel listPanel
+    - FilterPanel filterPanel
+    - CoordinateService coordinateService
+    
+    + MainFrame()
+    + initUI()
+    + refreshList()
+  }
+
+  class CoordinatesInputPanel {
+    - JTextField xField
+    - JTextField yField
+    - JTextField rField
+    - JTextField thetaField
+    - JTextField labelField
+
+    + getCoordinateGroup() : CoordinateGroup
+    + setCoordinateGroup(cg : CoordinateGroup) : void
+  }
+
+  class CoordinatesListPanel {
+    - JTable coordinatesTable
+
+    + refreshList(coordinateGroups : List<CoordinateGroup>) : void
+    + getSelectedCoordinateGroup() : CoordinateGroup
+  }
+
+  class FilterPanel {
+    - JTextField filterLabelField
+
+    + getFilterValue() : String
+  }
+}
+
+'=== PACKAGE: domain (Business Model) ===
+package "domain" {
+  class CartesianCoordinate {
+    - BigDecimal x
+    - BigDecimal y
+
+    + CartesianCoordinate(x : BigDecimal, y : BigDecimal)
+    + getX() : BigDecimal
+    + getY() : BigDecimal
+    + setX(x : BigDecimal) : void
+    + setY(y : BigDecimal) : void
+  }
+
+  class PolarCoordinate {
+    - BigDecimal r
+    - BigDecimal theta
+
+    + PolarCoordinate(r : BigDecimal, theta : BigDecimal)
+    + getR() : BigDecimal
+    + getTheta() : BigDecimal
+    + setR(r : BigDecimal) : void
+    + setTheta(theta : BigDecimal) : void
+  }
+
+  class CoordinateGroup {
+    - int id
+    - String label
+    - LocalDateTime timestamp
+    - CartesianCoordinate cartesian
+    - PolarCoordinate polar
+
+    + CoordinateGroup()
+    + getId() : int
+    + getLabel() : String
+    + getTimestamp() : LocalDateTime
+    + getCartesian() : CartesianCoordinate
+    + getPolar() : PolarCoordinate
+    + setId(id : int) : void
+    + setLabel(label : String) : void
+    + setTimestamp(timestamp : LocalDateTime) : void
+    + setCartesian(c : CartesianCoordinate) : void
+    + setPolar(p : PolarCoordinate) : void
+  }
+
+  class CoordinatesConverter {
+    + cartesianToPolar(c : CartesianCoordinate) : PolarCoordinate
+    + polarToCartesian(p : PolarCoordinate) : CartesianCoordinate
+  }
+}
+
+'=== PACKAGE: service (Business Logic) ===
+package "service" {
+  class CoordinateService {
+    - CoordinateGroupDAO coordinateGroupDAO
+    - CoordinatesConverter coordinatesConverter
+
+    + CoordinateService(dao : CoordinateGroupDAO, converter : CoordinatesConverter)
+    + createCoordinateGroup(cg : CoordinateGroup) : void
+    + readAll() : List<CoordinateGroup>
+    + updateCoordinateGroup(cg : CoordinateGroup) : void
+    + deleteCoordinateGroup(id : int) : void
+    + filterCoordinateGroupsByLabel(label : String) : List<CoordinateGroup>
+    + convertCartesianToPolar(x : BigDecimal, y : BigDecimal) : PolarCoordinate
+    + convertPolarToCartesian(r : BigDecimal, theta : BigDecimal) : CartesianCoordinate
+  }
+}
+
+'=== PACKAGE: persistence (Data Access) ===
+package "persistence" {
+  class MySQLConnection {
+    - Connection connection
+
+    + connect() : void
+    + disconnect() : void
+    + getConnection() : Connection
+  }
+
+  class CoordinateGroupDAO {
+    - MySQLConnection dbConnection
+
+    + CoordinateGroupDAO(dbConnection : MySQLConnection)
+    + create(cg : CoordinateGroup) : void
+    + readAll() : List<CoordinateGroup>
+    + readById(id : int) : CoordinateGroup
+    + update(cg : CoordinateGroup) : void
+    + delete(id : int) : void
+  }
+}
+
+'=== RELATIONSHIPS ===
+' UI uses the Service
+ui.MainFrame --> service.CoordinateService : uses
+ui.CoordinatesInputPanel --> service.CoordinateService : (optional usage for conversions)
+ui.CoordinatesListPanel --> domain.CoordinateGroup : displays
+ui.FilterPanel --> service.CoordinateService : (optional usage for filtering)
+
+' Service depends on DAO and Converter
+service.CoordinateService --> persistence.CoordinateGroupDAO : uses
+service.CoordinateService --> domain.CoordinatesConverter : uses
+
+' DAO depends on DB Connection
+persistence.CoordinateGroupDAO --> persistence.MySQLConnection : uses
+
+' Domain relationships
+domain.CoordinateGroup *-- domain.CartesianCoordinate : composition
+domain.CoordinateGroup *-- domain.PolarCoordinate : composition
+
+@enduml

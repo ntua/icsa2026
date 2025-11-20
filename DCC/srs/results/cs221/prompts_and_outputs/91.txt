@@ -1,0 +1,162 @@
+Response:
+Below is an example of a PlantUML class diagram that illustrates a possible **client-server** architecture for the DCC Application based on the SRS. It is organized into **client** (GUI/Controller) and **server** (Model/Service/Repository) packages, showing the key classes, interfaces, attributes, methods, and associations. 
+
+Copy and paste the code into a `.puml` or `.plantuml` file and use a PlantUML renderer to view the diagram.
+
+```plantuml
+@startuml
+skinparam classStyle strictuml
+skinparam packageStyle rectangle
+
+title DCC Application - Client-Server Architecture
+
+' === CLIENT SIDE ===
+package "client" {
+  package "gui" {
+    ' GUI class responsible for displaying and collecting user data
+    class DCCGUI {
+      + displayMainMenu(): void
+      + showAllCoordinateGroups(groups: List<CoordinateGroup>): void
+      + showCoordinateGroupsByLabel(groups: List<CoordinateGroup>): void
+      + showErrorMessage(message: String): void
+      + initGUI(): void
+    }
+  }
+
+  package "controller" {
+    ' Controller that intermediates between GUI and the server side
+    class DCCController {
+      - service: ICoordinateService
+      + DCCController(service: ICoordinateService)
+      + createCoordinateGroup(coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + updateCoordinateGroup(id: int, coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + deleteCoordinateGroup(id: int): void
+      + listAllCoordinateGroups(): List<CoordinateGroup>
+      + getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+  }
+}
+
+' === SERVER SIDE ===
+package "server" {
+
+  ' ---- MODEL LAYER ----
+  package "model" {
+    class CoordinateGroup {
+      - id: int
+      - label: String
+      - timestamp: java.time.LocalDateTime
+      - x: double
+      - y: double
+      - r: double
+      - theta: double
+
+      + getId(): int
+      + getLabel(): String
+      + setLabel(label: String): void
+      + getTimestamp(): java.time.LocalDateTime
+      + getX(): double
+      + setX(x: double): void
+      + getY(): double
+      + setY(y: double): void
+      + getR(): double
+      + setR(r: double): void
+      + getTheta(): double
+      + setTheta(theta: double): void
+    }
+  }
+
+  ' ---- SERVICE LAYER ----
+  package "service" {
+    interface ICoordinateService {
+      + createCoordinateGroup(coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + updateCoordinateGroup(id: int, coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + deleteCoordinateGroup(id: int): void
+      + listAll(): List<CoordinateGroup>
+      + getByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateServiceImpl {
+      - repository: ICoordinateRepository
+      - converter: CoordinateConverter
+      
+      + CoordinateServiceImpl(repo: ICoordinateRepository, converter: CoordinateConverter)
+      + createCoordinateGroup(coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + updateCoordinateGroup(id: int, coordType: String, x: double, y: double, r: double, theta: double, label: String): void
+      + deleteCoordinateGroup(id: int): void
+      + listAll(): List<CoordinateGroup>
+      + getByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class CoordinateConverter {
+      + toPolar(x: double, y: double): double[]
+      + toCartesian(r: double, theta: double): double[]
+    }
+
+    ' Implementation relationship
+    CoordinateServiceImpl -down-|> ICoordinateService
+  }
+
+  ' ---- REPOSITORY LAYER ----
+  package "repository" {
+    interface ICoordinateRepository {
+      + save(cg: CoordinateGroup): void
+      + update(cg: CoordinateGroup): void
+      + delete(id: int): void
+      + findAll(): List<CoordinateGroup>
+      + findByLabel(label: String): List<CoordinateGroup>
+    }
+
+    class MySQLCoordinateRepository {
+      - connection: java.sql.Connection
+
+      + MySQLCoordinateRepository(connection: java.sql.Connection)
+      + save(cg: CoordinateGroup): void
+      + update(cg: CoordinateGroup): void
+      + delete(id: int): void
+      + findAll(): List<CoordinateGroup>
+      + findByLabel(label: String): List<CoordinateGroup>
+    }
+
+    ' Implementation relationship
+    MySQLCoordinateRepository -down-|> ICoordinateRepository
+  }
+}
+
+'
+' === RELATIONSHIPS ACROSS TIERS ===
+'
+
+DCCGUI --> DCCController : user actions
+DCCController --> ICoordinateService : invokes
+CoordinateServiceImpl --> ICoordinateRepository : uses
+CoordinateServiceImpl --> CoordinateConverter : uses
+MySQLCoordinateRepository --> CoordinateGroup : manages
+
+@enduml
+
+```
+
+### Explanation of the Diagram
+
+1. **Client Package**  
+   - **`gui.DCCGUI`**: The Swing-based GUI class. It shows forms and lists, collects user inputs, and delegates operations to the `DCCController`.  
+   - **`controller.DCCController`**: Orchestrates operations between the GUI and the server layer. Calls service methods to handle create, update, delete, list, or search operations.
+
+2. **Server Package**  
+   - **`model.CoordinateGroup`**: Domain model representing a coordinate group with both Cartesian (x, y) and Polar (r, θ) values, along with an auto-generated ID, label, and timestamp.  
+   - **`service.ICoordinateService`**: Service interface specifying the core functionalities (CRUD operations, listing, converting, etc.).  
+   - **`service.CoordinateServiceImpl`**: Concrete service class implementing business logic; it uses the `ICoordinateRepository` and the `CoordinateConverter`.  
+   - **`service.CoordinateConverter`**: Utility class for converting between Cartesian and Polar coordinate forms.  
+   - **`repository.ICoordinateRepository`**: Repository (or DAO) interface defining data access operations for `CoordinateGroup`.  
+   - **`repository.MySQLCoordinateRepository`**: Concrete implementation that interacts with the MySQL database via JDBC (`java.sql.Connection`).
+
+### How This Satisfies the SRS and Architecture
+
+- **Client-Server Separation**: The diagram places GUI and controller classes in a **client** package, and model, service, and repository classes in a **server** package.  
+- **Domain Model**: `CoordinateGroup` encapsulates the needed data (ID, label, timestamp, x, y, r, θ).  
+- **Functional Requirements**: The `ICoordinateService` interface and its implementation (`CoordinateServiceImpl`) provide methods to create, read, update, and delete coordinate groups, as well as convert between Cartesian and Polar formats.  
+- **Persistent Storage**: The `ICoordinateRepository` and `MySQLCoordinateRepository` handle database interactions (save, update, delete, find).  
+- **Conversion Logic**: The `CoordinateConverter` class includes methods for converting (x, y) ↔ (r, θ).  
+
+This design cleanly delineates **presentation**, **business logic**, and **data access** responsibilities, conforming to the requested **client-server** architecture and fulfilling the use cases enumerated in the SRS.

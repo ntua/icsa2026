@@ -1,0 +1,107 @@
+@startuml
+skinparam packageStyle rectangle
+
+' ===========================
+' Packages
+' ===========================
+package "ui" <<Folder>> {
+    class DCCGUI {
+        - CoordinateManager coordinateManager
+        --
+        + DCCGUI()
+        + createCoordinateGroupForm(): void
+        + searchCoordinateGroupForm(): void
+        + displayAllCoordinateGroups(): void
+        + modifyCoordinateGroupForm(int groupId): void
+        + deleteCoordinateGroup(int groupId): void
+    }
+}
+
+package "controller" <<Folder>> {
+    class CoordinateManager {
+        - CoordinateDAO coordinateDAO
+        - CoordinateConverter coordinateConverter
+        --
+        + CoordinateManager(CoordinateDAO dao, CoordinateConverter converter)
+        + createCoordinateGroup(double x, double y, double r, double theta, String label): void
+        + getCoordinateGroupByLabel(String label): CoordinateGroup
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup group): void
+        + deleteCoordinateGroup(int groupId): void
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(double x, double y): double[]  ' returns [r, theta]
+        + polarToCartesian(double r, double theta): double[]  ' returns [x, y]
+    }
+}
+
+package "model" <<Folder>> {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - java.util.Date timestamp
+        - double x
+        - double y
+        - double r
+        - double theta
+        --
+        + CoordinateGroup(int id, String label, Date timestamp, double x, double y, double r, double theta)
+        + getId(): int
+        + getLabel(): String
+        + setLabel(String label): void
+        + getTimestamp(): Date
+        + setTimestamp(Date timestamp): void
+        + getX(): double
+        + setX(double x): void
+        + getY(): double
+        + setY(double y): void
+        + getR(): double
+        + setR(double r): void
+        + getTheta(): double
+        + setTheta(double theta): void
+    }
+}
+
+package "data" <<Folder>> {
+    interface CoordinateDAO {
+        + create(CoordinateGroup group): void
+        + findByLabel(String label): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup group): void
+        + delete(int groupId): void
+    }
+
+    class MySQLCoordinateDAO {
+        - DatabaseManager dbManager
+        --
+        + MySQLCoordinateDAO(DatabaseManager dbManager)
+        + create(CoordinateGroup group): void
+        + findByLabel(String label): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup group): void
+        + delete(int groupId): void
+    }
+
+    class DatabaseManager {
+        - String connectionString
+        - String username
+        - String password
+        --
+        + DatabaseManager(String connectionString, String username, String password)
+        + getConnection(): java.sql.Connection
+    }
+}
+
+' ===========================
+' Relationships
+' ===========================
+DCCGUI --> CoordinateManager : uses
+CoordinateManager --> CoordinateConverter : uses
+CoordinateManager --> CoordinateGroup : creates/updates
+CoordinateManager --> CoordinateDAO : uses
+
+CoordinateDAO <|.. MySQLCoordinateDAO : implements
+MySQLCoordinateDAO --> DatabaseManager : uses
+
+@enduml

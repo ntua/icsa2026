@@ -1,0 +1,70 @@
+@startuml
+package domain {
+  class CoordinateGroup {
+  + id: Integer
+  + label: String
+  + timestamp: Date
+
+  - cartesians: List<CartesianCoordinate>
+  - polars: List<PolarCoordinate>
+
+  - createCartesianCartesian(cartesian: CartesianCoordinate): void
+  - createPolarCartesian(polar: PolarCoordinate): void
+
+  + getCartesianCartesian(x: Double, y: Double): CartesianCoordinate
+  + getPolarPolar(r: Double, theta: Double): PolarCoordinate
+
+  + save(): void
+  + retrieve(label: String): CoordinateGroup
+  + modify(id: Integer): void
+  + delete(): void
+}
+
+}
+
+package data_access {
+  class MySQLDatabaseAccess {
+  + connect(): DatabaseConnection
+  + disconnect(): void
+  + save(coordinateGroup: CoordinateGroup): void
+  + retrieve(label: String): CoordinateGroup
+  + modify(id: Integer, coordinateGroup: CoordinateGroup): void
+  + delete(id: Integer): void
+}
+}
+
+package presentation {
+  class SwingUI {
+  + displayUI(): JFrame
+  - handleCoordinateGroupCreation(coordinateGroup: CoordinateGroup): void
+  - handleCoordinateGroupModification(coordinateGroup: CoordinateGroup): void
+  - handleCoordinateGroupDeletion(id: Integer): void
+}
+}
+
+
+class CartesianCoordinate {
+  - x: Double
+  - y: Double
+
+  - createCartesian(cartesian: CartesianCoordinate): void
+}
+
+class PolarCoordinate {
+  - r: Double
+  - theta: Double
+
+  - createPolar(polar: PolarCoordinate): void
+}
+
+
+
+
+CoordinateGroup  --* CartesianCoordinate : composite
+CartesianCoordinate --* CoordinateGroup : aggregate
+PolarCoordinate  --* CoordinateGroup : aggregate
+
+CoordinateGroup --|> MySQLDatabaseAccess  : dependency
+SwingUI --* CoordinateGroup  : composition
+
+@enduml

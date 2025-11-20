@@ -1,0 +1,78 @@
+@startuml
+
+!define DARKBLUE #003865
+!define LIGHTBLUE #ADD8E6
+!define GREEN #008000
+!define ORANGE #FFA500
+
+package "Client" {
+  class DCCApplication {
+    +run()
+  }
+  
+  class CoordinateGroupController {
+    - coordinateGroupService : CoordinateGroupService
+    + createCoordinateGroup(coordinates: List<Double>, type: String, label: String)
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroups(label: String)
+    + retrieveAllCoordinateGroups()
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateInputView {
+    - controller : CoordinateGroupController
+    + displayCoordinateEntryForm()
+    + handleCoordinateInput(coordinates: List<Double>, type: String, label: String)
+  }
+
+  class CoordinateListView {
+    - controller : CoordinateGroupController
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+  }
+
+}
+
+package "Server" {
+  class CoordinateGroupService {
+    - coordinateGroupRepository : CoordinateGroupRepository
+    + createCoordinateGroup(coordinates: List<Double>, type: String, label: String) : CoordinateGroup
+    + findCoordinateGroupByLabel(label: String) : CoordinateGroup
+    + findAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateGroupRepository {
+    - mysqlConnection : MySQLConnection
+    + save(coordinateGroup: CoordinateGroup)
+    + findByLabel(label: String) : CoordinateGroup
+    + findAll() : List<CoordinateGroup>
+    + update(coordinateGroup: CoordinateGroup)
+    + delete(id: int)
+  }
+
+  class MySQLConnection {
+    + connectToDatabase()
+    + executeQuery(query: String)
+  }
+
+}
+
+
+class CoordinateGroup {
+  - id : int
+  - label : String
+  - timestamp : Date
+  - cartesianCoordinates : List<Double>
+  - polarCoordinates : List<Double>
+}
+
+
+
+CoordinateGroupController --|> CoordinateInputView
+CoordinateGroupController --|> CoordinateListView
+CoordinateGroupService --> CoordinateGroupRepository
+CoordinateGroupRepository <-- MySQLConnection
+
+@enduml

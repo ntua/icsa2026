@@ -1,0 +1,72 @@
+@startuml
+package Model {
+class CartesianCoordinate {
+    - x: float
+    - y: float
+}
+
+class PolarCoordinate {
+    - r: float
+    - theta: float
+}
+
+class CoordinateGroup {
+    + cartesian: List<CartesianCoordinate>
+    + polar: List<PolarCoordinate>
+    #labelId: int
+    #timestamp: Date
+    
++ addLabel(labelString: String)
+    - create()
+    - read(): List<Record>
+    - update(id: int, newValues: CartesianCoordinate or PolarCoordinate)
+    - delete(id: int)
+}
+class Model {
+    + createNewId(labelString, cartesianCoordinates): int
+    + readAllGroups(): List<Record>
+    + updateGroup(id: int, newValues: CartesianCoordinate or PolarCoordinate)
+    #filterList(filterLabel: String)
+}
+
+}
+
+class Controller {
+    + convertCartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+    #updateReadOp
+    + updateUpdateOp()
+    + executeCreateOp()
+    + executeDeleteOp()
+    #filterList(): List<Record>
+    - filterLabel: String
+}
+
+class View {
+    + inputNewGroupAndLabel()
+    - executeAddOp()
+    - executeUpdateOp()
+    - executeDeleteOp()
+    - displayRecordList(): List<Record>
+    + filterRecordsByLabelValue(labelValue: String): List<Record>
+}
+
+class Record {
+    #id: int
+    #label: string
+    #cartesianCoordinateValues: CartesianCoordinate
+    #polarCoordinateValues: PolarCoordinate
+    #datetimeAddedOrModified: Date
+}
+
+
+class DatabaseConnection {
+    + connectToDB()
+}
+ 
+
+CoordinateGroup ..* CartesianCoordinate
+CoordinateGroup ..* PolarCoordinate
+CoordinateGroup --* Record: cartesian, polar, labelId, datetimeAddedOrModified
+
+
+@enduml

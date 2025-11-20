@@ -1,0 +1,63 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+package "Client" {
+    class DCCApp {
+        - frontend: SwingUI
+        + createCoordinateGroup(cartesianX, cartesianY, polarR, polarTheta) : CoordinateGroup
+        + storeGroup(groupLabel: String): int
+        + retrieveGroup(labelOrViewAll: String): CoordinateGroup[]
+        + modifyGroup(groupId: int, newValues: CartesianPolar): void
+        + deleteGroup(groupId: int): void
+    }
+
+    class SwingUI {
+        - dccApp: DCCApp
+    }
+}
+
+package "Server" {
+    class MySQLDatabase {
+        - dbConnection: TCP/IPConnection
+        + storeData(data: String) : int
+        + retrieveData(query: String) : CoordinateGroup[]
+        + modifyData(update: CartesianPolar, groupId: int): void
+        + deleteData(groupId: int): void
+    }
+
+    class TCP_IPConnection {
+        - serverAddress: String
+        - portNumber: int
+        + connect() : boolean
+        + sendMessage(message: String) : String
+    }
+}
+
+class CoordinateGroup {
+    - groupId: int
+    - groupLabel: String
+    - timestamp: Date
+
+    - cartesianX: Double
+    - cartesianY: Double
+    - polarR: Double
+    - polarTheta: Double
+
+    + toString(): String
+}
+
+class CartesianPolar {
+    - x: Double
+    - y: Double
+    - r: Double
+    - theta: Double
+    
+    + convertToCartesian() : void
+    + convertToPolar() : void
+}
+
+
+DCCApp ..> SwingUI : has a
+DCCApp ..> MySQLDatabase : communicates with via
+TCP_IPConnection -- MySQLDatabase
+@enduml

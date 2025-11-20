@@ -1,0 +1,20 @@
+@startuml
+!include <C4/C4_Component>
+
+SHOW_LEGEND()
+
+Person(user, "User")
+
+System_Boundary(c1, "DCC Application"){
+  ContainerDb(db, "MySQL Database", "Stores coordinate groups", "TCP/IP")
+  Component(controller, "Controller", "Handles user requests and coordinates data flow")
+  Component(model, "Model", "Manages data logic and database interaction")
+  Component(view, "View", "Displays UI elements and handles user input")
+
+}
+
+Rel(user, controller, "Uses")
+Rel(controller, model, "Updates")
+Rel(controller, view, "Updates")
+Rel(model, db, "Accesses")
+@enduml

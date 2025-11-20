@@ -1,0 +1,39 @@
+@startuml
+skinparam packageStyle rectangular
+
+package "Microservices" {
+    class UserService {
+        -csvFile : File
+        +uploadCSV() : Void
+        +customizeChart() : Chart
+    }
+    note right of UserService
+        Functional requirement
+    end note
+
+    class ChartGenerationService {
+        -quota : Int
+        -chartData : Data
+        +generateChart() : Chart
+    }
+    note right of ChartGenerationService
+        Functional requirement
+    end note
+
+    class GoogleOAuthService {
+        -accessToken : String
+        +authenticate() : AccessToken
+    }
+    note right of GoogleOAuthService
+        Data management
+    end note
+
+    class ChartAPI {
+        +generateChart(user: User) : Chart
+    }
+    note right of ChartAPI
+        Flow control
+    end note
+}
+
+@enduml

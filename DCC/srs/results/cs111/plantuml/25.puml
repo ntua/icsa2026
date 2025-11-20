@@ -1,0 +1,57 @@
+@startuml
+package Model {
+
+class DatabaseConnection {
+  ID: String
+  Username: String
+  Password: String
+  
+  +connect()
+}
+
+class CoordinateGroup {
+  ID: int
+  Timestamp: dateTime
+  Label: String
+  PolarCoordinates: List<Polar>
+  CartesianCoordinates: List<Cartesian>
+  
+  +getId()
+  +setTimestamp(dateTime)
+  +setLabel(String)
+  +addPolarCoordinate(List<Polar>)
+  +removePolarCoordinate(int)
+  +addCartesianCoordinate(List<Cartesian>)
+  +removeCartesianCoordinate(int)
+}
+  
+class User {
+  ID: String
+  CoordinateGroups: List<CoordinateGroup>
+  
+  +addCoordinateGroup(CoordinateGroup)
+  +deleteCoordinateGroup(CoordinateGroup)
+  +getCoordinateGroups()
+}
+
+interface ConnectionInterface {
+  connect();
+}
+  
+class MySQLConnection implements ConnectionInterface {
+  DatabaseConnection db: DatabaseConnection
+  
+  +connect()
+}
+
+package DbConnections {
+  class Main {
+    void main(DatabaseConnection connection) {
+      MySqlConnection = new MySqlConnection (connection);
+      mysql.connect();
+    }
+  }
+}
+
+}
+@enduml

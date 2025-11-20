@@ -1,0 +1,72 @@
+@startuml
+package logical_view {
+class CoordinateGroup {
+    - id: int
+    - cartesianCoordinates: CartesianCoordinate[]
+    - polarCoordinates: PolarCoordinate[]
+    - label: string
+    - timestamp: DateTime
+}
+
+class CartesianCoordinate {
+    - x: float
+    - y: float
+}
+
+class PolarCoordinate {
+    - r: float
+    - theta: float
+}
+}
+
+package process_view {
+class UseCase {
+    + createCoordinateGroup(): void
+    + storeCoordinateGroup(): void
+    + retrieveCoordinateGroupByLabel(label: string): CoordinateGroup[]
+    + retrieveAllCoordinateGroups(): CoordinateGroup[]
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+}
+}
+
+package development_view {
+class GUI {
+    - view: JFrame
+    - controller: Controller
+    
+    + showView(): void
+}
+
+class Controller {
+    - model: Model
+    - view: JFrame
+    
+    + processUserActions(): void
+}
+
+class Model {
+    - useCase: UseCase
+}
+}
+
+package physical_view {
+class Database {
+    - connection: Connection
+    - createTables(): void
+    - saveCoordinateGroup(coordinateGroup: CoordinateGroup): int
+    - retrieveCoordinateGroupsByLabel(label: string): CoordinateGroup[]
+    - retrieveAllCoordinateGroups(): CoordinateGroup[]
+    - updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    - deleteCoordinateGroupById(id: int): void
+}
+
+class Connection {
+    - url: String
+    - username: String
+    - password: String
+    
+    + getConnection(): Connection
+}
+}
+@enduml

@@ -1,0 +1,47 @@
+@startuml
+
+package "Presentation Layer" {
+  class DCCGUI {
+    + displayCoordinateGroups()
+    + getCoordinateInput()
+    + displayConversionResult()
+    + updateCoordinateGroupDetails()
+  }
+}
+
+package "Logic Layer" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: double, y: double) : (double, double)
+    + convertPolarToCartesian(r: double, theta: double) : (double, double)
+  }
+
+  class CoordinateGroupManager {
+    - databaseConnector: DatabaseConnector
+    + createCoordinateGroup(coordinates: List<Double>, label: String) : int
+    + retrieveCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(groupId: int, coordinates: List<double>, label: String)
+    + deleteCoordinateGroup(groupId: int)
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - coordinates: List<Double> 
+  }
+}
+
+package "Data Access Layer" {
+  class DatabaseConnector {
+    + connectToDatabase()
+    + executeQuery(query: String) : ResultSet
+  }
+}
+
+
+DCCGUI --> CoordinateGroupManager : Uses
+CoordinateGroupManager --> CoordinateConverter : Uses
+CoordinateGroupManager --> DatabaseConnector : Uses
+
+@enduml

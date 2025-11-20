@@ -1,0 +1,80 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+!define SingleResponsibilityPrincipleNote <b>Single Responsibility Principle</b><br><i>(each class should have only one reason to change)</i>
+
+package "Frontend (Java with Swing)" {
+    class UserInterface {
+        +addCartesianCoordinates(x: number, y: number) : void
+        +addPolarCoordinates(r: number, theta: number) : void
+        +labelCoordinateGroup(id: int, label: string) : void
+        +selectOperation(operation: string) : void
+        +readSavedCoordinateGroups() : list<CoordinateGroup>
+        +filterCoordinateGroups(labelFilter: string) : void
+        
+        [<SingleResponsibilityPrincipleNote>]
+    }
+}
+
+package "Logic (Java)" {
+    class DCCConverter {
+        -cartesianToPolar(x: number, y: number): polarCoordinates
+        -polarToCartesian(r: number, theta: number): cartesianCoordinates
+
+        [<SingleResponsibilityPrincipleNote>]
+    }
+
+    class CoordinateGroup {
+        +id : int
+        +label : string
+        +datetimeAddedModified : datetime
+        +cartesian : cartesianCoordinates
+        +polar : polarCoordinates
+        
+        [<SingleResponsibilityPrincipleNote>]
+    }
+
+    class CartesianCoordinates {
+        x: number
+        y: number
+
+        [<SingleResponsibilityPrincipleNote>]
+    }
+
+    class PolarCoordinates {
+        r: number
+        theta: number
+
+        [<SingleResponsibilityPrincipleNote>]
+    }
+}
+
+package "Data Operations" {
+    class DatabaseManager {
+        +createCoordinateGroup(coordinateGroup: CoordinateGroup) : void
+        +readAllCoordinateGroups() : list<CoordinateGroup>
+        +updateCoordinateGroup(id: int, coordinateGroup: CoordinateGroup) : void
+        +deleteCoordinateGroup(id: int) : void
+        
+        [<SingleResponsibilityPrincipleNote>]
+    }
+}
+
+package "Database Server (MySQL)" {
+    class Database {
+        -coordinateGroupsTable : table
+
+        [<SingleResponsibilityPrincipleNote>]
+    }
+}
+
+
+UserInterface ..> DCCConverter : converts coordinates on input
+UserInterface ..> CoordinateGroup : adds/updates label to group and initializes list of saved coordinate groups from database manager
+UserInterface ..> DatabaseManager : executes data operations (create, read, update, delete) for selected operation or upon initialization 
+
+DCCConverter ..> CartesianCoordinates  : converts between cartesian and polar coordinates as needed
+DCCConverter ..>  PolarCoordinates  : converts between cartesian and polar coordinates as needed
+
+DatabaseManager ..> Database : executes CRUD operations on the coordinateGroupsTable
+@enduml

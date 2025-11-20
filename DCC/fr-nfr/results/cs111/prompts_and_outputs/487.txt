@@ -1,0 +1,133 @@
+Response:
+Below is an example PlantUML class diagram that reflects a thick-client (client-server) architecture, where the Java Swing client communicates (via TCP/IP) directly with a MySQL database for CRUD operations. The diagram is split into logical packages (UI, Controller, Model, and Data) to emphasize separation of concerns.
+
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+
+' ===========================
+' Packages
+' ===========================
+package "ui" <<Folder>> {
+    class DCCGUI {
+        - CoordinateManager coordinateManager
+        --
+        + DCCGUI()
+        + createCoordinateGroupForm(): void
+        + searchCoordinateGroupForm(): void
+        + displayAllCoordinateGroups(): void
+        + modifyCoordinateGroupForm(int groupId): void
+        + deleteCoordinateGroup(int groupId): void
+    }
+}
+
+package "controller" <<Folder>> {
+    class CoordinateManager {
+        - CoordinateDAO coordinateDAO
+        - CoordinateConverter coordinateConverter
+        --
+        + CoordinateManager(CoordinateDAO dao, CoordinateConverter converter)
+        + createCoordinateGroup(double x, double y, double r, double theta, String label): void
+        + getCoordinateGroupByLabel(String label): CoordinateGroup
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup group): void
+        + deleteCoordinateGroup(int groupId): void
+    }
+
+    class CoordinateConverter {
+        + cartesianToPolar(double x, double y): double[]  ' returns [r, theta]
+        + polarToCartesian(double r, double theta): double[]  ' returns [x, y]
+    }
+}
+
+package "model" <<Folder>> {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - java.util.Date timestamp
+        - double x
+        - double y
+        - double r
+        - double theta
+        --
+        + CoordinateGroup(int id, String label, Date timestamp, double x, double y, double r, double theta)
+        + getId(): int
+        + getLabel(): String
+        + setLabel(String label): void
+        + getTimestamp(): Date
+        + setTimestamp(Date timestamp): void
+        + getX(): double
+        + setX(double x): void
+        + getY(): double
+        + setY(double y): void
+        + getR(): double
+        + setR(double r): void
+        + getTheta(): double
+        + setTheta(double theta): void
+    }
+}
+
+package "data" <<Folder>> {
+    interface CoordinateDAO {
+        + create(CoordinateGroup group): void
+        + findByLabel(String label): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup group): void
+        + delete(int groupId): void
+    }
+
+    class MySQLCoordinateDAO {
+        - DatabaseManager dbManager
+        --
+        + MySQLCoordinateDAO(DatabaseManager dbManager)
+        + create(CoordinateGroup group): void
+        + findByLabel(String label): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup group): void
+        + delete(int groupId): void
+    }
+
+    class DatabaseManager {
+        - String connectionString
+        - String username
+        - String password
+        --
+        + DatabaseManager(String connectionString, String username, String password)
+        + getConnection(): java.sql.Connection
+    }
+}
+
+' ===========================
+' Relationships
+' ===========================
+DCCGUI --> CoordinateManager : uses
+CoordinateManager --> CoordinateConverter : uses
+CoordinateManager --> CoordinateGroup : creates/updates
+CoordinateManager --> CoordinateDAO : uses
+
+CoordinateDAO <|.. MySQLCoordinateDAO : implements
+MySQLCoordinateDAO --> DatabaseManager : uses
+
+@enduml
+```
+
+### Explanation of Main Elements
+
+1. **ui Package**  
+   - **DCCGUI**: The main Swing-based user interface class responsible for displaying forms and capturing user interactions (create, search, modify, and delete coordinate groups).
+
+2. **controller Package**  
+   - **CoordinateManager**: Contains the core business logic for creating, retrieving, updating, and deleting coordinate groups. It depends on:  
+     - A `CoordinateDAO` for database operations.  
+     - A `CoordinateConverter` for converting between Cartesian and polar coordinates.  
+   - **CoordinateConverter**: Standalone utility class that handles conversion between Cartesian \((x,y)\) and polar \((r,\theta)\) coordinates.
+
+3. **model Package**  
+   - **CoordinateGroup**: The domain/entity class encapsulating all relevant data (ID, label, timestamp, \(x, y\), \(r, \theta\)) for a single group of coordinates.
+
+4. **data Package**  
+   - **CoordinateDAO** (Interface): Defines the required CRUD operations for managing `CoordinateGroup` objects in the database.  
+   - **MySQLCoordinateDAO** (Concrete Implementation): Implements `CoordinateDAO` using MySQL-specific SQL operations. It depends on the `DatabaseManager` to obtain a connection.  
+   - **DatabaseManager**: Handles MySQL connection details (credentials, connection string) and returns a `java.sql.Connection` for executing queries.
+
+This design clearly separates user interface concerns (UI), business logic (Controller), domain data (Model), and persistence logic (Data). The thick client directly connects to the database (via TCP/IP) using `DatabaseManager` and `MySQLCoordinateDAO`, ensuring the system fulfills the described requirements.

@@ -1,0 +1,73 @@
+@startuml
+!include <C4/C4_Context>
+
+package "Client" {
+    class CoordinateGroupCreationController {
+        +createCoordinateGroup(coordinates: String): CoordinateGroup
+    }
+    class CoordinateGroupRetrievalController {
+      +getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+      +getAllCoordinateGroups(): List<CoordinateGroup>
+    }
+
+    class CoordinateGroupModificationController {
+       +modifyCoordinateGroup(id: int, modifications: Map<String, Object>): void
+    }
+    class CoordinateGroupDeletionController {
+       +deleteCoordinateGroup(id: int): void
+    }
+}
+
+package "Server" {
+    class CoordinateGroupService {
+        -coordinateGroupRepository: ICoordinateGroupRepository
+        +createCoordinateGroup(coordinates: String): CoordinateGroup
+        +getCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +modifyCoordinateGroup(id: int, modifications: Map<String, Object>): void
+        +deleteCoordinateGroup(id: int): void
+    }
+
+    interface ICoordinateGroupRepository {
+      +saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+      +findCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+      +findAllCoordinateGroups(): List<CoordinateGroup>
+      +updateCoordinateGroup(id: int, modifications: Map<String, Object>): void
+      +deleteCoordinateGroup(id: int): void
+    }
+
+    class MySQLCoordinateGroupRepository implements ICoordinateGroupRepository {
+        -connectionPool: ConnectionPool
+        // Implementation details for database interaction omitted for brevity
+    }
+}
+
+package "Domain" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    +CoordinateGroup(label: String, coordinates: String)
+  }
+
+  class CartesianCoordinates {
+     - x: double
+     - y: double
+  }
+
+  class PolarCoordinates {
+     - r: double
+     - theta: double
+  }
+}
+
+    CoordinateGroupCreationController --> CoordinateGroupService
+    CoordinateGroupRetrievalController --> CoordinateGroupService
+    CoordinateGroupModificationController --> CoordinateGroupService
+    CoordinateGroupDeletionController -> CoordinateGroupService
+
+
+@enduml

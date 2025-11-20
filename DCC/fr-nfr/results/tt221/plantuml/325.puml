@@ -1,0 +1,65 @@
+@startuml
+package "Presentation Tier" {
+  class UserInterface {
+    + inputCartesianCoordinates(x: float, y: float)
+    + inputPolarCoordinates(r: float, theta: float)
+    + displayCoordinateGroups()
+    + filterCoordinateGroups(labelFilter: String)
+    - cartCoordinates : CartCoordinates
+    - polCoordinates : PolCoordinates
+  }
+}
+
+package "Application Tier" {
+  class CoordinateGroupManager {
+    + convertCartesianToPolar(cartCoordinates: CartCoordinates): PolCoordinates
+    + convertPolarToCartesian(polCoordinates: PolCoordinates): CartCoordinates
+    + createCoordinateGroup(label: String, cartCoordinates: CartCoordinates, polCoordinates: PolCoordinates)
+    + readCoordinateGroups(): List<CoordinateRecord>
+    + updateCoordinateGroup(recordId: int, newLabel: String, newCartCoordinates: CartCoordinates, newPolCoordinates: PolCoordinates)
+    - coordinateRecords : List<CoordinateRecord>
+  }
+}
+
+package "Data Tier" {
+  class DatabaseConnection {
+    + connectToDatabase()
+    + disconnectFromDatabase()
+    + saveCoordinateGroup(recordId: int, label: String, cartCoordinates: CartCoordinates, polCoordinates: PolCoordinates)
+    + readCoordinateGroups(): List<CoordinateRecord>
+    - coordinateRecords : List<CoordinateRecord>
+  }
+}
+
+package "Data Tier" {
+  class CoordinateRecord {
+    + __init__(recordId: int, label: String, cartCoordinates: CartCoordinates, polCoordinates: PolCoordinates)
+    - recordId : int
+    - label : String
+    - cartCoordinates : CartCoordinates
+    - polCoordinates : PolCoordinates
+  }
+}
+
+package "Data Tier" {
+  class CartCoordinates {
+    + __init__(x: float, y: float)
+    - x : float
+    - y : float
+  }
+
+  class PolCoordinates {
+    + __init__(r: float, theta: float)
+    - r : float
+    - theta : float
+  }
+}
+
+package "Presentation Tier" {
+  class FilteredCoordinateGroupsList {
+    + __init__()
+    - coordinateGroups : List<CoordinateRecord>
+    - labelFilter : String
+  }
+}
+@enduml

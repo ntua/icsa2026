@@ -1,0 +1,79 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Presentation" {
+    class CoordinateGroupGUI {
+        + void showCreateGroup()
+        + void showRetrieveGroups()
+        + void showUpdateGroup()
+        + void showDeleteGroup()
+        + void refreshGroupsList()
+    }
+}
+
+package "ApplicationLogic" {
+    class CoordinateGroupManager {
+        - List<CoordinateGroup> groups
+        + void createGroup(Cartesian, Polar)
+        + void convertCoordinates(CoordinateGroup)
+        + List<CoordinateGroup> retrieveGroups()
+        + void updateGroup(CoordinateGroup)
+        + void deleteGroup(int)
+    }
+
+    class CoordinateConverter {
+        + Cartesian convertPolarToCartesian(Polar)
+        + Polar convertCartesianToPolar(Cartesian)
+    }
+
+    class InputValidator {
+        + boolean validateCoordinates(Cartesian)
+        + boolean validateCoordinates(Polar)
+        + boolean validateLabel(String)
+    }
+}
+
+package "DataAccess" {
+    class CoordinateGroupDAO {
+        + void saveGroup(CoordinateGroup)
+        + List<CoordinateGroup> retrieveGroups()
+        + void updateGroup(CoordinateGroup)
+        + void deleteGroup(int)
+    }
+
+    class Database {
+        + void connect()
+        + void disconnect()
+    }
+}
+
+' Classes
+class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - Cartesian cartesian
+    - Polar polar
+
+    + getCartesian(): Cartesian
+    + getPolar(): Polar
+}
+
+class Cartesian {
+    - double x
+    - double y
+}
+
+class Polar {
+    - double r
+    - double theta
+}
+
+' Associations
+CoordinateGroupGUI ..> CoordinateGroupManager : Uses
+CoordinateGroupManager --* CoordinateConverter : Uses
+CoordinateGroupManager --* InputValidator : Uses
+CoordinateGroupManager ..> CoordinateGroupDAO : Uses
+CoordinateGroupDAO ..> Database : Accesses
+
+@enduml

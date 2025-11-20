@@ -1,0 +1,57 @@
+@startuml
+package controller {
+  class Controller
+}
+
+package model {
+  class CoordinateGroup
+  class MySQLDatabase
+}
+
+package view {
+  class CoordinateGroupListForm
+  class CoordinateGroupDisplayForm
+}
+
+class Controller {
+  + init()
+  - handleUserInput()
+  - saveDataToDatabase()
+  - loadDataFromDatabase()
+}
+
+class CoordinateGroup {
+  - id : unique
+  - timestamp
+  - label
+  - polarCoordinates
+  - cartesianCoordinates
+}
+
+class MySQLDatabase {
+  - connection
+  - executeQuery(query)
+  - fetchData(query)
+}
+
+class CoordinateGroupListForm {
+  + showForm()
+  - handleSelection()
+  - saveNewCoordinateGroup()
+}
+
+class CoordinateGroupDisplayForm {
+  + showForm()
+  - displaySelectedCoordinateGroup()
+}
+
+Controller <|-- Controller
+Controller ..> CoordinateGroupListForm : uses
+Controller ..> CoordinateGroupDisplayForm : uses
+
+CoordinateGroup <|-- CoordinateGroup
+MySQLDatabase ..> CoordinateGroup : contains
+
+CoordinateGroupListForm ..> MySQLDatabase : uses
+CoordinateGroupDisplayForm ..> MySQLDatabase : uses
+@enduml

@@ -1,0 +1,91 @@
+@startuml
+package com.dcc.application {
+  abstract class CoordinateGroup {
+    + id: Integer
+    + label: String
+
+    - createRecord(timestamp: String): Record
+    - updateRecord(recordId: Integer, newLabel: String, newX: Float, newY: Float, newR: Float, newTheta: Float): Void
+    - deleteRecord(recordId: Integer): Void
+  }
+
+  class CartesianCoordinate {
+    + x: Float
+    + y: Float
+
+    - toPolar(r: Float, theta: Float): PolarCoordinate
+  }
+
+  class PolarCoordinate {
+    + r: Float
+    + theta: Float
+
+    - toCartesian(x: Float, y: Float): CartesianCoordinate
+  }
+}
+
+package com.dcc.model {
+
+  class Record {
+    + id: Integer
+    + label: String
+    + cartesianX: Float
+    + cartesianY: Float
+    + polarR: Float
+    + polarTheta: Float
+
+    - equals(record: Record): Boolean
+  }
+
+  class CoordinateGroupRepository {
+    + createRecord(label: String, x: Float, y: Float, r: Float, theta: Float): Record
+    + updateRecord(recordId: Integer, newLabel: String, newX: Float, newY: Float, newR: Float, newTheta: Float): Void
+    + deleteRecord(recordId: Integer): Void
+
+    - getRecords(): List<Record>
+  }
+}
+
+package com.dcc.controller {
+
+  class CreateOperationController {
+    + createRecord(label: String, x: Float, y: Float, r: Float, theta: Float): Record
+  }
+
+  class UpdateOperationController {
+    + updateRecord(recordId: Integer, newLabel: String, newX: Float, newY: Float, newR: Float, newTheta: Float): Void
+  }
+
+  class DeleteOperationController {
+    + deleteRecord(recordId: Integer): Void
+  }
+}
+
+package com.dcc.view {
+
+  abstract class View {
+    - displayRecords(records: List<Record>): Void
+
+    - filterByLabel(labelFilter: String): Record[]
+  }
+
+  class ListView extends View {
+    + updateList(records: List<Record>): Void
+    + clearFilters(): Void
+  }
+}
+
+CoordinateGroup --|> CreateOperationController
+CoordinateGroup --|> UpdateOperationController
+CoordinateGroup --|> DeleteOperationController
+
+CoordinateGroupRepository --* CoordinateGroup
+
+CartesianCoordinate --* PolarCoordinate : composition (cartesian to polar conversion)
+PolarCoordinate --* CartesianCoordinate : composition (polar to cartesian conversion)
+
+Record --* CoordinateGroup : composition (one record per coordinate group)
+
+View --|> ListView
+ListView --* CoordinateGroupRepository : dependency (displaying records from repository)
+@enduml

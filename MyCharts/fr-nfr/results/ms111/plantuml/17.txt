@@ -1,0 +1,108 @@
+@startuml
+left to right direction
+
+package "API Gateway" {
+  class API_Gateway {
+    + routeRequest()
+    ' Flow control operation
+  }
+}
+
+package "Authentication Service" {
+  class UserProfile {
+    - userId: String
+    - name: String
+    - email: String
+    - profilePictureUrl: String
+    - remainingQuota: Int
+    - accountCreatedAt: DateTime
+    - lastLogin: DateTime
+    + updateLastLogin()
+    ' Data management operation
+  }
+}
+
+package "Template Service" {
+  class ChartTemplate {
+    - templateId: String
+    - chartType: String
+    - templateStructure: JSON
+    + getTemplate()
+    ' Functional requirement
+  }
+}
+
+package "File Service" {
+  class CSVValidator {
+    + validateStructure()
+    + validateDataTypes()
+    + validateMandatoryFields()
+    ' Functional requirement
+  }
+}
+
+package "Chart Service" {
+  class HighchartsGenerator {
+    + generateChart()
+    + saveChartFormats()
+    ' Functional requirement
+  }
+}
+
+package "Storage Service" {
+  class ChartFile {
+    - chartId: String
+    - userId: String
+    - formats: Map<String,Blob>
+    - createdAt: DateTime
+    + saveFile()
+    + deleteFile()
+    + getFile()
+    ' Data management operation
+  }
+}
+
+package "Dashboard Service" {
+  class DashboardManager {
+    + getChartHistory()
+    + getChartPreview()
+    ' Functional requirement
+  }
+}
+
+package "Quota Service" {
+  class QuotaTracker {
+    - userId: String
+    - remainingQuota: Int
+    + deductQuota()
+    + addQuota()
+    + synchronizeQuota()
+    ' Data consistency operation
+    ' Data management operation
+  }
+}
+
+package "Payment Service" {
+  class PaymentProcessor {
+    + processPayment()
+    + handleWebhook()
+    ' Functional requirement
+  }
+}
+
+API_Gateway --> UserProfile
+API_Gateway --> ChartTemplate
+API_Gateway --> CSVValidator
+API_Gateway --> HighchartsGenerator
+API_Gateway --> ChartFile
+API_Gateway --> DashboardManager
+API_Gateway --> QuotaTracker
+API_Gateway --> PaymentProcessor
+
+CSVValidator --> ChartTemplate
+HighchartsGenerator --> QuotaTracker
+HighchartsGenerator --> ChartFile
+QuotaTracker --> PaymentProcessor
+DashboardManager --> ChartFile
+
+@enduml

@@ -1,0 +1,43 @@
+@startuml
+package presentation {
+  class UserInterface {
+    - String label
+    + void displayCoordinateGroup(List<CoordinateGroup> coordinateGroups)
+  }
+}
+
+package business {
+  interface CoordinateService {
+    List<CoordinateGroup> getCoordinateGroups()
+    void deleteCoordinateGroup(int id)
+  }
+
+  class CoordinateServiceImpl implements CoordinateService {
+    - CoordinateDAO dao
+
+    + List<CoordinateGroup> getCoordinateGroups()
+    + void deleteCoordinateGroup(int id)
+  }
+}
+
+package data {
+  interface CoordinateDAO {
+    List<CoordinateGroup> getAllCoordinateGroups()
+    void deleteCoordinateGroup(int id)
+  }
+
+  class MySQLCoordinateDAO implements CoordinateDAO {
+    - Connection dbConnection
+
+    + List<CoordinateGroup> getAllCoordinateGroups()
+    + void deleteCoordinateGroup(int id)
+  }
+}
+
+UserInterface --> CoordinateService : uses
+CoordinateServiceImpl --> CoordinateDAO : uses
+
+CoordinateService ..> CoordinateServiceImpl : implemented_by
+
+CoordinateDAO ..> MySQLCoordinateDAO : implemented_by
+@enduml

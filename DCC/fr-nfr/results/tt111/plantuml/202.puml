@@ -1,0 +1,89 @@
+@startuml
+
+package "Presentation Layer (Java Swing)" {
+  class CoordinateGroupCreationForm {
+    - productCatalog: ProductCatalog
+    + createCoordinateGroup()
+  }
+
+  class CoordinateGroupRetrievalForm {
+    - productCatalog: ProductCatalog
+    + retrieveCoordinateGroupByLabel(label: String)
+    + viewAllSavedCoordinateGroups()
+  }
+
+  class CoordinateGroupModificationForm {
+    - productCatalog: ProductCatalog
+    + modifyCoordinateGroupDetails(id: Int, updatedValues: UpdatedCoordinateGroupValues)
+  }
+
+  class CoordinateGroupDeletionForm {
+    - productCatalog: ProductCatalog
+    + deleteCoordinateGroup(id: Int)
+  }
+}
+
+package "Logic Layer" {
+  class ProductCatalog {
+    - coordinateGroupRepository: CoordinateGroupRepository
+
+    + createCoordinateGroup(cartesianOrPolarCoordinates: CartesianOrPolarCoordinates): CoordinateGroup
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(id: Int, updatedValues: UpdatedCoordinateGroupValues): CoordinateGroup
+    + deleteCoordinateGroup(id: Int)
+  }
+
+  class CartesianOrPolarCoordinates {
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    + convertToCartesian()
+    + convertToPolar()
+  }
+
+  class UpdatedCoordinateGroupValues {
+    - label: String
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+  }
+}
+
+package "Data Layer (MySQL)" {
+  class CoordinateGroupRepository {
+    - mySqlConnection: MySqlConnection
+
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(id: Int, updatedValues: UpdatedCoordinateGroupValues)
+    + deleteCoordinateGroup(id: Int)
+  }
+
+  class MySqlConnection {
+    - connection: java.sql.Connection
+
+    + connect()
+    + disconnect()
+  }
+
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - timestamp: LocalDateTime
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+  }
+
+  class CartesianCoordinates {
+    - x: Double
+    - y: Double
+  }
+
+  class PolarCoordinates {
+    - r: Double
+    - theta: Double
+  }
+}
+
+@enduml

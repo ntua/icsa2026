@@ -1,0 +1,65 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Class Diagram
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    + getCartesianCoordinates(): (double, double)
+    + getPolarCoordinates(): (double, double)
+    + setCartesianCoordinates(x: double, y: double)
+    + setPolarCoordinates(r: double, theta: double)
+  }
+
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+  }
+}
+
+package "View" {
+  class CoordinateGroupView {
+    + displayCoordinateGroups(groups: List<CoordinateGroup>)
+    + displaySingleCoordinateGroup(group: CoordinateGroup)
+    + requestCoordinateInput(): (String, String) // Cartesian or Polar input
+    + displayConversionResult(convertedCoordinates: (double, double))
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - model: Model
+    - view: View
+    + createCoordinateGroup(type: String, x: double, y: double) // Or r, theta for polar
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroups(label: String) : List<CoordinateGroup>
+    + modifyCoordinateGroup(id: int, label: String, coordinates: (double, double))
+    + deleteCoordinateGroup(id: int)
+  }
+
+}
+
+package "Database" {
+  class DatabaseConnector {
+    - connection: MySQLConnection
+    + saveCoordinateGroup(group: CoordinateGroup): void
+    + fetchCoordinateGroups(label: String): List<CoordinateGroup>
+  }
+}
+
+DCCController "1" -- "*" CoordinateGroup : manages
+
+
+CoordinateGroupView "1" -- "1" DCCController : uses
+
+DatabaseConnector "1" -- "*" CoordinateGroup : persists
+
+@enduml

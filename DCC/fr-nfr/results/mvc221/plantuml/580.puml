@@ -1,0 +1,77 @@
+@startuml
+package dcc.application {
+
+    package model {
+        class CartesianCoordinates {
+            - x: double
+            - y: double
+            
+            + getCartesianX(): double
+            + getCartesianY(): double
+        }
+
+        class PolarCoordinates {
+            - r: double
+            - theta: double
+            
+            + getPolarR(): double
+            + getPolarTheta(): double
+        }
+
+        class CoordinateConverter {
+            + cartToPolar(x: double, y: double): PolarCoordinates
+            + polarToCart(r: double, theta: double): CartesianCoordinates
+        }
+
+        class CoordinateGroup {
+            - id: int (auto-generated)
+            - label: String
+            - cartesian: CartesianCoordinates
+            - polar: PolarCoordinates
+            - timestamp: DateTime
+            
+            + getCoordinateId(): int
+            + getLabel(): String
+            + getCartesian(): CartesianCoordinates
+            + getPolar(): PolarCoordinates
+            + getTimestamp(): DateTime
+        }
+
+        class CoordinateDAO {
+            + create(group: CoordinateGroup): void
+            + readAll(): List<CoordinateGroup>
+            + update(group: CoordinateGroup): void
+            + delete(id: int): void
+        }
+    }
+
+    package view {
+        class DCCView {
+            - uiComponents: JFrame, JPanel, JTextField, JButton, etc.
+            
+            + displayGroups(groups: List<CoordinateGroup>): void
+            + refreshDisplay(): void
+            + setController(controller: DCCController): void
+        }
+    }
+
+    package controller {
+        class DCCController {
+            - coordinateConverter: CoordinateConverter
+            - coordinateDAO: CoordinateDAO
+            
+            + handleUserInput(action: String, data: any): void
+            + updateView(): void
+            + setView(view: DCCView): void
+        }
+    }
+
+    DCCController --> model.CoordinateGroup
+    DCCController --> model.CartesianCoordinates
+    DCCController --> model.PolarCoordinates
+    DCCController --> model.CoordinateConverter
+    DCCController --> model.CoordinateDAO
+
+    DCCView --> DCCController
+}
+@enduml

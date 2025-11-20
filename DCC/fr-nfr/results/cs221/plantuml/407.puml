@@ -1,0 +1,62 @@
+@startuml
+
+title DCC Application - Client-Server Architecture
+
+package "DCC Client" {
+  class CoordinateGroupController {
+    - String label
+    - double x
+    - double y
+    - double r
+    - double theta
+
+    + void createCoordinateGroup()
+    + void updateCoordinateGroup()
+    + void deleteCoordinateGroup()
+    + void listAllCoordinateGroups()
+  }
+}
+
+package "DCC Server" {
+  class CoordinateConversionService {
+    + static CartesianCoordinates toCartesian(PolarCoordinates polar)
+    + static PolarCoordinates toPolar(CartesianCoordinates cartesian)
+  }
+
+  class DatabaseManager {
+    - String dbConnectionString
+    + void createCoordinateGroup(CoordinateGroup coordinateGroup)
+    + CoordinateGroup readCoordinateGroup(int id)
+    + void updateCoordinateGroup(CoordinateGroup coordinateGroup)
+    + void deleteCoordinateGroup(int id)
+    + List<CoordinateGroup> listAllCoordinateGroups()
+  }
+
+  class CoordinateGroup {
+    - int id
+    - String label
+    - CartesianCoordinates cartesianCoordinates
+    - PolarCoordinates polarCoordinates
+    - DateTime creationTimestamp
+
+    + getCartesianCoordinates(): CartesianCoordinates
+    + setCartesianCoordinates(CartesianCoordinates cartesianCoordinates): void
+    + getPolarCoordinates(): PolarCoordinates
+    + setPolarCoordinates(PolarCoordinates polarCoordinates): void
+  }
+
+  class CartesianCoordinates {
+    - double x
+    - double y
+  }
+
+  class PolarCoordinates {
+    - double r
+    - double theta
+  }
+}
+
+CoordinateGroupController --> CoordinateConversionService : "Uses"
+CoordinateGroupController --> DatabaseManager : "Uses"
+
+@enduml

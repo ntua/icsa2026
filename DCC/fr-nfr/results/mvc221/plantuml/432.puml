@@ -1,0 +1,67 @@
+@startuml
+title Dummy Coordination Conversion Application - Class Diagram
+
+package "Frontend" {
+  class GUIController {
+    + add() : void
+    + update() : void
+    + delete() : void
+    + refreshList() : void
+    + filterByLabel(label: string) : void
+    + clearFilter() : void
+  }
+
+  class GUILabelInput {
+    - label : string
+    + getLabel() : string
+  }
+
+  class GUICoordinateInputs {
+    - cartesianX : double
+    - cartesianY : double
+    - polarR : double
+    - polarTheta : double
+
+    + getCartesian() : (double, double)
+    + getPolar() : (double, double)
+  }
+}
+
+package "Logic" {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: double, y: double) : (double, double)
+    + convertPolarToCartesian(r: double, theta: double) : (double, double)
+  }
+
+  class CoordinateGroup {
+    - id : int
+    - label : string
+    - cartesianX : double
+    - cartesianY : double
+    - polarR : double
+    - polarTheta : double
+
+    # CreateOp() : void
+    # ReadOp(id: int = null) : (int, string, (double, double), (double, double))[]
+    # UpdateOp(id: int, x: double, y: double, r: double, theta: double) : void
+    + DeleteOp(id: int) : void
+  }
+
+  class Database {
+    - connection : TCP/IPConnection
+
+    # createTable() : void
+    # insertRecord(id: int, label: string, x: double, y: double, r: double, theta: double) : void
+    + getRecords(id: int = null) : (int, string, (double, double), (double, double))[]
+    # updateRecord(id: int, x: double, y: double, r: double, theta: double) : void
+    # deleteRecord(id: int) : void
+  }
+}
+
+GUIController ..> GUILabelInput
+GUIController ..> GUICoordinateInputs
+GUIController --> CoordinateConverter
+GUIController ..> Database
+
+Database -up- CoordinateGroup
+@enduml

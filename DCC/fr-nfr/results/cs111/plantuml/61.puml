@@ -1,0 +1,34 @@
+@startuml
+!theme plain
+
+package "DCC Application Controller" {
+  class "Coordinate Group" {
+  +CartesianCoordinates[] cartesianCoords : [0..*]
+  +PolarCoordinates[] polarCoords : [0..*]
+}
+
+class "Conversion Service" {
+  +convertToCartesian(PolarCoordinates): CartesianCoordinates
+  +convertToPolar(CartesianCoordinates): PolarCoordinates
+}
+
+class MySQLDatabase {
+  +createTable()
+  +queryLabel(string label) : CoordinateGroup[]
+  +updateTable(CoordinateGroup[])
+  +deleteFromTable(int id)
+}
+
+class TCPConnection {
+}
+
+class SwingFrontend {
+}
+}
+
+
+
+SwingFrontend --> UserInterface
+TCPConnection --> MySQLDatabase
+UserInterface --> SwingFrontend : utilizes
+@enduml

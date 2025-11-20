@@ -1,0 +1,70 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    + getCartesianCoordinates(): List<double>
+    + getPolarCoordinates(): List<double>
+    + setCartesianCoordinates(x: double, y: double)
+    + setPolarCoordinates(r: double, theta: double)
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: double, y: double): List<double>
+    + polarToCartesian(r: double, theta: double): List<double>
+  }
+}
+
+package "View" {
+  class DCCApplicationView {
+    - model: CoordinateGroupModel
+    - controller: DCCApplicationController
+    + displayCoordinateGroups()
+    + showInputForm()
+    + showUpdateForm(coordinateGroup: CoordinateGroup)
+    + displayMessage(message: String)
+  }
+
+}
+
+package "Controller" {
+  class DCCApplicationController {
+    - model: CoordinateGroupModel
+    - view: DCCApplicationView
+    + createCoordinateGroup(coordinates: List<double>, type: String, label: String): void
+    + retrieveCoordinateGroups(): void
+    + retrieveCoordinateGroupByLabel(label: String): void
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+
+}
+
+
+
+package "Database" {
+ class MySQLDatabaseConnector {
+    - url: String
+    - username: String
+    - password: String
+    + connect(): void
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    + updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+
+  }
+
+}
+
+
+
+DCCApplicationController -> DCCApplicationView : display
+
+DCCApplicationController -> MySQLDatabaseConnector : retrieve/save/update/delete
+
+
+@enduml

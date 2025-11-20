@@ -1,0 +1,64 @@
+@startuml
+
+package "Frontend (Java Swing)" as Frontend {
+    class CoordinateConverterGUI {
+        - coordConverter : CoordinateConverter
+        + setCoordinateConverter(converter: CoordinateConverter)
+        + display()
+    }
+}
+
+package "Logic Layer" as Logic {
+    class CoordinateConverter {
+        - x : HighPrecisionNumber
+        - y : HighPrecisionNumber
+        - r : HighPrecisionNumber
+        - theta : HighPrecisionNumber
+        
+        + convertCartesianToPolar() : void
+        + convertPolarToCartesian() : void
+    }
+    
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesianCoordinates: List<HighPrecisionNumber>
+        - polarCoordinates: List<HighPrecisionNumber>
+        + getId() : int
+        + setLabel(label: String) : void
+        + addCartesianCoordinate(x: HighPrecisionNumber, y: HighPrecisionNumber) : void
+        + addPolarCoordinate(r: HighPrecisionNumber, theta: HighPrecisionNumber) : void
+    }
+    
+    class DataManager {
+        - databaseConnection: DatabaseConnection
+        
+        + createOp(coordinateGroup: CoordinateGroup) : int
+        + readOp() : List<CoordinateGroup>
+        + updateOp(coordinateGroup: CoordinateGroup) : void
+        + deleteOp(id: int) : void
+        + filterByLabel(label: String) : List<CoordinateGroup>
+    }
+}
+
+package "High Precision Numbers" as HighPrecision {
+    class HighPrecisionNumber {
+        + getValue() : double
+        + setValue(value: double) : void
+    }
+}
+
+package "Database Connection" as Database {
+    class DatabaseConnection {
+        - connection: MySQLConnection
+        
+        + establishConnection() : boolean
+        + closeConnection() : void
+    }
+}
+
+Frontend -- Logic
+Logic -- HighPrecision
+Logic -- Database
+
+@enduml

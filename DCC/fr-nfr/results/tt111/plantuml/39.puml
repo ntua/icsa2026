@@ -1,0 +1,59 @@
+@startuml
+
+package "Client" {
+    class DCCApplication {
+        - coordinateGroupManager: CoordinateGroupManager
+        + createCoordinateGroup(cartesianX, cartesianY, polarR, polarTheta) : void
+        + storeCoordinateGroup() : void
+        + retrieveCoordinateGroup(label) : void
+        + modifyCoordinateGroup(id, label, x, y, r, theta) : void
+        + deleteCoordinateGroup(id) : void
+    }
+}
+
+
+package "Server" {
+
+    class CoordinateGroupManager {
+        - database: MySQLDatabase
+        + createCoordinateGroup(...)
+        + storeCoordinateGroup()
+        + retrieveCoordinateGroup(label)
+        + modifyCoordinateGroup(id, label, x, y, r, theta)
+        + deleteCoordinateGroup(id)
+    }
+
+
+    class MySQLDatabase {
+        + connect() : void
+        + createTable() : void
+        + insertData(...) : void
+        + selectData(...) : void
+        + updateData(...) : void
+        + deleteData(id) : void
+    }
+}
+
+
+package "Database" {
+
+    class CoordinateGroup {
+        * id: int
+        * label: string
+        * timestamp: datetime
+        
+        - cartesianX: double
+        - cartesianY: double
+        - polarR: double
+        - polarTheta: double
+
+        + getCartesianCoordinates() : tuple[double, double]
+        + setCartesianCoordinates(x, y) : void
+
+        + getPolarCoordinates() : tuple[double, double]
+        + setPolarCoordinates(r, theta) : void
+    }
+}
+
+
+@enduml

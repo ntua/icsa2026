@@ -1,0 +1,59 @@
+@startuml
+
+package Frontend {
+  class Frame {
+    - JComponent contentPane
+  }
+  class CoordinateGroupDialog {
+    - String label
+    - CartesianCoordinate cartesianCoordinates
+    - PolarCoordinate polarCoordinates
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - high-precision number x, y, r, theta
+  }
+  class CartesianCoordinate extends Coordinate {}
+  class PolarCoordinate extends Coordinate {}
+  class Converter {
+    + cartesianToPolar(CartesianCoordinate) : PolarCoordinate
+    + polarToCartesian(PolarCoordinate) : CartesianCoordinate
+  }
+  class CoordinateGroup {
+    - Integer id
+    - Timestamp timestamp
+    - String label
+    - CartesianCoordinate cartesianCoordinates
+    - PolarCoordinate polarCoordinates
+    + createOp()
+    + updateOp(newValues)
+    + deleteOp()
+  }
+  class CoordinateGroupManager {
+    # List<CoordinateGroup> coordinateGroups
+    + readOp() : List<CoordinateGroup>
+    + filterByLabel(label) : List<CoordinateGroup>
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - DataSource dataSource
+    + getConnection() : Connection
+  }
+}
+
+package Utils {
+  class HighPrecisionNumber {}
+  class Timestamp {}
+}
+
+Frontend.Frame "1" -- "*" CoordinateGroupDialog
+Logic.Converter "1" -- "*" Logic.CartesianCoordinate
+Logic.Converter "1" -- "*" Logic.PolarCoordinate
+Logic.CoordinateGroup "1" -- "*" Logic.Converter
+Logic.CoordinateGroupManager "1" -- "*" Logic.CoordinateGroup
+Database.MySQLDatabase "1" -- "*" Logic.CoordinateGroupManager
+@enduml

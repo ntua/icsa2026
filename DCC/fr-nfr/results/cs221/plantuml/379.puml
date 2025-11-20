@@ -1,0 +1,28 @@
+@startuml
+
+class Application {
+    + Main()
+}
+
+class ClientUI {
+    - clientID: int
+    + inputCoordinates(coords: Coordinate)
+    + updateLabel(label: String)
+    + filterByLabel(label: String)
+    + clearFilter()
+    + displayList(list: List<CoordinateGroup>)
+    + refreshUI()
+}
+
+class Logic {
+    + convertToPolar(coords: Coordinate): Coordinate
+    + convertToCartesian(coords: Coordinate): Coordinate
+}
+
+class Database {
++ saveData(data: String)
++ fetchData(query: String): String
+}
+Database --* UserManager
+Database --* TransactionManager
+@enduml

@@ -1,0 +1,50 @@
+@startuml
+!include <C4/C4_Context>
+
+title DCC Application Architecture
+
+package "frontend" {
+ class UI {
+  +displayCoordinateGroups(List<CoordinateGroup>)
+  +getCoordinateInput() : (double, double) 
+ }
+}
+
+package "logic"{
+
+class CoordinateConverter{
+  +cartesianToPolar(double x, double y) : (double, double)
+  +polarToCartesian(double r, double theta) : (double, double)
+}
+
+class CoordinateGroup {
+ -id: int 
+ -label: String
+ -x: double
+ -y: double
+ -r: double
+ -theta: double
+ +CoordinateGroup(double x, double y, String label)
+ +CoordinateGroup(double r, double theta, String label)
+}
+
+class DataManager {
+ -dbConnection: Connection
+ +createCoordinateGroup(CoordinateGroup group) 
+ +readCoordinateGroups() : List<CoordinateGroup>
+ +updateCoordinateGroup(CoordinateGroup group) 
+ +deleteCoordinateGroup(int id)
+ }
+
+}
+
+
+UI --> CoordinateConverter: Uses
+
+UI --> DataManager: Interacts with
+
+DataManager --> CoordinateConverter: Uses for conversions
+
+CoordinateGroup "*" -- "*" DataManager: manages
+
+@enduml

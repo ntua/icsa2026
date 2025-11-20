@@ -1,0 +1,48 @@
+@startuml
+!define RECTANGLE Class -opaque
+
+' Packages
+package java {
+    ' Frontend package
+    package frontend {
+        class UserInterface
+    }
+    
+    ' Logic package
+    package logic {
+        abstract class CoordinateGroup {}
+        
+        class CartesianCoordinates extends CoordinateGroup {
+            float x;
+            float y;
+            
+            void convertToPolar() // Convert cartesian to polar
+                @return PolarCoordinates
+        }
+        
+        class PolarCoordinates extends CoordinateGroup {
+            float r;
+            float theta;
+            
+            CartesianCoordinates convertFromCartesian() // Convert polar to cartesian
+                @return CartesianCoordinates
+        }
+    }
+    
+    ' Database package
+    package database {
+        class DatabaseConnection {
+            void connectToDatabase()
+            void saveRecord(String label, CoordinateGroup coordinates)
+            List<CoordinateGroup> readRecords()
+            void updateRecord(Integer id, String label, CoordinateGroup coordinates)
+            void deleteRecord(Integer id)
+        }
+    }
+    
+' Classes
+class Application {
+    UserInterface userInterface;
+    DatabaseConnection databaseConnection;
+}
+@enduml

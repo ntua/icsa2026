@@ -1,0 +1,61 @@
+@startuml
+
+package "frontend" {
+  class SwingUI {
+    + displayCoordinateGroups(List<CoordinateGroup>)
+    + getCoordinatesFromUser()
+    + handleAddOperation()
+    + handleUpdateOperation()
+    + handleDeleteOperation()
+    + applyFilter(String label)
+    + clearFilter()
+  }
+}
+
+package "logic" {
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): (double, double)
+    + polarToCartesian(double r, double theta): (double, double)
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getCartesianCoordinates(): (double, double)
+    + getPolarCoordinates(): (double, double)
+
+  }
+
+  class DCCLogic {
+    - coordinateConverter: CoordinateConverter
+    + createCoordinateGroup(String label, double x, double y): CoordinateGroup
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(int id, String label, double x, double y)
+    + deleteCoordinateGroup(int id)
+  }
+}
+
+package "database" {
+  class MySQLDatabase {
+    - connection: Connection
+    + saveCoordinateGroup(CoordinateGroup)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup)
+    + deleteCoordinateGroup(int id)
+  }
+}
+
+SwingUI "1" -- "*" DCCLogic : uses
+
+DCCLogic "1" -- "1" CoordinateConverter : uses
+
+DCCLogic "1" -- "*" CoordinateGroup : manages
+
+DCCLogic "1" -- "1" MySQLDatabase : interacts with
+
+
+@enduml

@@ -1,0 +1,71 @@
+@startuml
+package "User Management" {
+  class UserManagementService {
+    - users: List<User>
+    + registerUser(email, name, profilePicture) // Functional requirement
+    + getUserProfile(userId) // Functional requirement
+    + updateUserQuota(userId, quota) // Data management operation 
+  }
+  class User {
+    - id: String
+    - email: String
+    - name: String
+    - profilePicture: String
+    - quota: Integer
+    - createdAt: Date
+    - lastLoginAt: Date
+  }
+}
+
+package "Chart Generation" {
+  class ChartGenerationService {
+    + generateChart(userId, fileContent, chartType) // Functional requirement
+    + validateCSV(fileContent, templateId) // Functional requirement
+  }
+  class ChartTemplate {
+    - id: String
+    - name: String
+    - structure: JSON
+  }
+
+  class GeneratedChart {
+    - id: String
+    - userId: String
+    - chartType: String
+    - data: CSVData
+    - createdAt: Date
+    + saveToFormats(formats) // Functional requirement
+  }
+}
+
+package "File Storage" {
+  class FileStorageService {
+    + storeChart(chartId, format) // Data management operation
+    + retrieveChart(chartId, format) // Functional requirement
+    + deleteChart(chartId) // Functional requirement 
+  }
+}
+
+package "Payment & Quota Management" {
+  class PaymentGatewayService {
+    + processPayment(userId, amount) // Functional requirement
+  }
+  class QuotaManagementService {
+    - quotas: Map<String, Integer>
+    + getQuota(userId) // Data management operation
+    + updateQuota(userId, delta) // Data consistency operation
+
+  }
+}
+
+
+ChartGenerationService --> ChartTemplate : uses
+ChartGenerationService --> UserManagementService : retrieves user info
+
+GeneratedChart --> FileStorageService : stores data
+
+UserManagementService --> QuotaManagementService : manages quotas
+
+
+
+@enduml

@@ -1,0 +1,61 @@
+@startuml
+' Define packages for different parts of the system architecture
+package "Frontend" {
+  class UserInterface {
+    - inputCoordinate(coordinateType) : void
+    + getLabel() : String
+    + getCoordinates() : Coordinate
+  }
+
+  class CoordinateGroup {
+    * id : int
+    + label : String
+    + timestamp : Date
+
+    + addCartesianCoordinate(x, y) : void
+    + addPolarCoordinate(r, theta) : void
+    + modifyLabel(newLabel) : void
+    + modifyCoordinates(coordinateType, newValues) : void
+  }
+}
+
+
+package "Database" {
+  class MySQLDatabase {
+    * connection : Connection
+
+    + saveCoordinateGroup(group) : int
+    + getCoordinateGroupByLabel(label) : CoordinateGroup
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(id, label, timestamp, cartesianX, cartesianY, polarR, polarTheta) : void
+    + deleteCoordinateGroup(id) : void
+  }
+
+  class Connection {
+    * url : String
+    * username : String
+    * password : String
+
+    + connect() : boolean
+    + disconnect() : boolean
+  }
+}
+
+
+package "Network" {
+  class TCPConnection {
+    + sendData(data) : void
+    + receiveData() : byte[]
+  }
+}
+
+
+' Associations and dependencies between classes
+UserInterface ..> CoordinateGroup
+CoordinateGroup <.. MySQLDatabase
+MySQLDatabase ..> Connection
+TCPConnection ..> MySQLDatabase
+
+
+
+@enduml

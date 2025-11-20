@@ -1,0 +1,162 @@
+Response:
+```plantuml
+@startuml
+package "Authentication Service" {
+    class AuthenticationService {
+        + authenticateUser(googleToken): User // Functional requirement
+    }
+    class User {
+        - name: String
+        - profilePicture: String
+        - email: String
+        - remainingQuota: int
+        - accountCreationTimestamp: Timestamp
+        - lastLoginTimestamp: Timestamp
+    }
+    AuthenticationService ..> User
+}
+
+package "Template Service" {
+    class TemplateService {
+        + downloadTemplate(chartType: String): CSV // Functional requirement
+    }
+    class CSV {
+        - data: String
+    }
+    TemplateService ..> CSV
+}
+
+package "Chart Generation Service" {
+    class ChartGenerationService {
+        + validateCSV(csv: CSV, chartType: String): boolean // Functional requirement
+        + generateChart(csv: CSV, chartType: String): Chart // Functional requirement
+        + saveChart(chart: Chart, formats: List<String>): void // Functional requirement
+    }
+    class Chart {
+        - data: byte[]
+    }
+    ChartGenerationService ..> CSV
+    ChartGenerationService ..> Chart
+}
+
+package "Dashboard Service" {
+    class DashboardService {
+        + getChartHistory(userId: String): List<Chart> // Functional requirement
+        + downloadChart(chartId: String, format: String): Chart // Functional requirement
+        + deleteChart(chartId: String): void // Functional requirement
+    }
+    DashboardService ..> Chart
+}
+
+package "Quota Service" {
+    class QuotaService {
+        + chargeQuota(userId: String, chartType: String): boolean // Functional requirement
+        + getUserQuota(userId: String): int // Functional requirement
+        + updateUserQuota(userId: String, quotaChange: int): void // Data management operation
+    }
+    QuotaService ..> User
+}
+
+package "Payment Service" {
+    class PaymentService {
+        + processPayment(userId: String, amount: double): boolean // Functional requirement
+    }
+}
+
+package "Profile Service" {
+    class ProfileService {
+        + getUserProfile(userId: String): User // Functional requirement
+        + updateUserProfile(user: User): void // Data management operation
+    }
+    ProfileService ..> User
+}
+
+AuthenticationService --> QuotaService : uses
+ChartGenerationService --> QuotaService : uses
+DashboardService --> ChartGenerationService : uses
+QuotaService --> ProfileService : uses
+PaymentService --> QuotaService : uses
+@enduml
+```
+
+```json
+{
+    "SI": [0.86, 1],
+    "DOC": [0.285, 0.42],
+    "SST": [0.14, 0],
+    "services": [
+        {
+            "service_name": "Authentication Service",
+            "SIC": [1, 1],
+            "AIS(in)": [0, 0],
+            "ADS(out)": [1, 2]
+        },
+        {
+            "service_name": "Template Service",
+            "SIC": [1, 1],
+            "AIS(in)": [0, 0],
+            "ADS(out)": [0, 1]
+        },
+        {
+            "service_name": "Chart Generation Service",
+            "SIC": [2, 3],
+            "AIS(in)": [1, 1],
+            "ADS(out)": [1, 3]
+        },
+        {
+            "service_name": "Dashboard Service",
+            "SIC": [2, 3],
+            "AIS(in)": [0, 0],
+            "ADS(out)": [1, 2]
+        },
+        {
+            "service_name": "Quota Service",
+            "SIC": [2, 3],
+            "AIS(in)": [3, 3],
+            "ADS(out)": [1, 2]
+        },
+        {
+            "service_name": "Payment Service",
+            "SIC": [1, 1],
+            "AIS(in)": [0, 0],
+            "ADS(out)": [1, 1]
+        },
+        {
+            "service_name": "Profile Service",
+            "SIC": [2, 2],
+            "AIS(in)": [2, 1],
+            "ADS(out)": [0, 1]
+        }
+    ],
+    "use_cases": [
+        {
+            "use_case_name": "Authenticate User",
+            "SC": [["Authentication Service"], ["Authentication Service"]]
+        },
+        {
+            "use_case_name": "Download CSV Template",
+            "SC": [["Template Service"], ["Template Service"]]
+        },
+        {
+            "use_case_name": "Generate Chart",
+            "SC": [["Chart Generation Service", "Quota Service"], ["Chart Generation Service", "Quota Service"]]
+        },
+        {
+            "use_case_name": "View Dashboard",
+            "SC": [["Dashboard Service", "Chart Generation Service"], ["Dashboard Service", "Chart Generation Service"]]
+        },
+        {
+            "use_case_name": "Manage Quota",
+            "SC": [["Quota Service", "Profile Service"], ["Quota Service", "Profile Service"]]
+        },
+        {
+            "use_case_name": "Process Payment",
+            "SC": [["Payment Service", "Quota Service"], ["Payment Service", "Quota Service"]]
+        },
+        {
+            "use_case_name": "View Profile",
+            "SC": ["Profile Service", "Quota Service"]
+        }
+    ]
+}
+```

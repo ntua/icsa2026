@@ -1,0 +1,73 @@
+Response:
+Based on the SRS document you provided, I will create a PlantUML class diagram reflecting the Client-Server architecture. It will adhere to the specified requirements, define necessary classes, and show associations between them. Here's the generated class diagram:
+
+```plantuml
+@startuml
+package "Client" {
+    class GUI {
+        +createCoordinateGroup()
+        +modifyCoordinateGroup()
+        +viewAllCoordinateGroups()
+        +viewCoordinateGroupByLabel()
+        +deleteCoordinateGroup()
+    }
+}
+
+package "Server" {
+    class CoordinateGroup {
+        +id: int
+        +timestamp: DateTime
+        +label: String
+        +cartesianCoordinates: Cartesian
+        +polarCoordinates: Polar
+    }
+
+    class Cartesian {
+        +x: double
+        +y: double
+        +convertToPolar(): Polar
+    }
+
+    class Polar {
+        +r: double
+        +theta: double
+        +convertToCartesian(): Cartesian
+    }
+
+    class Database {
+        +addCoordinateGroup(cg: CoordinateGroup)
+        +updateCoordinateGroup(cg: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+GUI -- Database : "TCP/IP Connection"
+CoordinateGroup o-- Cartesian
+CoordinateGroup o-- Polar
+Database *-- CoordinateGroup
+
+@enduml
+```
+
+### Explanation:
+1. **Packages**: 
+   - **Client**: Contains the GUI class, which interacts with the user.
+   - **Server**: Contains core classes (`CoordinateGroup`, `Cartesian`, `Polar`, and `Database`).
+
+2. **Classes and Attributes**:
+   - `GUI`: Represents the client-side GUI functionalities corresponding to the use cases.
+   - `CoordinateGroup`: Represents a group with both coordinate formats and metadata.
+   - `Cartesian` and `Polar`: Represent specific coordinate formats and provide conversion methods.
+   - `Database`: Handles all data storage and retrieval operations.
+
+3. **Relationships**:
+   - `GUI` connects to `Database` via a TCP/IP connection.
+   - `CoordinateGroup` has a composition relationship with `Cartesian` and `Polar`, indicating that each group contains instances of both.
+   - `Database` aggregates `CoordinateGroup` instances.
+
+4. **Methods**:
+   - Methods are derived from the use cases and include actions like add, modify, delete, and retrieve coordinate groups.
+
+Let me know if you need further modifications!

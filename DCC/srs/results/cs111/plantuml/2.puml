@@ -1,0 +1,70 @@
+@startuml
+
+' Define the GUI package with the Button class
+package gui {
+  class Button {
+    + viewAll()
+    + findByLabel()
+    + delete()
+  }
+}
+
+' Define the DB package with DatabaseConnection and CoordinateGroupRepository classes
+package db {
+  class DatabaseConnection {
+    + isConnected: boolean
+
+    + connect(): void
+    + disconnect(): void
+  }
+
+  class CoordinateGroupRepository {
+    - coordinate_groups: List<CoordinateGroup>
+
+    + addCoordinateGroup(group: CoordinateGroup): void
+    + removeCoordinateGroup(id: integer): void
+    + findByLabel(label: string): List<CoordinateGroup>
+  }
+}
+
+' Define the CoordinateGroup class
+class CoordinateGroup {
+  + ID: integer
+  + Timestamp: string
+  + Label: string
+  + polarCoordinates: PolarCoordinates
+  + cartesianCoordinates: CartesianCoordinates
+
+  + getPolarCoordinates(): PolarCoordinates
+  + getCartesianCoordinates(): CartesianCoordinates
+}
+
+' Define the PolarCoordinates class
+class PolarCoordinates {
+  - r: double
+  - theta: double
+
+  + getR(): double
+  + setR(r: double): void
+  + getTheta(): double
+  + setTheta(theta: double): void
+}
+
+' Define the CartesianCoordinates class
+class CartesianCoordinates {
+  - x: double
+  - y: double
+
+  + getX(): double
+  + setX(x: double): void
+  + getY(): double
+  + setY(y: double): void
+}
+
+' Define relationships
+CoordinateGroup --> PolarCoordinates : has
+CoordinateGroup --> CartesianCoordinates : has
+DatabaseConnection --> CoordinateGroupRepository : uses
+CoordinateGroupRepository --> CoordinateGroup : manages
+
+@enduml

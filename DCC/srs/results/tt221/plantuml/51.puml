@@ -1,0 +1,69 @@
+@startuml
+package GUI {
+  interface MainMenu {
+    + createCoordinateGroup(): void
+    + modifyCoordinateGroup(): void
+    + viewCoordinateGroups(): void
+  }
+  
+  class CoordinateGroupForm {
+    - label: String
+    - polarCoordinates: Pair<Double, Double>
+    - cartesianCoordinates: Pair<Double, Double>
+    
+    + CoordinateGroupForm(label: String, polarCoordinates: Pair<Double, Double>, cartesianCoordinates: Pair<Double, Double>)
+    + save(): void
+  }
+  
+  class CoordinateGroupsDisplay {
+    - coordinateGroups: List<CoordinateGroup>
+    
+    + CoordinateGroupsDisplay(coordinateGroups: List<CoordinateGroup>)
+    + update(): void
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - connection: java.sql.Connection
+    
+    + MySQLDatabase()
+    + connect(url: String, username: String, password: String): void
+    + disconnect(): void
+    
+    + CoordinateGroup[] getAllCoordinateGroups(): CoordinateGroup[]
+    + CoordinateGroup getCoordinateGroupById(id: int): CoordinateGroup
+    + void insertCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + void updateCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + void deleteCoordinateGroup(id: int): void
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - timestamp: java.sql.Timestamp
+    - label: String
+    - polarCoordinates: Pair<Double, Double>
+    - cartesianCoordinates: Pair<Double, Double>
+    
+    + CoordinateGroup(id: int, timestamp: java.sql.Timestamp, label: String, polarCoordinates: Pair<Double, Double>, cartesianCoordinates: Pair<Double, Double>)
+  }
+}
+
+package Service {
+  class DCCService {
+    - gui: GUI.MainMenu
+    - database: Database.MySQLDatabase
+    
+    + DCCService(gui: GUI.MainMenu, database: Database.MySQLDatabase)
+    + createCoordinateGroup(): void
+    + modifyCoordinateGroup(id: int): void
+    + viewCoordinateGroups(): void
+  }
+}
+
+GUI.MainMenu <.. DCCService
+DCCService ..> GUI.CoordinateGroupForm
+DCCService ..> GUI.CoordinateGroupsDisplay
+DCCService -- Database.MySQLDatabase
+Database.MySQLDatabase <|-- Database.CoordinateGroup
+@enduml

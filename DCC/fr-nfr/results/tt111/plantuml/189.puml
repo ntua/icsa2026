@@ -1,0 +1,65 @@
+@startuml
+
+!define ClassRectangleBorderWidth 0.1
+
+' DCC Application Classes:
+class DummyCoordConversionApp {
+  + createCoordinateGroup(cartesianX, cartesianY, polarR, polarTheta)
+  + storeCoordinateGroup()
+  + retrieveCoordinateGroupByLabel(label)
+  + retrieveAllCoordinateGroups()
+  + modifyCoordinateGroup(id, newData)
+  + deleteCoordinateGroup(id)
+}
+
+
+' Coordinate Group Classes'
+class CoordinateGroup {
+    - id (int)
+    - label (string)
+    - timestamp (datetime)
+    - cartesianX (float)
+    - cartesianY (float)
+    - polarR (float)
+    - polarTheta (float)
+    + getCartesianCoordinates() : (x, y)
+    + getPolarCoordinates() : (r, theta)
+}
+
+
+' Frontend and Communication Classes'
+class SwingUI {
+  + displayCoordinateGroups(coordinateGroupList)
+  + showDetailsAndModifyForm(coordinateGroup)
+  - onLabelSearchClick(): String label
+  - onViewAllClick(): void
+}
+
+class TCP_IP_Connection {
+    + connect() : boolean
+    + sendData(data)
+    + receiveData() : string
+}
+
+
+' Database Class'
+package "Server" {
+
+    class MySQLDatabase {
+        - connection (TCP_IP_Connection)
+        + storeData(coordinateGroup) : bool
+        + retrieveCoordinateGroupByLabel(label) : CoordinateGroup | null
+        + retrieveAllCoordinateGroups() : List<CoordinateGroup>
+        + modifyCoordinateGroup(id, newData) : void
+        + deleteCoordinateGroup(id) : void
+    }
+}
+
+
+' Associations and Connections'
+DummyCoordConversionApp -down- SwingUI
+DummyCoordConversionApp "1" --|> "  *" CoordinateGroup
+DummyCoordConversionApp -down- TCP_IP_Connection
+TCP_IP_Connection .. MySQLDatabase
+
+@enduml

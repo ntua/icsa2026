@@ -1,0 +1,295 @@
+# Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+left to right direction
+actor "User" as user
+rectangle DCC {
+  usecase "Create Coordinate Group" as Create
+  usecase "Modify Coordinate Group" as Modify
+  usecase "View All Coordinate Groups" as ViewAll
+  usecase "View Coordinate Group by Label" as ViewOne
+  usecase "Delete Coordinate Group" as Delete
+}
+user --> Create
+user --> Modify
+user --> ViewAll
+user --> ViewOne
+user --> Delete
+@enduml
+```
+
+--- 
+
+#### 3.1.1 Use Case 1: (Create Coordinate Group)
+
+##### 3.1.1.1 Preconditions for Execution
+The sole prerequisite for executing this use case is that the application must be running.
+
+##### 3.1.1.2 Execution Environment
+The execution environment for this use case is the graphical user interface (GUI). This interface provides all the required buttons and controls to facilitate user interactions.
+
+##### 3.1.1.3 Input Data
+The input data consists of the source coordinate type (either Cartesian or Polar) and the corresponding values: \(x\) and \(y\) for Cartesian coordinates, or \(r\) and \(\theta\) for Polar coordinates. Also, a unique label to identify the coordinate group.
+
+##### 3.1.1.4 Sequence of Actions - Desired Behavior
+
+The flow of the program in this use case is described by the following actions:
+**Step 1:** Choose source coordinate type from drop down menu (either Cartesian or Polar).
+**Step 2:** Fill in the values of the coordinates in the corresponding fields. 
+**Step 3:** Assign a label to the coordinate group by filling the corresponding field.
+**Step 4:** Press the "Add" button.
+
+##### Activity Diagram (Create Coordinate Group)
+
+```plantuml
+@startuml
+start
+:Choose type of coordinates (either Cartesian or Polar) from drop down menu;
+:Type in the coordinates in the corresponding fields;
+:Assign a label to the coordinate group;
+:Click on the "Add" button;
+if (Are coordinate values and label assigned to the coordinate group) is (yes) then
+:System converts the coordinates to the alternate format; 
+:Coordinate group is inserted into the database;
+else  (no)
+:Corresponding error message is displayed;
+endif
+stop
+@enduml
+```
+
+##### 3.1.1.5 Output Data
+The newly created coordinate group is stored in the system's database; this includes the source coordinates and the coordinates converted to the alternate format, as well as the label.
+
+---
+
+
+#### 3.1.2 Use Case 2: (Modify Coordinate Group)
+
+##### 3.1.2.1 Preconditions for Execution
+a) an active connection to the database  
+b) the existence of the coordinate group that is intended to be modified.
+
+##### 3.1.2.2 Execution Environment
+The execution environment for this use case is the graphical user interface (GUI). This interface provides all the required buttons and controls to facilitate user interactions.
+
+##### 3.1.2.3 Input Data
+The input data consists of a selected coordinate group, the new label, the source coordinate type (either Cartesian or Polar) and the new corresponding values: \(x\) and \(y\) for Cartesian coordinates, or \(r\) and \(\theta\) for Polar coordinates.
+
+##### 3.1.2.4 Sequence of Actions - Desired Behavior
+
+The flow of the program in this use case is described by the following actions:
+**Step 1:** Choose coordinate group from a list.
+**Step 2:** Fill in the new values of the coordinates in the corresponding fields.
+**Step 3:** Assign the new label in the corresponding field.
+**Step 4:** Press the "Update" button in the User Interface.
+
+##### Activity Diagram (Modify Coordinate Group)
+
+```plantuml
+@startuml
+start
+:Choose coordinates group from list;
+:Type in the new coordinates in the corresponding fields;
+:Assign a new label to the coordinate group;
+:Click on the "Update" button;
+if (Are coordinate values and label assigned to the coordinate group) is (yes) then
+:System converts the coordinates to the alternate format; 
+:Coordinate group is updated in the database;
+else  (no)
+:Corresponding error message is displayed;
+endif
+stop
+@enduml
+```
+
+##### 3.1.2.5 Output Data
+The modified coordinate group is stored in the system's database; this includes the source coordinates and the coordinates converted to the alternate format, as well as the label.
+
+
+---
+
+#### 3.1.3 Use Case 3: (View All Coordinate Groups)
+
+##### 3.1.3.1 Preconditions for Execution
+a) an active connection to the database  
+
+##### 3.1.3.2 Execution Environment
+The execution environment for this use case is the graphical user interface (GUI). This interface provides all the required buttons and controls to facilitate user interactions.
+
+##### 3.1.3.3 Input Data
+The is no input data.
+
+##### 3.1.3.4 Sequence of Actions - Desired Behavior
+
+The flow of the program in this use case is described by the following actions:  
+**Step 1:** Press the "View All" button in the User Interface.  
+**Step 2:** Retrieve all stored coordinate groups from the database.  
+**Step 3:** View the list of coordinates.
+
+##### Activity Diagram (View All Coordinate Groups)
+
+```plantuml
+@startuml
+start
+:Click on the "View All" button;
+if (Are there any coordinate groups in the database) is (yes) then
+:Coordinate group list is displayed;
+else  (no)
+:Empty list is displayed;
+endif
+stop
+@enduml
+```
+
+##### 3.1.3.5 Output Data
+The output data is the list of the coordinate groups in the database.
+
+---
+
+#### 3.1.4 Use Case 4: (View Coordinate Groups by Label)
+
+##### 3.1.4.1 Preconditions for Execution
+a) an active connection to the database  
+
+##### 3.1.4.2 Execution Environment
+The execution environment for this use case is the graphical user interface (GUI). This interface provides all the required buttons and controls to facilitate user interactions.
+
+##### 3.1.4.3 Input Data
+The input data consists of label to be used as filter for selecting coordinate groups from the database.
+
+##### 3.1.4.4 Sequence of Actions - Desired Behavior
+
+The flow of the program in this use case is described by the following actions  
+**Step 1:** Type in the label in the corresponding field in the User Interface.  
+**Step 2:** Press the "Find by Label" button.  
+**Step 2:** Retrieve the coordinate groups from the database that satisfy the search criteria.  
+**Step 3:** View the retrieved groups of coordinates in a list.
+
+
+##### Activity Diagram (View Coordinate Groups by Label)
+
+```plantuml
+@startuml
+start
+:Type in the label of the coordinate group you want to see;
+:Click on the "View By Label" button;
+if (Are there any coordinate groups in the database with this label) is (yes) then
+:Coordinate group list is displayed;
+else  (no)
+:Empty list is displayed;
+endif
+stop
+@enduml
+```
+
+##### 3.1.4.5 Output Data
+The output data is the list of the coordinate groups in the database that satisfy the selection filter.
+
+
+---
+
+#### 3.1.5 Use Case 5: (Delete Coordinate Groups)
+
+##### 3.1.5.1 Preconditions for Execution
+a) an active connection to the database  
+b) there is at least one coordinates group in the database
+
+##### 3.1.5.2 Execution Environment
+The execution environment for this use case is the graphical user interface (GUI). This interface provides all the required buttons and controls to facilitate user interactions.  
+
+##### 3.1.5.3 Input Data
+The input data consists of the coordinate group that is selected from the list.
+
+##### 3.1.5.4 Sequence of Actions - Desired Behavior
+
+The flow of the program in this use case is described by the following actions
+**Step 1:** Select a coordinate group from the coordinate group list.
+**Step 2:** Press the "Delete" button.
+
+
+##### Activity Diagram (Delete Coordinate Group)
+
+```plantuml
+@startuml
+start
+:Select a coordinate group from the coordinate group list;
+:Press the "Delete" button;
+stop
+@enduml
+```
+
+##### 3.1.5.5 Output Data
+The selected coordinate group is deleted from the system's database.
+
+---
+
+### 3.2 Data Requirements
+
+#### 3.2.1 Data Organization Organization Requirements
+
+The database must be designed to store the following attributes for each coordinate group:
+- Auto-generated unique primary key (integer)
+- Timestamp (automatically assigned the date and time of group creation)
+- Unique user-defined label for identification
+- Coordinates in Polar format (r, θ)
+- Coordinates in Cartesian format (x,y)
+
+The following conceptual Entity Relationship Diagram describes the high-level design of the database. 
+
+```plantuml
+@startchen
+entity CoordinateGroup {
+  ID
+  Timestamp
+  Label
+  Polar Coordinates
+  Cartesian Coordinates
+}
+@endchen
+```
+
+#### 3.2.2 Data Access Requirements
+
+The system must be designed to store all data in a MySQL database. The application will connect to the database using a TCP/IP connection.

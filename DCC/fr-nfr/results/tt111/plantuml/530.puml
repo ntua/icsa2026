@@ -1,0 +1,118 @@
+@startuml DCCClassDiagram
+
+' Presentation Layer (GUI)
+package "Presentation Layer" {
+    class DCCApp {
+        - String title
+        - JFrame frame
+        - CoordinateGroupDialog dialog
+        
+        + void createAndShowGUI()
+        + void displayCoordinateGroups(List<CoordinateGroup> groups)
+    }
+    
+    class CoordinateGroupDialog {
+        - JTextField labelField
+        - JTextField xField
+        - JTextField yField
+        - JTextField rField
+        - JTextField thetaField
+        
+        + void showAddDialog()
+        + void showEditDialog(CoordinateGroup group)
+        + CoordinateGroup getCoordinateGroupFromFields()
+    }
+}
+
+' Business Logic Layer
+package "Business Logic Layer" {
+    class CoordinateManager {
+        - DataAccess dataAccess
+        - CoordinateConverter converter
+        
+        + void addCoordinateGroup(CoordinateGroup group)
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + CoordinateGroup getCoordinateGroupById(int id)
+        + CoordinateGroup convertCoordinates(CoordinateGroup group)
+    }
+    
+    class CoordinateConverter {
+        + Cartesian convertPolarToCartesian(Polar polar)
+        + Polar convertCartesianToPolar(Cartesian cartesian)
+    }
+}
+
+' Data Access Layer
+package "Data Access Layer" {
+    interface DataAccess {
+        + void connect()
+        + void disconnect()
+        + int saveCoordinateGroup(CoordinateGroup group)
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + CoordinateGroup getCoordinateGroupById(int id)
+    }
+    
+    class MySQLDataAccess implements DataAccess {
+        - Connection connection
+        
+        + void connect()
+        + void disconnect()
+        + int saveCoordinateGroup(CoordinateGroup group)
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + CoordinateGroup getCoordinateGroupById(int id)
+    }
+}
+
+' Model Classes
+package "DataLayer" {
+    class CoordinateGroup {
+        - int id
+        - String label
+        - Date timestamp
+        - Cartesian cartesian
+        - Polar polar
+        
+        + void setLabel(String label)
+        + void setCartesian(Cartesian cartesian)
+        + void setPolar(Polar polar)
+        + String getLabel()
+        + Cartesian getCartesian()
+        + Polar getPolar()
+    }
+    
+    class Cartesian {
+        - double x
+        - double y
+        
+        + void setX(double x)
+        + void setY(double y)
+        + double getX()
+        + double getY()
+    }
+    
+    class Polar {
+        - double r
+        - double theta
+        
+        + void setR(double r)
+        + void setTheta(double theta)
+        + double getR()
+        + double getTheta()
+    }
+}
+
+' Associations
+DCCApp --> CoordinateManager : Uses
+CoordinateGroupDialog --> DCCApp : Part of
+CoordinateManager --> DataAccess : Uses
+CoordinateManager --> CoordinateGroup : Manages
+DataAccess --> MySQLDataAccess : Implements
+MySQLDataAccess --> CoordinateGroup : Persists
+
+@enduml

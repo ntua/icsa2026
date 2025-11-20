@@ -1,0 +1,43 @@
+@startuml
+package "frontend" {
+  class SwingGUI {
+    + displayCoordinateGroups()
+    + handleUserInput()
+    + updateDisplay()
+    + filterCoordinateGroups(label: String)
+  }
+}
+
+package "logic" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: double, y: double): (double, double)
+    + convertPolarToCartesian(r: double, theta: double): (double, double)
+  }
+}
+
+package "database" {
+  class DatabaseConnector {
+    + createGroup(group: CoordinateGroup)
+    + readGroups(): List<CoordinateGroup>
+    + updateGroup(groupId: int, group: CoordinateGroup)
+    + deleteGroup(groupId: int)
+  }
+}
+
+SwingGUI --|> "logic" : uses
+SwingGUI --|> "database" : interacts with
+"logic" --> "database" : depends on
+
+
+@enduml

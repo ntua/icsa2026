@@ -1,0 +1,73 @@
+@startuml
+
+package Frontend {
+  interface PresentationTier {
+    + interactWithUser();
+    + displayCoordinateGroups(coordinateGroups : List<CoordinateGroup>);
+    + getUserInputForNewCoordinateGroup();
+    + getSelectedRecord();
+    + getFilterValue();
+  }
+  
+  class SwingFrontend implements PresentationTier {
+    - logicLayer: LogicLayer
+    - databaseLayer: DatabaseLayer
+    
+    + interactWithUser()
+    + displayCoordinateGroups(coordinateGroups : List<CoordinateGroup>)
+    + getUserInputForNewCoordinateGroup() : CoordinateGroup
+    + getSelectedRecord() : CoordinateGroup
+    + getFilterValue() : String
+  }
+}
+
+package Logic {
+  interface LogicTier {
+    + convertCartesianToPolar(x : highPrecisionNumber, y : highPrecisionNumber) : PolarCoordinates
+    + convertPolarToCartesian(r : highPrecisionNumber, theta : highPrecisionNumber) : CartesianCoordinates
+    + createCoordinateGroup(coordinates : Coordinates, label : String) : CoordinateGroup
+    + updateCoordinateGroup(id : int, coordinates : Coordinates, label : String) : CoordinateGroup
+    + deleteCoordinateGroup(id : int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + filterCoordinateGroupsByLabel(coordinateGroups : List<CoordinateGroup>, filterValue : String) : List<CoordinateGroup>
+  }
+  
+  class LogicLayer implements LogicTier {
+    - databaseLayer: DatabaseLayer
+    
+    + convertCartesianToPolar(x : highPrecisionNumber, y : highPrecisionNumber) : PolarCoordinates
+    + convertPolarToCartesian(r : highPrecisionNumber, theta : highPrecisionNumber) : CartesianCoordinates
+    + createCoordinateGroup(coordinates : Coordinates, label : String) : CoordinateGroup
+    + updateCoordinateGroup(id : int, coordinates : Coordinates, label : String) : CoordinateGroup
+    + deleteCoordinateGroup(id : int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + filterCoordinateGroupsByLabel(coordinateGroups : List<CoordinateGroup>, filterValue : String) : List<CoordinateGroup>
+  }
+}
+
+package Database {
+  interface DatabaseTier {
+    + connectToDatabase();
+    + disconnectFromDatabase();
+    + saveRecord(record : CoordinateGroup);
+    + getAllRecords() : List<CoordinateGroup>;
+    + updateRecord(id : int, record : CoordinateGroup);
+    + deleteRecord(id : int);
+  }
+  
+  class MySQLDatabase implements DatabaseTier {
+    - connection: TCPIPConnection
+    
+    + connectToDatabase()
+    + disconnectFromDatabase()
+    + saveRecord(record : CoordinateGroup)
+    + getAllRecords() : List<CoordinateGroup>
+    + updateRecord(id : int, record : CoordinateGroup)
+    + deleteRecord(id : int)
+  }
+}
+
+PresentationTier <.. LogicTier : interactWith
+LogicTier <.. DatabaseTier : access
+
+@enduml

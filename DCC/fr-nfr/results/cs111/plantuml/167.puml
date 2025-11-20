@@ -1,0 +1,52 @@
+@startuml
+
+package "Client" {
+  class DCCApp {
+    - String serverAddress
+    + void connectToServer()
+    + CoordinateGroup createCoordinateGroup()
+    + void storeCoordinateGroup(CoordinateGroup cg)
+    + CoordinateGroup retrieveCoordinateGroup(String label)
+    + void modifyCoordinateGroup(CoordinateGroup cg)
+    + void deleteCoordinateGroup(String label)
+  }
+}
+
+package "Server" {
+  class CoordinateGroup {
+    - int id
+    - String label
+    - long timestamp
+    - List<Coordinate> cartesianCoordinates
+    - List<Coordinate> polarCoordinates
+    + void convertCoordinates()
+  }
+
+  class Coordinate {
+    - double value
+    + Coordinate(double value)
+  }
+
+  class Server {
+    - MySQLDatabase dbConnection
+    + void handleClientRequest(DCCApp client)
+    + void storeCoordinateGroup(CoordinateGroup cg)
+    + CoordinateGroup retrieveCoordinateGroup(String label)
+    + void modifyCoordinateGroup(CoordinateGroup cg)
+    + void deleteCoordinateGroup(String label)
+  }
+
+  class MySQLDatabase {
+    + void connect()
+    + void insertCoordinateGroup(CoordinateGroup cg)
+    + CoordinateGroup selectCoordinateGroup(String label)
+    + void updateCoordinateGroup(CoordinateGroup cg)
+    + void deleteCoordinateGroup(String label)
+  }
+}
+
+DCCApp "1" -- "*" CoordinateGroup : uses
+Server "1" -- "*" CoordinateGroup : manages
+MySQLDatabase "*" -- "*" Server : connects to
+
+@enduml

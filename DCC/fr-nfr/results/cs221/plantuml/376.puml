@@ -1,0 +1,54 @@
+@startuml
+package DummyCoordinationConversionApplication {
+
+Class UserInteraction {
+  +String label
+  -List<CoordinateGroup> coordinateGroups
+  
++InputNewCoordinateGroup(x, y)
+  +UpdateCoordinateGroup()
+  +DeleteCoordinateGroup(id)
+}
+
+Class CoordinateConverter {
+  +PolarCoordinates toCartesian(CartesianCoordinates c)
+  +CartesianCoordinates toPolar(PolarCoordinates p)
+}
+
+class DatabaseConnector {
+  -String url
+  -String username
+  -String password
+  
++Connect()
+  +CloseConnection()
+}
+
+package Logic {
+
+Class CoordinateGroup {
+  #cartesian, polar
+  +CoordinateGroup(label)
+  -List<CartesianCoordinates> cartesianCoordinates
+  -List<PolarCoordinates> polarCoordinates
+  
++Add()
+  +Update()
+}
+
+class CoordinateConverter {
+  #convert methods
+}
+}
+
+class CartesianCoordinates {
+  +double x
+  +double y
+}
+
+class PolarCoordinates {
+  +double r
+  +double theta
+}
+}
+@enduml

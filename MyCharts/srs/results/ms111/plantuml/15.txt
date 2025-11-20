@@ -1,0 +1,56 @@
+@startuml
+package UserService {
+  class UserManager {
+    - userId: string
+    - email: string
+    - password: string
+    + authenticateUser(email: string, password: string): boolean // Flow control operation
+    + getQuota(): number // Data management operation
+    + updateQuota(newQuota: number): void // Functional requirement
+  }
+}
+
+package ChartService {
+  class ChartGenerator {
+    - chartData: Map<string, object>
+    + generateChart(csvData: string[][], chartType: string): string // Functional requirement
+    + saveChartData(chartId: string, data: object): void // Data management operation
+    + updateChartData(chartId: string, newData: object): void // Data consistency operation
+  }
+}
+
+package AuthService {
+  class GoogleOAuthManager {
+    - accessToken: string
+    - refreshToken: string
+    + authenticateUserWithGoogle(): boolean // Functional requirement
+    + getAccessToken(refreshToken: string): string // Flow control operation
+    + updateTokens(newAccessToken: string, newRefreshToken: string): void // Data consistency operation
+  }
+}
+
+package CsvService {
+  class CsvParser {
+    - csvData: string[][]
+    + parseCsv(csvFile: File): string[][] // Functional requirement
+    + saveCsvData(csvId: string, data: string[][]): void // Data management operation
+    + updateCsvData(csvId: string, newData: string[][]): void // Data consistency operation
+  }
+}
+
+package ApiGateway {
+  class ChartApiGateway {
+    - chartService: ChartService
+    - csvService: CsvService
+    - authService: AuthService
+    + generateChart(csvFile: File, chartType: string): string // Functional requirement
+    + uploadCsv(file: File): string // Data management operation
+  }
+}
+
+UserManager --> ChartGenerator : generates charts for user
+GoogleOAuthManager --> UserManager : authenticates user with Google OAuth
+CsvParser --> ChartGenerator : provides CSV data to generate chart
+ChartApiGateway --> ChartGenerator : exposes API endpoint to generate chart
+ChartApiGateway --> CsvParser : exposes API endpoint to upload CSV file
+@enduml

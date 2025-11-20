@@ -1,0 +1,100 @@
+@startuml
+
+skinparam packageStyle rect
+skinparam classAttributeIconSize 0
+
+title Microservices Architecture Class Diagram
+
+' =========================
+' Auth Service
+' =========================
+package "Auth Service" {
+  class AuthService <<microservice>> {
+    +loginWithGoogle()  ' // Functional requirement-business logic operation
+    +validateToken()     ' // Flow control operation (invoked to coordinate with Google or internal checks)
+  }
+
+  ' (No dedicated data entity here since AuthService is stateless and relies on Google + UserService)
+}
+
+' =========================
+' User Service
+' =========================
+package "User Service" {
+  class UserService <<microservice>> {
+    -usersDB : Map<String, User>        ' Example representation of a dedicated data store
+    +createOrUpdateUser()              ' // Data management operation
+    +getUserProfile()                   ' // Functional requirement-business logic operation
+    +updateQuota()                      ' // Data consistency operation (called by ChartService/PaymentService)
+  }
+
+  class User {
+    -userId : String
+    -name : String
+    -email : String
+    -profilePicture : String
+    -remainingQuota : int
+    -createdAt : Date
+    -lastLogin : Date
+  }
+}
+
+' =========================
+' Chart Service
+' =========================
+package "Chart Service" {
+  class ChartService <<microservice>> {
+    -chartsDB : Map<String, Chart>         ' Example dedicated data store
+    +downloadCSVTemplate()                 ' // Functional requirement-business logic operation
+    +uploadCSVFile()                       ' // Functional requirement-business logic operation
+    +validateCSV()                         ' // Functional requirement-business logic operation
+    +generateChart()                       ' // Functional requirement-business logic operation
+    +saveChart()                           ' // Data management operation
+    +getChartHistory()                     ' // Functional requirement-business logic operation
+    +downloadChart()                       ' // Functional requirement-business logic operation
+    +deleteChart()                         ' // Functional requirement-business logic operation
+    +checkAndDecrementQuota()              ' // Flow control operation (calls UserService to update quota)
+  }
+
+  class Chart {
+    -chartId : String
+    -userId : String
+    -chartType : String
+    -creationDate : Date
+    -filePaths : List<String>
+  }
+}
+
+' =========================
+' Payment Service
+' =========================
+package "Payment Service" {
+  class PaymentService <<microservice>> {
+    -transactionsDB : Map<String, PaymentTransaction>  ' Example dedicated data store
+    +processPayment()                                  ' // Functional requirement-business logic operation
+    +completeTransaction()                             ' // Data consistency operation (updates UserService with new quota)
+  }
+
+  class PaymentTransaction {
+    -transactionId : String
+    -userId : String
+    -amount : double
+    -transactionDate : Date
+    -status : String
+  }
+}
+
+' =========================
+' Inter-Service Associations
+' =========================
+
+' AuthService calls UserService to create or update user records upon successful Google login
+AuthService --> UserService : createOrUpdateUser()
+
+' ChartService calls UserService to check/update quota usage
+ChartService --> UserService : updateQuota()
+
+' PaymentService calls UserService to update quotas upon successful payment
+PaymentService --> UserService : updateQuota()
+
+@enduml

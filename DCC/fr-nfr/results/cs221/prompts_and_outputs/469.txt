@@ -1,0 +1,76 @@
+@startuml
+
+' Packages for Separation of Concerns
+package "Frontend" {
+    class UserInterface {
+        +displayListOfCoordinates()
+        +inputCoordinateGroup()
+        +filterByLabel()
+        +clearFilter()
+    }
+
+    class CoordinateController {
+        +addCoordinateGroup()
+        +updateCoordinateGroup()
+        +deleteCoordinateGroup()
+        +refreshCoordinateList()
+    }
+}
+
+package "Logic" {
+    class CoordinateGroup {
+        -int id
+        -String label
+        -DateTime timestamp
+        -CartesianCoordinate cartesian
+        -PolarCoordinate polar
+        +CoordinateGroup(String label, CartesianCoordinate cartesian, PolarCoordinate polar)
+    }
+
+    class CartesianCoordinate {
+        -double x
+        -double y
+        +toPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        -double r
+        -double theta
+        +toCartesian(): CartesianCoordinate
+    }
+
+    class CoordinateService {
+        +createCoordinateGroup(CoordinateGroup)
+        +getCoordinateGroups(): List<CoordinateGroup>
+        +updateCoordinateGroup(int id, CoordinateGroup)
+        +deleteCoordinateGroup(int id)
+        +filterCoordinatesByLabel(String label): List<CoordinateGroup>
+    }
+}
+
+package "Persistence" {
+    class DatabaseConnection {
+        +connect(): Connection
+        +disconnect()
+    }
+
+    class CoordinateRepository {
+        +save(CoordinateGroup)
+        +findAll(): List<CoordinateGroup>
+        +findById(int id): CoordinateGroup
+        +delete(int id)
+        +update(CoordinateGroup)
+    }
+}
+
+' Associations between packages
+UserInterface --> CoordinateController : uses
+CoordinateController --> CoordinateService : calls
+CoordinateService --> CoordinateRepository : interacts with
+CoordinateRepository --> DatabaseConnection : uses
+
+' Relationships for composition/aggregation and associations
+CoordinateGroup *-- CartesianCoordinate : contains
+CoordinateGroup *-- PolarCoordinate : contains
+
+@enduml

@@ -1,0 +1,70 @@
+@startuml
+package frontend {
+  class SwingView {
+    +displayCoordinateGroups(List<CoordinateGroup>)
+    +updateCoordinateGroupInput()
+    +showErrorMessage(String)
+  }
+}
+
+package logic {
+  class CoordinateConverter {
+    +cartesianToPolar(double x, double y) : (double r, double theta)
+    +polarToCartesian(double r, double theta) : (double x, double y)
+  }
+  
+  class CoordinateGroup {
+    -id: int
+    -label: String
+    -cartesianX: double
+    -cartesianY: double
+    -polarR: double
+    -polarTheta: double
+    +create(double x, double y, String label)
+    +update(double x, double y, double r, double theta, String label)
+
+  }
+
+  class DCCController {
+    -view : SwingView
+    -model : CoordinateGroupModel
+    -converter : CoordinateConverter
+    +handleAddCoordinateGroup()
+    +handleUpdateCoordinateGroup()
+    +handleDeleteCoordinateGroup()
+    +refreshCoordinateGroups()
+    +filterCoordinateGroups(String label)
+  }
+
+  class CoordinateGroupModel {
+    -coordinateGroups: List<CoordinateGroup>
+    +createCoordinateGroup(CoordinateGroup coordinateGroup)
+    +updateCoordinateGroup(CoordinateGroup coordinateGroup)
+    +deleteCoordinateGroup(int id)
+    +getCoordinateGroups() : List<CoordinateGroup>
+  }
+}
+
+package database {
+  class MySQLDatabaseConnector {
+    +connect()
+    +saveCoordinateGroup(CoordinateGroup coordinateGroup)
+    +getCoordinateGroups() : List<CoordinateGroup>
+    +deleteCoordinateGroup(int id)
+
+  }
+
+}
+
+
+ DCCController "1" -- "*" CoordinateGroupModel: uses
+
+DCCController "1" -- "*" SwingView: interacts with
+SwingView "1" -- "*" CoordinateGroup: displays
+
+CoordinateGroupModel "1" -- "*" MySQLDatabaseConnector : persists data through
+
+CoordinateConverter "*" -- "*" DCCController: provides conversion logic
+
+
+@enduml

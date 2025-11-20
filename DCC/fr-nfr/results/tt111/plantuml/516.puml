@@ -1,0 +1,92 @@
+@startuml DCC_Application_Class_Diagram
+
+' Presentation Tier (GUI Layer)
+package "Presentation" {
+    class DCCSwingGUI {
+        + void createCoordinateGroup(CartesianCoord, PolarCoord, String label)
+        + void retrieveCoordinateGroupById(int id)
+        + void retrieveCoordinateGroupByLabel(String label)
+        + void modifyCoordinateGroup(int id, CartesianCoord, PolarCoord, String newLabel)
+        + void deleteCoordinateGroup(int id)
+        + void displayCoordinateGroups()
+    }
+}
+
+' Application Tier (Business Logic Layer)
+package "Application" {
+    class CoordinateManager {
+        - Converter converter
+        - DatabaseManager dbManager
+        
+        + void createCoordinateGroup(CartesianCoord, PolarCoord, String label)
+        + void updateCoordinateGroup(int id, CartesianCoord, PolarCoord, String newLabel)
+        + void deleteCoordinateGroup(int id)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + CoordinateGroup retrieveCoordinateGroupById(int id)
+        + List<CoordinateGroup> searchCoordinateGroupsByLabel(String label)
+    }
+
+    class Converter {
+        + static CartesianCoord convertPolarToCartesian(PolarCoord polar)
+        + static PolarCoord convertCartesianToPolar(CartesianCoord cartesian)
+    }
+}
+
+' Data Tier (Database Layer)
+package "Data" {
+    class MySQLDatabase {
+        + void storeCoordinateGroup(int id, String label, Timestamp timestamp, 
+                                 List<CartesianCoord> cartesianCoords, List<PolarCoord> polarCoords)
+        + CoordinateGroup retrieveCoordinateGroupById(int id)
+        + List<CoordinateGroup> retrieveAllCoordinateGroups()
+        + List<CoordinateGroup> searchCoordinateGroupsByLabel(String label)
+        + void updateCoordinateGroup(int id, String newLabel, Timestamp timestamp,
+                                    List<CartesianCoord> cartesianCoords, List<PolarCoord> polarCoords)
+        + void deleteCoordinateGroup(int id)
+    }
+
+    class DatabaseConnector {
+        + void connect()
+        + void disconnect()
+        + boolean isConnected()
+    }
+}
+
+' Value Objects
+class CoordinateGroup {
+    + int id
+    + String label
+    + Timestamp timestamp
+    + List<CartesianCoord> cartesianCoordinates
+    + List<PolarCoord> polarCoordinates
+}
+
+class CartesianCoord {
+    + float x
+    + float y
+    + CartesianCoord(float x, float y)
+    + get X() float
+    + set X(float value)
+    + get Y() float
+    + set Y(float value)
+}
+
+class PolarCoord {
+    + float radius
+    + float angle
+    + PolarCoord(float radius, float angle)
+    + get Radius() float
+    + set Radius(float value)
+    + get Angle() float
+    + set Angle(float value)
+}
+
+' Relationships
+DCCSwingGUI --> CoordinateManager : Uses
+CoordinateManager --> Converter : Uses
+CoordinateManager --> DatabaseManager : Uses
+MySQLDatabase *-- DatabaseConnector : Composition
+CoordinateGroup *-- CartesianCoord : Aggregation
+CoordinateGroup *-- PolarCoord : Aggregation
+
+@enduml

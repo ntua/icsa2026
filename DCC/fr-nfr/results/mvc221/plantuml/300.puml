@@ -1,0 +1,115 @@
+@startuml
+
+package "Frontend (Swing)" as Swing {
+    class CoordinateConverterView {
+        - coordConverterController : CoordinateConverterController
+        + setCoordConverterController(controller: CoordinateConverterController)
+        + displayCoordinateGroupList(coordinateGroups: List<CoordinateGroup>)
+        + getUserInputCartesianCoordinates(): Pair<Double, Double>
+        + getUserInputPolarCoordinates(): Pair<Double, Double>
+        + getUserSelectedCoordinateGroupId(): int
+        + getUserInputLabel(): String
+        + getUserFilterInput(): String
+        + clearFilter()
+        + showErrorMessage(message: String)
+    }
+}
+
+package "Logic Layer" as Logic {
+    class CoordinateConverterController {
+        - coordConverterModel : CoordinateConverterModel
+        - coordinateGroupService : CoordinateGroupService
+        - coordinateConverterView : CoordinateConverterView
+        + setCoordinateConverterModel(model: CoordinateConverterModel)
+        + setCoordinateGroupService(service: CoordinateGroupService)
+        + setCoordinateConverterView(view: CoordinateConverterView)
+        + convertCartesianToPolar(x: Double, y: Double): Pair<Double, Double>
+        + convertPolarToCartesian(r: Double, theta: Double): Pair<Double, Double>
+        + createCoordinateGroup()
+        + updateCoordinateGroup()
+        + deleteCoordinateGroup()
+        + loadCoordinateGroups()
+        + filterCoordinateGroupsByLabel()
+    }
+
+    class CoordinateConverterModel {
+        - coordinateGroups : List<CoordinateGroup>
+        - selectedCoordinateGroupId : int
+        - userInputCartesianCoordinates : Pair<Double, Double>
+        - userInputPolarCoordinates : Pair<Double, Double>
+        - userInputLabel : String
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + setCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+        + getSelectedCoordinateGroupId(): int
+        + setSelectedCoordinateGroupId(id: int)
+        + getUserInputCartesianCoordinates(): Pair<Double, Double>
+        + setUserInputCartesianCoordinates(x: Double, y: Double)
+        + getUserInputPolarCoordinates(): Pair<Double, Double>
+        + setUserInputPolarCoordinates(r: Double, theta: Double)
+        + getUserInputLabel(): String
+        + setUserInputLabel(label: String)
+    }
+
+    class CoordinateGroupService {
+        - coordinateGroupRepository : CoordinateGroupRepository
+        - orderProcessor : OrderProcessor
+        - inventoryManager : InventoryManager
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        : float applyDiscount(order: Order, discountCode: String)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroupById(id: int)
+        + filterCoordinateGroupsByLabel(label: String): List<CoordinateGroup>
+    }
+}
+
+package "Database Layer" as Database {
+    class CoordinateGroupRepository {
+        - databaseConnection : DatabaseConnection
+        + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(coordinateGroup: CoordinateGroup)
+        + deleteCoordinateGroupById(id: int)
+    }
+
+    class DatabaseConnection {
+        - connection : java.sql.Connection
+        + connect()
+        + close()
+    }
+
+class CoordinateGroup {
+    - id : int
+    - label : String
+    - cartesianCoordinates : Pair<Double, Double>
+    - polarCoordinates : Pair<Double, Double>
+    - createdAt : java.time.LocalDateTime
+    - updatedAt : java.time.LocalDateTime
+    + getId(): int
+    + setId(id: int)
+    + getLabel(): String
+    + setLabel(label: String)
+    + getCartesianCoordinates(): Pair<Double, Double>
+    + setCartesianCoordinates(x: Double, y: Double)
+    + getPolarCoordinates(): Pair<Double, Double>
+    + setPolarCoordinates(r: Double, theta: Double)
+    + getCreatedAt(): java.time.LocalDateTime
+    + setCreatedAt(createdAt: java.time.LocalDateTime)
+    + getUpdatedAt(): java.time.LocalDateTime
+    + setUpdatedAt(updatedAt: java.time.LocalDateTime)
+}
+}
+class OrderProcessor {
+    - coordinateGroupRepository : CoordinateGroupRepository
+    - inventoryManager : InventoryManager
+    + processOrder()
+    + calculateTotalPrice(coordinateGroups: List<CoordinateGroup>): float
+}
+
+class InventoryManager {
+    + isAvailable(coordinateGroups: List<CoordinateGroup>): boolean
+}
+
+Swing --> Logic
+Logic --> Database
+@enduml

@@ -1,0 +1,132 @@
+@startuml
+
+' ----------------------------
+' Authentication Service Package
+' ----------------------------
+package "Authentication Service" {
+  class AuthController {
+    + authenticateWithGoogle() : void  // Functional requirement-business logic operation
+  }
+  class GoogleAPIAdapter {
+    + getUserInfo() : UserProfileData  // Functional requirement-business logic operation
+  }
+  AuthController --> GoogleAPIAdapter : uses
+  ' AuthController invokes updateProfile on User Profile Service via API call
+  AuthController --> "User Profile Service" : updateProfile()  // Flow control operation
+}
+
+' ----------------------------
+' User Profile Service Package
+' ----------------------------
+package "User Profile Service" {
+  class UserProfile {
+    - name : String
+    - profilePicture : String
+    - email : String
+    - remainingQuota : int
+    - accountCreationTimestamp : DateTime
+    - lastLoginTimestamp : DateTime
+    + updateProfile() : void  // Data management operation
+    + getProfile() : UserProfile  // Data management operation
+  }
+}
+
+' ----------------------------
+' Template Service Package
+' ----------------------------
+package "Template Service" {
+  class TemplateManager {
+    + downloadTemplate(chartType: String) : CSVTemplate  // Functional requirement-business logic operation
+  }
+}
+
+' ----------------------------
+' CSV Service Package
+' ----------------------------
+package "CSV Service" {
+  class CSVUploader {
+    + uploadCSV(file: File) : void  // Functional requirement-business logic operation
+  }
+  class CSVValidator {
+    + validateCSV(file: File) : boolean  // Functional requirement-business logic operation
+  }
+  CSVUploader --> CSVValidator : uses
+}
+
+' ----------------------------
+' Chart Generation Service Package
+' ----------------------------
+package "Chart Generation Service" {
+  class ChartGenerator {
+    + generateChart(data: CSVData, chartType: String) : Chart  // Functional requirement-business logic operation
+  }
+  ' ChartGenerator checks quota before proceeding
+  ChartGenerator --> "Quota Management Service" : checkQuota()  // Flow control operation
+}
+
+' ----------------------------
+' Chart Storage Service Package
+' ----------------------------
+package "Chart Storage Service" {
+  class ChartStorage {
+    + saveChart(chart: Chart, format: String) : void  // Data management operation
+    + deleteChart(chartId: String) : void  // Data management operation
+    + downloadChart(chartId: String) : File  // Data management operation
+  }
+}
+
+' ----------------------------
+' Dashboard Service Package
+' ----------------------------
+package "Dashboard Service" {
+  class Dashboard {
+    + displayHistory(userId: String) : List<Chart>  // Functional requirement-business logic operation
+    + previewChart(chartId: String) : ChartPreview  // Functional requirement-business logic operation
+  }
+  ' Dashboard retrieves chart details from Chart Storage Service
+  Dashboard --> "Chart Storage Service" : fetchChart()  // Flow control operation
+}
+
+' ----------------------------
+' Quota Management Service Package
+' ----------------------------
+package "Quota Management Service" {
+  class QuotaManager {
+    + chargeQuota(userId: String, amount: int) : boolean  // Data management operation
+    + addQuota(userId: String, amount: int) : void  // Data management operation
+    + syncQuota() : void  // Data consistency operation
+  }
+}
+
+' ----------------------------
+' Payment Service Package
+' ----------------------------
+package "Payment Service" {
+  class PaymentProcessor {
+    + processPayment(userId: String, amount: float) : PaymentStatus  // Functional requirement-business logic operation
+    + updateQuotaAfterPayment(userId: String, amount: int) : void  // Data consistency operation
+  }
+  ' PaymentProcessor notifies Quota Management Service to update quota after payment
+  PaymentProcessor --> "Quota Management Service" : updateQuota()  // Flow control operation
+}
+
+' ----------------------------
+' API Gateway Package
+' ----------------------------
+package "API Gateway" {
+  class APIGateway {
+    + routeRequest(serviceName: String, request: Request) : Response  // Flow control operation
+  }
+}
+
+' ----------------------------
+' Orchestration Service Package
+' ----------------------------
+package "Orchestration Service" {
+  class ServiceOrchestrator {
+    + coordinateServices(request: Request) : void  // Flow control operation
+  }
+  APIGateway --> ServiceOrchestrator : delegate()  // Flow control operation
+}
+
+@enduml

@@ -1,0 +1,137 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+
+package Database {
+  interface IDBConnection {
+    +connect()
+    +disconnect()
+    +query(query: String)
+    +insert(table: String, columns: String, values: String)
+    +delete(table: String, whereClause: String)
+    +update(table: String, setClause: String, whereClause: String)
+  }
+  
+  class MySQLDBConnection implements IDBConnection {
+    #_connection: Object
+    
+    +connect()
+    +disconnect()
+    +query(query: String)
+    +insert(table: String, columns: String, values: String)
+    +delete(table: String, whereClause: String)
+    +update(table: String, setClause: String, whereClause: String)
+  }
+}
+
+package Model {
+  class CoordinateGroup {
+    -id: int
+    -timestamp: DateTime
+    -label: string
+    -polarCoordinates: string
+    -cartesianCoordinates: string
+    
+    +CoordinateGroup(id: int, timestamp: DateTime, label: string, polarCoordinates: string, cartesianCoordinates: string)
+    +getID(): int
+    +getTimestamp(): DateTime
+    +getLabel(): string
+    +getPolarCoordinates(): string
+    +getCartesianCoordinates(): string
+  }
+}
+
+package View {
+  class CoordinateGroupTableView {
+    -database: IDBConnection
+    -coordinateGroups: List<CoordinateGroup>
+    
+    +CoordinateGroupTableView(database: IDBConnection)
+    +display()
+    +updateCoordinateGroups()
+  }
+  
+  class CoordinateGroupFormView {
+    -database: IDBConnection
+    
+    +CoordinateGroupFormView(database: IDBConnection)
+    +displayAddForm()
+    +displayEditForm(coordinateGroup: CoordinateGroup)
+    +processAddForm(label: string, polarCoordinates: string, cartesianCoordinates: string)
+    +processEditForm(id: int, label: string, polarCoordinates: string, cartesianCoordinates: string)
+  }
+  
+  class FindByLabelView {
+    -database: IDBConnection
+    
+    +FindByLabelView(database: IDBConnection)
+    +display()
+    +processFindByLabel(label: string)
+  }
+}
+
+package Controller {
+  class CoordinateGroupController {
+    -view: Object
+    -model: Model.CoordinateGroup
+    -database: IDBConnection
+    
+    +CoordinateGroupController(view: Object, model: Model.CoordinateGroup, database: IDBConnection)
+    +addCoordinateGroup()
+    +editCoordinateGroup()
+    +deleteCoordinateGroup()
+    +findByLabel()
+  }
+}
+
+Database -- Model
+Model -- View
+View -- Controller
+@enduml
+```
+
+This diagram reflects the separation of concerns based on the requested architecture. Each class is properly defined with attributes and methods, and all associations between classes are included in PlantUML and are clearly represented. The necessary packages have been created to include the classes.

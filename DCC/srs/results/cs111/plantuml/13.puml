@@ -1,0 +1,45 @@
+@startuml
+' Define packages
+package "Client Application" {
+  interface UserInterface
+
+  entity CoordinateGroup {
+    ID
+    Timestamp
+    Label
+    PolarCoordinates (r, theta)
+    CartesianCoordinates (x,y)
+  }
+
+  class GUIController {
+    + selectCoordinateGroup() : void
+    + viewAllGroups(): void
+    + viewByLabel(label): void
+    + deleteGroup(): void
+  }
+}
+
+package "Server Application" {
+  entity Database {
+    ID
+    Timestamp
+    Label
+    PolarCoordinates (r, theta)
+    CartesianCoordinates (x,y)
+  }
+
+  class DBController {
+    + retrieveGroups() : List<CoordinateGroup>
+    + searchByLabel(label): List<CoordinateGroup>
+    + deleteGroup(groupID): void
+  }
+}
+
+' Associations and dependencies
+UserInterface <|.. GUIController : Uses
+GUIController .. Database : Accesses via DBController
+DBController .|> Database : Manages
+
+' Architecture Representation
+"Client Application" .. "Server Application" : TCP/IP Connection
+@enduml

@@ -1,0 +1,88 @@
+@startuml
+
+
+' Packages
+package "Presentation Layer" {
+    class CoordinateConverterGUI {
+        - coordinateController: CoordinateController
+        + initializeGUI()
+        + displayCoordinateGroups(List<CoordinateGroup>)
+        + showError(String message)
+        + refreshView()
+        + getInputValues(): Map<String, Double>
+        + getSelectedCoordinateType(): String
+        + getLabel(): String
+    }
+}
+
+package "Business Layer" {
+    class CoordinateController {
+        - coordinateService: CoordinateService
+        + createCoordinateGroup(String label, double x, double y)
+        + createPolarCoordinateGroup(String label, double r, double theta)
+        + updateCoordinateGroup(int id, String label, double x, double y)
+        + deleteCoordinateGroup(int id)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + findByLabel(String label): List<CoordinateGroup>
+        - validateInput(double... values): boolean
+    }
+
+    class CoordinateService {
+        - coordinateRepository: CoordinateRepository
+        + saveCoordinateGroup(CoordinateGroup group)
+        + updateCoordinateGroup(CoordinateGroup group)
+        + deleteCoordinateGroup(int id)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + findByLabel(String label): List<CoordinateGroup>
+        + convertCartesianToPolar(double x, double y): double[]
+        + convertPolarToCartesian(double r, double theta): double[]
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: LocalDateTime
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+        + getters()
+        + setters()
+        + toString(): String
+    }
+
+    class CoordinateConverter {
+        + {static} cartesianToPolar(double x, double y): double[]
+        + {static} polarToCartesian(double r, double theta): double[]
+    }
+}
+
+package "Data Layer" {
+    interface CoordinateRepository {
+        + save(CoordinateGroup group): void
+        + update(CoordinateGroup group): void
+        + delete(int id): void
+        + findAll(): List<CoordinateGroup>
+        + findByLabel(String label): List<CoordinateGroup>
+    }
+
+    class MySQLCoordinateRepository {
+        - connection: Connection
+        + save(CoordinateGroup group): void
+        + update(CoordinateGroup group): void
+        + delete(int id): void
+        + findAll(): List<CoordinateGroup>
+        + findByLabel(String label): List<CoordinateGroup>
+        - getConnection(): Connection
+    }
+}
+
+' Relationships
+CoordinateConverterGUI --> CoordinateController
+CoordinateController --> CoordinateService
+CoordinateService --> CoordinateRepository
+CoordinateService --> CoordinateConverter
+MySQLCoordinateRepository ..|> CoordinateRepository
+CoordinateService --> CoordinateGroup
+
+@enduml

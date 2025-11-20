@@ -1,0 +1,40 @@
+@startuml
+
+package model {
+    class CoordinateGroup {
+        - id : int
+        - label : string
+        - cartesian_coordinates : pair of high-precision numbers
+        - polar_coordinates : pair of high-precision numbers
+        + CreateOp()
+        + ReadOp()
+        + UpdateOp()
+        + DeleteOp()
+    }
+}
+
+package view {
+    class CoordinateGroupView {
+        + displayCoordinateGroups(list of CoordinateGroup)
+        + displayFilteredList(list of CoordinateGroup, string filterValue)
+        + refreshDisplay()
+        + clearFilter()
+    }
+}
+
+package controller {
+    class CoordinateGroupController {
+        + convertCartesianToPolar(cartesian_coordinates : pair of high-precision numbers) -> polar_coordinates : pair of high-precision numbers
+        + convertPolarToCartesian(polar_coordinates : pair of high-precision numbers) -> cartesian_coordinates : pair of high-precision numbers
+        + executeCreateOp(coordinateGroup : CoordinateGroup, label : string)
+        + executeUpdateOp(coordinateGroup : CoordinateGroup, new_values : CoordinateGroup)
+        + executeDeleteOp(id : int)
+        + filterCoordinateGroups(list of CoordinateGroup, filterValue : string) -> filteredList : list of CoordinateGroup
+    }
+}
+
+model.CoordinateGroup --> view.CoordinateGroupView : association
+controller.CoordinateGroupController --> model.CoordinateGroup : association
+view.CoordinateGroupView --> controller.CoordinateGroupController : association
+
+@enduml

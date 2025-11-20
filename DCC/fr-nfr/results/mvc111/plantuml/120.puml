@@ -1,0 +1,63 @@
+@startuml
+' MVC Architecture for DCC Application
+
+title Dummy Coordination Conversion Application - UML Class Diagram
+package "DCC Application [MVC]" {
+  class "Controller" as Controller {
+    + createCoordinateGroup()
+    + storeCoordinateGroup(db)
+    + retrieveCoordinateGroup(label, viewAll)
+    + modifyCoordinateGroup(id, label, coords)
+    + deleteCoordinateGroup(id)
+  }
+
+  class "Model" as Model {
+    - coordinateGroups: List<*> [0..*]
+    - dbConnection: DatabaseConnection
+
+    + fetchCoordinateGroup(id)
+    + saveCoordinateGroup()
+    + deleteCoordinateGroup(id)
+    + searchCoordinateGroupsByLabel(label)
+  }
+
+  class "View" as View {
+    + displayCartesianCoords()
+    + displayPolarCoords()
+    + showAllCoordinateGroups()
+    + promptUserForInput()
+    + updateLabelField(label)
+    + updateCoordinatesFields(coords)
+  }
+}
+
+package "Database [MySQL]" {
+  class DatabaseConnection {
+    - host: String
+    - port: Integer
+    - username: String
+    - password: String
+
+    + connect(): Boolean
+    + query(sql): ResultSet
+    + close()
+  }
+
+  class TableCoordinateGroups {
+    <<table>>
+    id: Integer [primary key]
+    label: String
+    timestamp: Timestamp
+    cartesian_x: Double
+    cartesian_y: Double
+    polar_r: Double
+    polar_theta: Double
+  }
+}
+
+
+Controller -- Model : Request/Response Data
+Controller -up- View : Pass User Input, Return Results
+Model --> DatabaseConnection : Connection
+View ..> Controller : Event Notification
+@enduml

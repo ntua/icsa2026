@@ -1,0 +1,116 @@
+Response:
+```plantuml
+@startuml
+' Packages
+package "Client" {
+  package "GUI" {
+    class MainFrame {
+      - CoordinatePanel coordinatePanel
+      - CoordinateListPanel listPanel
+      - ButtonPanel buttonPanel
+      + MainFrame()
+      + updateList()
+    }
+    class CoordinatePanel {
+      - JComboBox<String> typeComboBox
+      - JTextField xOrRField
+      - JTextField yOrThetaField
+      - JLabel labelField
+      + getCoordinateValues(): Map<String, Double>
+      + getLabel(): String
+      + clearFields()
+    }
+    class CoordinateListPanel {
+      - JList<CoordinateGroup> groupList
+      + setGroups(List<CoordinateGroup> groups)
+      + getSelectedGroup(): CoordinateGroup
+    }
+    class ButtonPanel {
+      - JButton addButton
+      - JButton updateButton
+      - JButton deleteButton
+      - JButton viewAllButton
+      + addActionListener(ActionListener listener)
+    }
+  }
+
+  package "Controller" {
+    class CoordinateController {
+      - CoordinateConverter converter
+      - DatabaseHandler dbHandler
+      + CoordinateController()
+      + addCoordinateGroup()
+      + updateCoordinateGroup()
+      + deleteCoordinateGroup()
+      + viewAllGroups()
+    }
+  }
+
+  package "Model" {
+    class CoordinateGroup {
+      - int id
+      - String label
+      - Date timestamp
+      - double cartesianX
+      - double cartesianY
+      - double polarR
+      - double polarTheta
+      + CoordinateGroup()
+      + getters/setters()
+    }
+    class CoordinateConverter {
+      + toPolar(x: double, y: double): Map<String, Double>
+      + toCartesian(r: double, theta: double): Map<String, Double>
+    }
+  }
+
+  package "Database" {
+    class DatabaseHandler {
+      - Connection connection
+      + DatabaseHandler()
+      + connect()
+      + saveCoordinateGroup(CoordinateGroup group)
+      + updateCoordinateGroup(CoordinateGroup group)
+      + deleteCoordinateGroup(int id)
+      + getAllGroups(): List<CoordinateGroup>
+    }
+  }
+}
+
+package "Server" {
+  class MySQLDatabase {
+    + tables: CoordinateGroups
+  }
+}
+
+' Associations
+MainFrame --> CoordinatePanel : contains
+MainFrame --> CoordinateListPanel : contains
+MainFrame --> ButtonPanel : contains
+
+CoordinateController --> CoordinateConverter : uses
+CoordinateController --> DatabaseHandler : uses
+
+DatabaseHandler --> CoordinateGroup : manages
+DatabaseHandler --> MySQLDatabase : connects via JDBC
+
+ButtonPanel --> CoordinateController : triggers actions via <<ActionListener>>
+
+CoordinateListPanel --> CoordinateGroup : displays
+CoordinatePanel --> CoordinateGroup : collects data
+
+@enduml
+```
+
+**Explanation:**
+- **Packages:** Separates concerns into GUI, Controller, Model, and Database on the client side. The server is represented by the MySQL database.
+- **Client Classes:**
+  - **GUI:** Handles user interface components with Swing classes.
+  - **Controller:** Manages application logic and mediates between GUI and data.
+  - **Model:** `CoordinateGroup` stores data, `CoordinateConverter` handles conversions.
+  - **Database:** `DatabaseHandler` manages JDBC operations.
+- **Associations:** 
+  - Composition (e.g., `MainFrame` contains panels).
+  - Dependency (e.g., `DatabaseHandler` connects to `MySQLDatabase`).
+  - Method triggers (e.g., buttons invoke controller actions).
+- **Thick-Client Architecture:** Business logic (conversion, data handling) resides on the client, which directly communicates with the database server via JDBC.

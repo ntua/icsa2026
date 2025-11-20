@@ -1,0 +1,29 @@
+@startuml
+
+class User {
+  - id: Int
+  - name: String
+  - contactInfo: String // format "Email|Phone"
+  + saveContact() : void
+}
+
+
+class Server extends Database {
+  + saveData(data: String) : void
+  + fetchData(query: String): String
+}
+
+class UserManager {
+   private User [] users = new User[10]; // Initializing array with max. size of 10 users
+   private int nextId = 1; // The next id that will be assigned to a user
+   + createNewUser(name: String, contactInfo: String): User
+
+}
+
+class TransactionManager {
+   private Book [] books = new Book[10]; // Initializing array with max. size of 10 books
+   private User[] users = new User[10]; // Initializing array with max. size of 10 users
+   private int nextId = 1; // The next id that will be assigned to a transaction
+   + createNewTransaction(book: Book, user: User): Transaction
+}
+@enduml

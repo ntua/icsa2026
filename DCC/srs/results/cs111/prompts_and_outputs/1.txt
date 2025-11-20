@@ -1,0 +1,97 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+package com.example.coordinategroup {
+    -class CoordinateGroup {
+        +ID: int
+        +Timestamp: String
+        +Label: String
+        +PolarCoordinates: PolarCoordinate[]
+        +CartesianCoordinates: CartesianCoordinate[]
+    }
+    -class PolarCoordinate {
+        +R: double
+        +Theta: double
+    }
+    -class CartesianCoordinate {
+        +X: double
+        +Y: double
+    }
+}
+package com.example.database {
+    -interface DatabaseConnector {
+        +connect(): void
+        +disconnect(): void
+    }
+    -class MySQLDatabase implements DatabaseConnector {
+        +executeQuery(query: String): ResultSet
+    }
+}
+package com.example.gui {
+    -interface GUI {
+        +initUI(): void
+        +addButton(buttonName: String, action: ActionListener): void
+    }
+    -class CoordinateGroupListGUI implements GUI {
+        +displayCoordinateGroups(groups: CoordinateGroup[]): void
+    }
+}
+
+CoordinateGroup o-- PolarCoordinate
+CoordinateGroup o-- CartesianCoordinate
+
+DatabaseConnector -- MySQLDatabase : uses
+MySQLDatabase -- GUI : uses
+
+@enduml
+```
+
+This code defines the classes, packages, and associations as requested. It includes a CoordinateGroup class with attributes for ID, Timestamp, Label, PolarCoordinates, and CartesianCoordinates. The PolarCoordinate and CartesianCoordinate classes are associated with the CoordinateGroup class to represent their composition.
+
+The com.example.database package includes an interface for DatabaseConnector and a class for MySQLDatabase that implements it. This represents the client-server architecture where the GUI uses a database connector to interact with the MySQL database.
+
+Finally, the com.example.gui package defines an interface for GUI and a class for CoordinateGroupListGUI that implements it. This represents the graphical user interface that interacts with the coordinate group list and uses the database connector to retrieve data from the MySQL database.

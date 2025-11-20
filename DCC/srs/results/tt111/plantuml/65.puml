@@ -1,0 +1,65 @@
+@startuml
+package PresentationLayer {
+    class UserInterface {
+        +createCoordinateGroup()
+        +modifyCoordinateGroup()
+        +viewAllCoordinateGroups()
+        +viewCoordinateGroupByLabel(label: String)
+        +deleteCoordinateGroup()
+    }
+
+    class InputValidator {
+        +validateInput(label: String, coordinates: String): boolean
+    }
+}
+
+package BusinessLogicLayer {
+    class CoordinateManager {
+        +convertToPolar(x: float, y: float): PolarCoordinate
+        +convertToCartesian(r: float, theta: float): CartesianCoordinate
+        +addCoordinateGroup(group: CoordinateGroup)
+        +modifyCoordinateGroup(id: int, group: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+        +getCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+
+    class CoordinateGroup {
+        +id: int
+        +timestamp: Date
+        +label: String
+        +cartesian: CartesianCoordinate
+        +polar: PolarCoordinate
+    }
+
+    class CartesianCoordinate {
+        +x: float
+        +y: float
+    }
+
+    class PolarCoordinate {
+        +r: float
+        +theta: float
+    }
+}
+
+package DataAccessLayer {
+    class DatabaseManager {
+        +connect()
+        +disconnect()
+        +insertCoordinateGroup(group: CoordinateGroup)
+        +updateCoordinateGroup(id: int, group: CoordinateGroup)
+        +deleteCoordinateGroup(id: int)
+        +retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        +retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    }
+}
+
+' Associations
+UserInterface --> InputValidator : "uses"
+UserInterface --> CoordinateManager : "calls"
+CoordinateManager --> DatabaseManager : "delegates"
+CoordinateManager --> CoordinateGroup : "manages"
+CoordinateGroup --> CartesianCoordinate : "contains"
+CoordinateGroup --> PolarCoordinate : "contains"
+@enduml

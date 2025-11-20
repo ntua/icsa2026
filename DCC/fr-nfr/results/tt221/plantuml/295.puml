@@ -1,0 +1,65 @@
+@startuml
+
+package Frontend {
+  interface UserInteractions {
+    + inputCoordinateGroup() : void
+    + selectOperation(op: string) : void
+    + filterCoordinateGroups(label: string) : void
+    + clearFilter() : void
+    + displayCoordinateGroups(groups: List<CoordinateGroup>) : void
+  }
+  
+  class SwingInterface implements UserInteractions {
+    // Implement methods from UserInteractions interface
+  }
+}
+
+package Logic {
+  abstract class CoordinateFormatter {
+    + formatCartesian(x: float, y: float) : String
+    + parseCartesian(coords: String) : Pair<float, float>
+    + formatPolar(r: float, theta: float) : String
+    + parsePolar(coords: String) : Pair<float, float>
+  }
+  
+  class CoordinateConverter extends CoordinateFormatter {
+    // Implement methods from CoordinateFormatter abstract class
+  }
+  
+  interface CoordinateGroupManager {
+    + createCoordinateGroup(group: CoordinateGroup, label: String) : int
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+  
+  class CoordinateGroupLogic implements CoordinateGroupManager {
+    // Implement methods from CoordinateGroupManager interface
+  }
+}
+
+package Database {
+  interface DatabaseConnection {
+    + connect() : void
+    + query(sql: String) : ResultSet
+    + update(sql: String) : int
+  }
+  
+  class MySQLConnection implements DatabaseConnection {
+    // Implement methods from DatabaseConnection interface
+  }
+  
+  class CoordinateGroupRepository {
+    - connection: DatabaseConnection
+    
+    + saveCoordinateGroup(group: CoordinateGroup, label: String) : int
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroupById(id: int) : void
+  }
+}
+
+Frontend ..> Logic
+Logic ..> Database
+
+@enduml

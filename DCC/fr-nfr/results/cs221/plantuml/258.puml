@@ -1,0 +1,52 @@
+@startuml
+
+package "Client" {
+  class DCCApplication {
+    + main() : void
+    - handleUserInput() : void
+    - displayCoordinateGroups() : void
+    - applyFilter(label: String) : void
+  }
+}
+
+package "Logic"{
+ class CoordinateConverter {
+   + cartesianToPolar(x: double, y: double): (double, double)
+   + polarToCartesian(r: double, theta: double): (double, double)
+ }
+ class CoordinateGroup {
+   - id: int
+   - label: String
+   - cartesianX: double
+   - cartesianY: double
+   - polarR: double
+   - polarTheta: double
+   + getCoordinates() : String
+ }
+}
+
+package "Database"{
+ class DatabaseConnector {
+  - connectionString: String
+  + connect(): void
+  + executeQuery(query: String): ResultSet
+  + closeConnection(): void
+ }
+
+ class CoordinateGroupDAO {
+  - connector: DatabaseConnector
+  + saveCoordinateGroup(group: CoordinateGroup) : int
+  + getAllCoordinateGroups(): List<CoordinateGroup>
+  + updateCoordinateGroup(group: CoordinateGroup) : void
+  + deleteCoordinateGroup(id: int) : void
+ }
+
+}
+
+
+DCCApplication --> CoordinateConverter: uses 
+DCCApplication --> CoordinateGroup: creates
+DCCApplication --> CoordinateGroupDAO : communicates with
+CoordinateGroupDAO --> DatabaseConnector : utilizes
+
+@enduml

@@ -1,0 +1,109 @@
+@startuml
+skinparam shadowing false
+skinparam componentStereoType << %s >>
+skinparam class {
+    BackgroundColor #F0F0F0
+    FontColor black
+}
+
+package Controller {
+  class Main {
+    + init()
+    + add()
+    + update()
+    + delete()
+    + refreshDisplay()
+  }
+  
+  class UIEventsHandler {
+    - handleUserInput(event)
+    
+    <<interface>>
+  }
+  
+}
+
+
+package "Model" as model {
+  class CoordinateGroup {
+    * id: int
+    * label: string
+    * cartesian: CartesianCoordinates
+    * polar: PolarCoordinates
+
+    + calculatePolar()
+    + calculateCartesian()
+
+    <<Entity>>
+  }
+
+  class CartesianCoordinates {
+    * x: decimal
+    * y: decimal
+    
+    <<Value Object>>
+  }
+
+  class PolarCoordinates {
+    * r: decimal
+    * theta: decimal
+    
+    <<Value Object>>
+  }
+}
+
+
+package "View" as view {
+  class DisplayListComponent {
+    - showAllGroups()
+    - filterByLabel(label)
+
+    <<interface>>
+  }
+
+  class CoordinateInputComponent {
+    - getCartesianCoordinates()
+    - getPolarCoordinates()
+    - getGroupLabel()
+    
+    <<interface>>
+  }
+
+  class ReadOpComponent {
+    + getAllSavedGroups()
+    
+    <<interface>>
+  }
+  
+  class CreateOpComponent {
+    - createNewRecord(CoordinateGroup)
+    
+    <<interface>>
+  }
+
+  class UpdateOpComponent {
+    - updateRecord(id, CoordinateGroup)
+
+    <<interface>>
+  }
+
+  class DeleteOpComponent {
+    - deleteRecord(id)
+
+    <<interface>>
+  }
+}
+
+
+Controller.Main ..> UIEventsHandler : Handles user interactions ,Events propagation
+
+DisplayListComponent <.. Controller.Main : List filtering operations
+CoordinateInputComponent <.. Controller.Main : Coordinate input retrieval
+
+
+ReadOpComponent --> model : Retrieves saved records
+CreateOpComponent --> model : Creates new record in database
+UpdateOpComponent --> model : Updates existing record in database
+DeleteOpComponent --> model : Deletes record from database
+
+@enduml

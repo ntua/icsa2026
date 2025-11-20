@@ -1,0 +1,85 @@
+@startuml
+' Define Packages for Separation of Concerns
+package "Frontend" {
+  class UserInterface {
+    - id: int
+    - label: String
+    - coordinates: Coordinates[]
+
+    + getLabel(): String
+    + addCoordinates(new_label: String): void
+    + updateCoordinates(id, new_coordinates): void
+    + deleteCoordinates(id): void
+    + filterList(label): void
+
+  }
+}
+package "Logic" {
+  class CartesianConverter {
+    + toPolar(x: double, y: double): Polar
+
+    - calculateR(x: double, y: double): double
+    - calculateTheta(x: double, y: double): double
+  }
+
+  class PolarConverter {
+    + toCartesian(r: double, theta: double): Cartesian
+
+    - calculateX(r: double, theta: double): double
+    - calculateY(r: double, theta: double): double
+  }
+
+  class Coordinates {
+    - id: int
+    - label: String
+    - datetime: DateTime
+    - cartesian: Cartesian
+    - polar: Polar
+
+    + getCoordinates(): void
+    + setCartesian(x: double, y: double): void
+    + setPolar(r: double, theta: double): void
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - datetime: DateTime
+    - coordinates: [Cartesian, Polar]
+
+    + addCoordinateGroup(): void
+    + updateCoordinateGroup(id: int, new_label: String, updated_coordinates: Coordinates): void
+    + deleteCoordinateGroup(id: int): void
+    + getAllCoordinateGroups(): List<Coordinates>
+
+  }
+}
+package "Data Operations" {
+  class DatabaseConnection {
+    + connect(): void
+    + close(): void
+
+    - connection: TCP/IP Connection 
+  }
+
+  class MySQLServer {
+    + createRecord(label, coordinates): void
+    + readRecords(): List<CoordinateGroup> 
+    + updateRecord(id: int, new_label: String, updated_coordinates: Coordinates): void
+    + deleteRecord(id: int): void
+
+    - table: CoordinateGroup[]
+  }
+}
+
+
+' Associations and Composition between classes
+UserInterface ..> CartesianConverter : uses
+UserInterface ..> PolarConverter : uses
+UserInterface *-- Coordinates  : owns
+Coordinates *-- Cartesian : contains
+Coordinates *-- Polar : contains
+CoordinateGroup o-- MySQLServer : stores
+CoordinateGroup <|-- Coordinates 
+
+@enduml

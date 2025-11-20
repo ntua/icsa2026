@@ -1,0 +1,40 @@
+@startuml
+
+package "Model" {
+	class CoordinateGroup {
+		string label
+		CartesianCoordinates cartesian
+		PolarCoordinates polar
+	}
+
+class CartesianCoordinates {
+		double x, y
+	}
+
+class PolarCoordinates {
+		double r, theta
+	}
+}
+
+package "Controller" {
+	class CoordinateManager {
+		Model.CoordinateGroup coord_group;
+		UIInterface ui
+	}
+}
+
+package "View" {
+	interface UIInterface {
+		void addNewCoordGroup()
+		void updateExistingCord(int id)
+		void deleteCord(int id)
+		List<Model.CoordinateGroup> getAllCords()
+		void filterByLabelValue(String label_value)
+	}
+}
+
+'classes'
+class LogicLayer {
+	DataAccess dataAccess;
+}
+@enduml

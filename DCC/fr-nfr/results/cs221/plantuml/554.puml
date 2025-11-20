@@ -1,0 +1,64 @@
+@startuml
+package client {
+    package model {
+        class CoordinateGroup {
+            - id: Integer
+            - label: String
+            - cartesian: Cartesian
+            - polar: Polar
+            - timestamp: DateTime
+        }
+
+        class Cartesian {
+            - x: Double
+            - y: Double
+        }
+
+        class Polar {
+            - r: Double
+            - theta: Double
+        }
+    }
+
+    package controller {
+        class CoordinateController {
+            + CoordinateGroup createCoordinateGroup(label: String, cartesian: Cartesian, polar: Polar): CoordinateGroup
+            + void updateCoordinateGroup(id: Integer, label: String, cartesian: Cartesian, polar: Polar)
+            + List<CoordinateGroup> getCoordinateGroups()
+            + void deleteCoordinateGroup(id: Integer)
+            + void addCoordinateGroup(label: String, x: Double, y: Double)
+            + void convertCoordinates(coordinates: CoordinateGroup): CoordinateGroup
+        }
+    }
+
+    package converter {
+        interface Converter {
+            + abstract CoordinateGroup convert(CoordinateGroup group): CoordinateGroup
+        }
+
+        class CartesianToPolarConverter implements Converter {
+            + override convert(group: CoordinateGroup): CoordinateGroup
+        }
+
+        class PolarToCartesianConverter implements Converter {
+            + override convert(group: CoordinateGroup): CoordinateGroup
+        }
+    }
+}
+
+package server {
+    package dao {
+        class CoordinateGroupDao {
+            + void createCoordinateGroup(label: String, x: Double, y: Double)
+            + List<CoordinateGroup> readCoordinateGroups()
+            + void updateCoordinateGroup(id: Integer, label: String, x: Double, y: Double)
+            + void deleteCoordinateGroup(id: Integer)
+        }
+    }
+}
+
+client.controller.CoordinateController -- client.converter.Converter
+client.controller.CoordinateController -- server.dao.CoordinateGroupDao
+client.model.CoordinateGroup -- client.model.Cartesian
+client.model.CoordinateGroup -- client.model.Polar
+@enduml

@@ -1,0 +1,27 @@
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 15 of 17                                             
+ It works by keeping the configurations in an external store, such as a database, file system, or environment variables. When the Microservice is deployed and started, it loads the configuration from the external source. (Score: 362.9664881429738)
+
+---
+
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 7 of 17                                             
+and choose your read and write databases. So here, CQRS separates reads and writes into different databases, where commands perform the creation or updating of data, and queries perform read data. Commands are actions with some defined operations like “add the item to bucket” or “check my balance.” So, commands can be published via message brokers, which help applications process them in an async manner. Queries never modify the database. Queries always return the JSON data with DTO objects. In this way, we can isolate the Commands and Queries. (Score: 366.65391601232875)
+
+---
+
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 4 of 17                                             
+                                         Picture Reference: https://microservices.io/patterns/microservices.html We will cover the most used and discussed design patterns in detail, along with use cases. Here is the list of design patterns that will be covered: 1. Database per Microservices 2. CQRS 3. Event Sourcing 4. Saga 5. (Score: 371.22084779361944)
+
+---
+
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 3 of 17                                             
+  Microservices Design Patterns and Principles As we now know, Microservices are independent components that encapsulate business domains. If applications are archi-tected using Microservices design principles and patterns, then the application is highly scalable. So, let's list down the princi-ples in which the Microservices architecture has been built. 1. (Score: 375.6480550898806)
+
+---
+
+Microservices Design Patterns    
+ Copyright © 2023 ValueLabs. All rights reserved                                                                                                                   Page 8 of 17                                             
+ By applying these patterns, we can query the latest status of the shopping cart using materialized views, which are used to create a read database. Instead of storing actual data, it stores sequential events that denote user actions, allowing us to know the history of actions the user has taken with timestamps. This enables us to retrieve the status of shopping cart data at any point in time. We can use event store write databases with Azure Cosmos DB, Cassandra, Event Store databases, etc. SAGA   Usually, Microservices are designed around business domains, so the application is divided into multiple Microservices. (Score: 375.9174882788356)

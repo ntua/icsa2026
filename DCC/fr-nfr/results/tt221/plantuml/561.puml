@@ -1,0 +1,87 @@
+@startuml DCC_Application_Class_Diagram
+
+' Presentation Tier
+package "Presentation" {
+    class CoordinateGroupGUI {
+        + void displayUI()
+        + void handleUserInput()
+        + void convertCoordinates()
+        + void refreshDisplay()
+    }
+}
+
+' Application Tier
+package "Application" {
+    class CoordinateGroup {
+        - String id
+        - String label
+        - CartesianCoordinate cartesian
+        - PolarCoordinate polar
+        - DateTime timestamp
+
+        + CoordinateGroup(String label, CartesianCoordinate cartesian, PolarCoordinate polar)
+    }
+
+    class ConversionService {
+        + PolarCoordinate convertCartesianToPolar(CartesianCoordinate cartesian)
+        + CartesianCoordinate convertPolarToCartesian(PolarCoordinate polar)
+    }
+
+    class DCCController {
+        - CoordinateGroupGUI gui
+        - CoordinateGroupDAO dao
+        - ConversionService converter
+
+        + void createCoordinateGroup(String label, CartesianCoordinate cartesian, PolarCoordinate polar)
+        + void readCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(String id)
+        + void filterByLabel(String label)
+    }
+}
+
+' Data Tier
+package "Data" {
+    class CoordinateGroupDAO {
+        - String dbConnection
+
+        + void saveCoordinateGroup(CoordinateGroup group)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + void updateCoordinateGroup(CoordinateGroup group)
+        + void deleteCoordinateGroup(String id)
+    }
+
+    class Database {
+        + void connect()
+        + void disconnect()
+    }
+}
+
+' Value Objects
+package "Domain" {
+    class CartesianCoordinate {
+        - Double x
+        - Double y
+
+        + CartesianCoordinate(Double x, Double y)
+    }
+
+    class PolarCoordinate {
+        - Double r
+        - Double theta
+
+        + PolarCoordinate(Double r, Double theta)
+    }
+}
+
+' Relationships and Associations
+DCCController --> CoordinateGroupDAO : Uses > (CRUD Operations)
+DCCController --> ConversionService : Uses > (Conversion Logic)
+CoordinateGroupGUI --> DCCController : Uses > (Business Logic Orchestration)
+
+CoordinateGroupDAO --> Database : Accesses > (Database Connection)
+
+CoordinateGroup *-- CartesianCoordinate : Composition
+CoordinateGroup *-- PolarCoordinate : Composition
+
+@enduml

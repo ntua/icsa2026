@@ -1,0 +1,136 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - cartesianCoordinates: CartesianCoordinates
+        - polarCoordinates: PolarCoordinates
+        
+        + CoordinateGroup(Integer, String)
+        + getCartesianCoordinates(): CartesianCoordinates
+        + getPolarCoordinates(): PolarCoordinates
+        + setCartesianCoordinates(CartesianCoordinates)
+        + setPolarCoordinates(PolarCoordinates)
+    }
+    
+    class CartesianCoordinates {
+        - x: HighPrecisionNumber
+        - y: HighPrecisionNumber
+        
+        + CartesianCoordinates(HighPrecisionNumber, HighPrecisionNumber)
+        + getX(): HighPrecisionNumber
+        + getY(): HighPrecisionNumber
+        + setX(HighPrecisionNumber)
+        + setY(HighPrecisionNumber)
+    }
+    
+    class PolarCoordinates {
+        - r: HighPrecisionNumber
+        - theta: HighPrecisionNumber
+        
+        + PolarCoordinates(HighPrecisionNumber, HighPrecisionNumber)
+        + getR(): HighPrecisionNumber
+        + getTheta(): HighPrecisionNumber
+        + setR(HighPrecisionNumber)
+        + setTheta(HighPrecisionNumber)
+    }
+    
+    class HighPrecisionNumber {
+        - value: String
+        
+        + HighPrecisionNumber(String)
+        + getValue(): String
+        + setValue(String)
+    }
+}
+
+package "Database" {
+    class CoordinateGroupDatabase {
+        - connection: MySQLConnection
+        
+        + CoordinateGroupDatabase()
+        + save(CoordinateGroup)
+        + update(CoordinateGroup)
+        + delete(CoordinateGroup)
+    }
+    
+    class MySQLConnection {
+        - host: String
+        - username: String
+        - password: String
+        - databaseName: String
+        
+        + MySQLConnection(String, String, String, String)
+        + getHost(): String
+        + getUsername(): String
+        + getPassword(): String
+        + getDatabaseName(): String
+    }
+}
+
+package "Controller" {
+    class CoordinateGroupController {
+        - model: CoordinateGroupModel
+        - view: CoordinateGroupView
+        
+        + CoordinateGroupController()
+        + add(CoordinateGroup)
+        + update(CoordinateGroup)
+        + delete(CoordinateGroup)
+        + read(): List<CoordinateGroup>
+    }
+    
+    class CoordinateGroupModel {
+        - coordinateGroups: List<CoordinateGroup>
+        
+        + CoordinateGroupModel()
+        + getCoordinateGroups(): List<CoordinateGroup>
+        + setCoordinateGroups(List<CoordinateGroup>)
+    }
+    
+    class CoordinateGroupView {
+        - swingFramework: SwingFramework
+        
+        + CoordinateGroupView()
+        + display(CoordinateGroup)
+        + filterByLabel(String)
+        + clearFilter()
+    }
+}
+
+package "Service" {
+    class CoordinateConversionService {
+        - model: CoordinateGroupModel
+        
+        + CoordinateConversionService()
+        + convertCartesianToPolar(CartesianCoordinates): PolarCoordinates
+        + convertPolarToCartesian(PolarCoordinates): CartesianCoordinates
+    }
+    
+    class DataOperationService {
+        - database: CoordinateGroupDatabase
+        
+        + DataOperationService()
+        + createOp(CoordinateGroup): Integer
+        + readOp(): List<CoordinateGroup>
+        + updateOp(CoordinateGroup)
+        + deleteOp(CoordinateGroup)
+    }
+}
+
+CoordinateGroup o-- CartesianCoordinates
+CoordinateGroup o-- PolarCoordinates
+CartesianCoordinates ..> HighPrecisionNumber : x and y coordinates
+PolarCoordinates ..> HighPrecisionNumber : r and theta values
+
+CoordinateGroup o-- CoordinateGroupDatabase
+CoordinateGroupDatabase -- MySQLConnection
+MySQLConnection -- CoordinateGroupDatabase
+
+CoordinateGroupController ^-o CoordinateGroupModel
+CoordinateGroupModel ^-o CoordinateGroupView
+CoordinateGroupView ^-o SwingFramework
+
+CoordinateConversionService ^-o DataOperationService
+DataOperationService ^-o CoordinateGroupDatabase
+@enduml

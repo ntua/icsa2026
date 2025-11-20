@@ -1,0 +1,62 @@
+@startuml
+package presentation {
+  class UserInterface {
+    + displayCoordinateGroups()
+    + getCoordinateGroupInput()
+  }
+}
+
+package businessLogic {
+  class CoordinateConverter {
+    + convertCartesianToPolar(coordinates: CartesianCoordinates): PolarCoordinates
+    + convertPolarToCartesian(coordinates: PolarCoordinates): CartesianCoordinates
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - label: string
+    - creationTime: timestamp
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    + getCartesianCoordinates(): CartesianCoordinates
+    + getPolarCoordinates(): PolarCoordinates
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - radius: double
+    - theta: double
+  }
+}
+
+package dataAccess {
+  interface ICoordinateGroupRepository {
+    + save(group: CoordinateGroup): boolean
+    + update(group: CoordinateGroup): boolean
+    + delete(id: int): boolean
+    + getAll(): list<CoordinateGroup>
+  }
+
+  class CoordinateGroupRepository implements ICoordinateGroupRepository {
+    - database: Database 
+
+    + save(group: CoordinateGroup): boolean
+    + update(group: CoordinateGroup): boolean
+    + delete(id: int): boolean
+    + getAll(): list<CoordinateGroup>
+  }
+
+  class Database {
+    // ... database connection methods
+  }
+}
+
+presentation -> businessLogic : uses
+businessLogic -> dataAccess : uses
+
+@enduml

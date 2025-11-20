@@ -1,0 +1,102 @@
+@startuml
+
+' Package declarations
+package model {
+    class CoordinateGroup {
+        + Integer uniqueID
+        + Date timestamp
+        + String label
+        + Double r
+        + Double theta
+        + Double x
+        + Double y
+
+        + getUniqueID()
+        + setUniqueID(uniqueID: Integer)
+        + getTimestamp()
+        + setTimestamp(timestamp: Date)
+        + getLabel()
+        + setLabel(label: String)
+        + getR()
+        + setR(r: Double)
+        + getTheta()
+        + setTheta(theta: Double)
+        + getX()
+        + setX(x: Double)
+        + getY()
+        + setY(y: Double)
+    }
+
+    class CoordinateConverter {
+        + fromPolarToCartesian(r: Double, theta: Double): CoordinateGroup
+        + fromCartesianToPolar(x: Double, y: Double): CoordinateGroup
+    }
+}
+
+package view {
+    class MainView {
+        + JFrame frame
+        + CoordinateController controller
+
+        + MainView(controller: CoordinateController)
+        + initialize()
+    }
+
+    class CoordinateGroupView {
+        + JPanel panel
+        + JTable table
+        + JTextField labelField
+        + JButton addButton
+        + JButton updateButton
+        + JButton deleteButton
+        + CoordinateController controller
+
+        + CoordinateGroupView(controller: CoordinateController)
+        + initialize()
+        + addListeners()
+    }
+}
+
+package controller {
+    class CoordinateController {
+        + CoordinateGroupDAO dao
+        + MainView view
+        + CoordinateGroup currentGroup
+
+        + void addCoordinateGroup(label: String, r: Double, theta: Double)
+        + void updateCoordinateGroup(uniqueID: Integer, label: String, r: Double, theta: Double)
+        + void deleteCoordinateGroup(uniqueID: Integer)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+    }
+}
+
+package dao {
+    interface CoordinateGroupDAO {
+        + void create(group: CoordinateGroup): void
+        + CoordinateGroup read(uniqueID: Integer): CoordinateGroup
+        + void update(group: CoordinateGroup): void
+        + void delete(uniqueID: Integer): void
+        + List<CoordinateGroup> findAll(): List<CoordinateGroup>
+    }
+
+    class CoordinateGroupDAOMySQL implements CoordinateGroupDAO {
+        + Connection connection
+
+        + CoordinateGroupDAOMySQL()
+        + void create(group: CoordinateGroup)
+        + CoordinateGroup read(uniqueID: Integer)
+        + void update(group: CoordinateGroup)
+        + void delete(uniqueID: Integer)
+        + List<CoordinateGroup> findAll()
+    }
+}
+
+' Relationships
+MainView --> CoordinateController : Uses
+CoordinateController --> CoordinateGroupDAO : Uses
+CoordinateGroupDAO --|> CoordinateGroupDAOMySQL : Implements
+CoordinateController --> CoordinateGroup : Uses
+CoordinateController --> CoordinateConverter : Uses
+CoordinateGroupView --> CoordinateController : Uses
+
+@enduml

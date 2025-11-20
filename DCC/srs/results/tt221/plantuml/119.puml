@@ -1,0 +1,120 @@
+@startuml
+' =========================
+' Domain / Model Package
+' =========================
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    --
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + setLabel(label: String): void
+    + getCartesian(): CartesianCoordinate
+    + getPolar(): PolarCoordinate
+    + setCoordinates(cartesian: CartesianCoordinate, polar: PolarCoordinate): void
+  }
+  
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+    --
+    + getX(): double
+    + getY(): double
+    + setX(x: double): void
+    + setY(y: double): void
+  }
+  
+  class PolarCoordinate {
+    - r: double
+    - theta: double
+    --
+    + getR(): double
+    + getTheta(): double
+    + setR(r: double): void
+    + setTheta(theta: double): void
+  }
+  
+  ' A CoordinateGroup is composed of both a CartesianCoordinate and a PolarCoordinate
+  CoordinateGroup "1" *-- "1" CartesianCoordinate : contains
+  CoordinateGroup "1" *-- "1" PolarCoordinate : contains
+}
+
+' =========================
+' Business Package
+' =========================
+package business {
+  class CoordinateConversionService {
+    + convertCartesianToPolar(cart: model.CartesianCoordinate): model.PolarCoordinate
+    + convertPolarToCartesian(pol: model.PolarCoordinate): model.CartesianCoordinate
+  }
+}
+
+' =========================
+' Data Package
+' =========================
+package data {
+  class DatabaseConnection {
+    - url: String
+    - username: String
+    - password: String
+    --
+    + connect(): Connection
+    + disconnect(): void
+  }
+  
+  class CoordinateGroupDAO {
+    - dbConnection: DatabaseConnection
+    --
+    + create(coordinateGroup: model.CoordinateGroup): void
+    + update(coordinateGroup: model.CoordinateGroup): void
+    + delete(id: int): void
+    + findById(id: int): model.CoordinateGroup
+    + findAll(): List<model.CoordinateGroup>
+    + findByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  ' The DAO uses the DatabaseConnection for persistence operations.
+  CoordinateGroupDAO --> DatabaseConnection : uses
+}
+
+' =========================
+' Presentation Package
+' =========================
+package presentation {
+  class DCCMainFrame {
+    --
+    + displayCreateForm(): void
+    + displayUpdateForm(): void
+    + displayCoordinateGroups(groups: List<model.CoordinateGroup>): void
+    + displayError(message: String): void
+  }
+  
+  class DCCController {
+    - conversionService: business.CoordinateConversionService
+    - coordinateGroupDAO: data.CoordinateGroupDAO
+    - mainFrame: DCCMainFrame
+    --
+    + createCoordinateGroup(label: String, 
+    +   cart: model.CartesianCoordinate, 
+    +   pol: model.PolarCoordinate): void
+    + updateCoordinateGroup(coordinateGroup: model.CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + getAllCoordinateGroups(): List<model.CoordinateGroup>
+    + findCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  ' The view (MainFrame) interacts with the controller.
+  DCCMainFrame --> DCCController : interacts with
+  ' The controller uses business services and data access objects.
+  DCCController --> business.CoordinateConversionService : uses
+  DCCController --> data.CoordinateGroupDAO : uses
+  ' The controller manipulates domain objects.
+  DCCController --> model.CoordinateGroup : manipulates
+}
+
+@enduml

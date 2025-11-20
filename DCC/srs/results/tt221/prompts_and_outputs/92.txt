@@ -1,0 +1,171 @@
+Response:
+Below is an example of a **three-tier** class diagram, expressed in PlantUML, that captures the essential classes, packages, and relationships for the Dummy Coordinate Converter Application based on the SRS. It separates the **Presentation**, **Business**, and **Data** layers and includes a **Domain** (or **Model**) package for the core entities.
+
+```plantuml
+@startuml
+skinparam packageStyle rectangle
+skinparam packageTitleFontColor #FFFFFF
+skinparam packageTitleBackgroundColor #8E44AD
+skinparam packageBorderColor #8E44AD
+skinparam classAttributeIconSize 0
+
+' ============================
+'      Presentation Layer
+' ============================
+package "Presentation Layer" <<Frame>> {
+  class MainView {
+    - CoordinateService coordinateService
+    --
+    + MainView()
+    + createCoordinateGroup()
+    + updateCoordinateGroup()
+    + viewAllCoordinateGroups()
+    + viewCoordinateGroupByLabel()
+    + deleteCoordinateGroup()
+    + showErrorMessage()
+  }
+}
+
+' ============================
+'       Business Layer
+' ============================
+package "Business Layer" <<Frame>> {
+  class CoordinateService {
+    - CoordinateGroupDAO coordinateGroupDAO
+    - CoordinateConverter converter
+    
+    --
+    + CoordinateService(coordinateGroupDAO, converter)
+    + createCoordinateGroup(label: String, xOrR: double, yOrTheta: double, sourceType: String) : void
+    + updateCoordinateGroup(id: int, label: String, xOrR: double, yOrTheta: double, sourceType: String) : void
+    + deleteCoordinateGroup(id: int) : void
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + getCoordinateGroupByLabel(label: String) : List<CoordinateGroup>
+  }
+
+  class CoordinateConverter {
+    --
+    + cartesianToPolar(x: double, y: double) : PolarCoordinate
+    + polarToCartesian(r: double, theta: double) : CartesianCoordinate
+  }
+}
+
+' ============================
+'     Data Access Layer
+' ============================
+package "Data Access Layer" <<Frame>> {
+  class CoordinateGroupDAO {
+    - DBConnection dbConnection
+
+    --
+    + CoordinateGroupDAO(dbConnection)
+    + save(group: CoordinateGroup) : void
+    + update(group: CoordinateGroup) : void
+    + delete(id: int) : void
+    + findAll() : List<CoordinateGroup>
+    + findByLabel(label: String) : List<CoordinateGroup>
+  }
+
+  class DBConnection {
+    --
+    + connect() : void
+    + getConnection() : java.sql.Connection
+    + closeConnection() : void
+  }
+}
+
+' ============================
+'         Domain Model
+' ============================
+package "Domain Model" <<Frame>> {
+  class CoordinateGroup {
+    - int id
+    - String label
+    - java.time.LocalDateTime timestamp
+    - CartesianCoordinate cartesianCoordinate
+    - PolarCoordinate polarCoordinate
+
+    --
+    + getId() : int
+    + setId(id: int) : void
+    + getLabel() : String
+    + setLabel(label: String) : void
+    + getTimestamp() : LocalDateTime
+    + setTimestamp(time: LocalDateTime) : void
+    + getCartesianCoordinate() : CartesianCoordinate
+    + setCartesianCoordinate(cc: CartesianCoordinate) : void
+    + getPolarCoordinate() : PolarCoordinate
+    + setPolarCoordinate(pc: PolarCoordinate) : void
+  }
+
+  class CartesianCoordinate {
+    - double x
+    - double y
+
+    --
+    + getX() : double
+    + setX(x: double) : void
+    + getY() : double
+    + setY(y: double) : void
+  }
+
+  class PolarCoordinate {
+    - double r
+    - double theta
+
+    --
+    + getR() : double
+    + setR(r: double) : void
+    + getTheta() : double
+    + setTheta(theta: double) : void
+  }
+}
+
+' ============================
+'         Relationships
+' ============================
+MainView --> CoordinateService : uses
+CoordinateService --> CoordinateGroupDAO : uses
+CoordinateService --> CoordinateConverter : depends on
+
+CoordinateGroupDAO --> DBConnection : uses
+
+' Composition: CoordinateGroup contains Cartesian and Polar
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+@enduml
+```
+
+## Explanation of the Diagram
+
+1. **Presentation Layer**  
+   - **MainView** (e.g., a Swing-based GUI class) provides the interface for creating, viewing, updating, and deleting coordinate groups. It depends on the Business Layer’s `CoordinateService` to carry out these operations.
+
+2. **Business Layer**  
+   - **CoordinateService** encapsulates the application’s core logic, orchestrating the operations:
+     - Creation and update of `CoordinateGroup` objects
+     - Retrieving or deleting coordinate groups via the DAO
+     - Converting coordinates through the `CoordinateConverter`
+   - **CoordinateConverter** is a utility/service class responsible for conversions between Cartesian \((x,y)\) and Polar \((r,\theta)\).
+
+3. **Data Access Layer**  
+   - **CoordinateGroupDAO** provides methods to **save**, **update**, **delete**, and **retrieve** coordinate groups from the database. It relies on the `DBConnection` to manage the actual database connection.
+   - **DBConnection** manages the JDBC connection lifecycle (opening, providing, and closing the SQL connection).
+
+4. **Domain Model**  
+   - **CoordinateGroup** is the core entity that holds:
+     - A unique integer **id**  
+     - A **label** (user-defined)  
+     - A **timestamp**  
+     - The corresponding **CartesianCoordinate** and **PolarCoordinate**  
+   - **CartesianCoordinate** and **PolarCoordinate** model the respective (x,y) vs. (r,θ) data. They are composed into a `CoordinateGroup` (i.e., they do not exist independently outside the context of the coordinate group).
+
+## How This Addresses the Three-Tier Requirement
+
+- The **Presentation Layer** focuses purely on user interaction (i.e., the GUI), delegating logic to the **Business Layer**.
+- The **Business Layer** holds the core functionality (coordinate operations, domain logic, data coordination).
+- The **Data Access Layer** handles interaction with the persistent storage (MySQL) through DAOs and a database connection class.
+- The **Domain Model** (also sometimes folded into the Business Layer or a standalone "Model" layer) encapsulates the data structures and relationships for the application’s domain (coordinate groups and their coordinate details).
+
+This diagram and explanation align with the SRS requirements, ensuring each functional requirement (creation, update, conversion, deletion, listing, etc.) is supported by a clearly defined class and method in the appropriate layer.

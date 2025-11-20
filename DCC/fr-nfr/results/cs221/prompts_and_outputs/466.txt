@@ -1,0 +1,94 @@
+@startuml
+' Define packages for architecture layers
+package Client {
+    package UserInterface {
+        class CoordinateInputUI {
+            +inputCoordinateGroup()
+            +displayCoordinateGroups()
+            +refreshList()
+            +applyFilter(label: String)
+            +clearFilter()
+        }
+
+        class CoordinateDisplayUI {
+            +displayAllCoordinates(groups: List<CoordinateGroup>)
+        }
+
+        CoordinateInputUI -> CoordinateDisplayUI : uses
+    }
+}
+
+package Server {
+    package Logic {
+        class CartesianCoordinate {
+            -x: double
+            -y: double
+            +toPolar(): PolarCoordinate
+            +CartesianCoordinate(x: double, y: double)
+        }
+
+        class PolarCoordinate {
+            -r: double
+            -theta: double
+            +toCartesian(): CartesianCoordinate
+            +PolarCoordinate(r: double, theta: double)
+        }
+
+        class CoordinateGroup {
+            -id: int
+            -label: String
+            -cartesian: CartesianCoordinate
+            -polar: PolarCoordinate
+            -timestamp: Date
+            +CoordinateGroup(label: String, cartesian: CartesianCoordinate, polar: PolarCoordinate)
+        }
+
+        CartesianCoordinate -- CoordinateGroup : "1" 
+        PolarCoordinate -- CoordinateGroup : "1" 
+    }
+
+    package DataOperations {
+        interface ICoordinateOperations {
+            +create(coordinateGroup: CoordinateGroup): void
+            +readAll(): List<CoordinateGroup>
+            +update(id: int, coordinateGroup: CoordinateGroup): void
+            +delete(id: int): void
+        }
+
+        class CoordinateDatabaseOperations implements ICoordinateOperations {
+            -databaseConnection: Connection
+            +create(coordinateGroup: CoordinateGroup)
+            +readAll(): List<CoordinateGroup>
+            +update(id: int, coordinateGroup: CoordinateGroup)
+            +delete(id: int)
+            +CoordinateDatabaseOperations()
+        }
+
+        CoordinateGroup --> CoordinateDatabaseOperations : used by
+    }
+}
+
+package Utilities {
+    class ConversionUtil {
+        +cartesianToPolar(cartesian: CartesianCoordinate): PolarCoordinate
+        +polarToCartesian(polar: PolarCoordinate): CartesianCoordinate
+    }
+
+    class DatabaseConnectionManager {
+        -connectionString: String
+        +connect(): Connection
+        +disconnect(): void
+    }
+
+}
+
+' Associations and relationships
+CoordinateDatabaseOperations --> DatabaseConnectionManager : uses
+ConversionUtil --> CartesianCoordinate : creates
+ConversionUtil --> PolarCoordinate : creates
+CoordinateInputUI --> ICoordinateOperations : uses
+CoordinateGroup -u-> ConversionUtil : uses
+CoordinateInputUI --> CoordinateDatabaseOperations : uses
+CoordinateDisplayUI --> CoordinateDatabaseOperations : uses
+
+@enduml

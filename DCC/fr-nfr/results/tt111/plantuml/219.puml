@@ -1,0 +1,49 @@
+@startuml
+package "Server" {
+    class Book {
+        - bookId: int
+        - title: String
+        - author: String
+        - isbn: String
+        - availabilityStatus: Boolean
+    }
+    
+    class User {
+        - userId: int
+        - name: String
+        - contactInfo: String
+    }
+    
+    class Transaction {
+        - transactionId: int
+        - bookId: int
+        - userId: int
+        - transactionDate: Date
+    }
+}
+
+class LibraryApp {
+    UserManager* : * BookManager + Database <| 
+    TransactionManager* : * Database <| Server.Database<|> 
+    ViewController* -> Database <| 
+}
+
+interface Database {
+    - saveData(data: String)
+    - fetchData(query: String): String
+}
+
+class BookManager implements UserManager, TransactionManager {
+    + addBook()
+    + updateUser(userId: int)
+    + deleteUser(userId: int)
+    + borrowBook(userId: int, bookId: int)
+    + returnBook(transactionId: int)
+}
+
+class Database implements UserManager, TransactionManager {
+    - saveData()
+    - fetchData(): String
+}
+
+@enduml

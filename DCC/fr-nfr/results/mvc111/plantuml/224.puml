@@ -1,0 +1,66 @@
+@startuml  
+package "MVC" {  
+package  Model{  
+class CoordinateGroup { 
+-id : int
+-label : String
+}
+
+class CartesianCoordinates {
+x : double
+y : double}  
+
+class PolarCoordinates { 
+r: double, theta: double
+}
+
+class DatabaseConnection{
+    + connect() : void  
+    + disconnect() : void  
+    - connectionPool : List<DatabaseConnection>  
+} 
+} 
+
+package View{  
+  class CoordinateGroupView{  
+    + displayGroups() : String  
+    + displayGroupDetails(group: CoordinateGroup) : String  
+    + displayLabelForEditing(label: String) : String  
+    + display(content: string) : void  
+} 
+}
+
+package Controller {
+class Controller {  
+    + handleRequest(request: Request): Response  
+} 
+
+class CoordinateGroupManager extends Controller{  
+- model: Model  
++ createCoordinateGroup(label: String) : CoordinateGroup  
++ modifyCoordinateGroup(group: CoordinateGroup, newData: CartesianCoordinates/PolarCoordinates) : void  
++ deleteCoordinateGroup(groupId: int): boolean  
+} 
+
+
+
+class CoordinateGroupController extends Controller {  
++ handleCreateRequest(request : CreateCoordinateGroupRequest): Response  
++ handleModifyRequest(request : ModifyCoordinateGroupRequest, group: CoordinateGroup): Response  
++ handleDeleteRequest (groupId: int) : Response  
+} 
+
+class UIController extends Controller {  
+- view: View  
+- model: Model  
++ initializeApp() : void  
++ displayMainMenu() : String  
+} 
+}
+
+
+User --> CoordinateGroupManager  
+CoordinateGroupManager --> DatabaseConnection  
+UIController --> CoordinateGroupView  
+
+@enduml

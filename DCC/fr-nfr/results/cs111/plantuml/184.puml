@@ -1,0 +1,63 @@
+@startuml
+title Class Diagram for Dummy Coordination Conversion Application
+
+package "DCC Frontend" {
+    class SwingGUI {
+        - username: string
+        + login(username, password): boolean
+        + createGroup(label, coordinates): void
+        + retrieveGroups(): List<CoordinateGroup>
+        + modifyGroup(groupID, newLabel, newCoordinates): void
+        + deleteGroup(groupID): void
+    }
+}
+
+package "DCC Application" {
+    class DCCServer {
+        - db: MySQLDatabase
+        + convertCartesianToPolar(x, y): PolarCoordinates
+        + convertPolarToCartesian(r, theta): CartesianCoordinates
+        + storeGroup(label, coordinates): void
+        + retrieveGroupsByLabel(label): List<CoordinateGroup>
+        + retrieveAllGroups(): List<CoordinateGroup>
+        + modifyGroup(groupID, newLabel, newCoordinates): void
+        + deleteGroup(groupID): void
+    }
+}
+
+package "DCC Data Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: string
+        - timestamp: datetime
+        - cartesian: CartesianCoordinates
+        - polar: PolarCoordinates
+        
+        # conversion methods
+        + convertToCartesian(): CartesianCoordinates
+        + convertToPolar(): PolarCoordinates
+    }
+    
+    class CartesianCoordinates {
+        x: float
+        y: float
+    }
+
+    class PolarCoordinates {
+        r: float
+        theta: float
+    }
+}
+
+package "DCC Database" {
+    class MySQLDatabase {
+        - groups: List<CoordinateGroup>
+        
+        + storeGroup(group): void
+        + retrieveGroupsByLabel(label): List<CoordinateGroup>
+        + retrieveAllGroups(): List<CoordinateGroup>
+        + modifyGroup(groupID, newLabel, newCoordinates): void
+        + deleteGroup(groupID): void
+    }
+}
+@enduml

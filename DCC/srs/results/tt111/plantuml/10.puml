@@ -1,0 +1,49 @@
+@startuml
+package "Presentation Layer" {
+  class GUI {
+    - labelField: JTextField
+    + displayCoordinateGroups(List<CoordinateGroup>)
+    + handleViewAllButton()
+    + handleViewByLabelButton()
+    + handleDeleteButton()
+  }
+}
+
+package "Business Logic Layer" {
+  class CoordinateGroupManager {
+    - coordinateGroupDao: CoordinateGroupDAO
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupsByLabel(String label): List<CoordinateGroup>
+    + deleteCoordinateGroup(int id)
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: PolarCoordinates
+    - cartesianCoordinates: CartesianCoordinates
+    + CoordinateGroup(String label, PolarCoordinates polarCoordinates)
+  }
+}
+
+package "Data Access Layer" {
+  class CoordinateGroupDAO {
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    + delete(int id)
+  }
+
+  interface DatabaseConnection {
+    + connect()
+    + disconnect()
+  }
+
+}
+
+CoordinateGroupManager "1" --> "*" CoordinateGroup: manages
+
+GUI "1" --> "1" CoordinateGroupManager: interacts with
+
+CoordinateGroupManager "1" --> "1" CoordinateGroupDAO: utilizes for data access
+@enduml

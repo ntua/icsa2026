@@ -1,0 +1,72 @@
+@startuml
+package "Client" {
+    class "Coordinate" {
+        - x: double
+        - y: double
+        - r: double
+        - theta: double 
+
+        + Coordinate(x: double, y: double)
+        + Coordinate(r: double, theta: double)
+        + getX(): double
+        + getY(): double
+        + getR(): double
+        + getTheta(): double
+        + convertToPolar(): void
+        + convertToCartesian(): void 
+    }
+
+    class "CoordinateGroup" {
+        - id: int
+        - timestamp: Date
+        - label: String
+        - coordinates: Coordinate 
+
+        + CoordinateGroup(label: String, coordinates: Coordinate)
+        + getId(): int
+        + getTimestamp(): Date
+        + getLabel(): String
+        + getCoordinates(): Coordinate
+        + setLabel(label: String): void
+    }
+
+    class "CoordinateGroupController" {
+        - coordinateGroups: List<CoordinateGroup> 
+
+        + addCoordinateGroup(group: CoordinateGroup): void
+        + modifyCoordinateGroup(group: CoordinateGroup): void
+        + viewAllCoordinateGroups(): List<CoordinateGroup>
+        + viewCoordinateGroup(label: String): List<CoordinateGroup>
+        + deleteCoordinateGroup(group: CoordinateGroup): void 
+    }
+
+    class "UserInterface" {
+        - coordinateGroupController: CoordinateGroupController
+
+        + initialize() 
+        + handleCreateGroup()
+        + handleModifyGroup()
+        + handleViewGroup()
+        + handleViewGroupByLabel()
+        + handleDeleteGroup()
+    }
+}
+
+package "Server" {
+    class "Database" {
+        - connection: Connection 
+
+        + connect()
+        + disconnect()
+        + saveCoordinateGroup(group: CoordinateGroup)
+        + updateCoordinateGroup(group: CoordinateGroup)
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + getCoordinateGroup(label: String): List<CoordinateGroup>
+        + deleteCoordinateGroup(group: CoordinateGroup)
+    }
+}
+
+"Client.CoordinateGroupController" --> "Server.Database" 
+"Client.UserInterface" --> "Client.CoordinateGroupController" 
+
+@enduml

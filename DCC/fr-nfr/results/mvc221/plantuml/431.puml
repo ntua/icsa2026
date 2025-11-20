@@ -1,0 +1,74 @@
+@startuml
+title Dummy Coordination Conversion Application Class Diagram
+
+package "MVC Model" {
+    class CoordinateGroup {
+        id: int
+        label: string
+        cartesianX: double
+        cartesianY: double
+        polarR: double
+        polarTheta: double
+
+        +create() : void
+        +update(newValues) : void
+        -validateCoordinates(): boolean
+    }
+
+    class DatabaseManager {
+        *dbConnection: TCP/IP connection*
+        
+        +saveRecord(record) : void
+        +getRecords() : list[CoordinateGroup]
+        +deleteRecord(id) : void
+    }
+}
+
+package "MVC Controller" {
+    class Controller {
+        +onCreateOp(): void
+        +onReadOp(): void
+        +onUpdateOp(selectedId, newValues): void
+        +onDeleteOp(selectedId): void
+        +onAdd(): void
+        +onUpdate(): void
+        +onDelete(): void
+        +onInitialize(): void
+    }
+}
+
+package "MVC View" {
+    class MainWindow {
+        -createUi() : void
+
+        +showCreateWindow() : void
+        +showUpdateWindow(selectedId) : void
+        +showDeleteConfirmation(selectedId): void
+        +refreshCoordinateList() : void
+        +filterCoordinatesByLabel(): void
+    }
+
+    class CreateWindow {
+        -display(parentWindow) : void
+        
+        +onAddButtonClick() : void
+        +onCreateFilterButtonClick() : void
+        +onCreateUpdateButtonClick() : void
+    }
+
+    class UpdateWindow {
+        -display(selectedId, parentWindow) : void
+
+        +onUpdateButtonClick(): void
+        +onDeleteButtonClick(): void
+    }
+}
+
+DatabaseManager .. CoordinateGroup : stores
+Controller .. MainWindow : controls
+Controller .. CreateWindow : controls
+Controller .. UpdateWindow : controls
+Controller .. DatabaseManager : manages data operations
+MainWindow .. CreateWindow : shows
+MainWindow .. UpdateWindow : shows
+@enduml

@@ -1,0 +1,67 @@
+@startuml
+package model {
+  class CoordinateGroup {
+    - id: int (auto-generated)
+    - timestamp: Date
+    - label: String
+    - r: double
+    - theta: double
+    - x: double
+    - y: double
+
+    + getters and setters()
+  }
+
+  class DatabaseManager {
+    - dbConnection: Connection
+    
+    + connect(): void
+    + addCoordinateGroup(CoordinateGroup): void
+    + deleteCoordinateGroup(int): void
+    + updateCoordinateGroup(CoordinateGroup): void
+    + getCoordinateGroups(): List<CoordinateGroup>
+    + closeConnection(): void
+  }
+}
+
+package view {
+  class MainWindow {
+    - coordinateGroupList: JList
+    - addButton: JButton
+    - deleteButton: JButton
+    - mainController: MainController
+    
+    + show(): void
+    + updateCoordinateGroupList(): void
+    + getSelectedCoordinateGroup(): CoordinateGroup
+  }
+
+  class CoordinateGroupForm {
+    - labelField: JTextField
+    - rField: JTextField
+    - thetaField: JTextField
+    - xField: JTextField
+    - yField: JTextField
+    
+    + getCoordinateGroup(): CoordinateGroup
+  }
+}
+
+package controller {
+  class MainController {
+    - model: DatabaseManager
+    - view: MainWindow
+    
+    + initialize(): void
+    + handleAddCoordinateGroup(CoordinateGroup): void
+    + handleDeleteCoordinateGroup(int): void
+    + validateData(CoordinateGroup): boolean
+  }
+}
+
+MainController --> DatabaseManager : Uses
+MainController --> MainWindow : Manages
+
+MainWindow --> MainController : Notifies
+DatabaseManager --> CoordinateGroup : Manages
+@enduml

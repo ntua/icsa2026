@@ -1,0 +1,48 @@
+@startuml
+
+package "UserService" {
+  class UserService {
+      - id: String
+      - quota: int
+      - csvFile: CSV
+
+      + generateChart(csv: CSV): Chart
+      + uploadCSV(file: File): boolean
+  }
+}
+
+package "AuthService" {
+  class AuthService {
+      - id: String
+      - accessToken: string
+
+      + authenticate(credentials: Credentials): accessToken
+      + validateAccessToken(): boolean
+  }
+}
+
+package "CSVService" {
+  class CSVService {
+      - id: String
+      - csvFiles: Map<String, CSV>
+
+      + createCSV(file: File): CSV
+      + readCSV(filename: String): CSV
+  }
+}
+
+package "ChartService" {
+  class ChartService {
+      - id: String
+      - charts: Map<String, Chart>
+
+      + generateChart(csv: CSV): Chart
+  }
+}
+
+User --|> UserService : uses
+UserService ..> AuthService : Uses
+UserService ..> CSVService : Uses
+UserService ..> ChartService : Uses
+
+@enduml

@@ -1,0 +1,123 @@
+@startuml
+
+package "Presentation Layer" {
+    class MainWindow {
+        - coordinatePanel: JPanel
+        - groupListPanel: JPanel
+        + initialize()
+        + updateView()
+    }
+
+    class CoordinateInputPanel {
+        - xField: JTextField
+        - yField: JTextField
+        - rField: JTextField
+        - thetaField: JTextField
+        - labelField: JTextField
+        + getCartesianInput(): CartesianCoordinate
+        + getPolarInput(): PolarCoordinate
+        + getLabel(): String
+        + clearFields()
+    }
+
+    class GroupListPanel {
+        - groupTable: JTable
+        - tableModel: DefaultTableModel
+        + updateGroupList(List<CoordinateGroup>)
+        + getSelectedGroupId(): int
+    }
+}
+
+package "Business Layer" {
+    class CoordinateController {
+        - groupService: GroupService
+        + createGroup(CartesianCoordinate, String): CoordinateGroup
+        + createGroup(PolarCoordinate, String): CoordinateGroup
+        + retrieveGroupByLabel(String): CoordinateGroup
+        + retrieveAllGroups(): List<CoordinateGroup>
+        + updateGroup(CoordinateGroup)
+        + deleteGroup(int)
+    }
+
+    class GroupService {
+        - groupDAO: GroupDAO
+        - converter: CoordinateConverter
+        + saveGroup(CoordinateGroup)
+        + findByLabel(String): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup)
+        + delete(int)
+    }
+
+    class CoordinateConverter {
+        + toCartesian(PolarCoordinate): CartesianCoordinate
+        + toPolar(CartesianCoordinate): PolarCoordinate
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: LocalDateTime
+        - cartesianCoord: CartesianCoordinate
+        - polarCoord: PolarCoordinate
+        + getters()
+        + setters()
+    }
+
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        + getters()
+        + setters()
+    }
+
+    class PolarCoordinate {
+        - r: double
+        - theta: double
+        + getters()
+        + setters()
+    }
+}
+
+package "Data Layer" {
+    interface GroupDAO {
+        + insert(CoordinateGroup): void
+        + findByLabel(String): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup): void
+        + delete(int): void
+    }
+
+    class MySQLGroupDAO {
+        - connection: Connection
+        + insert(CoordinateGroup): void
+        + findByLabel(String): CoordinateGroup
+        + findAll(): List<CoordinateGroup>
+        + update(CoordinateGroup): void
+        + delete(int): void
+    }
+
+    class DatabaseConnection {
+        - {static} instance: DatabaseConnection
+        - connection: Connection
+        - {static} getInstance(): DatabaseConnection
+        + getConnection(): Connection
+    }
+}
+
+' Relationships
+MainWindow *-- CoordinateInputPanel
+MainWindow *-- GroupListPanel
+MainWindow --> CoordinateController
+
+CoordinateController --> GroupService
+GroupService --> CoordinateConverter
+GroupService --> GroupDAO
+
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+MySQLGroupDAO ..|> GroupDAO
+MySQLGroupDAO --> DatabaseConnection
+
+@enduml

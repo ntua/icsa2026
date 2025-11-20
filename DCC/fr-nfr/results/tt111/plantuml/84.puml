@@ -1,0 +1,71 @@
+@startuml
+
+package "Presentation Layer" {
+  class JFrame {
+    + createJFrame() : void
+    + createUI() : void
+  }
+}
+
+package "Logic Layer" {
+  package "Conversion Logic" {
+    class CoordinateConverter {
+      + convertCartesianToPolar(cartesian: Cartesian) : Polar
+      + convertPolarToCartesian(polar: Polar) : Cartesian
+    }
+
+    class GroupManager {
+      + createGroup() : CoordinateGroup
+      + modifyGroup(group: CoordinateGroup, changes: Changes) : void
+      + deleteGroup(group: CoordinateGroup) : void
+    }
+  }
+
+  package "Database Logic" {
+    class MySQLConnector {
+      + connectToDB() : void
+      + disconnectFromDB() : void
+      + storeCoordinateGroup(group: CoordinateGroup) : void
+      + retrieveCoordinateGroups(labels: List<String>) : List<CoordinateGroup>
+    }
+  }
+}
+
+package "Data Layer" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesian: Cartesian
+    - polar: Polar
+
+    + getCartesian() : Cartesian
+    + getPolar() : Polar
+  }
+
+  class Cartesian {
+    - x: double
+    - y: double
+
+    + getCartesianCoordinates() : (double, double)
+  }
+
+  class Polar {
+    - r: double
+    - theta: double
+
+    + getPolarCoordinates() : (double, double)
+  }
+}
+
+package "Presentation Layer" {
+  JFrame --> CoordinateConverter : Uses
+  JFrame --> GroupManager : Uses
+  CoordinateConverter --> MySQLConnector : Uses
+  GroupManager --> MySQLConnector : Uses
+  MySQLConnector --> CoordinateGroup : Accesses
+  CoordinateGroup --> Cartesian : Composes
+  CoordinateGroup --> Polar : Composes
+}
+
+@enduml

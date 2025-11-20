@@ -1,0 +1,36 @@
+@startuml
+'Package for database-related classes
+package Database {
+    class CoordinateGroupDatabase {
+        +connect() - MySQLConnection*: MySQLConnection = > *CoordinateGroupDatabase
+        +executeQuery(String query) - String :MySQLResultSet => *
+        +closeConnection() - void :MySQLConnection = > *
+        +getCoordinateGroupsByLabel(label: Label) - List[CoordinateGroup] :List<CoordinateGroup> = > *
+    }
+    
+    class MySQLConnection {
+        +query() - String*
+        +resultSet() - MySqlResultSet* 
+    }
+}
+
+'Package for user interface classes
+package UI {
+    
+    class CoordinateUIController extends CGDB {
+        +deleteCoordinateGroup(CG: CoordinateGroup) - void :*CoordinateGroup = > *
+        +displayCoordinateGroups() - void :void 
+    }
+}
+'Package for database operation classes
+package DatabaseOperations {
+    
+    class CGDG extends CUC {
+        
+        'Methods used in the User Interface Controller (CUC) to handle database operations, utilizing CGDB instance from the CoordinateUIController's constructor.'
+        
+        +connect() - void :*CGDB = > * // Establish a connection using an existing MySQLConnection object.
+        +disconnect() - void :*GCDB => *  // Close the current database connection.
+    }
+}
+@enduml

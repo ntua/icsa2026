@@ -1,0 +1,101 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: string
+        - cartesianCoordinates: List<CartesianCoordinate>
+        - polarCoordinates: List<PolarCoordinate>
+        - timestamp: datetime
+        + getId(): int
+        + setId(id: int)
+        + getLabel(): string
+        + setLabel(label: string)
+        + getCartesianCoordinates(): List<CartesianCoordinate>
+        + setCartesianCoordinates(cartesianCoordinates: List<CartesianCoordinate>)
+        + getPolarCoordinates(): List<PolarCoordinate>
+        + setPolarCoordinates(polarCoordinates: List<PolarCoordinate>)
+        + getTimestamp(): datetime
+        + setTimestamp(timestamp: datetime)
+    }
+
+    class CartesianCoordinate {
+        - x: high-precision number
+        - y: high-precision number
+        + getX(): high-precision number
+        + setX(x: high-precision number)
+        + getY(): high-precision number
+        + setY(y: high-precision number)
+    }
+
+    class PolarCoordinate {
+        - r: high-precision number
+        - theta: high-precision number
+        + getR(): high-precision number
+        + setR(r: high-precision number)
+        + getTheta(): high-precision number
+        + setTheta(theta: high-precision number)
+    }
+
+    class DatabaseManager {
+        - databaseConnection: DatabaseConnection
+        + createOp(coordinateGroup: CoordinateGroup)
+        + readOp(): List<CoordinateGroup>
+        + updateOp(coordinateGroup: CoordinateGroup)
+        + deleteOp(id: int)
+    }
+}
+
+package "View" {
+    class MainWindow {
+        - coordinateGroupList: JList<CoordinateGroup>
+        - labelFilterTextField: JTextField
+        + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>)
+        + filterCoordinateGroupsByLabel(label: string)
+        + clearLabelFilter()
+    }
+
+    class AddCoordinateGroupWindow {
+        - cartesianXTextField: JTextField
+        - cartesianYTextField: JTextField
+        - polarRTextField: JTextField
+        - polarThetaTextField: JTextField
+        - labelTextField: JTextField
+        + getCartesianCoordinates(): CartesianCoordinate
+        + getPolarCoordinates(): PolarCoordinate
+        + getLabel(): string
+    }
+
+    class UpdateCoordinateGroupWindow {
+        - cartesianXTextField: JTextField
+        - cartesianYTextField: JTextField
+        - polarRTextField: JTextField
+        - polarThetaTextField: JTextField
+        - labelTextField: JTextField
+        + getCartesianCoordinates(): CartesianCoordinate
+        + getPolarCoordinates(): PolarCoordinate
+        + getLabel(): string
+    }
+}
+
+package "Controller" {
+    class MainWindowController {
+        - mainWindow: MainWindow
+        - databaseManager: DatabaseManager
+        + handleAddButtonClick()
+        + handleUpdateButtonClick()
+        + handleDeleteButtonClick()
+    }
+
+    class AddCoordinateGroupController {
+        - addCoordinateGroupWindow: AddCoordinateGroupWindow
+        - mainWindowController: MainWindowController
+        + handleAddCoordinateGroupButtonClick()
+    }
+
+    class UpdateCoordinateGroupController {
+        - updateCoordinateGroupWindow: UpdateCoordinateGroupWindow
+        - mainWindowController: MainWindowController
+        + handleUpdateCoordinateGroupButtonClick()
+    }
+}
+@enduml

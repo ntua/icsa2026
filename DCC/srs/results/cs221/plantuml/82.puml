@@ -1,0 +1,53 @@
+@startuml
+package Client {
+    class GUI {
+        +createCoordinateGroup(): void
+        +modifyCoordinateGroup(): void
+        +viewAllCoordinateGroups(): void
+        +deleteCoordinateGroup(): void
+    }
+    GUI --> "uses" Server.Service
+}
+
+package Server {
+    class Service {
+        +convertToPolar(cartesian: Cartesian): Polar
+        +convertToCartesian(polar: Polar): Cartesian
+        +saveCoordinateGroup(group: CoordinateGroup): void
+        +updateCoordinateGroup(group: CoordinateGroup): void
+        +deleteCoordinateGroup(groupId: int): void
+        +getAllCoordinateGroups(): List<CoordinateGroup>
+    }
+    Service --> "depends on" Shared.CoordinateGroup
+    Service --> "depends on" Shared.Cartesian
+    Service --> "depends on" Shared.Polar
+
+    class DatabaseConnector {
+        +executeQuery(query: String): ResultSet
+        +executeUpdate(query: String): int
+    }
+    Service --> "connects to" DatabaseConnector
+}
+
+package Shared {
+    class CoordinateGroup {
+        +id: int
+        +label: String
+        +timestamp: Date
+        +cartesian: Cartesian
+        +polar: Polar
+    }
+
+    class Cartesian {
+        +x: double
+        +y: double
+    }
+
+    class Polar {
+        +r: double
+        +theta: double
+    }
+    CoordinateGroup --> Cartesian
+    CoordinateGroup --> Polar
+}
+@enduml

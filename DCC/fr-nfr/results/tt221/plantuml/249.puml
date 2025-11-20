@@ -1,0 +1,84 @@
+@startuml
+package domain {
+  class CoordinateGroup {
+    - id: Integer
+    - label: String
+    - cartCoords: CartCoordinates
+    - polCoords: PolCoordinates
+
+    + CoordinateGroup(label: String, cartCoords: CartCoordinates, polCoords: PolCoordinates)
+    + createCartCoords(cartX: Double, cartY: Double): CartCoordinates
+    + createPolCoords(polarR: Double, polarTheta: Double): PolCoordinates
+  }
+  class CartCoordinates
+  class PolCoordinates
+}
+
+package data {
+  class CoordinateDatabase {
+    - dbConnection: DBConnection
+
+    + CoordinateDatabase(dbConnection: DBConnection)
+    + createRecord(group: CoordinateGroup): void
+    + updateRecord(group: CoordinateGroup): void
+    + deleteRecord(groupId: Integer): void
+    + readRecords(): List<CoordinateGroup>
+  }
+
+  class DBConnection {
+    - host: String
+    - port: Integer
+
+    + DBConnection(host: String, port: Integer)
+  }
+}
+
+package logic {
+  class Converter {
+    + Converter()
+    + convertCartToPol(cartCoords: CartCoordinates): PolCoordinates
+    + convertPolToCart(polCoords: PolCoordinates): CartCoordinates
+  }
+
+  class Validator {
+    + Validator()
+    + validateCartCoords(cartX: Double, cartY: Double): Boolean
+    + validatePolCoords(polarR: Double, polarTheta: Double): Boolean
+  }
+}
+
+package presentation {
+  class CoordinateViewer {
+    - SwingPanel
+
+    + CoordinateViewer(panel: SwingPanel)
+    + displayGroup(group: CoordinateGroup): void
+    + filterGroups(labelFilter: String): List<CoordinateGroup>
+    + clearFilters(): void
+  }
+
+  class CoordinateInputter {
+    - SwingPanel
+
+    + CoordinateInputter(panel: SwingPanel)
+    + inputCartCoords(cartX: Double, cartY: Double): CartCoordinates
+    + inputPolCoords(polarR: Double, polarTheta: Double): PolCoordinates
+  }
+}
+
+
+  CoordinateDatabase --u> CoordinateGroup: createRecord(group: CoordinateGroup)
+  CoordinateGroup -u-> CoordinateDatabase: save
+  CoordinateViewer -u-> CoordinateGroup: displayGroup(group: CoordinateGroup)
+  CoordinateInputter --> CoordinateGroup: inputCartCoords(cartX: Double, cartY: Double)
+  CoordinateInputter --> CoordinateGroup: inputPolCoords(polarR: Double, polarTheta: Double)
+
+  Converter -l-> CartCoordinates: convertToPolar
+  Converter -l-> PolCoordinates: convertToCart
+
+  Validator --> CartCoordinates: validate
+  Validator --> PolCoordinates: validate
+
+  DBConnection ..> CoordinateDatabase: dbConnection
+
+@enduml

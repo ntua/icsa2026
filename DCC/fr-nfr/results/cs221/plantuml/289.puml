@@ -1,0 +1,104 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    +setLabel(label: String)
+    +setCartesianCoordinates(x: double, y: double)
+    +setPolarCoordinates(r: double, theta: double)
+    +addRecord()
+    +updateRecord()
+    +deleteRecord()
+    +displayRecords()
+    +filterRecords(label: String)
+    +clearFilter()
+  }
+  
+  class SwingInterface implements UserInterface {
+    -coordinateGroup: CoordinateGroup
+    -label: String
+    
+    +setLabel(label: String)
+    +setCartesianCoordinates(x: double, y: double)
+    +setPolarCoordinates(r: double, theta: double)
+    +addRecord()
+    +updateRecord()
+    +deleteRecord()
+    +displayRecords()
+    +filterRecords(label: String)
+    +clearFilter()
+  }
+}
+
+package Logic {
+  class CoordinateGroup {
+    -id: int
+    -cartesianCoordinates: CartesianCoordinates
+    -polarCoordinates: PolarCoordinates
+    -label: String
+    -timestamp: Date
+    
+    +getCartesianCoordinates(): CartesianCoordinates
+    +setCartesianCoordinates(x: double, y: double)
+    +getPolarCoordinates(): PolarCoordinates
+    +setPolarCoordinates(r: double, theta: double)
+    +getLabel(): String
+    +setLabel(label: String)
+  }
+  
+  class CartesianCoordinates {
+    -x: double
+    -y: double
+    
+    +getX(): double
+    +setX(x: double)
+    +getY(): double
+    +setY(y: double)
+  }
+  
+  class PolarCoordinates {
+    -r: double
+    -theta: double
+    
+    +getR(): double
+    +setR(r: double)
+    +getTheta(): double
+    +setTheta(theta: double)
+  }
+  
+  class CoordinateConverter {
+    +convertCartesianToPolar(cartesianCoordinates: CartesianCoordinates): PolarCoordinates
+    +convertPolarToCartesian(polarCoordinates: PolarCoordinates): CartesianCoordinates
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    -connection: DatabaseConnection
+    
+    +createTable()
+    +saveRecord(coordinateGroup: CoordinateGroup)
+    +getRecords(): List<CoordinateGroup>
+    +updateRecord(coordinateGroup: CoordinateGroup)
+    +deleteRecord(id: int)
+  }
+  
+  abstract class DatabaseConnection {
+    +connect()
+    +disconnect()
+  }
+  
+  class TCPIPConnection extends DatabaseConnection {
+    -host: String
+    -port: int
+    
+    +connect()
+    +disconnect()
+  }
+}
+
+Frontend.SwingInterface --> Logic.CoordinateGroup
+Logic.CoordinateGroup --> Logic.CartesianCoordinates
+Logic.CoordinateGroup --> Logic.PolarCoordinates
+Logic.CoordinateGroup ..> Logic.CoordinateConverter
+Database.MySQLDatabase -- Logic.CoordinateGroup
+@enduml

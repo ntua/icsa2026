@@ -1,0 +1,79 @@
+@startuml
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinate
+    - polarCoordinates: PolarCoordinate
+
+    + addCoordinateGroup(label: String, x: float, y: float): void
+    + addCoordinateGroup(label: String, r: float, theta: float): void
+    + convertToCartesian(): CartesianCoordinate
+    + convertToPolar(): PolarCoordinate
+  }
+
+  class CartesianCoordinate {
+    - x: float
+    - y: float
+
+    + getCartesianCoordinates(): (float, float)
+  }
+
+  class PolarCoordinate {
+    - r: float
+    - theta: float
+
+    + getPolarCoordinates(): (float, float)
+  }
+}
+
+package "View" {
+  class DCCView {
+    - coordinateGroupPanel: JPanel
+    - conversionPanel: JPanel
+    - resultDisplay: JTextArea
+
+    + displayCoordinateGroups(groups: List<CoordinateGroup>): void
+    + showConversionResult(result: String): void
+    + handleUserInput(): void
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - view: DCCView
+    - model: CoordinateGroup
+
+    + createNewCoordinateGroup(x: float, y: float, label: String): void
+    + createNewCoordinateGroup(r: float, theta: float, label: String): void
+    + convertCoordinates(coordinates: CoordinateGroup): void
+    + storeCoordinateGroup(group: CoordinateGroup): void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+  }
+}
+
+package "Persistence" {
+  class DatabaseManager {
+    - connection: Connection
+
+    + storeCoordinateGroup(group: CoordinateGroup): void
+    + retrieveCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, group: CoordinateGroup): void
+    + deleteCoordinateGroup(id: int): void
+    + closeConnection(): void
+  }
+}
+
+'DCCController' --> 'DCCView'
+'DCCController' --> 'CoordinateGroup'
+'DCCController' --> 'DatabaseManager'
+
+'DCCView' --> 'DCCController'
+
+'CoordinateGroup' *---> 'CartesianCoordinate'
+'CoordinateGroup' *---> 'PolarCoordinate'
+
+@enduml

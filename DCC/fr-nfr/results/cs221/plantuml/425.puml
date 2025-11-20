@@ -1,0 +1,65 @@
+@startuml
+skinparam shadowing false
+skinparam monochrome true
+
+title Dummy Coordination Conversion (DCC) Application Class Diagram - Client-Server Architecture
+
+package "Client" << client >> {
+    class DCCApp {
+        + run() 
+        + convertCartesianToPolar(Pair<Double, Double>)
+        + convertPolarToCartesian(Pair<Double, Double>)
+        
+        # showCoordinateGroupsList() 
+        # filterList(String)
+        # clearFilter()
+        # refreshList()
+        
+        --
+
+        List<CoordinateGroup> coordinateGroups
+        String activeFilter
+    }
+
+    class CoordinateGroup {
+        int id
+        String label
+        Pair<Double, Double> cartesianCoordinates
+        Pair<Double, Double> polarCoordinates
+        LocalDateTime addedOrModifiedTime
+    }
+}
+
+package "Server" << server >> {
+    class Server {
+        + connect() 
+        + createCoordinateGroup(String, Pair<Double, Double>, Pair<Double, Double>)
+        + getCoordinateGroupsList(String)
+        + updateCoordinateGroup(int, String, Pair<Double, Double>, Pair<Double, Double>)
+        + deleteCoordinateGroup(int)
+        
+        --
+
+        List<CoordinateGroup> coordinateGroups
+    }
+}
+
+package "MySQL Database" << db >> {
+
+    class CoordinateTable {
+        int id
+        String label
+        double x
+        double y
+        double r
+        double theta
+        LocalDateTime timeStamp
+    }
+
+}
+
+
+DCCApp .. Server : TCP/IP Connection
+Server .. CoordinateTable : SQL Queries
+
+@enduml

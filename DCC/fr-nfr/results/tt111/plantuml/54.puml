@@ -1,0 +1,84 @@
+@startuml
+
+package "Frontend" {
+  class DccApplication {
+    - coordinator: Coordinator
+    + run()
+  }
+  
+  class SwingUi {
+    - dccApp: DccApplication
+    + createAndShowGui()
+  }
+}
+
+package "Coordination" {
+  interface Coordinator {
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + modifyCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(group: CoordinateGroup)
+  }
+  
+  class CoordinationManager implements Coordinator {
+    - database: Database
+    
+    + storeCoordinateGroup(group: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + modifyCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroup(group: CoordinateGroup)
+  }
+}
+
+package "Database" {
+  class Database {
+    - connection: TcpIpConnection
+    
+    + createTable()
+    + insertCoordinateGroup(group: CoordinateGroup)
+    + getCoordinateGroupByLabel(label: String): CoordinateGroup
+    + updateCoordinateGroup(group: CoordinateGroup)
+    + deleteCoordinateGroupById(id: Int)
+  }
+}
+
+package "Model" {
+  class CoordinateGroup {
+    - id: Int
+    - label: String
+    - timestamp: Date
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+  
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+  }
+
+  class PolarCoordinate {
+    - r: Double
+    - theta: Double
+  }
+}
+
+package "Connection" {
+  class TcpIpConnection {
+    + connect(host: String, port: Int)
+    + close()
+    + send(data: String)
+    + receive(): String
+  }
+}
+
+DccApplication .. SwingUi
+DccApplication -- CoordinationManager
+CoordinationManager --> Database
+Database --> TcpIpConnection
+CoordinateGroup -- CartesianCoordinate
+CoordinateGroup -- PolarCoordinate
+
+@enduml

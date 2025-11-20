@@ -1,0 +1,51 @@
+@startuml
+' Define client side of the application
+package "Client" {
+    class DCCApp {
+        + init() : void
+        + addGroup(label: String, x: double, y: double) : int
+        + updateGroup(id: int, label: String, r: double, theta: double) : boolean
+        + deleteGroup(id: int) : boolean
+        + readGroups() : List<CoordinateGroup>
+        + filterGroupsByLabel(labelFilter: String) : List<CoordinateGroup>
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - x: double
+        - y: double
+        - r: double
+        - theta: double
+
+        + convertCartesianToPolar() : void
+        + convertPolarToCartesian() : void
+        + __toString() : String
+    }
+}
+
+
+' Define server side of the application
+package "Server" {
+    class MySQLDatabase {
+        - host: String
+        - port: int
+        - username: String
+        - password: String
+
+        + connect() : boolean
+        + executeQuery(query: String) : ResultSet
+        + disconnect() : void
+    }
+
+    class CartesianConverter {
+        + convertToPolar(x: double, y: double) : Pair<Double, Double>
+        + convertFromPolar(r: double, theta: double) : Pair<Double, Double>
+    }
+
+    class PolarConverter {
+        + convertToCartesian(r: double, theta: double) : Pair<Double, Double>
+        + convertFromCartesian(x: double, y: double) : Pair<Double, Double>
+    }
+}
+@enduml

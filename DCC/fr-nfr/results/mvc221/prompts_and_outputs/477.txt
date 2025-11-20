@@ -1,0 +1,67 @@
+@startuml
+package com.dccapp.model {
+    class CartesianCoordinate {
+        Double x
+        Double y
+    }
+
+    class PolarCoordinate {
+        Double r
+        Double theta
+    }
+
+    class CoordinateGroup {
+        Integer id
+        String label
+        Date timestamp
+        CartesianCoordinate cartesian
+        PolarCoordinate polar
+    }
+
+    class CoordinateConverter {
+        +PolarCoordinate cartesianToPolar(CartesianCoordinate cartesian)
+        +CartesianCoordinate polarToCartesian(PolarCoordinate polar)
+    }
+}
+
+package com.dccapp.data {
+    class DataManager {
+        +void createCoordinateGroup(CoordinateGroup group)
+        +List<CoordinateGroup> readCoordinateGroups()
+        +void updateCoordinateGroup(CoordinateGroup group)
+        +void deleteCoordinateGroup(Integer id)
+    }
+}
+
+package com.dccapp.view {
+    class CoordinateView {
+        +void displayCoordinateGroups(List<CoordinateGroup> groups)
+        +CoordinateGroup inputCoordinateGroup()
+        +String getLabelFilter()
+        +void clearFilter()
+    }
+}
+
+package com.dccapp.controller {
+    class CoordinateController {
+        DataManager dataManager
+        CoordinateConverter coordinateConverter
+        CoordinateView coordinateView
+        +void addCoordinateGroup()
+        +void updateCoordinateGroup()
+        +void deleteCoordinateGroup()
+        +void filterCoordinateGroups()
+        +void clearFilter()
+        +void convertAndAddCoordinateGroup()
+    }
+}
+
+CoordinateController --> DataManager
+CoordinateController --> CoordinateConverter
+CoordinateController --> CoordinateView
+CoordinateGroup o-- CartesianCoordinate
+CoordinateGroup o-- PolarCoordinate
+CoordinateConverter --> CartesianCoordinate
+CoordinateConverter --> PolarCoordinate
+DataManager --> CoordinateGroup
+@enduml

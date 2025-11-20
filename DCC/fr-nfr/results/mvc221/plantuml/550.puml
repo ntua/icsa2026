@@ -1,0 +1,68 @@
+@startuml
+package "Model" {
+    class CartesianCoordinate {
+        +Double x
+        +Double y
+        +getters and setters()
+    }
+
+    class PolarCoordinate {
+        +Double r
+        +Double theta
+        +getters and setters()
+    }
+
+    class CoordinateGroup {
+        +Integer id
+        +String label
+        +DateTime timestamp
+        +CartesianCoordinate cartesian
+        +PolarCoordinate polar
+        +add()
+        +update()
+    }
+
+    class CoordinateGroupModel {
+        +DatabaseAccessor dbAccessor
+        +create(CoordinateGroup)
+        +readAll()
+        +update(CoordinateGroup)
+        +delete(Integer)
+    }
+}
+
+package "View" {
+    class DCCView {
+        +void showCoordinateList(List<CoordinateGroup>)
+        +CoordinateGroup addCoordinateGroup()
+        +void refreshDisplay()
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        +DCCView view
+        +CoordinateGroupModel model
+        +void convertCartesianToPolar(CartesianCoordinate)
+        +void convertPolarToCartesian(PolarCoordinate)
+        +void createNewGroup()
+        +void updateExistingGroup()
+        +void deleteGroup()
+    }
+}
+
+package "Database" {
+    class DatabaseAccessor {
+        +void connect()
+        +void disconnect()
+        +executeSQL(String)
+    }
+}
+
+DCCController --> CoordinateGroupModel : uses
+DCCController --> DCCView : uses
+CoordinateGroup *-- CartesianCoordinate : composition
+CoordinateGroup *-- PolarCoordinate : composition
+CoordinateGroupModel --> DatabaseAccessor : uses
+
+@enduml

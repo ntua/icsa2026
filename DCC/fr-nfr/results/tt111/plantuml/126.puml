@@ -1,0 +1,71 @@
+@startuml
+
+package Frontend {
+  class Frame {
+    - JButton createButton
+    - JButton retrieveButton
+    - JButton modifyButton
+    - JButton deleteButton
+    + Frame()
+    + actionPerformed(ActionEvent e)
+  }
+  
+  class CreateCoordinateGroupDialog {
+    - JTextField labelField
+    - JTextArea cartesianTextArea
+    - JTextArea polarTextArea
+    + CreateCoordinateGroupDialog()
+    + createCoordinateGroup()
+  }
+  
+  class RetrieveCoordinateGroupDialog {
+    - JTextField labelField
+    + RetrieveCoordinateGroupDialog()
+    + retrieveCoordinateGroup(String label)
+  }
+  
+  class ModifyCoordinateGroupDialog {
+    - int id
+    - String label
+    - double[] cartesian
+    - double[] polar
+    + ModifyCoordinateGroupDialog(int id, String label, double[] cartesian, double[] polar)
+    + modifyCoordinateGroup()
+  }
+  
+  class DeleteConfirmationDialog {
+    - int id
+    + DeleteConfirmationDialog(int id)
+    + confirmDelete()
+  }
+}
+
+package Database {
+  interface DataAccessObject {
+    + create(CoordinateGroup coordinateGroup)
+    + retrieve(String label)
+    + modify(CoordinateGroup coordinateGroup)
+    + delete(int id)
+  }
+  
+  class MySQLDataAccessObject implements DataAccessObject {
+    - Connection connection
+    + MySQLDataAccessObject()
+    + createConnection()
+  }
+}
+
+package Model {
+  class CoordinateGroup {
+    - int id
+    - String label
+    - double[] cartesian
+    - double[] polar
+    + CoordinateGroup(int id, String label, double[] cartesian, double[] polar)
+  }
+}
+
+Frontend -- Database
+Database -- Model
+
+@enduml

@@ -1,0 +1,99 @@
+@startuml DCC Class Diagram
+
+' Packages
+package "Presentation Layer" {
+  class DccGUI {
+    - coordinateController: CoordinateController
+    + initializeGUI()
+    + displayCoordinates(List<CoordinateGroup>)
+    + showErrorMessage(String)
+    + getInputValues(): Map<String, Object>
+    + updateView()
+  }
+}
+
+package "Business Layer" {
+  class CoordinateController {
+    - coordinateService: CoordinateService
+    + createCoordinateGroup(String label, double val1, double val2, CoordType type)
+    + modifyCoordinateGroup(int id, String label, double val1, double val2, CoordType type)
+    + deleteCoordinateGroup(int id)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + getCoordinateGroupByLabel(String label): List<CoordinateGroup>
+  }
+
+  class CoordinateService {
+    - coordinateDAO: CoordinateDAO
+    - converter: CoordinateConverter
+    + createCoordinateGroup(CoordinateGroup group)
+    + updateCoordinateGroup(CoordinateGroup group)
+    + deleteCoordinateGroup(int id)
+    + getAllCoordinateGroups(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    - validateCoordinateGroup(CoordinateGroup group): boolean
+  }
+
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): double[]
+    + polarToCartesian(double r, double theta): double[]
+  }
+
+  enum CoordType {
+    CARTESIAN
+    POLAR
+  }
+
+  class CoordinateGroup {
+    - id: int
+    - timestamp: DateTime
+    - label: String
+    - cartesianX: double
+    - cartesianY: double
+    - polarR: double
+    - polarTheta: double
+    + getters()
+    + setters()
+  }
+}
+
+package "Data Layer" {
+  interface CoordinateDAO {
+    + create(CoordinateGroup group)
+    + update(CoordinateGroup group)
+    + delete(int id)
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+  }
+
+  class CoordinateDAOImpl {
+    - connection: Connection
+    + create(CoordinateGroup group)
+    + update(CoordinateGroup group)
+    + delete(int id)
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    - getConnection(): Connection
+  }
+
+  class DatabaseConnection {
+    - instance: DatabaseConnection
+    - connection: Connection
+    - {static} URL: String
+    - {static} USERNAME: String
+    - {static} PASSWORD: String
+    + getInstance(): DatabaseConnection
+    - establishConnection(): Connection
+  }
+}
+
+' Relationships
+DccGUI --> CoordinateController
+CoordinateController --> CoordinateService
+CoordinateService --> CoordinateConverter
+CoordinateService --> CoordinateDAO
+CoordinateDAOImpl ..|> CoordinateDAO
+CoordinateDAOImpl --> DatabaseConnection
+CoordinateService --> CoordinateGroup
+CoordinateGroup --> CoordType
+
+@enduml

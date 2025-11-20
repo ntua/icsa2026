@@ -1,0 +1,66 @@
+@startuml
+
+package "Frontend" {
+  class DCCGUI {
+    + displayCoordinateGroups()
+    + handleCreateGroupRequest()
+    + handleRetrieveGroupRequest()
+    + handleModifyGroupRequest()
+    + handleDeleteGroupRequest()
+  }
+}
+
+package "Controller" {
+  class DCCController {
+    - databaseConnection: DatabaseConnection
+    + createCoordinateGroup(coordinates: CoordinateGroup)
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroup(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(id: int)
+  }
+}
+
+package "Model" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+
+    + convertToCartesian()
+    + convertToPolar()
+  }
+  
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - radius: double
+    - angle: double
+  }
+}
+
+package "Database" {
+  class DatabaseConnection {
+    + connectToDatabase()
+    + executeQuery(query: String): ResultSet
+    + closeConnection()
+  }
+}
+
+
+DCCGUI --> DCCController : interacts with
+
+DCCController --> CoordinateGroup : creates and manages
+
+DCCController --> DatabaseConnection : communicates with
+
+CoordinateGroup "1" -- "*" CartesianCoordinates : contains
+CoordinateGroup "1" -- "*" PolarCoordinates : contains 
+
+@enduml

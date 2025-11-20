@@ -1,0 +1,70 @@
+Response:
+Based on the information provided in the SRS document, here's a class diagram for the coordinate converter application using PlantUML:
+
+```plantuml
+@startuml
+package client {
+  class CoordinateConverterUI {
+    + label: String
+    + sourceCoordinateSystem: String
+    + destinationCoordinateSystem: String
+    + sourceX: double
+    + sourceY: double
+    + destinationR: double
+    + destinationTheta: double
+
+    + convertCoordinates()
+    + updateUI()
+  }
+}
+
+package server {
+  class CoordinateConverter {
+    + convertCartesianToPolar(x: double, y: double): Coordinate
+    + convertPolarToCartesian(r: double, theta: double): Coordinate
+  }
+
+  class Coordinate {
+    + r: double
+    + theta: double
+    + x: double
+    + y: double
+  }
+
+  class CoordinateDataAccess {
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + loadCoordinateGroups(): List<CoordinateGroup>
+    + deleteCoordinateGroup(id: int)
+  }
+
+  class CoordinateGroup {
+    + id: int
+    + label: String
+    + timestamp: Date
+    + cartesianCoordinates: Coordinate
+    + polarCoordinates: Coordinate
+  }
+}
+
+client.CoordinateConverterUI <-> server.CoordinateConverterUI: interacts
+server.CoordinateConverterUI -> server.CoordinateConverter: converts coordinates
+server.CoordinateDataAccess <--> server.CoordinateGroup: manages persistence
+@enduml
+```
+
+This class diagram separates the concerns between the client and server sides of the application:
+
+* **Client Package:**
+  * `CoordinateConverterUI`: This class handles the user interface elements and interacts with the server-side `CoordinateConverterUI` class. It holds the necessary attributes to capture user input and display results.
+
+* **Server Package:**
+  * `CoordinateConverter`: This class encapsulates the conversion logic between Cartesian and Polar coordinate systems. It provides methods to convert coordinates in both directions.
+  * `Coordinate`: This class represents a coordinate with attributes for both polar (r, theta) and cartesian (x, y) representations.
+  * `CoordinateDataAccess`: This class handles persistence operations for coordinate groups. It provides methods to save, load, and delete coordinate groups from the database.
+  * `CoordinateGroup`: This class represents a group of coordinates, including an ID, label, timestamp, and both polar and cartesian coordinate representations.
+
+The associations between the classes are:
+
+* `client.CoordinateConverterUI` interacts with `server.CoordinateConverterUI`: This represents the interaction between the client and server UIs.
+* `server.CoordinateConverterUI` delegates coordinate conversion to `server.CoordinateConverter`: This shows the server-side UI class delegating the conversion logic to the dedicated `CoordinateConverter` class.
+* `server.CoordinateDataAccess` manages the persistence of `server.CoordinateGroup` objects: This represents a bidirectional association where the `CoordinateDataAccess` class is responsible for saving and loading `CoordinateGroup` objects from the database.

@@ -1,0 +1,23 @@
+@startuml
+!include <C4/C4_Component>
+
+SHOW_LEGEND()
+
+Person(user, "User", "Interacts with the DCC application")
+
+System_Boundary(c1, "DCC Application") {
+
+    System(database, "MySQL Database", "Stores coordinate group data")
+
+    Container(controller, "Controller", "Handles user input and interactions", "Java Swing")
+    Container(model, "Model", "Manages coordinate groups and logic", "Java")
+    ContainerDb(view, "View", "Displays coordinate groups and interacts with the user", "Java Swing")
+
+}
+
+Rel(user, controller, "Uses")
+Rel(controller, model, "Uses")
+Rel(model, database, "Accesses")
+Rel(controller, view, "Updates")
+
+@enduml

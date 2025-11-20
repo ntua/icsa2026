@@ -1,0 +1,90 @@
+@startuml
+
+package "MyCharts Application" {
+
+    package "User Management" {
+        class UserService {
+            - name: String
+            - email: String
+            - profilePicture: String
+            - remainingQuota: int
+            - accountCreationTimestamp: Date
+            - lastLoginTimestamp: Date
+            + authenticateUser(): User // Functional requirement-business logic operation
+            + getUserProfile(): UserProfile // Functional requirement-business logic operation
+            + updateUserProfile(UserProfile): void // Data management operation
+            + purchaseQuota(int): void // Functional requirement-business logic operation
+        }
+
+        class UserProfile {
+            - name: String
+            - email: String
+            - profilePicture: String
+            - remainingQuota: int
+            - accountCreationTimestamp: Date
+            - lastLoginTimestamp: Date
+        }
+
+        class QuotaService {
+            + getRemainingQuota(userId: String): int // Functional requirement-business logic operation
+            + updateQuota(userId: String, quota: int): void // Data management operation
+        }
+
+        UserService --> UserProfile : manages
+        UserService --> QuotaService : uses
+    }
+
+    package "Chart Management" {
+        class ChartService {
+            + generateChart(csvData: String): Chart // Functional requirement-business logic operation
+            + saveChart(chart: Chart): void // Data management operation
+            + getChartHistory(userId: String): List<Chart> // Functional requirement-business logic operation
+            + downloadChart(chartId: String, format: String): File // Functional requirement-business logic operation
+        }
+
+        class Chart {
+            - chartId: String
+            - userId: String
+            - chartType: String
+            - creationDate: Date
+            - chartData: String
+        }
+
+        class CSVService {
+            + validateCSV(csvData: String): boolean // Functional requirement-business logic operation
+            + downloadTemplate(chartType: String): File // Functional requirement-business logic operation
+        }
+
+        ChartService --> Chart : manages
+        ChartService --> CSVService : uses
+    }
+
+    package "Payment Management" {
+        class PaymentService {
+            + processPayment(userId: String, amount: double): boolean // Functional requirement-business logic operation
+            + sendPaymentConfirmation(userId: String, receipt: String): void // Flow control operation
+        }
+
+        class Payment {
+            - paymentId: String
+            - userId: String
+            - amount: double
+            - paymentDate: Date
+        }
+
+        PaymentService --> Payment : manages
+    }
+
+    package "Notification Management" {
+        class NotificationService {
+            + sendNotification(userId: String, message: String): void // Flow control operation
+        }
+    }
+
+    UserService --> ChartService : uses
+    UserService --> PaymentService : uses
+    ChartService --> NotificationService : uses
+    PaymentService --> NotificationService : uses
+}
+
+@enduml

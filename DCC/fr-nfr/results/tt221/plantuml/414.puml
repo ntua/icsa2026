@@ -1,0 +1,72 @@
+@startuml
+
+package "frontend" {
+  class CoordinateGroupInputView {
+    + displayCoordinateGroups(List<CoordinateGroup>)
+    + getCoordinateGroupInput(): CoordinateGroup
+    + getLabelInput(): String
+    + getSelectedGroupId(): int
+    + refreshDisplay()
+  }
+}
+
+package "logic" {
+  class CoordinateConverter {
+    + cartesianToPolar(double x, double y): PolarCoordinates
+    + polarToCartesian(double r, double theta): CartesianCoordinates
+  }
+
+  class CoordinateGroupManager {
+    - Database database
+    + createCoordinateGroup(CoordinateGroup group, String label): int
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(int id, CoordinateGroup group): void
+    + deleteCoordinateGroup(int id): void
+  }
+
+  class CartesianCoordinates {
+    - double x
+    - double y
+    + getValues(): (double, double)
+  }
+
+  class PolarCoordinates {
+    - double r
+    - double theta
+    + getValues(): (double, double)
+  }
+  
+  class CoordinateGroup {
+    - int id 
+    - String label
+    - CartesianCoordinates cartesianCoordinates
+    - PolarCoordinates polarCoordinates
+    + getId(): int
+    + getLabel(): String
+    + getCartesianCoordinates(): CartesianCoordinates
+    + getPolarCoordinates(): PolarCoordinates
+
+  }
+}
+
+package "database" {
+  interface Database {
+    + createCoordinateGroup(CoordinateGroup group, String label): int
+    + readAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(int id, CoordinateGroup group): void
+    + deleteCoordinateGroup(int id): void
+  }
+
+  class MySQLDatabase implements Database {
+    // Implementation details for database interaction
+  }
+}
+
+
+CoordinateGroupInputView --> CoordinateGroupManager : uses
+CoordinateGroupManager --> CoordinateConverter : uses
+CoordinateGroupManager --> CoordinateGroup : manages
+CoordinateGroup --> CartesianCoordinates : contains
+CoordinateGroup --> PolarCoordinates : contains
+
+@enduml

@@ -1,0 +1,210 @@
+Response:
+(Due to technical issues, the search service is temporarily unavailable.)
+
+Here's the PlantUML class diagram and JSON characteristics based on the requirements:
+
+```plantuml
+@startuml
+left to right direction
+
+package "API Gateway" {
+  class API_Gateway {
+    + routeRequest()
+    ' Flow control operation
+  }
+}
+
+package "Authentication Service" {
+  class UserProfile {
+    - userId: String
+    - name: String
+    - email: String
+    - profilePictureUrl: String
+    - remainingQuota: Int
+    - accountCreatedAt: DateTime
+    - lastLogin: DateTime
+    + updateLastLogin()
+    ' Data management operation
+  }
+}
+
+package "Template Service" {
+  class ChartTemplate {
+    - templateId: String
+    - chartType: String
+    - templateStructure: JSON
+    + getTemplate()
+    ' Functional requirement
+  }
+}
+
+package "File Service" {
+  class CSVValidator {
+    + validateStructure()
+    + validateDataTypes()
+    + validateMandatoryFields()
+    ' Functional requirement
+  }
+}
+
+package "Chart Service" {
+  class HighchartsGenerator {
+    + generateChart()
+    + saveChartFormats()
+    ' Functional requirement
+  }
+}
+
+package "Storage Service" {
+  class ChartFile {
+    - chartId: String
+    - userId: String
+    - formats: Map<String,Blob>
+    - createdAt: DateTime
+    + saveFile()
+    + deleteFile()
+    + getFile()
+    ' Data management operation
+  }
+}
+
+package "Dashboard Service" {
+  class DashboardManager {
+    + getChartHistory()
+    + getChartPreview()
+    ' Functional requirement
+  }
+}
+
+package "Quota Service" {
+  class QuotaTracker {
+    - userId: String
+    - remainingQuota: Int
+    + deductQuota()
+    + addQuota()
+    + synchronizeQuota()
+    ' Data consistency operation
+    ' Data management operation
+  }
+}
+
+package "Payment Service" {
+  class PaymentProcessor {
+    + processPayment()
+    + handleWebhook()
+    ' Functional requirement
+  }
+}
+
+API_Gateway --> UserProfile
+API_Gateway --> ChartTemplate
+API_Gateway --> CSVValidator
+API_Gateway --> HighchartsGenerator
+API_Gateway --> ChartFile
+API_Gateway --> DashboardManager
+API_Gateway --> QuotaTracker
+API_Gateway --> PaymentProcessor
+
+CSVValidator --> ChartTemplate
+HighchartsGenerator --> QuotaTracker
+HighchartsGenerator --> ChartFile
+QuotaTracker --> PaymentProcessor
+DashboardManager --> ChartFile
+
+@enduml
+```
+
+```json
+{
+  "SI": [0.11, 0.75],
+  "DOC": [0.78, 0.25],
+  "SST": [0.33, 0],
+  "services": [
+    {
+      "service_name": "API Gateway",
+      "SIC": [8, 1],
+      "AIS(in)": [0, 0],
+      "ADS(out)": [8, 8]
+    },
+    {
+      "service_name": "Authentication Service",
+      "SIC": [2, 1],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "Template Service",
+      "SIC": [1, 1],
+      "AIS(in)": [2, 2],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "File Service",
+      "SIC": [3, 3],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "Chart Service",
+      "SIC": [2, 2],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [2, 2]
+    },
+    {
+      "service_name": "Storage Service",
+      "SIC": [3, 3],
+      "AIS(in)": [2, 3],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "Dashboard Service",
+      "SIC": [2, 2],
+      "AIS(in)": [1, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "Quota Service",
+      "SIC": [3, 3],
+      "AIS(in)": [2, 2],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "Payment Service",
+      "SIC": [2, 2],
+      "AIS(in)": [2, 2],
+      "ADS(out)": [0, 0]
+    }
+  ],
+  "use_cases": [
+    {
+      "use_case_name": "Authenticate user",
+      "SC": [["API Gateway", "Authentication Service"], ["API Gateway", "Authentication Service"]]
+    },
+    {
+      "use_case_name": "Download template",
+      "SC": [["API Gateway", "Template Service"], ["API Gateway", "Template Service"]]
+    },
+    {
+      "use_case_name": "Upload CSV",
+      "SC": [["API Gateway", "File Service", "Template Service"], ["API Gateway", "File Service", "Template Service"]]
+    },
+    {
+      "use_case_name": "Generate chart",
+      "SC": [["API Gateway", "Chart Service", "Quota Service", "Storage Service"], ["API Gateway", "Chart Service", "Quota Service", "Storage Service"]]
+    },
+    {
+      "use_case_name": "Purchase quota",
+      "SC": [["API Gateway", "Payment Service", "Quota Service"], ["API Gateway", "Payment Service", "Quota Service"]]
+    }
+  ]
+}
+``` 
+
+This solution:
+1. Creates 9 microservices aligned with bounded contexts
+2. Uses API Gateway for flow control
+3. Maintains separate data stores for each service
+4. Implements data consistency operations in Quota Service
+5. Shows clear service dependencies through associations
+6. Achieves 78% data ownership and 33% transaction support
+7. Demonstrates collaborative service operation through use case service sets

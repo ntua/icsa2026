@@ -1,0 +1,98 @@
+@startuml DCC_Application_Class_Diagram
+
+' Presentation Layer (GUI)
+class CoordinateGroupGUI {
+    - Button createButton
+    - Button retrieveButton
+    - Button modifyButton
+    - Button deleteButton
+    
+    + void createCoordinateGroup()
+    + void retrieveCoordinateGroup()
+    + void modifyCoordinateGroup()
+    + void deleteCoordinateGroup()
+}
+
+' Business Logic Layer
+package LogicLayer {
+    class CoordinateGroupConverter {
+        - double radiansToDegrees = 57.2958
+        - double degreesToRadians = 0.01745
+        
+        + Cartesian convertPolarToCartesian(Polar polar)
+        + Polar convertCartesianToPolar(Cartesian cartesian)
+    }
+    
+    class CoordinateGroupManager {
+        - List<CoordinateGroup> coordinateGroups
+        
+        + void createCoordinateGroup(Cartesian cartesian, String label)
+        + void createCoordinateGroup(Polar polar, String label)
+        + CoordinateGroup getCoordinateGroupById(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + void updateCoordinateGroup(int id, Cartesian cartesian, String label)
+        + void updateCoordinateGroup(int id, Polar polar, String label)
+        + void deleteCoordinateGroup(int id)
+    }
+    
+    CoordinateGroupManager ..> CoordinateGroupConverter : Uses
+}
+
+' Data Access Layer
+package DataAccessLayer {
+    class CoordinateGroupDAO {
+        + void saveCoordinateGroup(Cartesian cartesian, String label)
+        + void saveCoordinateGroup(Polar polar, String label)
+        + CoordinateGroup getCoordinateGroupById(int id)
+        + List<CoordinateGroup> getAllCoordinateGroups()
+        + void updateCoordinateGroup(int id, Cartesian cartesian, String label)
+        + void updateCoordinateGroup(int id, Polar polar, String label)
+        + void deleteCoordinateGroup(int id)
+    }
+    
+    CoordinateGroupManager ..> CoordinateGroupDAO : Uses
+}
+
+' Data Model Classes
+class CoordinateGroup {
+    - int id
+    - String label
+    - Timestamp timestamp
+    - Cartesian cartesian
+    - Polar polar
+    
+    + CoordinateGroup(int id, String label, Cartesian cartesian, Polar polar)
+    + CoordinateGroup(int id, String label, Cartesian cartesian, Polar polar, Timestamp timestamp)
+}
+
+class Cartesian {
+    - double x
+    - double y
+    
+    + Cartesian(double x, double y)
+}
+
+class Polar {
+    - double r
+    - double theta
+    
+    + Polar(double r, double theta)
+}
+
+' Database
+class MySQLDatabase {
+    + void storeCoordinateGroup(Cartesian cartesian, String label)
+    + void storeCoordinateGroup(Polar polar, String label)
+    + CoordinateGroup retrieveCoordinateGroup(int id)
+    + List<CoordinateGroup> retrieveAllCoordinateGroups()
+    + void updateCoordinateGroup(int id, Cartesian cartesian, String label)
+    + void updateCoordinateGroup(int id, Polar polar, String label)
+    + void deleteCoordinateGroup(int id)
+}
+
+' Associations
+CoordinateGroupGUI --* CoordinateGroupManager : Uses
+CoordinateGroupManager --* CoordinateGroupDAO : Uses
+CoordinateGroupDAO --* MySQLDatabase : Accesses
+
+@enduml

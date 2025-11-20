@@ -1,0 +1,144 @@
+Question:
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: # Software Requirements Specification (SRS)
+
+## Dummy Coordinate Converter Application
+
+---
+
+## 1. [Introduction](Introduction)
+
+### 1.1 Introduction: Purpose of the Software
+
+The Dummy Coordination Conversion (DCC) Application is an application that manages coordinate groups in Cartesian and Polar formats. The app allows users to input, convert, store, retrieve, modify, and delete coordinate groups.
+
+### 1.2 Interfaces
+
+#### 1.2.1 User Interfaces
+
+The user interacts with the application via a graphical user interface (GUI) developed using Java and the Swing framework. This interface includes all the necessary buttons and controls to implement the use cases outlined below.
+
+---
+
+### 2. [References - Glossary](Glossary)
+
+- **Cartesian Coordinates:**
+A type of coordinate representation that specifies a point's location using two values: 𝑥 (horizontal position) and 𝑦 (vertical position). Example: (x, y).
+
+- **Polar Coordinates:**
+A type of coordinate representation that specifies a point's location using a radius (𝑟) and an angle (𝜃), measured from the origin. Example: (𝑟, 𝜃).
+
+- **Coordinate Group:**
+A collection of coordinates that includes both Cartesian and Polar representations. 
+
+---
+
+## 3. Software Requirements Specifications
+
+### 3.1 Use Cases
+
+The user should be able to perform the following actions: create a coordinate group, modify a coordinate group, delete a coordinate group, view all coordinate groups, and view a specific coordinate group selected by its label. These use cases are illustrated in the use case diagram provided below. Additionally, each use case is elaborated in detail in the subsequent sections.
+
+
+##### Use Case Diagram
+
+```plantuml
+@startuml
+package "GUI" {
+  class MainWindow {
+    - labelField: JTextField
+    + viewAllCoordinateGroups()
+    + findCoordinateGroupsByLabel()
+    + deleteCoordinateGroup()
+  }
+}
+
+package "Business Logic" {
+  class CoordinateGroupController {
+    - coordinateGroupRepository: CoordinateGroupRepository
+    + viewAllCoordinateGroups(): List<CoordinateGroup>
+    + findCoordinateGroupsByLabel(String label): List<CoordinateGroup>
+    + deleteCoordinateGroup(int id)
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: List<PolarCoordinate>
+    - cartesianCoordinates: List<CartesianCoordinate>
+
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getPolarCoordinates(): List<PolarCoordinate>
+    + getCartesianCoordinates(): List<CartesianCoordinate>
+  }
+  
+  class PolarCoordinate {
+    - radius: double
+    - angle: double
+
+    + getRadius(): double
+    + getAngle(): double
+  }
+  
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+
+    + getX(): double
+    + getY(): double
+  }
+}
+
+package "Data Access" {
+  interface CoordinateGroupRepository {
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    + deleteById(int id)
+  }
+  
+  class MySQLCoordinateGroupRepository implements CoordinateGroupRepository {
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    + deleteById(int id)
+  }
+}
+
+MainWindow --> CoordinateGroupController : uses
+CoordinateGroupController --> CoordinateGroup : uses
+CoordinateGroupController --> CoordinateGroupRepository : uses
+MySQLCoordinateGroupRepository ..> CoordinateGroupRepository : implements
+@enduml
+```
+
+
+**Explanation:**
+
+
+
+* **GUI Package**: Contains the `MainWindow` class, which handles user interactions and calls methods from the business logic layer.
+
+* **Business Logic Package**:
+    * The `CoordinateGroupController` orchestrates the retrieval and deletion of coordinate groups by interacting with the repository.
+    * The `CoordinateGroup` class represents a single coordinate group with attributes for ID, timestamp, label, polar coordinates, and Cartesian coordinates.
+    * Helper classes `PolarCoordinate` and `CartesianCoordinate` represent individual coordinate points in their respective formats.
+
+* **Data Access Package**:
+    * The `CoordinateGroupRepository` interface defines methods for interacting with the database (finding all groups, finding by label, deleting by ID).
+    * The `MySQLCoordinateGroupRepository` class implements this interface and handles the actual connection and queries to a MySQL database.
+
+
+
+**Key Points:**
+
+* **Separation of Concerns**:  The diagram clearly shows the separation of GUI logic, business rules, and data access logic into distinct packages.
+
+* **Associations**:
+    * The `MainWindow` *uses* the `CoordinateGroupController`.
+    * The `CoordinateGroupController` *uses* `CoordinateGroup`.
+    * The `CoordinateGroupController` *uses* a specific implementation of `CoordinateGroupRepository` (in this case, `MySQLCoordinateGroupRepository`).
+
+* **Implementation Detail Hiding**: The GUI package doesn't need to know about the specific database technology used. It interacts with the business logic layer, which handles data access details.

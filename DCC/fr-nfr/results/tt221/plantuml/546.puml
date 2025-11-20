@@ -1,0 +1,79 @@
+@startuml DCC_Application_Class_Diagram
+
+package "Presentation Layer" {
+  class CoordinateGroupUI {
+    + void displayCoordinateGroups()
+    + void handleUserInput()
+    + void refreshDisplay()
+    + void filterByLabel(String label)
+  }
+}
+
+package "Logic Layer" {
+  abstract class CoordinateGroupOperations {
+    {abstract} void createCoordinateGroup(CoordinateGroup group)
+    {abstract} List<CoordinateGroup> readAllCoordinateGroups()
+    {abstract} void updateCoordinateGroup(CoordinateGroup group)
+    {abstract} void deleteCoordinateGroup(int id)
+  }
+
+  class CoordinateGroupLogic {
+    - CoordinateGroupOperations dao
+    + CoordinateGroup convertCartesianToPolar(CartesianCoordinates cartesian)
+    + CartesianCoordinates convertPolarToCartesian(PolarCoordinates polar)
+    + void createCoordinateGroup(CoordinateGroup group)
+    + List<CoordinateGroup> readAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup group)
+    + void deleteCoordinateGroup(int id)
+  }
+}
+
+package "Data Access Layer" {
+  class CoordinateGroupDAO implements CoordinateGroupOperations {
+    + void createCoordinateGroup(CoordinateGroup group)
+    + List<CoordinateGroup> readAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup group)
+    + void deleteCoordinateGroup(int id)
+  }
+}
+
+package "Model" {
+  class CartesianCoordinates {
+    - float x
+    - float y
+    + CartesianCoordinates(float x, float y)
+    + float getX()
+    + float getY()
+  }
+
+  class PolarCoordinates {
+    - float r
+    - float theta
+    + PolarCoordinates(float r, float theta)
+    + float getR()
+    + float getTheta()
+  }
+
+  class CoordinateGroup {
+    - int id
+    - String label
+    - Date timestamp
+    - CartesianCoordinates cartesian
+    - PolarCoordinates polar
+    + CoordinateGroup(int id, String label, Date timestamp, CartesianCoordinates cartesian, PolarCoordinates polar)
+    + int getId()
+    + String getLabel()
+    + Date getTimestamp()
+    + CartesianCoordinates getCartesian()
+    + PolarCoordinates getPolar()
+  }
+}
+
+' Associations '
+CoordinateGroupUI --> CoordinateGroupLogic
+CoordinateGroupLogic --> CoordinateGroupDAO
+CoordinateGroupDAO --|> CoordinateGroupOperations
+CoordinateGroup *-- CartesianCoordinates
+CoordinateGroup *-- PolarCoordinates
+
+@enduml

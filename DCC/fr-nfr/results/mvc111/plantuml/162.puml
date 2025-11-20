@@ -1,0 +1,97 @@
+@startuml
+
+package "Model" {
+  class CoordinateGroup {
+    + id : int
+    + label : String
+    + timestamp : Date
+    - cartesianCoordinates : List<CartesianCoordinate>
+    - polarCoordinates : List<PolarCoordinate>
+
+    + convertToPolar() : PolarCoordinate
+    + convertToCartesian() : CartesianCoordinate
+
+    + save()
+  }
+
+  class CartesianCoordinate {
+    + x : double
+    + y : double
+  }
+
+  class PolarCoordinate {
+    + r : double
+    + theta : double
+  }
+}
+
+package "View" {
+  class CoordinateGroupPanel {
+    - coordinateGroupModel : CoordinateGroup
+
+    + viewCartesianCoordinates()
+    + viewPolarCoordinates()
+    + saveButtonClicked()
+    + deleteButtonClicked()
+
+    + setCoordinateGroup(CoordinateGroup coordinateGroup)
+  }
+
+  class DatabaseViewer {
+    - databaseConnection : MySQLConnection
+
+    + viewAllCoordinatesGroups()
+    + searchByLabel(String label)
+
+    + connectToDatabase()
+    + disconnectFromDatabase()
+  }
+}
+
+package "Controller" {
+  class CoordinateGroupController {
+    - model : CoordinateGroup
+    - view : CoordinateGroupPanel
+
+    + createNewCoordinateGroup(CartesianCoordinate cartCoord, PolarCoordinate polCoord)
+    + saveCoordinateGroup()
+    + deleteCoordinateGroup()
+    + retrieveCoordinatesGroups()
+
+    + updateDatabase()
+    + connectToDatabase()
+  }
+}
+
+package "Database" {
+  class MySQLConnection {
+    - db : Database
+
+    + openConnection()
+    + closeConnection()
+
+    + insert(CoordinateGroup coordinateGroup)
+    + update(CoordinateGroup coordinateGroup)
+    + delete(CoordinateGroup coordinateGroup)
+    + selectByLabel(String label)
+  }
+}
+
+package "Utilities" {
+  class CoordinateConverter {
+    - cartesianToPolar() : PolarCoordinate
+    - polarToCartesian() : CartesianCoordinate
+
+    + convert()
+  }
+
+  class Logger {
+    - logLevel : String
+
+    + logInfo(String message)
+    + logWarning(String message)
+    + logError(String message)
+  }
+}
+
+@enduml

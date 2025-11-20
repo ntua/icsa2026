@@ -1,0 +1,129 @@
+@startuml
+
+    package Model {
+        class CoordinateGroup {
+        -int id
+        -String label
+        -LocalDateTime timestamp
+        -CartesianCoordinate cartesian
+        -PolarCoordinate polar
+        +CoordinateGroup(label: String)
+        +getId(): int
+        +getLabel(): String
+        +setLabel(label: String): void
+        +getTimestamp(): LocalDateTime
+        +getCartesianCoordinate(): CartesianCoordinate
+        +getPolarCoordinate(): PolarCoordinate
+        +setCartesianCoordinate(x: double, y: double): void
+        +setPolarCoordinate(r: double, theta: double): void
+    }
+
+    class CartesianCoordinate {
+        -double x
+        -double y
+        +CartesianCoordinate(x: double, y: double)
+        +getX(): double
+        +getY(): double
+        +setX(x: double): void
+        +setY(y: double): void
+        +toPolar(): PolarCoordinate
+    }
+
+    class PolarCoordinate {
+        -double r
+        -double theta
+        +PolarCoordinate(r: double, theta: double)
+        +getR(): double
+        +getTheta(): double
+        +setR(r: double): void
+        +setTheta(theta: double): void
+        +toCartesian(): CartesianCoordinate
+    }
+
+    class DatabaseConnection {
+        -Connection connection
+        -static DatabaseConnection instance
+        -String url
+        -String username
+        -String password
+        -DatabaseConnection()
+        +static getInstance(): DatabaseConnection
+        +getConnection(): Connection
+        +closeConnection(): void
+    }
+    }
+    
+    package View {
+        class MainView {
+        -JFrame frame
+        -CoordinatePanel coordinatePanel
+        -GroupListPanel groupListPanel
+        +MainView(controller: CoordinateController)
+        +refreshView(): void
+        +showError(message: String): void
+        +showSuccess(message: String): void
+    }
+
+    class CoordinatePanel {
+        -JTextField xField
+        -JTextField yField
+        -JTextField rField
+        -JTextField thetaField
+        -JTextField labelField
+        +CoordinatePanel(controller: CoordinateController)
+        +getInputValues(): Map<String, Double>
+        +getLabel(): String
+        +clearFields(): void
+    }
+
+    class GroupListPanel {
+        -JList<CoordinateGroup> groupList
+        -JButton deleteButton
+        -JButton modifyButton
+        +GroupListPanel(controller: CoordinateController)
+        +updateList(groups: List<CoordinateGroup>): void
+        +getSelectedGroup(): CoordinateGroup
+    }
+    }
+    
+    package Controller {
+        class CoordinateController {
+        -MainView view
+        -DatabaseController dbController
+        +CoordinateController()
+        +createGroup(label: String, coordinates: Map<String, Double>, type: String): void
+        +retrieveGroupByLabel(label: String): CoordinateGroup
+        +retrieveAllGroups(): List<CoordinateGroup>
+        +updateGroup(group: CoordinateGroup): void
+        +deleteGroup(group: CoordinateGroup): void
+    }
+
+    class DatabaseController {
+        -DatabaseConnection dbConnection
+        +DatabaseController()
+        +saveGroup(group: CoordinateGroup): void
+        +getGroupByLabel(label: String): CoordinateGroup
+        +getAllGroups(): List<CoordinateGroup>
+        +updateGroup(group: CoordinateGroup): void
+        +deleteGroup(id: int): void
+    }
+    }
+
+
+    CoordinateGroup "1" *-- "1" CartesianCoordinate
+    CoordinateGroup "1" *-- "1" PolarCoordinate
+    CartesianCoordinate ..> PolarCoordinate : converts to
+    PolarCoordinate ..> CartesianCoordinate : converts to
+    
+    MainView "1" *-- "1" CoordinatePanel
+    MainView "1" *-- "1" GroupListPanel
+    
+    CoordinateController "1" --> "1" MainView
+    CoordinateController "1" --> "1" DatabaseController
+    DatabaseController "1" --> "1" DatabaseConnection
+    
+    MainView ..> CoordinateController : uses
+    CoordinatePanel ..> CoordinateController : uses
+    GroupListPanel ..> CoordinateController : uses
+
+@enduml

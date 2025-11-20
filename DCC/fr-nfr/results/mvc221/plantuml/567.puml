@@ -1,0 +1,94 @@
+@startuml DCCClassDiagram
+
+' Packages
+package "Model" {
+    class CartesianCoordinate {
+        - x: double
+        - y: double
+        
+        + CartesianCoordinate(double, double)
+        + toPolar(): PolarCoordinate
+    }
+    
+    class PolarCoordinate {
+        - r: double
+        - θ: double
+        
+        + PolarCoordinate(double, double)
+        + toCartesian(): CartesianCoordinate
+    }
+
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - cartesian: CartesianCoordinate
+        - polar: PolarCoordinate
+        - datetimeAdded: Date
+        - datetimeModified: Date
+
+        + CoordinateGroup(int, String, CartesianCoordinate, PolarCoordinate)
+        + getLabel(): String
+    }
+
+    class DCCModel {
+        - dao: DCCDAO
+        
+        + createOp(CoordinateGroup): void
+        + readOp(): List<CoordinateGroup>
+        + updateOp(CoordinateGroup): void
+        + deleteOp(int): void
+    }
+    
+    class DCCDAO {
+        - connection: Connection
+        
+        + DCCDAO()
+        + saveCoordinateGroup(CoordinateGroup): int
+        + getAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(CoordinateGroup): void
+        + deleteCoordinateGroup(int): void
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - model: DCCModel
+        - view: DCCView
+        
+        + DCCController(DCCModel, DCCView)
+        
+        + handleAdd(): void
+        + handleUpdate(): void
+        + handleDelete(): void
+        + handleFilter(String): List<CoordinateGroup>
+        + handleRefresh(): void
+    }
+}
+
+package "View" {    
+    class DCCView extends JFrame {
+        - controller: DCCController
+        
+        + DCCView(DCCController)
+        
+        + initializeUI(): void
+        + displayCoordinateGroups(List<CoordinateGroup>): void
+        + clearFilter(): void
+        + getFilteredLabel(): String
+        + getInputCoordinate(): CoordinateGroup
+    }
+}
+
+' Relationships
+DCCController --> "uses" DCCModel
+DCCController --> "uses" DCCView
+
+DCCModel --> "uses" DCCDAO
+
+CartesianCoordinate --> PolarCoordinate : converts to
+PolarCoordinate --> CartesianCoordinate : converts to
+
+CoordinateGroup *-- CartesianCoordinate
+CoordinateGroup *-- PolarCoordinate
+
+@enduml

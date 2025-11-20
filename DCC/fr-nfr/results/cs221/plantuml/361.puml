@@ -1,0 +1,93 @@
+@startuml
+
+package Frontend {
+  class Frame {
+    + swingComponents: SwingComponents
+    - controller: Controller
+    
+    + interactWithUser()
+  }
+  
+  class SwingComponents {
+    + createAndShowGUI()
+    + refreshDisplay()
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    - r: HighPrecisionNumber
+    - theta: HighPrecisionNumber
+    
+    + convertCartesianToPolar()
+    + convertPolarToCartesian()
+  }
+  
+  class CartesianCoordinate extends Coordinate {
+    + CartesianCoordinate(x, y)
+  }
+  
+  class PolarCoordinate extends Coordinate {
+    + PolarCoordinate(r, theta)
+  }
+  
+  class CoordinateGroup {
+    - id: Integer
+    - timestamp: DateTime
+    - label: String
+    - cartesian: CartesianCoordinate
+    - polar: PolarCoordinate
+    
+    + CoordinateGroup(cartesian, polar, label)
+    + save()
+  }
+  
+  class Converter {
+    + convert(coordinate: Coordinate): Coordinate
+  }
+}
+
+package Database {
+  class MySQLDatabase {
+    - connection: TCPIPConnection
+    
+    + connect()
+    + disconnect()
+    + executeQuery(query)
+    + executeUpdate(query)
+  }
+  
+  class Record {
+    - id: Integer
+    - label: String
+    - cartesianValues: String
+    - polarValues: String
+    - datetimeAddedOrModified: DateTime
+    
+    + Record(id, label, cartesianValues, polarValues, datetimeAddedOrModified)
+  }
+  
+  class DatabaseManager {
+    - database: MySQLDatabase
+    
+    + createOp(coordinateGroup: CoordinateGroup)
+    + readOp()
+    + updateOp(coordinateGroup: CoordinateGroup)
+    + deleteOp(id: Integer)
+  }
+}
+
+Frame "1" -- "many" SwingComponents
+SwingComponents "1" -- "*" Frame
+
+Frame --> Controller
+Controller --> Converter
+Controller --> DatabaseManager
+
+Converter "1" -- "*" Coordinate
+
+DatabaseManager "1" -- "*" Record
+
+@enduml

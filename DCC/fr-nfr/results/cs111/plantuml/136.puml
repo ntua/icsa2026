@@ -1,0 +1,36 @@
+@startuml
+' Define package structure'
+package "Client" {
+    ' Client Side Classes'
+class CoordinateGroupController {
+    + void createCoordinateGroup(String label)
+    + String[] convertToCartesian()
+    + String[] convertToPolar()
+    - DatabaseManager clientDb = new DatabaseManager(); // Injected dependency
+}
+
+class MainWindowView {
+    + void displayMainMenu()
+    + void createNewCoordinateGroup(String label) throws Exception
+    - CoordinateGroupController coordCtrl
+}
+}
+
+package "Server" {
+   ' Server Side Classes'
+  class DatabaseManager {
+  +void saveCoordinateGroup(CoordinateGroup group)
+  +CoordinateGroup[] getAllGroups()
+  - DataAccessObject dbConn = new DataAccessObject(); // Injected dependency
+  }
+  
+  class DataAccessObject {
+      - MySQLConnection conn; // Dependency Injection or Singleton pattern
+  }
+}
+
+' Association between classes'
+Client.CoordinateGroupController -- Server.DatabaseManager :uses
+Client.MainWindowView --> Client.CoordinateGroupController: uses coordCtrl
+Server.DatabaseManager <--> Server.DataAccessObject: dbConn
+@enduml

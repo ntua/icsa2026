@@ -1,0 +1,92 @@
+@startuml
+
+package "Frontend (MVC - View)" {
+    class CoordinateGroupView {
+        + displayCoordinateGroup(group: CoordinateGroup)
+        + createCoordinateGroupInput()
+        + retrieveCoordinateGroupsByLabel(label: String)
+        + retrieveAllCoordinateGroups()
+        + updateCoordinateGroup(group: CoordinateGroup)
+        + deleteCoordinateGroup(groupId: Int)
+    }
+}
+
+package "Frontend (MVC - Controller)" {
+    class CoordinateGroupController {
+        - view: CoordinateGroupView
+        - model: CoordinateGroupModel
+        - database: Database
+        
+        + convertCoordinates(inputCoordinates: String, coordinateType: String)
+                : String
+        + createCoordinateGroup(groupData: String)
+                : CoordinateGroup
+        + retrieveCoordinateGroups(query: String)
+                : List<CoordinateGroup>
+        + updateCoordinateGroup(groupId: Int, groupData: String)
+                : boolean
+        + deleteCoordinateGroup(groupId: Int)
+                : boolean
+    }
+}
+
+package "Frontend (MVC - Model)" {
+    class CoordinateGroupModel {
+        - coordinateGroups: List<CoordinateGroup>
+        
+        + createCoordinateGroup(group: CoordinateGroup)
+        + updateCoordinateGroup(index: Int, group: CoordinateGroup)
+        + deleteCoordinateGroup(index: Int)
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - timestamp: Date
+        - cartesianCoordinates: List<CartesianCoordinate>
+        - polarCoordinates: List<PolarCoordinate>
+        
+        + toStorableString(): String
+        + fromStorableString(data: String)
+    }
+    
+    class CartesianCoordinate {
+        - x: Float
+        - y: Float
+    }
+    
+    class PolarCoordinate {
+        - r: Float
+        - theta: Float
+    }
+}
+
+package "Database" {
+    interface Database {
+        + saveData(data: String)
+        + fetchData(query: String): String
+    }
+    
+    class MySQLDatabase implements Database {
+    }
+}
+
+package "Networking" {
+    class TCPIPConnector {
+        - socket: Socket
+        
+        + connectToHost(host: String, port: Int)
+                : boolean
+        + sendData(data: String)
+                : boolean
+        + receiveData(): String
+    }
+}
+
+CoordinateGroupController -- CoordinateGroupView
+CoordinateGroupController -- CoordinateGroupModel
+CoordinateGroupController -- Database
+
+@enduml

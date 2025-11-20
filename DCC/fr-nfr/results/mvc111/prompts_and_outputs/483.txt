@@ -1,0 +1,148 @@
+Response:
+Here's the PlantUML class diagram for the DCC Application following MVC architecture:
+
+```plantuml
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Timestamp
+        - cartesian: Cartesian
+        - polar: Polar
+        + convertToPolar()
+        + convertToCartesian()
+        + getters()
+        + setters()
+    }
+
+    class Cartesian {
+        - x: double
+        - y: double
+        + Cartesian(x: double, y: double)
+        + getX(): double
+        + getY(): double
+    }
+
+    class Polar {
+        - r: double
+        - theta: double
+        + Polar(r: double, theta: double)
+        + getR(): double
+        + getTheta(): double
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        + connect()
+        + saveCoordinateGroup(cg: CoordinateGroup)
+        + getByLabel(label: String): List<CoordinateGroup>
+        + getAll(): List<CoordinateGroup>
+        + updateCoordinateGroup(cg: CoordinateGroup)
+        + deleteCoordinateGroup(id: int)
+    }
+}
+
+package "View" {
+    class MainView {
+        - createPanel: CreatePanel
+        - retrievePanel: RetrievePanel
+        - modifyPanel: ModifyPanel
+        - deletePanel: DeletePanel
+        + showCreate()
+        + showRetrieve()
+        + showModify()
+        + showDelete()
+    }
+
+    class CreatePanel {
+        - xField: JTextField
+        - yField: JTextField
+        - rField: JTextField
+        - thetaField: JTextField
+        - labelField: JTextField
+        + getInput(): Map<String, String>
+        + addSubmitListener(listener: ActionListener)
+    }
+
+    class RetrievePanel {
+        - searchField: JTextField
+        - resultsArea: JTextArea
+        + displayResults(groups: List<CoordinateGroup>)
+        + addSearchListener(listener: ActionListener)
+        + addViewAllListener(listener: ActionListener)
+    }
+
+    class ModifyPanel {
+        - idField: JTextField
+        - newLabelField: JTextField
+        - coordFields: JTextField[]
+        + getInput(): Map<String, String>
+        + addSubmitListener(listener: ActionListener)
+    }
+
+    class DeletePanel {
+        - idField: JTextField
+        + getInputId(): int
+        + addSubmitListener(listener: ActionListener)
+    }
+}
+
+package "Controller" {
+    class Controller {
+        - model: DatabaseManager
+        - view: MainView
+        + handleCreate()
+        + handleRetrieve()
+        + handleModify()
+        + handleDelete()
+    }
+}
+
+' Associations
+CoordinateGroup *-- Cartesian
+CoordinateGroup *-- Polar
+DatabaseManager "1" --> "0..*" CoordinateGroup
+
+Controller --> DatabaseManager
+Controller --> MainView
+
+MainView *-- CreatePanel
+MainView *-- RetrievePanel
+MainView *-- ModifyPanel
+MainView *-- DeletePanel
+
+CreatePanel <.. Controller : <<listener>>
+RetrievePanel <.. Controller : <<listener>>
+ModifyPanel <.. Controller : <<listener>>
+DeletePanel <.. Controller : <<listener>>
+@enduml
+```
+
+Key elements:
+1. **Model Package**:
+   - `CoordinateGroup` with composition relationships to `Cartesian` and `Polar`
+   - `DatabaseManager` handles all database operations
+   - Conversion logic embedded in `CoordinateGroup`
+
+2. **View Package**:
+   - Swing components organized in panels
+   - MainView aggregates all sub-panels
+   - Listener interfaces for Controller interaction
+
+3. **Controller Package**:
+   - Mediates between View and Model
+   - Handles all user actions through listener interfaces
+
+4. **Associations**:
+   - Solid diamonds for composition relationships
+   - Dashed arrows for listener dependencies
+   - Clear MVC separation with Controller mediating between components
+
+This diagram satisfies all requirements including:
+- MVC architecture separation
+- Complete class definitions with attributes/methods
+- Clear representation of associations
+- Package organization
+- Database and TCP/IP implementation through DatabaseManager
+- Swing components in View layer

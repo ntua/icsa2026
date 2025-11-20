@@ -1,0 +1,61 @@
+@startuml
+package "Client" {
+  class CoordinateGroupModel {
+    - id: int
+    - label: String
+    - timestamp: Date
+    
+    +createCoordinateGroup(label:String, inputType:String): void
+    +convertToCartesian(polarCoords: Polar): Cartesian
+    +convertToPolar(cartesianCoords: Cartesian): Polar
+  }
+}
+
+
+package "Presentation" {
+  class UIController {
+    + displayFrontend() : void
+    + searchCoordinateGroupLabel(label: String) : List<CoordinateGroup>
+    + viewAllCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(id: int, cartesianCoords: Cartesian, polarCoords: Polar, label: String): void
+  }
+}
+
+
+package "Application" {
+  class CoordinateConverter {
+    - inputType: String
+    
+    + convertToCartesian(polarCoords: Polar) : Cartesian
+    + convertToPolar(cartesianCoords: Cartesian) : Polar
+  }
+}
+
+
+package "Data" {
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    
+    + delete(): void
+    + modify(cartesianCoords: Cartesian, polarCoords: Polar, label: String): void
+  }
+}
+
+
+package "Persistence" {
+  class DatabaseConnector {
+    + saveData(data: String) : void
+    + fetchData(query: String): List<String>
+    
+    Data <|-- CoordinateGroup
+    User <|-- DatabaseConn
+  }
+}
+
+DatabaseConnector --> "Application.CoordinateConverter" : association
+"Persistence.DatabaseConnector" --> "Presentation.UIController" : association
+"Persistence.DatabaseConnector" <|-- "Data.CoordinateGroup" : composition
+
+@enduml

@@ -1,0 +1,60 @@
+@startuml
+package "Frontend" {
+  class CoordinateConverter {
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    + convertCartesianToPolar(): void
+    + convertPolarToCartesian(): void
+  }
+
+  class DatabaseConnector {
+    - dbConnection: TCP/IP Connection
+    + connectToDatabase(): void
+    + disconnectFromDatabase(): void
+  }
+}
+
+package "Backend" {
+  package "Data Access Layer" {
+    class CoordinateGroup {
+      - id: Integer
+      - label: String
+      - timestamp: Date
+      - cartesian: CartesianCoordinates
+      - polar: PolarCoordinates
+      + saveCoordinateGroup(): void
+      + retrieveCoordinateGroup(label: String): CoordinateGroup
+    }
+
+    class Database {
+      + saveData(data: String): void
+      + fetchData(query: String): String
+    }
+  }
+
+  package "Business Logic Layer" {
+    class CoordinateCalculator {
+      - cartesian: CartesianCoordinates
+      - polar: PolarCoordinates
+      + calculateDistance(): double
+      + calculateAngle(): double
+    }
+  }
+
+  package "Server Communication Layer" {
+    class TCP_IPConnection {
+      + connectToServer(): void
+      + sendRequest(request: String): String
+    }
+  }
+}
+
+package "Database" {
+  class MySQLDatabase {
+    - databaseConnection: TCP/IP Connection
+    + createTable(table_name: String, columns: String): void
+    + insertData(data: String): void
+    + retrieveData(query: String): String
+  }
+}
+@enduml

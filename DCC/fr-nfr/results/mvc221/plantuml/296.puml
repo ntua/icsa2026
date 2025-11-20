@@ -1,0 +1,55 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    + interactWithUser();
+    + displayCoordinateGroups(coordinateGroups: List<CoordinateGroup>);
+    + getInputCartesianCoordinates(): Pair<Number, Number>;
+    + getInputPolarCoordinates(): Pair<Number, Number>;
+    + getInputLabel(): String;
+    + getSelectedRecord(): CoordinateGroup;
+    + getFilterValue(): String;
+  }
+}
+
+package Logic {
+  interface Converter {
+    + convertCartesianToPolar(x: Number, y: Number): Pair<Number, Number>;
+    + convertPolarToCartesian(r: Number, theta: Number): Pair<Number, Number>;
+  }
+  
+  class CoordinateGroupRepository {
+    - database: Database;
+    
+    + CreateOp(coordinateGroup: CoordinateGroup);
+    + ReadOp(): List<CoordinateGroup>;
+    + UpdateOp(updatedCoordinateGroup: CoordinateGroup);
+    + DeleteOp(coordinateGroup: CoordinateGroup);
+  }
+  
+  class CoordinateGroupManager {
+    - converter: Converter;
+    - repository: CoordinateGroupRepository;
+    
+    + addCoordinateGroup(cartesian: Pair<Number, Number>, polar: Pair<Number, Number>, label: String);
+    + updateCoordinateGroup(selectedRecord: CoordinateGroup, newCartesian: Pair<Number, Number>, newPolar: Pair<Number, Number>);
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup);
+  }
+}
+
+package Database {
+  interface Database {
+    + connect();
+    + disconnect();
+    + saveCoordinateGroupRecord(coordinateGroup: CoordinateGroup);
+    + getAllCoordinateGroupRecords(): List<CoordinateGroup>;
+    + updateCoordinateGroupRecord(updatedCoordinateGroup: CoordinateGroup);
+    + deleteCoordinateGroupRecord(coordinateGroup: CoordinateGroup);
+  }
+}
+
+UserInterface -- CoordinateGroupManager
+CoordinateGroupManager -- Converter
+CoordinateGroupRepository -- Database
+
+@enduml

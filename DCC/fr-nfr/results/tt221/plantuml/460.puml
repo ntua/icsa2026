@@ -1,0 +1,31 @@
+@startuml
+
+package com.dummycoordinationconversion {
+    class Coordinate {
+      +cartesian: (x, y) // high-precision numbers
+      +polar: (r, theta) // high-precision numbers
+        
+      +toPolar()
+      +fromCartesian()
+    }
+}
+
+package com.dummycoordinationconversion {
+    class Order {
+        +id: int // unique auto-generated integer identifier
+        +label: String
+        +timestamp: DateTime
+        
+        +createOrder()
+        +readOrderHistory(customerId: int): List<Order>
+        +updateOrder()
+        +deleteOrder()
+    }
+}
+ 
+Order --> Database: Accesses
+
+CoordinateGroup <|-- Cartesian
+CoordinateGroup <|-- Polar
+CoordinateGroup *--* Coordinate : HasMany
+@enduml

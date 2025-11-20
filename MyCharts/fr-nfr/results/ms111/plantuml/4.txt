@@ -1,0 +1,109 @@
+@startuml
+package "Authentication Service" {
+    class User {
+        - name: String
+        - email: String
+        - profilePictureUrl: String
+        - remainingQuota: Integer
+        - createdAt: DateTime
+        - lastLoginAt: DateTime
+
+        + authenticate/google(): AuthToken
+        + updateProfile(User): void
+    }
+
+    class AuthToken {
+        - token: String
+        - expiresAt: DateTime
+    }
+}
+
+package "Template Service" {
+    class Template {
+        - id: String
+        - type: ChartType
+        - content: String
+
+        + getTemplate(type: ChartType): Template
+    }
+}
+
+package "Upload Service" {
+    class UploadedFile {
+        - id: String
+        - content: String
+        - uploadedAt: DateTime
+
+        + upload(file: InputStream): UploadedFile
+    }
+}
+
+package "Validation Service" {
+    class ValidationResult {
+        - isValid: Boolean
+        - errors: List<String>
+
+        + validate(uploadedFile: UploadedFile, template: Template): ValidationResult
+    }
+}
+
+package "Chart Generation Service" {
+    class Chart {
+        - id: String
+        - data: ChartData
+        - generatedAt: DateTime
+
+        + generate(chartData: ChartData): Chart
+    }
+
+    class ChartData {
+        - headers: List<String>
+        - rows: List<List<String>>
+    }
+}
+
+package "Storage Service" {
+    class StoredChart {
+        - id: String
+        - format: ChartFormat
+        - content: ByteArray
+
+        + store(chart: Chart, format: ChartFormat): StoredChart
+    }
+}
+
+package "Dashboard Service" {
+    class ChartHistory {
+        - charts: List<Chart>
+
+        + getHistory(user: User): ChartHistory
+    }
+}
+
+package "Payment Service" {
+    class Transaction {
+        - id: String
+        - amount: BigDecimal
+        - status: TransactionStatus
+
+        + charge(user: User, amount: BigDecimal): Transaction
+    }
+}
+
+package "Quota Management Service" {
+    class Quota {
+        - userId: String
+        - remaining: Integer
+
+        + deduct(amount: Integer): void
+    }
+}
+
+' Associations
+User --> AuthToken
+UploadedFile --> ValidationResult
+Template --> ValidationResult
+Chart --> StoredChart
+StoredChart --> ChartHistory
+Transaction --> Quota
+@enduml

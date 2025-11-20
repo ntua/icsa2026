@@ -1,0 +1,78 @@
+@startuml
+' Packages
+package "DCC Application" as APP {
+    package "Coordinate Group Management" as MANAGEMENT {
+        package "Conversion" as CONVERSION { }
+        package "Storage and Retrieval" as STORAGE_RETRIEVAL { }
+    }
+    package "Controller" as CONTROLLER { }
+    package "View" as VIEW { }
+}
+
+' Classes in Conversion package
+class CoordinateGroupConverter {
+    +convertCartesianToPolar() 
+    +convertPolarToCartesian()
+}
+
+class CoordinateGroup {
+    -cartesian: List<Pair<Double, Double>>
+    -polar: List<Tuple<Double, Double>>
+    +getCartesianCoordinates(): Pair<Double, Double>[] 
+    +getPolarCoordinates(): Tuple<Double, Double>[] 
+}
+
+' Classes in Storage and Retrieval package
+class CoordinateGroupStorage {
+    -storageService: CoordinateGroupStorageService
+    -databaseConnection: DatabaseConnection
+}
+
+class CoordinateGroupStorageService {
+    +storeCoordinateGroup(coordinateGroup) 
+    +retrieveCoordinateGroups() 
+    +deleteCoordinateGroup(id) 
+    +modifyCoordinateGroup(id, coordinateGroup)
+}
+
+' Classes in Controller package
+class DCCController {
+    -model: CoordinateGroupStorage 
+    -view: CoordinateGroupView 
+    -converter: CoordinateGroupConverter
+}
+
+class DCCModel {
+    +getCoordinateGroups() 
+    +updateCoordinateGroup(id, coordinateGroup)
+}
+
+' Classes in View package
+class DCCView {
+    +displayCoordinateGroupDetails()
+}
+
+class CoordinateGroupView {
+    +selectCoordinateGroup() 
+    +editCoordinateGroupDetails() 
+    +deleteCoordinateGroup()
+}
+
+' Associations between packages and classes
+MANAGEMENT <|-- CONVERSION
+MANAGEMENT <|-- STORAGE_RETRIEVAL
+
+APP <|-- CONTROLLER
+APP <|-- VIEW
+
+CONVERSION <|.. CoordinateGroupConverter
+STORAGE_RETRIEVAL <|.. CoordinateGroupStorageService
+
+DCCController *-- CoordinateGroupStorage : composition
+DCCController *-- CoordinateGroupView : composition
+DCCController *-- CoordinateGroupConverter : composition
+
+DCCModel -- DCCController
+DCCView -- CoordinateGroupView : aggregation
+
+@enduml

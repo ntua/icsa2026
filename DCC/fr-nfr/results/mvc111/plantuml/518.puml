@@ -1,0 +1,111 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages
+package "Model" {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoord
+        - polar: PolarCoord
+        
+        + CoordinateGroup(String label, CartesianCoord cartesian)
+        + CoordinateGroup(String label, PolarCoord polar)
+        + getLabel(): String
+        + setLabel(String label): void
+        + getId(): Integer
+        + setId(Integer id): void
+        + getTimestamp(): Date
+        + setTimestamp(Date timestamp): void
+        + getCartesian(): CartesianCoord
+        + getPolar(): PolarCoord
+    }
+
+    class CartesianCoord {
+        - x: Double
+        - y: Double
+        
+        + CartesianCoord(Double x, Double y)
+        + getX(): Double
+        + setX(Double x): void
+        + getY(): Double
+        + setY(Double y): void
+    }
+
+    class PolarCoord {
+        - r: Double
+        - theta: Double
+        
+        + PolarCoord(Double r, Double theta)
+        + getR(): Double
+        + setR(Double r): void
+        + getTheta(): Double
+        + setTheta(Double theta): void
+    }
+
+    class Converter {
+        + {static} convertCartesianToPolar(CartesianCoord cartesian): PolarCoord
+        + {static} convertPolarToCartesian(PolarCoord polar): CartesianCoord
+    }
+}
+
+package "Persistence" {
+    class CoordinateGroupDAO {
+        - dbConnection: DatabaseConnection
+        
+        +CoordinateGroupDAO(DatabaseConnection dbConnection)
+        +createCoordinateGroup(CoordinateGroup group): void
+        +updateCoordinateGroup(CoordinateGroup group): void
+        +deleteCoordinateGroup(Integer id): void
+        +findCoordinateGroupById(Integer id): CoordinateGroup
+        +findCoordinateGroupsByLabel(String label): List<CoordinateGroup>
+        +findAllCoordinateGroups(): List<CoordinateGroup>
+    }
+
+    class DatabaseConnection {
+        - connection: Connection
+        
+        +DatabaseConnection()
+        +getConnection(): Connection
+        +closeConnection(): void
+    }
+}
+
+package "Controller" {
+    class DCCController {
+        - dao: CoordinateGroupDAO
+        - converter: Converter
+        
+        +DCCController(CoordinateGroupDAO dao)
+        +createCoordinateGroup(String label, CartesianCoord cartesian): void
+        +createCoordinateGroup(String label, PolarCoord polar): void
+        +updateCoordinateGroup(Integer id, String label, CartesianCoord cartesian): void
+        +updateCoordinateGroup(Integer id, String label, PolarCoord polar): void
+        +deleteCoordinateGroup(Integer id): void
+        +findCoordinateGroupById(Integer id): CoordinateGroup
+        +findCoordinateGroupsByLabel(String label): List<CoordinateGroup>
+        +findAllCoordinateGroups(): List<CoordinateGroup>
+    }
+}
+
+package "View" {
+    class MainView {
+        - controller: DCCController
+        
+        +MainView(DCCController controller)
+        +showCreateCoordinateGroupDialog(): void
+        +showModifyCoordinateGroupDialog(CoordinateGroup group): void
+        +refreshCoordinateGroupsList(): void
+        +displaySearchResults(List<CoordinateGroup> groups): void
+        +clearSearchResults(): void
+    }
+}
+
+' Associations
+MainView --> DCCController
+DCCController --> CoordinateGroupDAO
+DCCController --> Converter
+CoordinateGroupDAO --> DatabaseConnection
+CoordinateGroupDAO --> CoordinateGroup
+
+@enduml

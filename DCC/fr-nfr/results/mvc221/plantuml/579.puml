@@ -1,0 +1,93 @@
+@startuml DCC_Application_Class_Diagram
+
+' Packages and Classes
+
+package model {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        - cartesian: CartesianCoords
+        - polar: PolarCoords
+        
+        + getLabel(): String
+        + getTimestamp(): Date
+        + getCartesian(): CartesianCoords
+        + getPolar(): PolarCoords
+    }
+
+    class CartesianCoords {
+        - x: Double
+        - y: Double
+
+        + toPolar(): PolarCoords
+        + getX(): Double
+        + getY(): Double
+        + setX(Double)
+        + setY(Double)
+    }
+
+    class PolarCoords {
+        - r: Double
+        - theta: Double
+
+        + toCartesian(): CartesianCoords
+        + getR(): Double
+        + getTheta(): Double
+        + setR(Double)
+        + setTheta(Double)
+    }
+}
+
+package model.dao {
+    class CoordinateGroupDAO {
+        - dbConnection: Connection
+        
+        + create(CoordinateGroup): void
+        + readAll(): List<CoordinateGroup>
+        + update(CoordinateGroup): void
+        + delete(Integer): void
+    }
+}
+
+package util {
+    class ConverterUtility {
+        + convertCartesianToPolar(CartesianCoords): PolarCoords
+        + convertPolarToCartesian(PolarCoords): CartesianCoords
+    }
+}
+
+package controller {
+    class DCCController {
+        - model: CoordinateGroupDAO
+        
+        + addCoordinateGroup(label: String, x: Double, y: Double): void
+        + updateCoordinateGroup(id: Integer, label: String, x: Double, y: Double): void
+        + deleteCoordinateGroup(id: Integer): void
+        + filterGroups(filter: String): List<CoordinateGroup>
+    }
+}
+
+package view {
+    class DCCView {
+        - controller: DCCController
+        
+        + show(): void
+        + getLabelInput(): String
+        + getXInput(): Double
+        + getYInput(): Double
+        + displayGroups(groups: List<CoordinateGroup>): void
+    }
+}
+
+' Relationships
+
+DCCController --> CoordinateGroupDAO
+DCCView --> DCCController
+
+CoordinateGroup *-- CartesianCoords
+CoordinateGroup *-- PolarCoords
+
+CoordinateGroupDAO --> ConverterUtility
+
+@enduml

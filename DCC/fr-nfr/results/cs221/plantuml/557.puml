@@ -1,0 +1,96 @@
+@startuml DCC_Class_Diagram
+
+' Packages
+package "Client" {
+  package "GUI" {
+    class GUITransactions {
+      - List<CoordinateGroup> coordinateGroups
+      + void initialize()
+      + void addCoordinateGroup()
+      + void updateCoordinateGroup()
+      + void deleteCoordinateGroup()
+      + void filterByLabel(String label)
+      + void clearFilter()
+      + void refreshDisplay()
+    }
+  }
+
+  package "Logic" {
+    class CoordinateConverter {
+      + CartesianCoordinate convertToCartesian(PolarCoordinate polar)
+      + PolarCoordinate convertToPolar(CartesianCoordinate cartesian)
+    }
+
+    class CoordinateGroupService {
+      - CoordinateConverter converter
+      - CoordinateGroup currentGroup
+
+      + void createNewGroup(String label, CartesianCoordinate cartesian)
+      + void createNewGroup(String label, PolarCoordinate polar)
+      + List<CoordinateGroup> getAllGroups()
+      + void updateGroup(CoordinateGroup group)
+      + void deleteGroup(Integer id)
+    }
+
+    class CartesianCoordinate {
+      - Double x
+      - Double y
+
+      + CartesianCoordinate(Double x, Double y)
+      + Double getDistanceFromOrigin()
+    }
+
+    class PolarCoordinate {
+      - Double r
+      - Double theta
+
+      + PolarCoordinate(Double r, Double theta)
+      + Double getRadius()
+      + Double getAngleInDegrees()
+    }
+
+    class CoordinateGroup {
+      - Integer id
+      - String label
+      - CartesianCoordinate cartesian
+      - PolarCoordinate polar
+      - DateTime timestamp
+
+      + CoordinateGroup(String label, CartesianCoordinate cartesian, PolarCoordinate polar)
+    }
+  }
+}
+
+package "Server" {
+  package "Database" {
+    class Database {
+      + void saveCoordinateGroup(CoordinateGroup group)
+      + List<CoordinateGroup> retrieveAllGroups()
+      + void updateCoordinateGroup(CoordinateGroup group)
+      + void deleteCoordinateGroup(Integer id)
+    }
+
+    class CoordinateRecord {
+      - Integer id
+      - String label
+      - Double x
+      - Double y
+      - Double r
+      - Double theta
+      - DateTime timestamp
+
+      + CoordinateRecord(String label, Double x, Double y, Double r, Double theta, DateTime timestamp)
+    }
+  }
+}
+
+' Associations
+GUITransactions --> CoordinateGroupService : Use
+CoordinateGroupService --> CoordinateConverter : Use
+CoordinateGroupService --> Database : Use
+CoordinateGroupService --> CartesianCoordinate : Create/Use
+CoordinateGroupService --> PolarCoordinate : Create/Use
+
+Database --> CoordinateRecord : Manage
+
+@enduml

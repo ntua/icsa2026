@@ -1,0 +1,120 @@
+Not sharing data-
+base tables also improves runtime isolation. It ensures, for example, that one service
+can’t hold database locks that block another service. Later on, though, you’ll learn
+that one downside of not sharing databases is that maintaining data consistency and
+querying across servic es are more complex. THE ROLE OF SHARED  LIBRARIES
+Developers often package functionality in a library (module) so that it can be reused
+by multiple applications without duplicatin g code. After all, wher e would we be today
+without Maven or npm repositories? You might be tempted to also use shared libraries
+in microservice architecture. On the surfac e, it looks like a good way to reduce code
+duplication in your services. But you need to  ensure that you don’t accidentally intro-
+duce coupling between your services. Imagine, for example, that multiple services need to update the Order  business
+object. One approach is to package that func tionality as a library that’s used by multi-
+ple services. On one hand, using a library el iminates code duplication. On the other
+hand, consider what happens when the requirements change in a way that affects the
+Order  business object. You would need to simu ltaneously rebuild and redeploy those
+services. A much better approach would be to implement functionality that’s likely to
+change, such as Order  management, as a service. You should strive to use libraries for functionality that’s unlikely to change. For
+example, in a typical application it makes no sense for every service to implement a
+generic Money  class. Instead, you should create a library that’s used by the services. THE SIZE OF A SERVICE  IS MOSTLY  UNIMPORTANT
+One problem with the term microservice  is that the first thing you hear is micro . This
+suggests that a service should be very small. This is also true of other size-based terms
+such as miniservice or nanoservice. In  reality, size isn’t a useful metric. A much better goal is to define a well -designed service to be a service capable of
+being developed by a small team with mini mal lead time and with minimal collabora-
+tion with other teams. In theory, a team mi ght only be responsible for a single service,
+so that service is by no means micro . Conversely, if a service requires a large team or
+takes a long time to test, it probably make s sense to split the team and the service. Or
+if you constantly need to change a service be cause of changes to other services or if it’s
+triggering changes in other services, that’s a sign that it’s not loosely coupled. You
+might even have built a distributed monolith. The microservice architecture structures an application as a set of small, loosely
+coupled services. As a result, it improves the development time attributes—main-tainability, testability, deployability, an d so on—and enables an organization to
+develop better software faster. It also improves an application’s scalability, although
+that’s not the main goal. To develop a micr oservice architecture for your application,
+you need to identify the services and dete rmine how they collaborate. Let’s look at
+how to do that. (Score: 310.8765390689268)
+
+---
+
+The services need to implement the query opera-tions needed by the API gateway. Summary
+Architecture determines your application’s -ilities , including maintainability,
+testability, and deployability, which di rectly impact development velocity. The microservice architecture is an arch itecture style that gives an application
+high maintainability, testability, and deployability. Services in a microservice architecture are organized around business concerns—
+business capabilities or subdomains —rather than technical concerns. There are two patterns for decomposition:
+– Decompose by business capability, which has its origins in business archi-
+tecture
+– Decompose by subdomain, based on concepts from domain-driven design
+You can eliminate god classes, which cause tangled dependencies that prevent
+decomposition, by applying DDD and de fining a separate domain model for
+each service.  (Score: 363.7937449062759)
+
+---
+
+39 What is the microservice architecture exactly? Surrounding the business logic are adapters . (Score: 364.79488007518063)
+
+---
+
+The traditional solution is to use a tw o-phase, commit-based, distributed trans-
+action management mechanism. But as you’ ll see in chapter 4, this is not a good
+choice for modern applications, and you must  use a very different approach to trans-
+action management, a saga. A saga is a sequence of local transactions that are coordi-
+nated using messaging. Sagas are more complex than traditional ACID transactionsbut they work well in many situations. One lim itation of sagas is that they are eventu-
+ally consistent. If you need to update some data atomically, then it must reside within
+a single service, which can be an obstacle to decomposition. OBTAINING  A CONSISTENT  VIEW OF THE DATA
+Another obstacle to decomposition is the inab ility to obtain a truly consistent view of
+data across multiple databases. In a mono lithic application, the properties of ACID
+transactions guarantee that a query will return a consistent view of the database. In
+contrast, in a microservice architecture, even though each service’s database is consis-
+tent, you can’t obtain a globally consistent view of the data. If you need a consistent
+view of some data, then it must reside in  a single service, which can prevent decompo-
+sition. Fortunately, in practice this is rarely a problem. GOD CLASSES  PREVENT  DECOMPOSITION
+Another obstacle to decomposition is th e existence of so-called god classes. God classes
+are the bloated classes that are used throughout an application ( http://wiki.c2.com/
+?GodClass ). A god class typically implements business logic for many different aspects
+of the application. It normally has a larg e number of fields mapped to a database
+table with many columns. Most applications  have at least one of these classes, each
+representing a concept that’s central to th e domain: accounts in  banking, orders in
+e-commerce, policies in insurance, and so  on. Because a god class bundles together
+state and behavior for many different aspects of an application, it’s an insurmountableobstacle to splitting any business lo gic that uses it into services. The 
+Order  class is a great example of a god class in the FTGO application. That’s
+not surprising—after all, the purpose of FTGO  is to deliver food orders to customers. Most parts of the system involve orders. If  the FTGO application had a single domain
+model, the Order  class would be a very large class. It would have state and behavior
+corresponding to many different parts of th e application. Figure 2.10 shows the struc-
+ture of this class that would be crea ted using traditional modeling techniques. As you can see, the Order  class has fields and methods corresponding to order pro-
+cessing, restaurant order management, delive ry, and payments. This class also has a
+complex state model, due to the fact that one model has to describe state transitions
+  (Score: 365.0692552285056)
+
+---
+
+54 CHAPTER  2Decomposition strategies
+point where it becomes worthwhile to split it into multiple services. What’s more, in
+section 2.2.5, I describe several obstacle s to decomposition that might cause you to
+revisit your decision. Let’s take a look at another way to decompose an application that is based on
+domain-driven design. 2.2.3 Defining services by applying the Decompose by 
+sub-domain pattern
+DDD, as described in the excellent book Domain-driven design by Eric Evans
+(Addison-Wesley Professional, 2003), is an  approach for building complex software
+applications that is centered on the development of an object-oriented domain
+model. A domain mode  captures knowledge about a do main in a form that can be
+used to solve problems within that domain. It defines the vocabulary used by the
+team, what DDD calls the Ubiquitous Language . The domain model is closely mir-
+rored in the design and implementation of the application. DDD has two concepts
+that are incredibly useful when applying  the microservice architecture: subdomains
+and bounded contexts. DDD is quite different than the traditiona l approach to enterprise modeling, which
+creates a single model for the entire enterp rise. In such a model there would be, for
+example, a single definition of each busi ness entity, such as customer, order, and so
+on. The problem with this kind of modeling is  that getting different parts of an orga-
+nization to agree on a single model is a monumental task. Also, it means that from the
+perspective of a given part of the organization, the model is overly complex for theirneeds. Moreover, the domain model can be confusing because different parts of the
+organization might use either the same term  for different concepts or different terms
+for the same concept. DDD avoids these pr oblems by defining multiple domain mod-
+els, each with an explicit scope. DDD defines a separate domain model fo r each subdomain. A subdomain is a part
+of the domain , DDD’s term for the application’s pr oblem space. Subdomains are iden-
+tified using the same approach as identifying business capabilities: analyze the busi-
+ness and identify the different areas of expertise. The end result is very likely to be
+subdomains that are similar to the business capabilities. The examples of subdomains
+in FTGO include Order taking, Order ma nagement, Kitchen management, Delivery,
+and Financials. As you can see, these subdom ains are very similar to the business capa-
+bilities described earlier.Pattern: Decompose by subdomain
+Define services corresponding to DDD subdomains. See http://microservices.io
+/patterns/decomposition/decompose-by-subdomain.html . (Score: 371.9728252049282)

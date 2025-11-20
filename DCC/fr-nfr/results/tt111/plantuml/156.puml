@@ -1,0 +1,74 @@
+@startuml
+package presentation {
+  -class UserInterface {
+    +- method createCoordinateGroup()
+    +- method storeCoordinateGroup(CoordinateGroup group)
+    +- method retrieveCoordinateGroups(String label)
+    +- method modifyCoordinateGroup(CoordinateGroup group)
+    +- method deleteCoordinateGroup(int id)
+  }
+}
+
+package businessLogic {
+  -class CoordinateConverter {
+    +- method convertToCartesian(PolarCoordinates polarCoords)
+    +- method convertToPolar(CartesianCoordinates cartesianCoords)
+  }
+
+  -class CoordinateValidator {
+    +- method validateCartesianCoordinates(CartesianCoordinates coords)
+    +- method validatePolarCoordinates(PolarCoordinates coords)
+  }
+
+  -class CoordinateGroupManager {
+    +- method createCoordinateGroup(CoordinateGroup group)
+    +- method storeCoordinateGroup(CoordinateGroup group)
+    +- method retrieveCoordinateGroups(String label)
+    +- method modifyCoordinateGroup(CoordinateGroup group)
+    +- method deleteCoordinateGroup(int id)
+  }
+}
+
+package dataAccess {
+  -class MySQLDatabase {
+    +- method connect()
+    +- method disconnect()
+    +- method storeCoordinateGroup(CoordinateGroup group)
+    +- method retrieveCoordinateGroups(String label)
+    +- method modifyCoordinateGroup(CoordinateGroup group)
+    +- method deleteCoordinateGroup(int id)
+  }
+}
+
+package model {
+  -class CartesianCoordinates {
+    +- attribute x: Float
+    +- attribute y: Float
+  }
+
+  -class PolarCoordinates {
+    +- attribute r: Float
+    +- attribute theta: Float
+  }
+
+  -class CoordinateGroup {
+    +- attribute id: Integer (auto-generated)
+    +- attribute label: String
+    +- attribute timestamp: Timestamp
+    +- attribute cartesianCoords: CartesianCoordinates
+    +- attribute polarCoords: PolarCoordinates
+  }
+}
+
+UserInterface -> CoordinateConverter : uses
+CoordinateConverter -> CoordinateValidator : uses
+
+CoordinateGroupManager -> CoordinateConverter : uses
+CoordinateGroupManager -> CoordinateValidator : uses
+CoordinateGroupManager -> MySQLDatabase : uses
+
+MySQLDatabase -> CoordinateGroup : has_a
+CoordinateGroup -> CartesianCoordinates : has_a (cartesianCoords)
+CoordinateGroup -> PolarCoordinates : has_a (polarCoords)
+
+@enduml

@@ -1,0 +1,84 @@
+@startuml
+package "Client" {
+  class CoordinateGroupManager {
+    - coordinator: Coordinator
+    - cartToPolarConverter: CartToPolarConverter
+    + createCoordinateGroup(cartesian: Cartesian, polar: Polar)
+    + storeCoordinateGroup(label: String, cartesian: Cartesian, polar: Polar)
+    + retrieveCoordinateGroupByLabel(label: String)
+    + retrieveAllCoordinateGroups()
+    + modifyCoordinateGroup(coordinateGroupId: Int, updatedCartesian: Cartesian, updatedPolar: Polar)
+    + deleteCoordinateGroup(coordinateGroupId: Int)
+  }
+
+  class Coordinator {
+    - cartToPolarConverter: CartToPolarConverter
+    - polarToCartConverter: PolarToCartConverter
+    + convert(cartesian: Cartesian): Polar
+    + convert(polar: Polar): Cartesian
+  }
+
+  class CartToPolarConverter {
+    + convert(cartesian: Cartesian): Polar
+  }
+
+  class PolarToCartConverter {
+    + convert(polar: Polar): Cartesian
+  }
+}
+
+package "Server" {
+  class CoordinateGroupDatabaseManager {
+    - databaseConnection: DatabaseConnection
+    - coordinateGroupRepository: CoordinateGroupRepository
+    + saveCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(coordinateGroupId: Int, updatedCartesian: Cartesian, updatedPolar: Polar)
+    + deleteCoordinateGroup(coordinateGroupId: Int)
+  }
+
+  class DatabaseConnection {
+    + connect()
+    + disconnect()
+  }
+
+  class CoordinateGroupRepository {
+    - coordinateGroups: List<CoordinateGroup>
+    + save(coordinateGroup: CoordinateGroup)
+    + retrieveByLabel(label: String): CoordinateGroup
+    + retrieveAll(): List<CoordinateGroup>
+    + update(coordinateGroupId: Int, updatedCartesian: Cartesian, updatedPolar: Polar)
+    + delete(coordinateGroupId: Int)
+  }
+
+  class CoordinateGroup {
+    - coordinateGroupId: Int
+    - label: String
+    - cartesian: Cartesian
+    - polar: Polar
+  }
+
+  class Cartesian {
+    - x: Float
+    - y: Float
+  }
+
+  class Polar {
+    - r: Float
+    - theta: Float
+  }
+}
+
+CoordinateGroupManager --> Coordinator : Composition
+Coordinator --> CartToPolarConverter : Composition
+CartToPolarConverter --> Cartesian : Composition
+PolarToCartConverter --> Polar : Composition
+
+Cartesian ..> Polar : Inheritance
+Cartesian ..> CoordinateGroup : Inheritance
+Polar ..> CoordinateGroup : Inheritance
+
+CoordinateGroupManager ..> CoordinateGroupDatabaseManager : Accesses
+
+@enduml

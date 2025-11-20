@@ -1,0 +1,121 @@
+@startuml DCC_Application_Class_Diagram
+
+package "Client" {
+    class DCCApp {
+        - gui: GUI
+        - clientService: ClientService
+        
+        + void createUserInterface()
+        + void createCoordinateGroup(CartesianPoint, PolarPoint)
+        + void retrieveCoordinateGroups()
+        + void modifyCoordinateGroup(int, String, CartesianPoint, PolarPoint)
+        + void deleteCoordinateGroup(int)
+    }
+
+    class CoordinateGroupForm {
+        - Swing components for input
+        
+        + void showCreateForm()
+        + void showModifyForm(CoordinateGroup)
+        + getCartesianPoint(): CartesianPoint
+        + getPolarPoint(): PolarPoint
+        + getLabel(): String
+    }
+
+    class CoordinateGroupList {
+        - Swing table for display
+        
+        + void refreshList(List<CoordinateGroup>)
+        + void showDetails(int)
+    }
+
+    class ClientService {
+        - socket: Socket
+        
+        + sendCreateRequest(CartesianPoint, PolarPoint): int
+        + sendRetrieveAllRequest(): List<CoordinateGroup>
+        + sendRetrieveByIdRequest(int): CoordinateGroup
+        + sendModifyRequest(int, String, CartesianPoint, PolarPoint)
+        + sendDeleteRequest(int)
+    }
+}
+
+package "Server" {
+    class ServerApp {
+        - serverSocket: ServerSocket
+        - databaseManager: DatabaseManager
+        
+        + void startListening()
+        + handleCreateRequest(Socket, CartesianPoint, PolarPoint): int
+        + handleRetrieveAllRequest(Socket): List<CoordinateGroup>
+        + handleRetrieveByIdRequest(Socket, int): CoordinateGroup
+        + handleModifyRequest(Socket, int, String, CartesianPoint, PolarPoint)
+        + handleDeleteRequest(Socket, int)
+    }
+
+    class DatabaseManager {
+        - connection: Connection
+        
+        + createCoordinateGroup(CartesianPoint, PolarPoint): int
+        + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        + retrieveCoordinateGroup(int): CoordinateGroup
+        + modifyCoordinateGroup(int, String, CartesianPoint, PolarPoint)
+        + deleteCoordinateGroup(int)
+    }
+}
+
+package "Model" {
+    class CoordinateGroup {
+        - id: int
+        - label: String
+        - timestamp: Date
+        - cartesianPoints: List<CartesianPoint>
+        - polarPoints: List<PolarPoint>
+        
+        + addCartesianPoint(CartesianPoint)
+        + addPolarPoint(PolarPoint)
+    }
+
+    abstract class Point {
+        + convertToOtherFormat(): Point
+    }
+
+    class CartesianPoint extends Point {
+        - x: double
+        - y: double
+        
+        + toPolar(): PolarPoint
+    }
+
+    class PolarPoint extends Point {
+        - r: double
+        - theta: double
+        
+        + toCartesian(): CartesianPoint
+    }
+}
+
+package "Utilities" {
+    class Converter {
+        + static convertCartesianToPolar(CartesianPoint): PolarPoint
+        + static convertPolarToCartesian(PolarPoint): CartesianPoint
+    }
+}
+
+'DCCApp' --* 'ClientService'
+'DCCApp' --* 'CoordinateGroupForm'
+'DCCApp' --* 'CoordinateGroupList'
+
+'ClientService' --* 'ServerApp'
+
+'ServerApp' --* 'DatabaseManager'
+
+'DatabaseManager' --* 'Converter'
+
+'CoordinateGroup' *-- 'CartesianPoint'
+'CoordinateGroup' *-- 'PolarPoint'
+
+'CartesianPoint' --|> 'Point'
+'PolarPoint' --|> 'Point'
+
+@enduml

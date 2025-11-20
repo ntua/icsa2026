@@ -1,0 +1,105 @@
+Response:
+```plantuml
+@startuml
+
+' Define Model Package for domain entities
+package model {
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - cartesian: CartesianCoordinates
+    - polar: PolarCoordinates
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + setLabel(label: String): void
+    + getCartesian(): CartesianCoordinates
+    + getPolar(): PolarCoordinates
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+    + getX(): double
+    + getY(): double
+    + setX(x: double): void
+    + setY(y: double): void
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+    + getR(): double
+    + getTheta(): double
+    + setR(r: double): void
+    + setTheta(theta: double): void
+  }
+  
+  ' Composition relationships within CoordinateGroup
+  CoordinateGroup *-- CartesianCoordinates
+  CoordinateGroup *-- PolarCoordinates
+}
+
+' Data Access Package for persistence
+package data {
+  class DatabaseConnection {
+    - connectionString: String
+    + connect(): void
+    + disconnect(): void
+  }
+  
+  class CoordinateGroupDAO {
+    + insert(coordinateGroup: model.CoordinateGroup): void
+    + update(coordinateGroup: model.CoordinateGroup): void
+    + delete(coordinateGroup: model.CoordinateGroup): void
+    + getAll(): List<model.CoordinateGroup>
+    + findByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  ' Association between DAO and DatabaseConnection
+  CoordinateGroupDAO --> DatabaseConnection
+}
+
+' Business Logic Package for core operations
+package business {
+  class CoordinateGroupService {
+    + createCoordinateGroup(label: String, cartesian: model.CartesianCoordinates, polar: model.PolarCoordinates): void
+    + modifyCoordinateGroup(coordinateGroup: model.CoordinateGroup, newLabel: String, newCartesian: model.CartesianCoordinates, newPolar: model.PolarCoordinates): void
+    + deleteCoordinateGroup(coordinateGroup: model.CoordinateGroup): void
+    + viewAllCoordinateGroups(): List<model.CoordinateGroup>
+    + viewCoordinateGroupByLabel(label: String): List<model.CoordinateGroup>
+  }
+  
+  class CoordinateConverter {
+    + toPolar(cartesian: model.CartesianCoordinates): model.PolarCoordinates
+    + toCartesian(polar: model.PolarCoordinates): model.CartesianCoordinates
+  }
+  
+  ' Associations in Business Layer
+  CoordinateGroupService --> CoordinateGroupDAO : uses
+  CoordinateGroupService ..> CoordinateConverter : uses
+}
+
+' Presentation Package for UI components
+package presentation {
+  class CoordinateGroupUI {
+    + displayCoordinateGroups(groups: List<model.CoordinateGroup>): void
+    + getUserInput(): void
+  }
+  
+  ' Association between UI and Service
+  CoordinateGroupUI --> CoordinateGroupService : interacts with
+}
+
+@enduml
+```
+
+This PlantUML class diagram:
+
+- Organizes classes into four packages: **model**, **data**, **business**, and **presentation**, reflecting a Three-Tier architecture.
+- Defines domain entities (`CoordinateGroup`, `CartesianCoordinates`, `PolarCoordinates`) in the **model** package with appropriate attributes and methods.
+- Shows the **data** layer with `DatabaseConnection` and `CoordinateGroupDAO` handling persistence operations.
+- Details the **business** layer containing `CoordinateGroupService` (for coordinate group operations) and `CoordinateConverter` (for converting between coordinate formats), including their methods and associations.
+- Places the `CoordinateGroupUI` class in the **presentation** layer to interact with the user and call service methods.
+- Uses associations to indicate interactions and dependencies between layers and classes, ensuring clear separation of concerns as per the requested architecture.

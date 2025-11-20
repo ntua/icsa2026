@@ -1,0 +1,67 @@
+@startuml
+
+package "Presentation Layer (Swing)" {
+class CoordinateGroupCreator {
+- cartesianCoordinates : List<CartesianCoordinate>
+- polarCoordinates : List<PolarCoordinate>
++ createCoordinateGroup() : void
+}
+
+class CoordinateGroupRetriever {
+- database : Database
++ retrieveByLabel(label: String) : CoordinateGroup
++ retrieveAll() : List<CoordinateGroup>
+}
+
+class CoordinateGroupModifier {
+- database : Database
++ modifyDetails(coordinateGroup: CoordinateGroup) : void
+}
+
+class CoordinateGroupDeleter {
+- database : Database
++ delete(coordinateGroup: CoordinateGroup) : void
+}
+}
+
+package "Application Layer" {
+class CoordinateConverter {
+- cartesianCoordinates : List<CartesianCoordinate>
+- polarCoordinates : List<PolarCoordinate>
++ convertToPolar() : List<PolarCoordinate>
++ convertToCartesian() : List<CartesianCoordinate>
+}
+}
+
+package "Domain Layer" {
+class CoordinateGroup {
+- id : int
+- label : String
+- timestamp : Date
+- cartesianCoordinates : List<CartesianCoordinate>
+- polarCoordinates : List<PolarCoordinate>
+}
+
+class CartesianCoordinate {
+- x : float
+- y : float
+}
+
+class PolarCoordinate {
+- r : float
+- theta : float
+}
+}
+
+package "Persistence Layer (MySQL)" {
+class Database {
++ storeCoordinateGroup(coordinateGroup: CoordinateGroup) : void
++ retrieveCoordinateGroup(id: int) : CoordinateGroup
+}
+}
+
+CoordinateGroupCreator --> CoordinateConverter
+CoordinateGroupRetriever --> Database
+CoordinateGroupModifier --> Database
+CoordinateGroupDeleter --> Database
+@enduml

@@ -1,0 +1,71 @@
+@startuml DCC_Application
+
+' Package declarations
+package Model {
+    class CoordinateGroup {
+        - id: Integer
+        - label: String
+        - timestamp: Date
+        + getLabel(): String
+        + setLabel(label: String): void
+        + getId(): Integer
+        + getTimestamp(): Date
+    }
+
+    class Cartesian {
+        - x: Double
+        - y: Double
+        + getX(): Double
+        + getY(): Double
+        + convertToPolar(): Polar
+    }
+
+    class Polar {
+        - r: Double
+        - theta: Double
+        + getR(): Double
+        + getTheta(): Double
+        + convertToCartesian(): Cartesian
+    }
+
+    class DatabaseManager {
+        + createCoordinateGroup(coordGroup: CoordinateGroup): void
+        + retrieveCoordinateGroupById(id: Integer): CoordinateGroup
+        + retrieveAllCoordinateGroups(): List<CoordinateGroup>
+        + updateCoordinateGroup(coordGroup: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package Controller {
+    class DCCController {
+        - model: DatabaseManager
+        - view: MainView
+        
+        + createCoordinateGroup(cartesian: Cartesian, label: String): void
+        + createCoordinateGroup(polar: Polar, label: String): void
+        + retrieveCoordinateGroups(): List<CoordinateGroup>
+        + retrieveCoordinateGroup(id: Integer): CoordinateGroup
+        + updateCoordinateGroup(coordGroup: CoordinateGroup): void
+        + deleteCoordinateGroup(id: Integer): void
+    }
+}
+
+package View {
+    class MainView {
+        - controller: DCCController
+        
+        + displayCoordinateGroups(coordGroups: List<CoordinateGroup>): void
+        + showCreateForm(): void
+        + showUpdateForm(coordGroup: CoordinateGroup): void
+        + handleUserInput(): void
+    }
+}
+
+' Associations
+DatabaseManager --> CoordinateGroup
+DCCController --> DatabaseManager
+DCCController --> MainView
+MainView --> DCCController
+
+@enduml

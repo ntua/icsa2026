@@ -1,0 +1,48 @@
+@startuml
+' Frontend Layer - Swing Application'
+package "Frontend" {
+  class DCCApplication {
+    + createCoordinateGroup(cartesian: Cartesian, polar: Polar) : void
+    + retrieveCoordinateGroups() : List<CoordinateGroup>
+    + modifyCoordinateGroup(id: int, cartesian: Optional[Cartesian], polar: Optional[Polar], label: String) : void
+    + deleteCoordinateGroup(id: int) : void
+  }
+}
+
+' Logic Layer - Business Rules and Processing'
+package "Logic Layer" {
+  class CoordinateConverter {
+    + convertToCartesian(polar: Polar) : Cartesian
+    + convertToPolar(cartesian: Cartesian) : Polar
+  }
+
+  class DataManager {
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup) : int
+    + getCoordinateGroupsByLabel(label: String) : List<CoordinateGroup>
+    + getAllCoordinateGroups() : List<CoordinateGroup>
+    + updateCoordinateGroup(id: int, coordinateGroup: CoordinateGroup) : void
+  }
+}
+
+' Data Layer - MySQL Database'
+package "Database" {
+  class MySQL {
+    + connectToDatabase(): boolean
+    + createTable(): boolean
+    }
+    ' Table Structure for Coordinate Groups'
+
+    class CoordinateGroup {
+      id: int
+      label: String
+      timestamp: DateTime
+
+      cartesian: Cartesian
+      polar: Polar
+    }
+}
+' Associations and Connections
+DCCApplication --> DataManager : Uses
+DataManager ..> MySQL : Accesses
+DCCApplication -> MySQL : Communicates via TCP/IP
+@enduml

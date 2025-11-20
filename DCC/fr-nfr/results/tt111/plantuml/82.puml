@@ -1,0 +1,53 @@
+@startuml
+package "Presentation Layer" {
+  class Frontend {
+    - SwingFramework : SwingFramework
+    + createCoordinateGroup() : CoordinateGroup
+    + modifyCoordinateGroup(group: CoordinateGroup) : void
+    + deleteCoordinateGroup(groupId: int) : void
+    + viewAllGroups() : List<CoordinateGroup>
+  }
+}
+
+package "Business Logic Layer" {
+  class CoordinateConverter {
+    - conversionMatrix : ConversionMatrix
+    + convertToCartesian(polar: PolarCoordinates) : CartesianCoordinates
+    + convertToPolar(cartesian: CartesianCoordinates) : PolarCoordinates
+  }
+
+  class CoordinateManager {
+    - coordinateGroups : List<CoordinateGroup>
+    + createCoordinateGroup(label: String, cartesian: CartesianCoordinates, polar: PolarCoordinates) : int
+    + retrieveByLabel(groupId: int) : CoordinateGroup
+    + updateCoordinateGroup(groupId: int, label: String, cartesian: CartesianCoordinates, polar: PolarCoordinates) : void
+    + deleteCoordinateGroup(groupId: int) : void
+  }
+}
+
+package "Data Access Layer" {
+  class MySQLDatabase {
+    - coordinateGroupsTable : Table
+    + storeCoordinateGroup(group: CoordinateGroup) : void
+    + retrieveByLabel(label: String) : CoordinateGroup
+    + updateCoordinateGroup(groupId: int, label: String, cartesian: CartesianCoordinates, polar: PolarCoordinates) : void
+    + deleteCoordinateGroup(groupId: int) : void
+  }
+  class CoordinateGroup{}
+}
+
+package "TCP/IP Connection" {
+  class TCPClient {
+    - socket : Socket
+    + sendRequest(request: Request) : Response
+    + closeConnection() : void
+  }
+}
+
+Frontend --> TCPClient : Uses
+CoordinateConverter --> CoordinateManager : Uses
+MySQLDatabase --> TCPClient : Accesses
+
+CoordinateGroup --> MySQLDatabase : Composition (via CoordinateManager)
+
+@enduml

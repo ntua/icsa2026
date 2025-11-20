@@ -1,0 +1,51 @@
+@startuml
+
+' Packages
+package "User Interface" {
+    class CoordinateGroupCreator
+    class FormData
+    class ViewList
+    class Data
+}
+
+package "Business Logic" {
+    class Controller
+    class ModelManager
+}
+
+package "Database" {
+    class DBConnection
+    class DBSchema
+}
+
+class CoordinateGroup {
+    + String label
+    + PolarCoordinates polar
+    + CartesianCoordinates cartesian
+    + Date timestamp
+}
+
+' Associations within User Interface
+CoordinateGroupCreator "1..*" --> FormData : hasInputs
+ViewList --> Data : displays
+
+' Associations within Business Logic
+Controller --> CoordinateGroupCreator : commands
+ModelManager "1..*" --> FormData : stores
+ModelManager --> Data : retrieves
+
+' Associations within Database
+CoordinateGroupCreator ..> DBConnection : uses
+ModelManager ..> DBSchema : defines
+
+' Additional Associations
+ViewList --> "1..*" CoordinateGroup : lists
+
+Controller ..> CoordinateGroupCreator : commands
+Controller ..> ModelManager : stores
+
+DBConnection ..> Controller : authenticates
+
+DBSchema ..> ModelManager : references
+
+@enduml

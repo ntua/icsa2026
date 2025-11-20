@@ -1,0 +1,91 @@
+@startuml
+' Client Package
+package "Client" {
+    class DCCApp {
+        - String currentLabel
+        - CoordinateGroup currentCoordinateGroup
+        - List<CoordinateGroup> coordinateGroups
+        
+        + void initialize()
+        + void addCoordinateGroup()
+        + void updateCoordinateGroup()
+        + void deleteCoordinateGroup()
+        + void refreshList()
+        + void filterByLabel(String label)
+        + void clearFilter()
+    }
+
+    class CoordinateManager {
+        + CartesianCoordinates convertPolarToCartesian(PolarCoordinates polar)
+        + PolarCoordinates convertCartesianToPolar(CartesianCoordinates cartesian)
+        + CoordinateGroup createCoordinateGroup(String label, CartesianCoordinates cartesian, PolarCoordinates polar)
+    }
+
+    abstract class CoordinateGroup {
+        + String id
+        + String label
+        + DateTime timestamp
+        + CartesianCoordinates cartesian
+        + PolarCoordinates polar
+    }
+
+    class TransactionManager {
+        - Database database
+        
+        + void createRecord(CoordinateGroup group)
+        + List<CoordinateGroup> readRecords()
+        + void updateRecord(CoordinateGroup group)
+        + void deleteRecord(String id)
+    }
+}
+
+' Server Package
+package "Server" {
+    interface Database {
+        + void createRecord(CoordinateGroup group)
+        + List<CoordinateGroup> readRecords()
+        + void updateRecord(CoordinateGroup group)
+        + void deleteRecord(String id)
+    }
+
+    class MySQLDatabase implements Database {
+        + Connection connection
+        
+        + void connect()
+        + void disconnect()
+        + void createRecord(CoordinateGroup group)
+        + List<CoordinateGroup> readRecords()
+        + void updateRecord(CoordinateGroup group)
+        + void deleteRecord(String id)
+    }
+}
+
+' Model Classes
+class CartesianCoordinates {
+    + double x
+    + double y
+    
+    + PolarCoordinates toPolar()
+}
+
+class PolarCoordinates {
+    + double r
+    + double theta
+    
+    + CartesianCoordinates toCartesian()
+}
+
+' Associations
+DCCApp --* TransactionManager
+DCCApp --* CoordinateManager
+
+CoordinateManager --* CartesianCoordinates
+CoordinateManager --* PolarCoordinates
+CoordinateManager --* CoordinateGroup
+
+TransactionManager --* Database
+TransactionManager --* CoordinateGroup
+
+MySQLDatabase --* CoordinateGroup
+
+@enduml

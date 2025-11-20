@@ -1,0 +1,64 @@
+@startuml
+package frontend {
+
+  class CoordinateGroupUI {
+    + createCoordinateGroup()
+    + retrieveCoordinateGroups()
+    + modifyCoordinateGroup()
+    + deleteCoordinateGroup()
+  }
+  class InputHandler {
+    + processUserInput()
+  }
+
+}
+
+package domain {
+
+  class CoordinateGroup {
+    - id: int
+    - label: String
+    - timestamp: Date
+    - cartesianCoordinates: CartesianCoordinates
+    - polarCoordinates: PolarCoordinates
+    + getCartesianCoordinates(): CartesianCoordinates
+    + setCartesianCoordinates(CartesianCoordinates)
+    + getPolarCoordinates(): PolarCoordinates
+    + setPolarCoordinates(PolarCoordinates)
+  }
+
+  class CartesianCoordinates {
+    - x: double
+    - y: double
+  }
+
+  class PolarCoordinates {
+    - r: double
+    - theta: double
+  }
+
+}
+
+package database {
+
+  class CoordinateGroupDAO {
+    + save(CoordinateGroup)
+    + retrieveByLabel(String): CoordinateGroup
+    + retrieveAll(): List<CoordinateGroup>
+    + update(CoordinateGroup)
+    + delete(int)
+  }
+  class DatabaseConnectionManager {
+    + getConnection()
+  }
+
+}
+
+frontend.CoordinateGroupUI --> frontend.InputHandler : uses
+frontend.InputHandler --> domain.CoordinateGroup : creates
+domain.CoordinateGroup --> domain.CartesianCoordinates : has
+domain.CoordinateGroup --> domain.PolarCoordinates : has
+domain.CoordinateGroup --> database.CoordinateGroupDAO : persists through
+database.CoordinateGroupDAO --> database.DatabaseConnectionManager : uses
+
+@enduml

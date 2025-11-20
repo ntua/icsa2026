@@ -1,0 +1,87 @@
+@startuml
+' Define the model package for frontend components
+package "Model" {
+  class Cartesian {
+    + x: double
+    + y: double
+    - calculateDistance(): double
+  }
+
+  class Polar {
+    + r: double
+    + theta: double
+    - toCartesian(): Cartesian
+  }
+
+  class CoordinateGroup {
+    + id: int
+    * cartesian: Cartesian
+    * polar: Polar
+
+    + getCartesianCoordinates(): Cartesian
+    + getPolarCoordinates(): Polar
+    + setLabel(label: String): void
+    
+    + retrieveCoordinateGroupsByLabel(label: String): List<CoordinateGroup> # Use database methods
+  }
+}
+
+
+' Define the view package for user interaction components
+package "View" {
+
+  class MainFrame {
+    * coordinateGroupListModel: CoordinateGroupListModel
+
+    + showAllCoordinateGroups(): void
+    + searchCoordinateGroupsByLabel(label: String): List<CoordinateGroup> # Use database methods
+  }
+
+  class CoordinateGroupListModel{
+    - updateCoordinateGroups() : List<CoordinateGroup>  # This is the method where the model and controller are connected.
+    
+  }
+  
+}
+
+
+' Define the controller package for handling user interactions
+package "Controller" {
+
+  class CreateCoordinateGroupCommand {
+    + execute(): void
+  }
+
+  class StoreCoordinateGroupCommand {
+    + execute(coordinateGroup: CoordinateGroup): void # Use database methods
+  }
+
+  class RetrieveCoordinateGroupsByLabelCommand{
+    + execute(label: String) : List<CoordinateGroup> # Use the method from View.CoordinateGroupListModel 
+    - updateCoordinateGroups()  : List<CoordinateGroup> 
+  }
+}
+
+
+' Define the connection between Model, View and Controller classes
+MainFrame .. CoordinateGroupListModel
+CreateCoordinateGroupCommand --> Cartesian : create
+CreateCoordinateGroupCommand --> Polar : create
+StoreCoordinateGroupCommand --o CoordinateGroup
+RetrieveCoordinateGroupsByLabelCommand --o MainFrame
+RetrieveCoordinateGroupsByLabelCommand --o CoordinateGroupListModel
+
+
+' Define the database package and its relationship with CoordinateGroup class
+package "Database" {
+  class MySQLDatabase {
+    + store(coordinateGroup: CoordinateGroup): void # Implement storage logic here
+
+    - retrieveAll(): List<CoordinateGroup> 
+    - retrieveByLabel(label: String): List<CoordinateGroup> 
+
+  }
+
+}
+CoordinateGroup .. MySQLDatabase
+@enduml

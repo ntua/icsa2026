@@ -1,0 +1,65 @@
+@startuml
+
+package "Presentation Layer" {
+    class GUIInterface {
+        - List<CoordinateGroup> coordinateGroups:List<CoordinateGroup>
+        + createNewCoordinateGroup() : CoordinateGroup
+        + modifyCoordinateGroup(id: int, newValues: Cartesian, newLabel: String) : void
+        + deleteCoordinateGroup(id:int):void
+    }
+}
+
+package "Logic Layer" {
+    class ConversionManager {
+        - Database database:Database
+        - PaymentProcessor paymentProcessor:PaymentProcessor
+        + convertCartesianToPolar() : Polar
+        + convertPolarToCartesian() : Cartesian
+        + processCoordinateGroupCreation(cartesianOrPolarType:String, cartesianValues:(float), polarValues:(double)) : CoordinateGroup
+    }
+}
+
+package "Logic Layer" {
+    class DatabaseInterface {
+        - connectionString : String
+        - databaseConnection : java.sql.Connection
+        + connectToDatabase() : void
+        + retrieveCoordinateGroups(label:String) : List<CoordinateGroup>
+        + storeCoordinateGroup(coordinateGroup:CoordinateeGroup, label:String) : void
+    }
+}
+
+package "Data Layer" {
+    class DatabaseHandler {
+        - databaseConnection : java.sql.Connection
+        + retrieveCoordinateGroups() : List<CoordinateGroup>
+        + storeCoordinateGroup(coordinateGroup:CoordinateGroup, label:String) : void
+        + deleteCoordinateGroup(id:int):void
+    }
+}
+
+package "Data Layer" {
+    class CoordinateConverter {
+        - CartesianToPolarConverter
+        - PolarToCartesianConverter
+        + convertToPolarFormat() : Polar
+        + convertToCartesianFormat() : Cartesian
+    }
+}
+
+class CoordinateGroup {
+    - id : int 
+    - label : String
+    - timestamp: java.util.Date
+    
+    *Aggregation* GUIInterface<..>
+    *Composition* DatabaseHandler<..>
+    + create(cartesianValues: Cartesian, polarValues: Polar) : void
+    + modify() : void
+}
+
+GUIInterface "1..*" -- "0..*" CoordinateGroup : Uses
+ConversionManager "1" -- "*" GUIInterface : Inherits
+DatabaseHandler "1" -- "0..*" GUIInterface : Communicates with
+CoordinateConverter "1" <|-- ConversionManager: Composition
+@enduml

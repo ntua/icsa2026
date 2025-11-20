@@ -1,0 +1,38 @@
+@startuml
+class CartesianCoordinates {
+    +x: HighPrecisionNumber
+    +y: HighPrecisionNumber
+}
+
+class PolarCoordinates {
+    +r: HighPrecisionNumber
+    +theta: HighPrecisionAngle
+}
+
+class CoordinateGroup {
+    +cartesian: CartesianCoordinates
+    +polar: PolarCoordinates
+    +id: Integer
+    +label: String
+    +createdAt: DateTime
+    +updatedAt: DateTime
+}
+
+class CoordinateGroupManager {
+    +create(group)
+    +read()
+    +update(group, newValues)
+    +delete(group)
+}
+
+class DatabaseConnection {
+    -connections
+}
+
+class Converter {
+     +cartesianToPolar(CartesianCoordinates cart)
+     +polarToCartesian(PolarCoordinates pol)
+}
+
+DatabaseConnection --> CoordinateGroupManager
+@enduml

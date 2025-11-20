@@ -1,0 +1,82 @@
+@startuml
+
+package Frontend {
+  class Framework {
+    - components: Component[]
+    
+    + initialize()
+    + refreshDisplay()
+  }
+  
+  class Dialog {
+    - formData: FormData
+    
+    + requestInput()
+    + displayResults()
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    
+    + getValues()
+    + setValues(x, y)
+  }
+  
+  class Cartesian extends Coordinate {
+    - x: HighPrecisionNumber
+    - y: HighPrecisionNumber
+    
+    + convertToPolar()
+    + setValuesFromCartesian(r, theta)
+  }
+  
+  class Polar extends Coordinate {
+    - r: HighPrecisionNumber
+    - theta: HighPrecisionNumber
+    
+    + convertToCartesian()
+    + setValuesFromCartesian(x, y)
+  }
+  
+  class Group {
+    - id: Integer
+    - timestamp: DateTime
+    - label: String
+    - cartesian: Cartesian
+    - polar: Polar
+    
+    + saveToDatabase()
+    + loadFromDatabase()
+  }
+}
+
+package Database {
+  class MySQL {
+    - connection: DatabaseConnection
+    
+    + executeQuery(query)
+    + executeUpdate(query)
+  }
+  
+  class DatabaseConnection {
+    - host: String
+    - port: Integer
+    - user: String
+    - password: String
+    
+    + connect()
+    + close()
+  }
+}
+
+Framework "1" -- "*" Component
+Dialog "1" -- "1" Framework
+
+Group "1" -- "*" Coordinate : contains
+
+
+MySQL "1" -- "1" DatabaseConnection
+@enduml

@@ -1,0 +1,64 @@
+@startuml
+
+package "frontend" {
+    class Controller {
+        +handleUserInput()
+        +updateView(CoordinateGroupList)
+    }
+    class View {
+        +displayCoordinateGroups(CoordinateGroupList)
+        +getCoordinateInput(): CoordinateGroup
+        +getLabelInput(): String
+        +getSelectedGroupId(): int
+    }
+
+}
+
+package "logic" {
+  class CoordinateConverter {
+      +cartesianToPolar(CartesianCoordinate): PolarCoordinate
+      +polarToCartesian(PolarCoordinate): CartesianCoordinate
+  }
+
+ class CoordinateGroup {
+     -id: int
+     -label: String
+     -creationTimestamp: Date
+     -cartesianCoordinate: CartesianCoordinate
+     -polarCoordinate: PolarCoordinate
+
+     +getCoordinates(): (CartesianCoordinate, PolarCoordinate)
+     +setCoordinates(CartesianCoordinate, PolarCoordinate)
+  }
+
+ class CartesianCoordinate {
+      -x: double
+      -y: double
+ }
+
+ class PolarCoordinate {
+     -r: double
+     -theta: double 
+ }
+}
+
+package "persistence" {
+
+class DatabaseConnection {
+    +connect()
+    +disconnect()
+    +saveCoordinateGroup(CoordinateGroup) : void
+    +getCoordinateGroups(): CoordinateGroupList
+    +deleteCoordinateGroup(int) : void
+}
+}
+
+Controller "1" -- "*" CoordinateGroup : manages
+View "1" -- "*" Controller : interacts with
+
+CoordinateGroup "*" -- "1" CartesianCoordinate
+CoordinateGroup "*" -- "1" PolarCoordinate 
+
+DatabaseConnection "1" -- "*"  CoordinateGroup: persists
+
+@enduml

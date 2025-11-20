@@ -1,0 +1,12 @@
+Task Description: You are tasked with processing a software description and its requirements to generate a class diagram using PlantUML. The class diagram should respect the requested software architecture, define all necessary classes, and accurately represent associations between them.
+
+The requirements for the software we want you to design are in the SRS (Software Requirements Specification) here: {SRS}
+
+The demanded Architecture is: {Architecture}
+
+Generate a class diagram using PlantUML that defines all necessary classes and associations based on the described architecture, requirements, and functionality. Ensure that:
+
+The diagram reflects the separation of concerns based on the requested architecture.
+Each class is properly defined with attributes and methods.
+All associations (e.g., composition, aggregation, or inheritance) between the classes are included in plantUML and are clearly represented.
+Create the appropriate packages to include the classes.

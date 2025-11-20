@@ -1,0 +1,100 @@
+@startuml
+package "Model" {
+    class CoordinateGroup {
+        - id: Int
+        - label: String
+        - cartesianCoordinates: Pair
+        - polarCoordinates: Pair
+        + convertCartesianToPolar(): Pair
+        + convertPolarToCartesian(): Pair
+    }
+    
+    class CartesianCoordinate {
+        - x: HighPrecisionNumber
+        - y: HighPrecisionNumber
+    }
+    
+    class PolarCoordinate {
+        - r: HighPrecisionNumber
+        - theta: HighPrecisionNumber
+    }
+}
+
+package "View" {
+    class CoordinateGroupList {
+        + display(): void
+        + refresh(): void
+    }
+    
+    class CoordinateGroupForm {
+        + createGroup(): void
+        + updateGroup(): void
+        + deleteGroup(): void
+    }
+}
+
+package "Controller" {
+    class DCCApplication {
+        - coordinateGroups: List[CoordinateGroup]
+        
+        + addGroup(): void
+        + updateGroup(): void
+        + deleteGroup(): void
+        
+        + displayGroups(): void
+        + filterGroups(): void
+    }
+    
+    class CoordinateConverter {
+        + convertCartesianToPolar(CartesianCoordinate): PolarCoordinate
+        + convertPolarToCartesian(PolarCoordinate): CartesianCoordinate
+    }
+}
+
+package "Database" {
+    interface MySQLDatabase {
+        + saveData(String): void
+        + fetchData(String): String
+        
+        + createTable(): void
+        + readGroup(id: Int): CoordinateGroup
+        + updateGroup(group: CoordinateGroup): void
+        + deleteGroup(id: Int): void
+    }
+    
+    class MySQLConnector {
+        - dbConnection: TCP/IP Connection
+        
+        + connect(): void
+        + disconnect(): void
+        + executeQuery(query: String): List[CoordinateGroup]
+    }
+}
+
+package "Utility" {
+    class HighPrecisionNumber {
+        - value: Double
+        
+        + add(Number): HighPrecisionNumber
+        + subtract(Number): HighPrecisionNumber
+    }
+    
+    class Pair {
+        - first: Object
+        - second: Object
+        
+        + getFirst(): Object
+        - getSecond(): Object
+    }
+}
+
+CoordinateGroup --> CoordinateConverter : uses
+CoordinateConverter --> CartesianCoordinate : uses
+CoordinateConverter --> PolarCoordinate : uses
+CoordinateGroupList --> DCCApplication : uses
+DCCApplication --> CoordinateGroupForm : uses
+DCCApplication --> CoordinateGroup : manages
+CoordinateGroupForm --> CoordinateGroup : edits
+
+MySQLDatabase <|-- MySQLConnector : implements
+@enduml

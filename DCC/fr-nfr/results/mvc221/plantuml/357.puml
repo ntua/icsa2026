@@ -1,0 +1,122 @@
+@startuml
+skinparam shadowing false
+skinparam monochrome true
+title Dummy Coordination Conversion (DCC) Application - Class Diagram
+
+package "Logic" {
+  class CartesianConverter {
+    +convertCartesianToPolar(x, y) : polarCoordinates
+    +convertPolarToCartesian(r, theta) : cartesianCoordinates
+  }
+
+  class PolarConverter {
+    +convertPolarToCartesian(r, theta) : cartesianCoordinates
+    +convertCartesianToPolar(x, y) : polarCoordinates
+  }
+}
+
+package "Data Operations" {
+  class CreateOp {
+    -id: int
+    -timestamp: datetime
+    -label: string
+    -coordinates: CoordinateGroup
+
+    +execute()
+    +addCoordinateGroup(CoordinateGroup)
+  }
+
+  class ReadOp {
+    -coordinateGroups: List<CoordinateGroup>
+    
+    +execute() : coordinateGroupsListSortedById
+  }
+
+  class UpdateOp {
+    -selectedRecordId: int
+    -newValues: CoordinateGroup
+    
+    +execute() 
+  }
+
+  class DeleteOp {
+    -selectedRecordId: int
+
+    +execute() 
+  }
+}
+
+package "User Interactions" {
+  class InputConverter {
+    +convertInputToCartesian(userInput) : cartesianCoordinates
+    +convertInputToPolar(userInput) : polarCoordinates
+  }
+  
+  class AddOperation {
+    +addCoordinateGroup()
+  }
+
+  class UpdateOperation {
+    +updateRecord(id, newValues)
+  }
+
+  class DeleteOperation {
+    +deleteRecord(id)
+  }
+
+  class ListDisplayer {
+    +displayListOfSavedRecordsSortedById()
+    +filterList(labelValue)
+  }
+}
+
+package "Frontend" {
+  class SwingComponent {
+    -coordinateGroupLabelInput: string
+    -cartesianCoordinatesInput: pairOfHighPrecisionNumbers
+    -polarCoordinatesInput: pairOfHighPrecisionNumbers
+    -addButton: Button
+    -updateButton: Button
+    -deleteButton: Button
+    -filterInput: textField
+    
+    +initialize()
+  }
+}
+
+
+package "Data Model" {
+  class CoordinateGroup {
+    -id: int
+    -label: string
+    -cartesianCoordinates: pairOfHighPrecisionNumbers
+    -polarCoordinates: pairOfHighPrecisionNumbers
+
+    #constructor(id, label, cartesianX, cartesianY, polarR, polarTheta)
+    
+    +getCartesianCoordinates() : pairOfHighPrecisionNumbers
+    +getPolarCoordinates() : pairOfHighPrecisionNumbers
+  }
+}
+
+
+package "Database" {
+  class MySQLServer {
+    -connection: TCP_IPConnection
+
+    +saveCoordinateGroup(coordinateGroup)
+    +loadAllCoordinateGroups() : List<CoordinateGroup>
+    +updateCoordinateGroup(id, newValues)
+    +deleteCoordinateGroup(id)
+    
+    [TCP/IP Connection] <.. [MySQL Server]
+  }
+}
+
+SwingComponent ..> "User Interactions" : uses 
+"User Interactions" ..> "Data Operations" : triggers
+"User Interactions" ..> "Logic" : uses 
+"Data Operations" ..> "Database" : persists, loads and removes 
+
+MySQLServer .. TCP_IPConnection
+@enduml

@@ -1,0 +1,82 @@
+@startuml
+
+' Define packages for MVC architecture
+package model {
+  class CoordinateGroup {
+    - int id
+    - Date timestamp
+    - String label
+    - double x
+    - double y
+    - double r
+    - double theta
+    --
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getX(): double
+    + getY(): double
+    + getR(): double
+    + getTheta(): double
+    + setLabel(String): void
+    + setX(double): void
+    + setY(double): void
+    + setR(double): void
+    + setTheta(double): void
+    + convertCoordinates(): void
+  }
+
+  class CoordinateGroupDAO {
+    + createGroup(CoordinateGroup): void
+    + updateGroup(CoordinateGroup): void
+    + deleteGroup(CoordinateGroup): void
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String): List<CoordinateGroup>
+  }
+
+  class DatabaseConnection {
+    - Connection connection
+    + connect(): Connection
+    + disconnect(): void
+  }
+
+  ' Associations in model package
+  CoordinateGroupDAO --> DatabaseConnection : uses
+}
+
+package view {
+  class DCCView {
+    + displayGroups(List<CoordinateGroup>): void
+    + showError(String): void
+    + getUserInput(): CoordinateGroup
+    + getSelectedGroup(): CoordinateGroup
+    + getLabelInput(): String
+    + initializeComponents(): void
+    + addCreateListener(listener): void
+    + addModifyListener(listener): void
+    + addDeleteListener(listener): void
+    + addViewAllListener(listener): void
+    + addViewByLabelListener(listener): void
+  }
+}
+
+package controller {
+  class DCCController {
+    - DCCView view
+    - CoordinateGroupDAO dao
+    --
+    + handleCreate(): void
+    + handleModify(): void
+    + handleDelete(): void
+    + handleViewAll(): void
+    + handleViewByLabel(): void
+    + start(): void
+  }
+}
+
+' Define associations between controller and other components
+DCCController ..> DCCView : controls
+DCCController ..> CoordinateGroupDAO : uses
+DCCController --> CoordinateGroup : manages
+
+@enduml

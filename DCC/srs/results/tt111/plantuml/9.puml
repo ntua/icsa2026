@@ -1,0 +1,68 @@
+@startuml
+package "GUI" {
+  class MainWindow {
+    - labelField: JTextField
+    + viewAllCoordinateGroups()
+    + findCoordinateGroupsByLabel()
+    + deleteCoordinateGroup()
+  }
+}
+
+package "Business Logic" {
+  class CoordinateGroupController {
+    - coordinateGroupRepository: CoordinateGroupRepository
+    + viewAllCoordinateGroups(): List<CoordinateGroup>
+    + findCoordinateGroupsByLabel(String label): List<CoordinateGroup>
+    + deleteCoordinateGroup(int id)
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - timestamp: Date
+    - label: String
+    - polarCoordinates: List<PolarCoordinate>
+    - cartesianCoordinates: List<CartesianCoordinate>
+
+    + getId(): int
+    + getTimestamp(): Date
+    + getLabel(): String
+    + getPolarCoordinates(): List<PolarCoordinate>
+    + getCartesianCoordinates(): List<CartesianCoordinate>
+  }
+  
+  class PolarCoordinate {
+    - radius: double
+    - angle: double
+
+    + getRadius(): double
+    + getAngle(): double
+  }
+  
+  class CartesianCoordinate {
+    - x: double
+    - y: double
+
+    + getX(): double
+    + getY(): double
+  }
+}
+
+package "Data Access" {
+  interface CoordinateGroupRepository {
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    + deleteById(int id)
+  }
+  
+  class MySQLCoordinateGroupRepository implements CoordinateGroupRepository {
+    + findAll(): List<CoordinateGroup>
+    + findByLabel(String label): List<CoordinateGroup>
+    + deleteById(int id)
+  }
+}
+
+MainWindow --> CoordinateGroupController : uses
+CoordinateGroupController --> CoordinateGroup : uses
+CoordinateGroupController --> CoordinateGroupRepository : uses
+MySQLCoordinateGroupRepository ..> CoordinateGroupRepository : implements
+@enduml

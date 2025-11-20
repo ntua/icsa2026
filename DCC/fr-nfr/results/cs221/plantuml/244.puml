@@ -1,0 +1,53 @@
+@startuml
+package frontend {
+  class CoordinateGroup {
+    - id : Integer
+    - label : String
+    - cartesianCoordinates : CartesianCoordinate[]
+    - polarCoordinates : PolarCoordinate[]
+  }
+
+  class CartesianCoordinate {
+    - x : Double
+    - y : Double
+  }
+
+  class PolarCoordinate {
+    - r : Double
+    - theta : Double
+  }
+}
+
+package logic {
+  class CoordinateGroupService {
+    + createCoordinateGroup(CoordinateGroup): CoordinateGroup
+    + readCoordinateGroups(): List<CoordinateGroup>
+    + updateCoordinateGroup(CoordinateGroup): CoordinateGroup
+    + deleteCoordinateGroup(Integer): void
+  }
+
+  class CoordinateConverter {
+    + convertCartesianToPolar(CartesianCoordinate): PolarCoordinate
+    + convertPolarToCartesian(PolarCoordinate): CartesianCoordinate
+  }
+}
+
+package database {
+  class CoordinateDB {
+    - connection : Connection
+    + createRecord(CoordinateGroup): void
+    + readRecords(): List<CoordinateGroup>
+    + updateRecord(CoordinateGroup): void
+    + deleteRecord(Integer): void
+  }
+}
+
+frontend -> logic: "uses" CoordinateGroupService
+
+logic -> frontend: "returns" CoordinateGroup
+
+logic -> database: "uses" CoordinateDB
+
+database -> logic: "provides" connection
+
+@enduml

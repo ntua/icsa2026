@@ -1,0 +1,83 @@
+@startuml
+'PlantUML diagram for Dummy Coordination Conversion (DCC) Application using MVC Architecture:
+package View {
+class CartesianCoordinates {
+  - x: Double
+  - y: Double
+}
+
+class PolarCoordinates {
+  - r: Double
+  - theta: Double
+}
+
+interface UserInterface {
+  + createView()
+  + getInputLabel(type: String): String
+  + convertToOtherType(): void
+  + modifyDetails(): boolean
+  + saveUpdates(): boolean
+  + viewAllGroups(): List[CoordinateGroup]
+  + deleteGroupById(groupId: Int): boolean
+}
+}
+
+package Controller {
+class CoordinateConversion {
+   - convertCartesianToPolar(): PolarCoordinates
+  - convertPolarToCartesian(): CartesianCoordinates
+}
+
+interface ControllerInterface {
+  + createGroup(label: String, cartesianX: Double, cartesianY: Double): CoordinateGroup
+  + deleteGroup(groupId: Int): boolean
+  + getGroupById(groupId: Int): CoordinateGroup
+  + modifyGroup(groupId: Int, labelModification: Boolean, newCartesianX: Double, newCartesianY: Double, newPolarR: Double, newPolarTheta: Double): boolean
+}
+}
+
+package Model {
+class CoordinateGroup {
+  - groupId: Int
+  - label: String
+  - creationTimestamp: Date
+  + setLabel(newLabel: String): boolean
+  + modifyCartesianValues(): boolean
+  + modifyPolarValues(): boolean
+}
+
+interface DatabaseInterface {
+   - saveData(data: String)
+   - fetchData(query: String): List[String]
+}
+}
+package Server {
+class Book {
+  - bookId: Int
+  - title: String
+  - author: String
+  - isbn: String
+}
+
+class User {
+  - userId: Int
+  - name: String
+  - contactInfo: String
+}
+
+class Transaction {
+  - transactionId: Int
+  - bookId: Int
+  - userId: Int
+  - transactionDate: Date
+}
+
+DatabaseInterface <|-- Book
+DatabaseInterface <|-- User
+DatabaseInterface <|-- Transaction
+}
+
+Model.CoordinateGroup "1" *--.. "0..*" Server.UserManager : uses
+ControllerInterface <|.. "1" Server.Database
+View.UserInterface "0..*" -- "1" ControllerInterface: interacts_with
+@enduml

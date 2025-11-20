@@ -1,0 +1,76 @@
+@startuml DCC_Application_Class_Diagram
+
+title Class Diagram - Dummy Coordination Conversion (DCC) Application
+
+package "Client" {
+  class CoordinateConverterGUI {
+    + void displayGUI()
+    + void handleUserInput()
+    + void displayCoordinateGroups(List<CoordinateGroup>)
+    + void showConversionResults(CartesianCoordinate, PolarCoordinate)
+  }
+
+  class CoordinateManager {
+    + void createCoordinateGroup(CartesianCoordinate)
+    + void createCoordinateGroup(PolarCoordinate)
+    + List<CoordinateGroup> retrieveAllCoordinateGroups()
+    + CoordinateGroup retrieveCoordinateGroup(String label)
+    + void updateCoordinateGroup(CoordinateGroup)
+    + void deleteCoordinateGroup(Integer id)
+  }
+
+  class DCCService {
+    + void sendRequest(String request)
+    + String getResponse()
+  }
+}
+
+package "Server" {
+  interface Database {
+    + void storeCoordinateGroup(CoordinateGroup)
+    + CoordinateGroup retrieveCoordinateGroup(Integer id)
+    + List<CoordinateGroup> retrieveAllCoordinateGroups()
+    + void updateCoordinateGroup(CoordinateGroup)
+    + void deleteCoordinateGroup(Integer id)
+  }
+
+  class MySQLDatabase implements Database {
+    + void connect()
+    + void disconnect()
+  }
+
+  class Server {
+    + void startListening()
+    + void processRequest(String request)
+    + void sendResponse(String response)
+  }
+}
+
+package "Common" {
+  class CoordinateGroup {
+    - Integer id
+    - String label
+    - Date timestamp
+    - CartesianCoordinate cartesian
+    - PolarCoordinate polar
+  }
+
+  class CartesianCoordinate {
+    - Double x
+    - Double y
+  }
+
+  class PolarCoordinate {
+    - Double r
+    - Double theta
+  }
+}
+
+' Associations
+CoordinateConverterGUI --> CoordinateManager : Uses
+CoordinateManager --> DCCService : Communicates with
+DCCService --> Server : Sends requests to
+Server --> MySQLDatabase : Persists data to
+MySQLDatabase --> CoordinateGroup : Stores and manages
+
+@enduml

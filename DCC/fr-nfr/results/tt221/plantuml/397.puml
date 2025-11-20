@@ -1,0 +1,52 @@
+@startuml
+package "Presentation Layer" {
+    class GUI {
+        - coordinator : Coordinator
+        + viewGroup() : void
+        + addGroup(groupLabel: String, x: Double, y: Double) : void
+        + updateGroup(id: Integer, groupLabel: String, x: Double, y: Double) : void
+        + deleteGroup(id: Integer) : void
+    }
+}
+
+package "Logic Layer" {
+    class CoordinateConverter {
+        - cartesianToPolar : CartesianToPolarConverter
+        - polarToCartesian : PolarToCartesianConverter
+        + convertCartesianToPolar(x: Double, y: Double) : (Double, Double)
+        + convertPolarToCartesian(r: Double, theta: Double) : (Double, Double)
+    }
+
+    class Coordinator {
+        - groupManager : GroupManager
+        + createGroup(label: String, x: Double, y: Double) : Integer
+        + readGroups() : List<Group>
+        + updateGroup(id: Integer, label: String, x: Double, y: Double) : void
+        + deleteGroup(id: Integer) : void
+    }
+
+    class GroupManager {
+        - groupRepository : GroupRepository
+        + createGroup(label: String, x: Double, y: Double) : Integer
+        + readGroups() : List<Group>
+        + updateGroup(id: Integer, label: String, x: Double, y: Double) : void
+        + deleteGroup(id: Integer) : void
+    }
+
+    class Group {
+        - id : Integer
+        - label : String
+        - cartesianCoordinates : (Double, Double)
+        - polarCoordinates : (Double, Double)
+    }
+}
+
+package "Data Layer" {
+    class GroupRepository {
+        + createGroup(label: String, x: Double, y: Double) : Integer
+        + readGroups() : List<Group>
+        + updateGroup(id: Integer, label: String, x: Double, y: Double) : void
+        + deleteGroup(id: Integer) : void
+    }
+}
+@enduml

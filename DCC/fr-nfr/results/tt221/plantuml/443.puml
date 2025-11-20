@@ -1,0 +1,71 @@
+@startuml
+
+package Frontend {
+  interface UserInterface {
+    +displayCoordinateGroupList(coordinateGroups: List)
+    +displayAddCoordinateGroupInput()
+    +displayUpdateCoordinateGroupInput(coordinateGroup: CoordinateGroup)
+    +displayDeleteConfirmation(coordinateGroup: CoordinateGroup)
+    +displayFilteredCoordinateGroupList(filteredCoordinateGroups: List)
+    +inputLabelValue(): String
+  }
+  
+  class SwingInterface implements UserInterface {
+    // Implement the methods from UserInterface
+  }
+}
+
+package Logic {
+  abstract class Coordinate {
+    -x: HighPrecisionNumber
+    -y: HighPrecisionNumber
+    -r: HighPrecisionNumber
+    -theta: HighPrecisionNumber
+    
+    +convertCartesianToPolar()
+    +convertPolarToCartesian()
+  }
+  
+  class CartesianCoordinate extends Coordinate {
+    // Implement the methods from Coordinate
+  }
+  
+  class PolarCoordinate extends Coordinate {
+    // Implement the methods from Coordinate
+  }
+  
+  class CoordinateGroup {
+    -id: Integer
+    -label: String
+    -cartesianCoordinate: CartesianCoordinate
+    -polarCoordinate: PolarCoordinate
+    -timestamp: DateTime
+    
+    +updateValues(newCartesianCoordinate: CartesianCoordinate, newPolarCoordinate: PolarCoordinate)
+  }
+  
+  class CoordinateConverter {
+    +convertCartesianToPolar(cartesianCoordinate: CartesianCoordinate): PolarCoordinate
+    +convertPolarToCartesian(polarCoordinate: PolarCoordinate): CartesianCoordinate
+  }
+  
+  class CoordinateGroupOperations {
+    -coordinateConverter: CoordinateConverter
+    -databaseConnection: DatabaseConnection
+    
+    +create(coordinateGroup: CoordinateGroup)
+    +read(): List<CoordinateGroup>
+    +update(coordinateGroup: CoordinateGroup)
+    +delete(coordinateGroup: CoordinateGroup)
+  }
+}
+
+package Database {
+  class MySQLDatabaseConnection implements DatabaseConnection {
+    // Implement the methods from DatabaseConnection
+  }
+}
+
+Frontend ..> Logic
+Logic ..> Database
+@enduml

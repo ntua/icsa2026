@@ -1,0 +1,44 @@
+@startuml
+package "Frontend (Java Swing)" {
+  class DccView {
+    +displayCoordinateGroup()
+    +displayCreateGroupForm()
+    +displayRetrieveGroupDialog()
+    +displayModifyGroupDialog()
+    +displayDeleteGroupConfirmation()
+  }
+
+  class DccController {
+    -model: DccModel
+    -view: DccView
+    +createCoordinateGroup()
+    +retrieveCoordinateGroup()
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+}
+
+package "Database (MySQL)" {
+  class DccDatabase {
+    -connection: MySQLConnection
+    +saveCoordinateGroup(group)
+    +retrieveCoordinateGroup(id)
+    +updateCoordinateGroup(group)
+    +deleteCoordinateGroup(id)
+  }
+}
+
+package "Model" {
+  class DccModel {
+    -database: DccDatabase
+    +createCoordinateGroup()
+    +retrieveCoordinateGroup()
+    +modifyCoordinateGroup()
+    +deleteCoordinateGroup()
+  }
+}
+
+DccController --> DccModel: Request/Response
+DccModel --> DccDatabase: Access database
+DccView -- DccController: Request/Response
+@enduml

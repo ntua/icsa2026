@@ -1,0 +1,62 @@
+@startuml
+
+package "Presentation Tier" {
+  class SwingFrontend {
+    - database : DatabaseConnection
+    + createCoordinateGroup() : void
+    + storeCoordinateGroup() : void
+    + retrieveCoordinateGroup() : void
+    + modifyCoordinateGroup() : void
+    + deleteCoordinateGroup() : void
+  }
+}
+
+package "Application Tier" {
+  class CoordinateGroup {
+    - id : int
+    - cartesian : CartesianCoordinates
+    - polar : PolarCoordinates
+    - label : string
+    - timestamp : datetime
+  }
+  
+  class CartesianCoordinates {
+    - x : float
+    - y : float
+  }
+  
+  class PolarCoordinates {
+    - r : float
+    - theta : float
+  }
+  
+  class DatabaseConnection {
+    - connection : MySQLDatabase
+    + connect() : void
+    + disconnect() : void
+    + store(coordinateGroup : CoordinateGroup) : void
+    + retrieve(id : int) : CoordinateGroup
+    + modify(coordinateGroup : CoordinateGroup) : void
+    + delete(id : int) : void
+  }
+}
+
+package "Data Tier" {
+  class MySQLDatabase {
+    - connection : MySQLConnection
+    + connect() : void
+    + disconnect() : void
+    + store(coordinateGroup : CoordinateGroup) : void
+    + retrieve(id : int) : CoordinateGroup
+    + modify(coordinateGroup : CoordinateGroup) : void
+    + delete(id : int) : void
+  }
+}
+
+SwingFrontend --> DatabaseConnection
+DatabaseConnection --> CoordinateGroup
+CoordinateGroup --> CartesianCoordinates
+CoordinateGroup --> PolarCoordinates
+DatabaseConnection --> MySQLDatabase
+
+@enduml

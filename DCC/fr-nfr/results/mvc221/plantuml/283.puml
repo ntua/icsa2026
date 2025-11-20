@@ -1,0 +1,92 @@
+@startuml
+
+!define Single Responsibility Principle as "Classes should have a single responsibility" #LightGrey
+!define Object Oriented Design Principles as "Encapsulation, Abstraction, Polymorphism, Inheritance" #LightGreen
+
+title Dummy Coordination Conversion (DCC) Application - Class Diagram
+
+package "Frontend [Java + Swing]" <<frame>> {
+  class UserInterface {
+    * showList()
+    * addCoordinateGroup()
+    * updateCoordinateGroup(id: int)
+    * deleteCoordinateGroup(id: int)
+    * filterList(label: string)
+    * clearFilter()
+  }
+}
+
+
+package "Logic [Java]" <<frame>> {
+
+  class CoordinateConverter {
+    + cartesianToPolar(x: float, y: float): (float, float) #LightBlue 
+    + polarToCartesian(r: float, theta: float): (float, float) #LightOrange
+  }
+
+  class CartesianCoordinate {
+    - x: float
+    - y: float
+    
+    * cartesianToString(): string 
+  }
+
+   class PolarCoordinate {
+    - r: float
+    - theta: float 
+    
+    * polarToString(): string 
+  }
+  
+  class CoordinateGroup {
+    - id: int
+    - label: string 
+    - timestamp: DateTime
+
+    - cartesian: CartesianCoordinate 
+    - polar: PolarCoordinate 
+
+    + getLabel(): string
+  }
+
+  class DataOperations {
+    # idCounter: int
+
+    + CreateOp(label: string, coordinate: Coordinate): (int, DateTime)
+    + ReadOp(): list<coordinateGroup>
+    + UpdateOp(id: int, label: string, coordinate: Coordinate)
+    + DeleteOp(id: int)
+  }
+}
+
+
+package "Database [MySQL]" <<frame>> {
+
+  class DatabaseConnection {
+    * connect() #LightPink 
+    * disconnect() 
+  }
+
+  class Record {
+    - id: int
+    - timestamp: DateTime
+    - label: string
+    - coordinateGroup: CoordinateGroup
+    
+    + read(): list<record>
+  }
+
+  class MySQLServer {
+      * saveRecord(record: Record) 
+      * deleteRecord(id: int) 
+  }
+}
+
+
+UserInterface .. CoordinateConverter : Converts coordinates
+UserInterface .. DataOperations : Operates on data
+CoordinateConverter .. CartesianCoordinate : Used for conversion
+CoordinateConverter .. PolarCoordinate   : Used for conversion 
+DataOperations .. DatabaseConnection    : Uses connection to DB 
+
+@enduml

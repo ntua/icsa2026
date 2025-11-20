@@ -1,0 +1,51 @@
+@startuml
+
+package "Google Authentication Service" {
+    Actor User
+    Component GoogleAuthService
+}
+
+package "User Profile Service" {
+    Component UserProfile
+    Component UserService
+}
+
+package "Chart Generation and Validation Service" {
+    Component CSVTemplateService
+    Component ChartGenerationService
+    Component FileValidationService
+}
+
+package "Quota Management Service" {
+    Component QuotaService
+}
+
+package "Dashboard Service" {
+    Component DashboardService
+}
+
+package "Chart Storage Service" {
+    Component PDFStorageService
+    Component PNGStorageService
+    Component SVGStorageService
+    Component HTMLStorageService
+}
+
+GoogleAuthService --|> UserProfile: Authenticate
+User --|> UserProfile: Has Profile
+UserProfile --|> UserService: Get Profile Info
+UserService --|> DashboardService: Display Dashboard
+DashboardService --|> ChartGenerationService: Generate Charts Previews
+ChartGenerationService --|> FileValidationService: Validate CSV File
+FileValidationService --|> CSVTemplateService: Validate Against Templates
+CSVTemplateService --|> ChartGenerationService: Provide Templates
+User --|> QuotaService: Purchase Quotas
+QuotaService --|> UserService: Update Remaining Quotas
+
+ChartGenerationService --|> Highcharts: Generate Charts
+User --|> PDFStorageService: Save Charts as PDF
+User --|> PNGStorageService: Save Charts as PNG
+User --|> SVGStorageService: Save Charts as SVG
+User --|> HTMLStorageService: Save Charts as HTML
+
+@enduml

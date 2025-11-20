@@ -1,0 +1,79 @@
+@startuml
+
+package "Frontend (View)" {
+  class MainWindow {
+    - coordinateGroupLabel: String
+    - cartesianCoordinates: List<CartesianCoordinate>
+    - polarCoordinates: List<PolarCoordinate>
+    
+    + createCoordinateGroup()
+    + viewStoredCoordinateGroups()
+    + modifyStoredCoordinateGroup()
+    + deleteStoredCoordinateGroup()
+  }
+}
+
+package "Frontend (Controller)" {
+  class CoordinateGroupController {
+    - mainWindow: MainWindow
+    - coordinateGroupModel: CoordinateGroupModel
+    
+    + createCoordinateGroup()
+    + handleCreateCoordinateGroupEvent()
+    + handleViewStoredCoordinateGroupsEvent()
+    + handleModifyStoredCoordinateGroupEvent()
+    + handleDeleteStoredCoordinateGroupEvent()
+  }
+}
+
+package "Model (Business Logic)" {
+  class CoordinateGroupModel {
+    - coordinateGroups: List<CoordinateGroup>
+    
+    + createCoordinateGroup(cartesianOrPolarCoordinates: List<Coordinate>): CoordinateGroup
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + retrieveAllStoredCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup): void
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup): void
+  }
+  
+  class Coordinate {
+    - x: Double OR - r: Double
+    - y: Double OR - theta: Double
+    
+    + getCartesianCoordinates(): CartesianCoordinate
+    + getPolarCoordinates(): PolarCoordinate
+  }
+  
+  class CartesianCoordinate {
+    - x: Double
+    - y: Double
+  }
+  
+  class PolarCoordinate {
+    - r: Double
+    - theta: Double
+  }
+}
+
+package "Database (Data)" {
+  class MySQLDatabase {
+    - connection: TCPIPConnection
+    
+    + connect()
+    + disconnect()
+    + storeCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + retrieveCoordinateGroupByLabel(label: String): CoordinateGroup
+    + retrieveAllStoredCoordinateGroups(): List<CoordinateGroup>
+    + modifyCoordinateGroup(coordinateGroup: CoordinateGroup)
+    + deleteCoordinateGroup(coordinateGroup: CoordinateGroup)
+  }
+}
+
+MainWindow -- CoordinateGroupController
+CoordinateGroupController -- CoordinateGroupModel
+CoordinateGroupModel -- Coordinate
+CoordinateGroupModel -- MySQLDatabase
+
+@enduml

@@ -1,0 +1,181 @@
+Response:
+Below is the complete PlantUML class diagram that separates our five microservices into dedicated packages and defines the necessary classes, attributes, methods (with comments classifying each operation), and associations. Following the diagram, you’ll find a JSON object that summarizes the architecture‐characteristics for services and use cases.
+
+---
+
+```plantuml
+@startuml
+'--------------------------------------
+' Auth Service Package
+'--------------------------------------
+package "Auth Service" {
+  class AuthService {
+    - name: String
+    - profilePicture: String
+    - email: String
+    - remainingQuota: int
+    - accountCreationTimestamp: DateTime
+    - lastLoginTimestamp: DateTime
+    
+    + authenticateUser(googleToken: String) : boolean 
+      ' <<Functional requirement - business logic operation>>
+    + getUserProfile(userId: String) : UserProfile 
+      ' <<Data management operation>>
+    + updateLastLogin(userId: String) : void 
+      ' <<Data management operation>>
+  }
+}
+
+'--------------------------------------
+' Template Service Package
+'--------------------------------------
+package "Template Service" {
+  class TemplateService {
+    + downloadTemplate(chartType: String) : CSVFile 
+      ' <<Functional requirement - business logic operation>>
+  }
+}
+
+'--------------------------------------
+' Chart Service Package
+'--------------------------------------
+package "Chart Service" {
+  class ChartService {
+    - chartId: String
+    - chartType: String
+    - creationDate: DateTime
+    - chartJson: String
+    
+    + uploadCSV(file: CSVFile) : boolean 
+      ' <<Functional requirement - business logic operation>>
+    + validateCSV(file: CSVFile) : boolean 
+      ' <<Functional requirement - business logic operation>>
+    + generateChartPreview(file: CSVFile) : ChartPreview 
+      ' <<Functional requirement - business logic operation>>
+    + saveChart(chartData: ChartData) : void 
+      ' <<Data management operation>>
+  }
+}
+
+'--------------------------------------
+' Quota Service Package
+'--------------------------------------
+package "Quota Service" {
+  class QuotaService {
+    + checkQuota(userId: String) : int 
+      ' <<Data management operation>>
+    + decrementQuota(userId: String) : boolean 
+      ' <<Data consistency operation>>
+    + purchaseQuota(userId: String, packageId: String) : boolean 
+      ' <<Flow control operation>>
+  }
+}
+
+'--------------------------------------
+' Payment Service Package
+'--------------------------------------
+package "Payment Service" {
+  class PaymentService {
+    + processPayment(paymentDetails: PaymentDetails) : PaymentResponse 
+      ' <<Functional requirement - business logic operation>>
+    + validatePayment(paymentResponse: PaymentResponse) : boolean 
+      ' <<Data consistency operation>>
+    + recordTransaction(transactionData: TransactionData) : void 
+      ' <<Data management operation>>
+  }
+}
+
+'--------------------------------------
+' Service Associations
+'--------------------------------------
+ChartService --> QuotaService : "calls decrementQuota()" 
+  ' <<Flow control operation>>
+QuotaService --> PaymentService : "calls processPayment()" 
+  ' <<Flow control operation>>
+
+@enduml
+```
+
+---
+
+Below is the JSON object with the calculated architecture characteristics:
+
+```json
+{
+  "SI": [0.4, 0.6],
+  "DOC": [0.6, 0],
+  "SST": [0.4, 0],
+  "services": [
+    {
+      "service_name": "AuthService",
+      "SIC": [3, 3],
+      "AIS(in)": [1, 0],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "TemplateService",
+      "SIC": [1, 1],
+      "AIS(in)": [1, 0],
+      "ADS(out)": [0, 0]
+    },
+    {
+      "service_name": "ChartService",
+      "SIC": [4, 4],
+      "AIS(in)": [1, 0],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "QuotaService",
+      "SIC": [3, 3],
+      "AIS(in)": [2, 1],
+      "ADS(out)": [1, 1]
+    },
+    {
+      "service_name": "PaymentService",
+      "SIC": [3, 3],
+      "AIS(in)": [2, 1],
+      "ADS(out)": [0, 0]
+    }
+  ],
+  "use_cases": [
+    {
+      "use_case_name": "Download CSV Template",
+      "SC": [["AuthService", "TemplateService"], ["AuthService", "TemplateService"]]
+    },
+    {
+      "use_case_name": "Upload CSV and Generate Chart",
+      "SC": [["AuthService", "ChartService", "QuotaService"], ["AuthService", "ChartService", "QuotaService"]]
+    },
+    {
+      "use_case_name": "View/Download Chart from History",
+      "SC": [["AuthService", "ChartService"], ["AuthService", "ChartService"]]
+    },
+    {
+      "use_case_name": "Purchase Additional Quotas",
+      "SC": [["AuthService", "QuotaService", "PaymentService"], ["AuthService", "QuotaService", "PaymentService"]]
+    },
+    {
+      "use_case_name": "View My Profile",
+      "SC": [["AuthService"], ["AuthService"]]
+    }
+  ]
+}
+```
+
+---
+
+### Explanation
+
+- **Microservices Separation:**  
+  Each package represents a bounded context with focused responsibilities. For example, the **Auth Service** handles user authentication and profile management, while the **Chart Service** manages CSV uploads and chart generation.
+
+- **Operation Classification:**  
+  Next to each method, a comment indicates whether it is a business logic operation, a data management operation, a data consistency operation, or a flow control operation.
+
+- **Associations:**  
+  The diagram shows that the Chart Service calls the Quota Service (to decrement user quota after generating a chart) and the Quota Service calls the Payment Service (during the purchase flow).
+
+- **Architecture Metrics:**  
+  The JSON object summarizes the overall architecture (SI, DOC, SST), along with metrics per service (SIC, AIS, ADS) and the services involved in each use case (SC).
+
+This design satisfies the microservices architecture guidelines, ensuring independent deployment, loose coupling, and dedicated data management per service.
