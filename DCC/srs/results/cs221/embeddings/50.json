@@ -1,0 +1,8 @@
+{
+  "agent": "ollama",
+  "model": "nomic-embed-text:latest",
+  "chunking_info": {
+    "method": "semantic",
+    "chunk_size": "-"
+  }
+}

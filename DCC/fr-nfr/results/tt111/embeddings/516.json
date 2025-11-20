@@ -1,0 +1,8 @@
+{
+  "agent": "openai",
+  "model": "text-embedding-3-large",
+  "chunking_info": {
+    "method": "recursive",
+    "chunk_size": "1000"
+  }
+}
