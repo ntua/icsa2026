@@ -8,7 +8,7 @@ Datasets from experimenting with various LLMs for creating architectures (client
 
 ### Experiments
 
-- Dummy Coordinate Conversion (DCC): A very simple app to convert coordinates from polar to cartesian and vice versa. Architectures investigated: client-server, 3-tier and MVC.
+- Dummy Coordinate Converter (DCC): A very simple app to convert coordinates from polar to cartesian and vice versa. Architectures investigated: client-server, 3-tier and MVC.
 - MyCharts: A SaaS app allowing you to create charts from textual descriptions and data. Architectures investigated: client-server, 3-tier, MVC and microservices.
 
 ### Links to Experiment data
